@@ -1,0 +1,67 @@
+﻿using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Tetrifact.Core
+{
+    /// <summary>
+    /// SHA256 hashing
+    /// </summary>
+    public class HashService
+    {
+        private static string ToHex(byte[] bytes)
+        {
+            StringBuilder s = new StringBuilder();
+            foreach (byte b in bytes)
+                s.Append(b.ToString("x2").ToLower());
+
+            return s.ToString();
+        }
+
+        /// <summary>
+        /// Generates a SHA256 hash of the file at the given path.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static string FromFile(string filePath)
+        {
+            using (FileStream fs = File.OpenRead(filePath))
+            using (HashAlgorithm hashAlgorithm = SHA256.Create())
+            {
+                byte[] hash = hashAlgorithm.ComputeHash(fs);
+                return ToHex(hash);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string FromByteArray(byte[] data)
+        {
+            MemoryStream stream = new MemoryStream(data);
+            using (HashAlgorithm hashAlgorithm = SHA256.Create())
+            {
+                byte[] hash = hashAlgorithm.ComputeHash(stream);
+                return ToHex(hash);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string FromString(string str)
+        {
+            Stream stream = StreamsHelper.StreamFromString(str);
+            using (HashAlgorithm hashAlgorithm = SHA256.Create())
+            {
+                byte[] hash = hashAlgorithm.ComputeHash(stream);
+                return ToHex(hash);
+            }
+        }
+
+    }
+}

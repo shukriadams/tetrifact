@@ -1,0 +1,55 @@
+﻿html {
+    padding: 0;
+    margin: 0;
+}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: sans-serif;
+
+}
+
+.shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.fixed {
+    flex: 1;
+}
+
+a {
+    text-decoration: none;
+}
+
+header {
+    background-color: orangered;
+    padding: 16px 8px;
+}
+
+.title {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+main {
+    
+    padding: 16px 8px;
+}
+
+footer {
+    background-color: orangered;
+    color: #cdcdcd;
+    display: block;
+    padding: 16px 8px;
+}
+
+footer a {
+    color: white;
+}

@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - src</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+<body>
+    <div class="shell">
+        <div class="fixed">
+            <header>
+                <a class="title" href="/">
+                    Tetri - Artifact storage
+                </a>
+            </header>
+
+            <main>
+                <h1>
+                    @ViewData["Title"]
+                </h1>
+                @RenderBody()
+            </main>
+        </div>
+        <footer>
+            <ul>
+                <li><a href="/api">API</a></li>
+                <li><a href="https://github.com/shukriadams/">Source code</a></li>
+            </ul>
+
+            <div>
+                &copy; 2018, Shukri Adams. Version @Tetrifact.Web.CurrentVersion.Get()
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>

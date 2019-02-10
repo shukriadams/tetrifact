@@ -1,0 +1,12 @@
+version: "2"
+services:
+  tetri:
+    image: shukriadams/tetrifact:latest
+    container_name: tetrifact
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS : http://*:5000
+    volumes:
+      - ./data:/var/tetrifact/data/:rw
+    ports:
+    - "49022:5000"

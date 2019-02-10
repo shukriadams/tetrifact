@@ -1,0 +1,28 @@
+﻿@{
+    string tag = ViewData["tag"] as string;
+    ViewData["Title"] = "Packges tagged with " + tag;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IEnumerable<string> packageIds = ViewData["packageIds"] as IEnumerable<string>;
+}
+
+<div>
+    <h2>Packages : </h2>
+    @if (packageIds.Any())
+    {
+        <ul>
+            @foreach (string packageId in packageIds)
+            {
+                <li>
+                    <a href="/packages/@packageId">@packageId</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <text>
+            No packages have been added yet.
+        </text>
+    }
+
+</div>

@@ -1,0 +1,74 @@
+﻿@using Tetrifact.Core;
+@{
+    string packageId = ViewData["packageId"] as string;
+    Manifest manifest = ViewData["manifest"] as Manifest;
+
+    ViewData["Title"] = "Package : " + packageId;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <div>
+        Created (utc) : @manifest.CreatedUtc
+    </div>
+    <div>
+        Size : @manifest.Size
+    </div>
+    <div>
+        Size on disk : @manifest.SizeOnDisk
+    </div>
+    <div>
+        Hash : @manifest.Hash
+    </div>
+    <div>
+        <a href="/v1/archives/@packageId">Download</a>
+    </div>
+
+    <div>
+        Tags :
+        @if (manifest.Tags.Any())
+        {
+            <ul>
+                @foreach (string tag in manifest.Tags)
+                {
+                    <li>@tag</li>
+                }
+            </ul>
+
+        }
+        else
+        {
+            <text>
+                None
+            </text>
+        }
+
+    </div>
+
+    <div>
+        Files :
+        @if (manifest.Files.Any())
+        {
+            <ul>
+                @foreach (ManifestItem file in manifest.Files)
+                {
+                    <li>
+                        @file.Path (@file.Hash) 
+                        <a href="/v1/files/@file.Id">Download</a>
+                    </li>
+                }
+            </ul>
+
+        }
+        else
+        {
+            <text>
+                None
+            </text>
+        }
+    </div>
+
+
+    <a href="/v1/manifests/@ViewData["packageId"]">API reference</a>
+
+</div>
