@@ -1,5 +1,9 @@
 # Development
 
+## Requirements
+
+Dotnetcore 2.2
+
 ## Project status
 
 To-do list

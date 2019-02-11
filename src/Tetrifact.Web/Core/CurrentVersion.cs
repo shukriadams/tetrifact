@@ -10,7 +10,7 @@ namespace Tetrifact.Web
         static CurrentVersion()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            using (Stream stream = assembly.GetManifestResourceStream("Tetri.Web.currentVersion.txt")) 
+            using (Stream stream = assembly.GetManifestResourceStream("Tetrifact.Web.currentVersion.txt")) 
             using (StreamReader reader = new StreamReader(stream))
             {
                 _version = reader.ReadToEnd();
