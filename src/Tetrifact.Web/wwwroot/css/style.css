@@ -2,6 +2,7 @@
     padding: 0;
     margin: 0;
 }
+
 * {
     box-sizing: border-box;
 }
@@ -11,6 +12,15 @@ body {
     margin: 0;
     font-family: sans-serif;
 
+}
+
+h2 {
+    margin-top: 40px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
 }
 
 .shell {
@@ -24,12 +34,19 @@ body {
 }
 
 a {
+    color: orangered;
     text-decoration: none;
 }
 
 header {
     background-color: orangered;
+}
+
+.gridScaffold {
     padding: 16px 8px;
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .title {
@@ -39,17 +56,17 @@ header {
 }
 
 main {
-    
     padding: 16px 8px;
 }
 
 footer {
-    background-color: orangered;
-    color: #cdcdcd;
+    background-color: #323232;
+    color: white;
     display: block;
-    padding: 16px 8px;
+    padding: 8px;
+    border-top: orangered 12px solid;
 }
 
-footer a {
-    color: white;
+.copyright {
+    font-size: 14px;
 }

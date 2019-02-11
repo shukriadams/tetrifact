@@ -5,34 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - src</title>
     <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/layout.css" />
+    <link rel="stylesheet" href="~/css/package.css" />
 </head>
 <body>
     <div class="shell">
         <div class="fixed">
+            
             <header>
-                <a class="title" href="/">
-                    Tetri - Artifact storage
-                </a>
+                <div class="gridScaffold">
+                    <a class="title" href="/">
+                        Tetri - Artifact storage
+                    </a>
+                </div>
             </header>
 
             <main>
-                <h1>
-                    @ViewData["Title"]
-                </h1>
-                @RenderBody()
+                <div class="gridScaffold">
+                    <h1>
+                        @ViewData["Title"]
+                    </h1>
+                    @RenderBody()
+                </div>
             </main>
         </div>
         <footer>
-            <ul>
-                <li><a href="/api">API</a></li>
-                <li><a href="https://github.com/shukriadams/">Source code</a></li>
-            </ul>
+            <div class="gridScaffold">
+                <ul>
+                    <li><a href="/api">API</a></li>
+                    <li><a href="https://github.com/shukriadams/tetrifact">Source code</a></li>
+                </ul>
 
-            <div>
-                &copy; 2018, Shukri Adams. Version @Tetrifact.Web.CurrentVersion.Get()
+                <div class="copyright">
+                    &copy; 2018, Shukri Adams. Version @Tetrifact.Web.CurrentVersion.Get()
+                </div>
             </div>
         </footer>
-
     </div>
 
 </body>

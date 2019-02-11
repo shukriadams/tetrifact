@@ -33,8 +33,8 @@ namespace Tetrifact.Web
             return View();
         }
 
-        [Route("packages/{packageId}")]
-        public IActionResult Packages(string packageId)
+        [Route("package/{packageId}")]
+        public IActionResult Package(string packageId)
         {
             ViewData["packageId"] = packageId;
             ViewData["manifest"] = IndexService.GetManifest(packageId) ?? new Manifest();
