@@ -44,8 +44,28 @@ namespace Tetrifact.Web
         [Route("packagesWithTag/{tag}")]
         public IActionResult PackagesWithTag(string tag)
         {
-            ViewData["tag"] = tag;
-            ViewData["packageIds"] = _tagService.GetPackagesWithTag(tag);
+            try
+            {
+                ViewData["tag"] = tag;
+                ViewData["packageIds"] = _tagService.GetPackagesWithTag(tag);
+                return View();
+            }
+            catch (TagNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [Route("error/404")]
+        public IActionResult Error404()
+        {
+            return View();
+        }
+
+        [Route("{*url}", Order = 999)]
+        public IActionResult CatchAll()
+        {
+            Response.StatusCode = 404;
             return View();
         }
     }

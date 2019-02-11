@@ -90,6 +90,7 @@ namespace Tetrifact.Web
             foreach (IIndexReader indexReader in indexReaders)
                 indexReader.Initialize();
 
+            app.UseStatusCodePagesWithReExecute("/error/{0}");
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

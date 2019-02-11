@@ -65,7 +65,9 @@
             <ul>
                 @foreach (string tag in manifest.Tags)
                 {
-                    <li>@tag</li>
+                    <li>
+                        <a href="/packagesWithTag/@tag">@tag</a>
+                    </li>
                 }
             </ul>
 
