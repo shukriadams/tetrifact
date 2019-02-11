@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 
@@ -18,6 +17,7 @@ namespace Tetrifact.Web
             IndexService = indexService;
             _log = log;
             _tagService = tagService;
+
         }
 
         public IActionResult Index()
