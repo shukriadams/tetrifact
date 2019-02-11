@@ -252,12 +252,18 @@ namespace Tetrifact.Core
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
+            // delete repo entries for this package, the binary will be removed by a cleanup job
             foreach (ManifestItem item in manifest.Files)
             {
-                string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, "packages", packageId);
+                string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
                 if (File.Exists(targetPath))
                     File.Delete(targetPath);
             }
+
+            // delete package folder
+            string packageFolder = Path.Combine(_settings.PackagePath, packageId);
+            if (Directory.Exists(packageFolder))
+                Directory.Delete(packageFolder, true);
         }
 
         public void Clean()

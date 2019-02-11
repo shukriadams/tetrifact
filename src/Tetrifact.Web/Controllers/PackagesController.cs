@@ -95,6 +95,31 @@ namespace Tetrifact.Web
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        [HttpDelete("{packageId}")]
+        public ActionResult DeletePackage(string packageId)
+        {
+            try
+            {
+                IndexService.DeletePackage(packageId);
+                return Ok();
+            }
+            catch (PackageNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                Console.WriteLine("An unexpected error occurred : ");
+                Console.WriteLine(ex);
+                return Responses.UnexpectedError();
+            }
+        }
 
     }
 }
