@@ -284,7 +284,7 @@ namespace Tetrifact.Core
                 Directory.Delete(currentDirectory);
 
             if (files.Any() && !directories.Any())
-                Directory.Delete(currentDirectory);
+                Directory.Delete(currentDirectory, true);
 
             foreach (string childDirectory in directories)
                 ProcessFolder(childDirectory);
