@@ -13,6 +13,14 @@ namespace Tetrifact.Web
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseKestrel(options =>
+                {
+                    
+                    options.Limits.MaxRequestBodySize = null;
+                    options.Limits.MaxRequestBufferSize = null;
+                    options.Limits.MaxRequestLineSize = int.MaxValue;
+                    
+                });
     }
 }

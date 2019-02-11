@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Tetrifact.Core
 {
@@ -44,7 +42,7 @@ namespace Tetrifact.Core
         /// </summary>
         public PackageAddArgs()
         {
-            this.Format = "tar";
+            this.Format = "zip";
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace Tetrifact.Core
         {
             this.Id = id;
             this.Files = files;
-            this.Format = "tar";
+            this.Format = "zip";
         }
 
         #endregion
