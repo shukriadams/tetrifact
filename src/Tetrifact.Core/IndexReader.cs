@@ -264,6 +264,20 @@ namespace Tetrifact.Core
             string packageFolder = Path.Combine(_settings.PackagePath, packageId);
             if (Directory.Exists(packageFolder))
                 Directory.Delete(packageFolder, true);
+
+            // delete archives for package
+            string archivePath = Path.Combine(_settings.ArchivePath, packageId + ".zip");
+            if (File.Exists(archivePath))
+            {
+                try
+                {
+                    File.Delete(archivePath);
+                }
+                catch (IOException)
+                {
+                    // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
+                }
+            }
         }
 
         public void Clean()
