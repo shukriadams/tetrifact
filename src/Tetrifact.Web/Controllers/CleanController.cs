@@ -30,6 +30,7 @@ namespace Tetrifact.Web.Controllers
         public ActionResult Clean()
         {
             this.IndexService.Clean();
+            this.IndexService.PurgeOldArchives();
             return Ok("Clean complete");
         }
     }
