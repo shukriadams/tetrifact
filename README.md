@@ -27,7 +27,7 @@ See /docs/DEVELOPMENT.md for details if you're interested in contributing to Tet
 
 ## Security
 
-Tetrifact currently has no security model - it is 100% open. Use it on an internal network where everyone is trusted. 
+Tetrifact currently has no security model - it is 100% open. Use it on an internal network where everyone is trusted. Security will be added later.
 
 
 ## License

@@ -4,6 +4,9 @@
 
 Dotnetcore 2.2
 
+Note that Visual Studio is quirky with Dotnetcore - you probably want to run the latest version of it, and make sure you have the Dotnetcore 2.2 SDK installed (not just the runtime).
+
+
 ## Project status
 
 To-do list
@@ -19,24 +22,40 @@ To-do list
     - Ability to receive new builds while file index is disconnected for maintenance.
 
 
-to scaffold new app
+## Running from command line 
 
+You can of course run everything from Visual Studio, but if you're using the command line, read on.
+
+Opening for the first time? Run
+
+    cd /src
     dotnet restore
+
+Start app
+
+    cd /src
     dotnet build
     dotnet run
 
-to view
+to view navigate your browser to
 
     http://localhost:3000/
 
-from command line
-
-    cd Tetri.Web
-    dotnet run Tetri.Web/bin/Debug/netcoreapp2.2/Tetri.Web.dll
-
-to test
+## Build for deploy
 
 from command line
+
+    cd /src/Tetri.Web
+    dotnet publish /property:PublishWithAspNetCoreTargetManifest=false
+
+Your build artefacts will be in /src/Tetri.Web/bin/Debug/netcoreapp2.2/publish/
+To start the server run the following from the same folder as the build arfecats
+
+    dotnet run Tetri.Web.dll
+
+## Test
+
+From command line
 
     cd /src
     dotnet test
