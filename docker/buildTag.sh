@@ -25,10 +25,10 @@ docker-compose -f docker-compose-build.yml up -d
 echo $TAG > ./.clone/src/Tetrifact.Web/currentVersion.txt
 
 # copy source code into build container and compile it.
-docker cp ./.clone/src/. tetrifactbuild:/tmp/tetri &&
+docker cp ./.clone/src/. tetrifactbuild:/tmp/tetrifact &&
 docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet restore' &&
 docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet publish /property:PublishWithAspNetCoreTargetManifest=false' &&
-docker cp tetrifactbuild:/tmp/tetri/Tetri.Web/bin/Debug/netcoreapp2.2/publish/. ./.artefacts &&
+docker cp tetrifactbuild:/tmp/tetrifacat/Tetrifact.Web/bin/Debug/netcoreapp2.2/publish/. ./.artefacts &&
 
 # build hosting container
 docker build -t shukriadams/tetrifact:$TAG .
