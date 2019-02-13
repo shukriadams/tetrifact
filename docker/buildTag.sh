@@ -1,9 +1,8 @@
 # get latest tag from current repo context
-git fetch --tags &&
-TAG=$(git describe --abbrev=0 --tags) &&
+TAG=$1
 
-if [ ! -z $TAG ]; then
-   echo "WARNING - project is not tagged";
+if [ -z $TAG ]; then
+   echo "Error, tag not set. Tag must be a valid github repo tag. Call this script : ./buildTag myTag";
    exit 1;
 fi
 
