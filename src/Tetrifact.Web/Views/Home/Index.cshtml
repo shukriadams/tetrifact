@@ -6,7 +6,7 @@
 
 <div>
 
-    <h2>Tags : </h2>
+    <h2>Tags</h2>
     @if (tags.Any())
     {
         <ul>
@@ -25,14 +25,14 @@
         </text>
     }
 
-    <h2>Packages : </h2>
+    <h2>Packages</h2>
     @if (packageIds.Any())
     {
         <ul>
             @foreach (string packageId in packageIds)
             {
                 <li>
-                    <a href="/packages/@packageId">@packageId</a>
+                    <a href="/package/@packageId">@packageId</a>
                 </li>
             }
         </ul>

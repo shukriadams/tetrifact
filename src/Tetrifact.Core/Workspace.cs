@@ -120,13 +120,21 @@ namespace Tetrifact.Core
         {
             using (var archive = new ZipArchive(file))
             {
-                var entry = archive.Entries.FirstOrDefault();
-
-                if (entry != null)
+                foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    using (var unzippedEntryStream = entry.Open())
+                    if (entry != null)
                     {
-                        entry.ExtractToFile(Path.Join(this.WorkspacePath, "incoming", entry.FullName));
+                        using (var unzippedEntryStream = entry.Open())
+                        {
+                            string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
+                            string targetDirectory = Path.GetDirectoryName(targetFile);
+                            if (!Directory.Exists(targetDirectory))
+                                Directory.CreateDirectory(targetDirectory);
+
+                            // if .Name is empty it's a directory
+                            if (!string.IsNullOrEmpty(entry.Name))
+                                entry.ExtractToFile(targetFile);
+                        }
                     }
                 }
             }

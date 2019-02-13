@@ -1,0 +1,123 @@
+﻿@using Tetrifact.Core;
+@{
+    string packageId = ViewData["packageId"] as string;
+    Manifest manifest = ViewData["manifest"] as Manifest;
+
+    ViewData["Title"] = "Package : " + packageId;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="layout-section">
+    <div class="layout-row">
+        <div class="layout-label">
+            Created
+        </div>
+        <div class="layout-value">
+            @manifest.CreatedUtc (UTC)
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Size
+        </div>
+        <div class="layout-value">
+            @manifest.Size bytes
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Size on disk
+        </div>
+        <div class="layout-value">
+            @manifest.SizeOnDisk bytes
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Hash
+        </div>
+        <div class="layout-value">
+            @manifest.Hash
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Download
+        </div>
+        <div class="layout-value">
+            <a href="/v1/archives/@packageId">Archive</a> |
+            <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Delete
+        </div>
+        <div class="layout-value">
+            <a href="javascript:void(0);" onclick="packageDelete('@ViewData["packageId"]')">Delete</a>
+            
+        </div>
+    </div>
+
+</div>
+
+<div class="layout-section">
+    <div>
+        
+        @if (manifest.Tags.Any())
+        {
+        <h2>Tags</h2>
+            <ul>
+                @foreach (string tag in manifest.Tags)
+                {
+                    <li>
+                        <a href="/packagesWithTag/@tag">@tag</a>
+                    </li>
+                }
+            </ul>
+
+        }
+        else
+        {
+            <text>
+                This package is untagged.
+            </text>
+        }
+
+    </div>
+</div>
+
+<div class="layout-section">
+    <div>
+        <h2>Files</h2>
+        @if (manifest.Files.Any())
+        {
+            <div>
+                @foreach (ManifestItem file in manifest.Files)
+                {
+                <div class="layout-row">
+                    <div class="layout-value">
+                        <a class="package-download" href="/v1/files/@file.Id">&#10515;</a>
+                        @file.Path
+                    </div>
+                </div>
+                }
+            </div>
+
+        }
+        else
+        {
+            <text>
+                None
+            </text>
+        }
+    </div>
+</div>
+
+
+

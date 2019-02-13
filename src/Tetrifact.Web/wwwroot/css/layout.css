@@ -1,0 +1,21 @@
+﻿.layout-section {
+    padding-bottom: 40px;
+}
+
+.layout-row {
+    display: table-row;
+}
+
+.layout-label {
+    display: table-cell;
+    padding: 8px 32px 4px 8px;
+    font-weight: bold;
+    border-bottom: solid 1px #bababa;
+}
+
+.layout-value {
+    display: table-cell;
+    padding: 8px;
+    border-bottom: solid 1px #bababa;
+    word-break: break-word;
+}

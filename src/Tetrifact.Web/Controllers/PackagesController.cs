@@ -48,14 +48,22 @@ namespace Tetrifact.Web
         [HttpGet("")]
         public JsonResult ListPackages()
         {
-            _log.LogWarning("some trace");
-            _log.LogTrace("some warning");
-            _log.LogError(new Exception("Some exception"), "it really failed");
-
             IEnumerable<string> ids = IndexService.GetPackages();
             return new JsonResult(ids);
         }
 
+
+        /// <summary>
+        /// Returns 1 if the package exists, 0 if not
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        [HttpGet("{packageId}/exists")]
+        public ActionResult<int> PackageExists(string packageId)
+        {
+            return IndexService.GetManifest(packageId) == null ? 0 : 1;
+        }
+       
 
         /// <summary>
         /// Handles posting a new package to system. 
@@ -95,6 +103,31 @@ namespace Tetrifact.Web
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        [HttpDelete("{packageId}")]
+        public ActionResult DeletePackage(string packageId)
+        {
+            try
+            {
+                IndexService.DeletePackage(packageId);
+                return Ok();
+            }
+            catch (PackageNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                Console.WriteLine("An unexpected error occurred : ");
+                Console.WriteLine(ex);
+                return Responses.UnexpectedError();
+            }
+        }
 
     }
 }

@@ -252,11 +252,31 @@ namespace Tetrifact.Core
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
+            // delete repo entries for this package, the binary will be removed by a cleanup job
             foreach (ManifestItem item in manifest.Files)
             {
-                string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, "packages", packageId);
+                string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
                 if (File.Exists(targetPath))
                     File.Delete(targetPath);
+            }
+
+            // delete package folder
+            string packageFolder = Path.Combine(_settings.PackagePath, packageId);
+            if (Directory.Exists(packageFolder))
+                Directory.Delete(packageFolder, true);
+
+            // delete archives for package
+            string archivePath = Path.Combine(_settings.ArchivePath, packageId + ".zip");
+            if (File.Exists(archivePath))
+            {
+                try
+                {
+                    File.Delete(archivePath);
+                }
+                catch (IOException)
+                {
+                    // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
+                }
             }
         }
 
@@ -278,7 +298,7 @@ namespace Tetrifact.Core
                 Directory.Delete(currentDirectory);
 
             if (files.Any() && !directories.Any())
-                Directory.Delete(currentDirectory);
+                Directory.Delete(currentDirectory, true);
 
             foreach (string childDirectory in directories)
                 ProcessFolder(childDirectory);

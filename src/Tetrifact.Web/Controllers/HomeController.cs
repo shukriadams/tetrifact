@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 
@@ -18,6 +17,7 @@ namespace Tetrifact.Web
             IndexService = indexService;
             _log = log;
             _tagService = tagService;
+
         }
 
         public IActionResult Index()
@@ -33,8 +33,8 @@ namespace Tetrifact.Web
             return View();
         }
 
-        [Route("packages/{packageId}")]
-        public IActionResult Packages(string packageId)
+        [Route("package/{packageId}")]
+        public IActionResult Package(string packageId)
         {
             ViewData["packageId"] = packageId;
             ViewData["manifest"] = IndexService.GetManifest(packageId) ?? new Manifest();
@@ -44,8 +44,28 @@ namespace Tetrifact.Web
         [Route("packagesWithTag/{tag}")]
         public IActionResult PackagesWithTag(string tag)
         {
-            ViewData["tag"] = tag;
-            ViewData["packageIds"] = _tagService.GetPackagesWithTag(tag);
+            try
+            {
+                ViewData["tag"] = tag;
+                ViewData["packageIds"] = _tagService.GetPackagesWithTag(tag);
+                return View();
+            }
+            catch (TagNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [Route("error/404")]
+        public IActionResult Error404()
+        {
+            return View();
+        }
+
+        [Route("{*url}", Order = 999)]
+        public IActionResult CatchAll()
+        {
+            Response.StatusCode = 404;
             return View();
         }
     }

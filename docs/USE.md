@@ -37,9 +37,9 @@ Each file's "name" property must be "Files". The filename property should be the
 Were you posting actual files with CURL it should look like
 
     curl -X post \
-        -H "Content-Type: multipart/form-data;" \
-        -F name="Files" Files=@~/mybuild/1.txt filename="1.txt" \
-        -F name="Files" Files=@~/mybuild/path/to/2.txt filename="path/to/2.txt" \
+        -H Content-Type: multipart/form-data \
+        -F Files=@~/mybuild/1.txt;filename=1.txt \
+        -F Files=@~/mybuild/path/to/2.txt;filename=path/to/2.txt \
         http://myTetrifact.server/v1/packages/myPackageName 
 
 
