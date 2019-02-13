@@ -2,14 +2,14 @@
 git fetch --tags &&
 TAG=$(git describe --abbrev=0 --tags) &&
 
-if [ "$TAG" == "" ]; then
+if [ ! -z $TAG ]; then
    echo "WARNING - project is not tagged";
    exit 1;
 fi
 
 # clone working copy of repo at the latest tag
 rm -rf .clone &&
-git clone --depth 1 --branch $TAG git@bitbucket.org:shukriadams/tetrifact.git .clone &&
+git clone --depth 1 --branch $TAG https://github.com/shukriadams/tetrifact.git .clone &&
 
 rm -rf .artefacts &&
 mkdir -p .artefacts &&
