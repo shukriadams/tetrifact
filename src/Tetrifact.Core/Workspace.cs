@@ -75,9 +75,12 @@ namespace Tetrifact.Core
 
             if (!Directory.Exists(targetDirectory))
             {
+                // create both directories if the top one doesn't exist
                 Directory.CreateDirectory(targetDirectory);
                 Directory.CreateDirectory(packagesDirectory);
-            }
+            } else if (!Directory.Exists(packagesDirectory))
+                // create sub after checking
+                Directory.CreateDirectory(packagesDirectory);
 
             bool onDisk = false;
 
@@ -89,6 +92,7 @@ namespace Tetrifact.Core
                 onDisk = true;
             }
 
+            // write package id under hash, subscribing it to that hash
             File.WriteAllText(Path.Join(packagesDirectory, packageId), string.Empty);
 
             string pathAndHash = Obfuscator.Cloak(filePath + "::" + hash);

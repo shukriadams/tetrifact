@@ -72,3 +72,26 @@ When posting a zip, note the following
 - only a single file can be attached to your post. If you add more than one, you'll get an error.
 - filename content doesn't matter, as it won't be used
 - the archive's root will be treated as the root of the project, meaning all file paths will be mapped relative to this.
+
+### Curl
+
+    curl -X POST -H Content-Type: multipart/form-data -F Files=@path/to/file http://tetriserver.example.com
+
+### Posting an archive from NodeJS
+
+This uses the request package (https://www.npmjs.com/package/request).
+
+    let request = require('request');
+    let fs = require('fs');
+
+    let formdata = {
+        Files : fs.createReadStream('path/to/archive')
+    };
+
+    request.post({url: 'http://tetriserver.example.com', formData: formdata}, function(err, httpResponse, body) {
+        if (err) {
+            return console.error('upload failed : ', err);
+        }
+
+        console.log('Upload succeeded : ', body);
+    });
