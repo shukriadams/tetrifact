@@ -278,6 +278,8 @@ namespace Tetrifact.Core
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
                 }
             }
+
+            // todo : delete package tags
         }
 
         public void Clean()
