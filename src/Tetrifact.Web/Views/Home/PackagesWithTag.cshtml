@@ -1,6 +1,6 @@
 ﻿@{
     string tag = ViewData["tag"] as string;
-    ViewData["Title"] = "Packges tagged with " + tag;
+    ViewData["Title"] = "Packages tagged with " + tag;
     Layout = "~/Views/Shared/_Layout.cshtml";
     IEnumerable<string> packageIds = ViewData["packageIds"] as IEnumerable<string>;
 }
