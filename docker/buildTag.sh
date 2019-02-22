@@ -1,4 +1,4 @@
-# get latest tag from current repo context
+# tag must be passed in as an argument when calling this script
 TAG=$1
 
 if [ -z $TAG ]; then
