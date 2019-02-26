@@ -54,7 +54,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        Task<Stream> GetPackageAsArchiveAsync(string packageId);
+        Stream GetPackageAsArchive(string packageId);
 
         /// <summary>
         /// Cleans out trash in archives folder.

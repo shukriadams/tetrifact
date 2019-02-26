@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 
@@ -39,8 +40,8 @@ namespace Tetrifact.Web
             try
             {
                 IndexService.PurgeOldArchives();
-
-                return File(await IndexService.GetPackageAsArchiveAsync(packageId), "application/octet-stream", string.Format("{0}.zip", packageId));
+                Stream archiveStream = IndexService.GetPackageAsArchive(packageId);
+                return File(archiveStream, "application/octet-stream", string.Format("{0}.zip", packageId));
             }
             catch (PackageNotFoundException)
             {

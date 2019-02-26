@@ -20,7 +20,7 @@ namespace Tetrifact.Tests.IndexReader
             workspace.WriteFile(path, "somehash", package);
             workspace.WriteManifest(package, "somehash2");
 
-            Stream testContent = await this.IndexReader.GetPackageAsArchiveAsync(package);
+            Stream testContent = this.IndexReader.GetPackageAsArchive(package);
             Dictionary<string, byte[]> items = Core.StreamsHelper.ArchiveStreamToCollection(testContent);
 
             Assert.Single(items);

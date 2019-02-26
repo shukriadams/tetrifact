@@ -35,7 +35,7 @@ Start app
 
     cd /src
     dotnet build
-    dotnet run
+    dotnet run --project Tetrifact.Web
 
 to view navigate your browser to
 

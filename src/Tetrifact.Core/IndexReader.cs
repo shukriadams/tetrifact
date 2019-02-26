@@ -7,7 +7,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -93,7 +92,7 @@ namespace Tetrifact.Core
                 string directFilePath = Path.Combine(_settings.RepositoryPath, path, hash, "bin");
 
                 if (File.Exists(directFilePath))
-                    return new GetFileResponse(new FileStream(directFilePath, FileMode.Open), Path.GetFileName(path));
+                    return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(path));
 
                 return null;
 
@@ -109,7 +108,7 @@ namespace Tetrifact.Core
         {
             try
             {
-                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) { }
+                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) { }
                 return true;
             }
             catch (IOException)
@@ -208,7 +207,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public async Task<Stream> GetPackageAsArchiveAsync(string packageId)
+        public Stream GetPackageAsArchive(string packageId)
         {
             if (!this.DoesPackageExist(packageId))
                 throw new PackageNotFoundException(packageId);
@@ -223,7 +222,7 @@ namespace Tetrifact.Core
             while (!IsFileAvailable(archivePath))
                 Thread.Sleep(this._settings.ArchiveAvailablePollInterval);
 
-            return new FileStream(archivePath, FileMode.Open);
+            return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
         public int GetPackageArchiveStatus(string packageId)

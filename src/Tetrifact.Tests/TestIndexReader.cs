@@ -59,7 +59,7 @@ namespace Tetrifact.Tests
             return new GetFileResponse(this.Test_PackageItem, id);
         }
 
-        public async Task<Stream> GetPackageAsArchiveAsync(string packageId)
+        public Stream GetPackageAsArchive(string packageId)
         {
             return this.Test_PackageArchive;
         }
