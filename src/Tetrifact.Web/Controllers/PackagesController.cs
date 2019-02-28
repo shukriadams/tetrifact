@@ -24,6 +24,7 @@ namespace Tetrifact.Web
         public IIndexReader IndexService;
         private ILogger<PackagesController> _log;
         private PackageService _packageService;
+        private PackageList _packageList;
 
         /// <summary>
         /// 
@@ -32,8 +33,9 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public PackagesController(PackageService packageService, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(PackageService packageService, PackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
         {
+            _packageList = packageList;
             _packageService = packageService;
             _settings = settings;
             IndexService = indexService;
@@ -81,7 +83,11 @@ namespace Tetrifact.Web
             {
                 PackageAddResult result = await _packageService.AddPackageAsync(post);
                 if (result.Success)
+                {
+                    _packageList.Clear();
                     return Ok();
+                }
+                    
 
                 if (result.ErrorType == PackageAddErrorTypes.InvalidArchiveFormat)
                     return Responses.InvalidArchiveFormatError(post.Format);
@@ -114,6 +120,7 @@ namespace Tetrifact.Web
             try
             {
                 IndexService.DeletePackage(packageId);
+                _packageList.Clear();
                 return Ok();
             }
             catch (PackageNotFoundException)

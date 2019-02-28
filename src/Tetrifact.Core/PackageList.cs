@@ -23,6 +23,11 @@ namespace Tetrifact.Core
             _logger = logger;
         }
 
+        public void Clear()
+        {
+            _cache.Remove("_packageCache");
+        }
+
         public IEnumerable<Package> Get(int pageIndex, int pageSize)
         {
             IList<Package> packageData;
@@ -52,10 +57,13 @@ namespace Tetrifact.Core
 
                 // Set cache options.
                 MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(1))
                     // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(TimeSpan.FromHours(1));
+                    /*.SetSlidingExpiration(TimeSpan.FromHours(1))*/;
 
-                _cache.Set(cacheKey, cacheKey, cacheEntryOptions);
+                
+                
+                _cache.Set(cacheKey, packageData);
             }
 
             return packageData.Skip(pageIndex * pageSize).Take(pageSize);
