@@ -42,7 +42,7 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(_settings.TagsPath);
         }
 
-        public IEnumerable<string> GetPackages()
+        public IEnumerable<string> GetPackageIds()
         {
             IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
             return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r));

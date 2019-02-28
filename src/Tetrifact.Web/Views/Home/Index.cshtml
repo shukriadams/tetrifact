@@ -1,6 +1,7 @@
-﻿@{
+﻿@using Tetrifact.Core;
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    IEnumerable<string> packageIds = ViewData["packagedIds"] as IEnumerable<string>;
+    IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
 }
 
@@ -26,13 +27,13 @@
     }
 
     <h2>Packages</h2>
-    @if (packageIds.Any())
+    @if (packages.Any())
     {
         <ul>
-            @foreach (string packageId in packageIds)
+            @foreach (Package package in packages)
             {
                 <li>
-                    <a href="/package/@packageId">@packageId</a>
+                    <a href="/package/@package.Id">@package.Id (@package.CreatedUtc)</a>
                 </li>
             }
         </ul>

@@ -29,7 +29,7 @@ namespace Tetrifact.Tests
 
         #region METHODS
 
-        public IEnumerable<string> GetPackages()
+        public IEnumerable<string> GetPackageIds()
         {
             return this.Test_Indexes;
         }

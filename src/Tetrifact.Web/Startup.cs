@@ -48,7 +48,9 @@ namespace Tetrifact.Web
             services.AddTransient<IWorkspaceProvider, WorkspaceProvider>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<PackageService, PackageService>();
+            services.AddTransient<PackageList, PackageList>();
 
+            services.AddMemoryCache();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.IndexReader
             Directory.CreateDirectory(Path.Join(this.Settings.PackagePath, "package2"));
             Directory.CreateDirectory(Path.Join(this.Settings.PackagePath, "package3"));
 
-            IEnumerable<string> packages = this.IndexReader.GetPackages();
+            IEnumerable<string> packages = this.IndexReader.GetPackageIds();
             Assert.Equal(3, packages.Count());
             Assert.Contains("package1", packages);
             Assert.Contains("package2", packages);

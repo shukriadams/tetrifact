@@ -48,7 +48,7 @@ namespace Tetrifact.Web
         [HttpGet("")]
         public JsonResult ListPackages()
         {
-            IEnumerable<string> ids = IndexService.GetPackages();
+            IEnumerable<string> ids = IndexService.GetPackageIds();
             return new JsonResult(ids);
         }
 
