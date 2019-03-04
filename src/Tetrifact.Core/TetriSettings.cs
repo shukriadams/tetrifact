@@ -17,10 +17,13 @@ namespace Tetrifact.Core
 
         public int ArchiveAvailablePollInterval { get; set; }
 
+        public int ArchiveWaitTimeout { get; set; }
+
         public TetriSettings()
         {
             // defaults
-            this.ArchiveAvailablePollInterval = 1000; // 1 second
+            this.ArchiveAvailablePollInterval = 1000;   // 1 second
+            this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
 
             // get settings from env variables
             PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");

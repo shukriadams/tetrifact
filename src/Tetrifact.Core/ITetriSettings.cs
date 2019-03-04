@@ -31,5 +31,10 @@
         /// Milliseconds.
         /// </summary>
         int ArchiveAvailablePollInterval { get; set; }
+
+        /// <summary>
+        /// Time in seconds to wait for a package archive to build
+        /// </summary>
+        int ArchiveWaitTimeout { get; set; }
     }
 }

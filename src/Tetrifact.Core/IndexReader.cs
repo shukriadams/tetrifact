@@ -108,6 +108,7 @@ namespace Tetrifact.Core
         {
             try
             {
+                // open with no sharing to ensure fil
                 using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) { }
                 return true;
             }
@@ -145,6 +146,11 @@ namespace Tetrifact.Core
             return Path.Combine(_settings.ArchivePath, packageId + ".zip");
         }
 
+        private string GetPackageArchiveTempPath(string packageId)
+        {
+            return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
+        }
+
         private bool DoesPackageExist(string packageId)
         {
             try
@@ -160,25 +166,27 @@ namespace Tetrifact.Core
 
         private async void CreateArchive(string packageId)
         {
-            FileStream zipStream = null;
+            // store path with .tmp extension while building, this is used to detect if archiving has already started
+            string archivePath = this.GetPackageArchivePath(packageId);
+            string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
 
-            try
+            // if temp archive exists, it's already building
+            if (File.Exists(archivePathTemp))
+                return;
+
+            string archiveFolder = Path.GetDirectoryName(archivePathTemp);
+            if (!Directory.Exists(archiveFolder))
+                Directory.CreateDirectory(archiveFolder);
+
+            // create zip file on disk asap to lock file name off
+            using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
-                string archivePath = this.GetPackageArchivePath(packageId);
-
-                string archiveFolder = Path.GetDirectoryName(archivePath);
-                if (!Directory.Exists(archiveFolder))
-                    Directory.CreateDirectory(archiveFolder);
-
-                // create zip file on disk asap to lock file name off
-                zipStream = new FileStream(archivePath, FileMode.Create);
-
                 Manifest manifest = this.GetManifest(packageId);
                 if (manifest == null)
                 {
                     // clean up first
                     zipStream.Close();
-                    File.Delete(archivePath);
+                    File.Delete(archivePathTemp);
 
                     throw new PackageNotFoundException(packageId);
                 }
@@ -200,11 +208,9 @@ namespace Tetrifact.Core
                     }
                 }
             }
-            finally
-            {
-                if (zipStream != null)
-                    zipStream.Close();
-            }
+
+            // flip temp file to final path, this means it's ready for use
+            File.Move(archivePathTemp, archivePath);
         }
 
         public Stream GetPackageAsArchive(string packageId)
@@ -218,9 +224,17 @@ namespace Tetrifact.Core
             if (!File.Exists(archivePath))
                 this.CreateArchive(packageId);
 
-            // if archive exists, is it done yet?
-            while (!IsFileAvailable(archivePath))
+            // is archive still building?
+            string tempPath = this.GetPackageArchiveTempPath(packageId);
+            DateTime start = DateTime.Now;
+            TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
+
+            while (File.Exists(tempPath))
+            {
                 Thread.Sleep(this._settings.ArchiveAvailablePollInterval);
+                if (DateTime.Now - start > timeout)
+                    throw new TimeoutException($"Timeout waiting for package ${packageId} archive to build");
+            }
 
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
