@@ -23,7 +23,17 @@ ul {
     padding: 0;
 }
 
-.button{
+.subtext {
+    color: gray;
+    font-size: 12px;
+}
+
+.listItem {
+    padding-bottom: 4px;
+    padding-bottom: 4px;
+}
+
+.button {
     border: none;
     cursor: pointer;
     display: inline-block;

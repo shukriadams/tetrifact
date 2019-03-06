@@ -1,6 +1,7 @@
 ﻿@using Tetrifact.Core;
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Tetrifact";
     IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
 }
@@ -29,11 +30,11 @@
     <h2>Packages</h2>
     @if (packages.Any())
     {
-        <ul>
+        <ul class="list">
             @foreach (Package package in packages)
             {
-            <li>
-                <a href="/package/@package.Id">@package.Id</a> (@package.CreatedUtc.ToShortDateString() @package.CreatedUtc.ToShortTimeString() UTC)
+            <li class="listItem">
+                <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g"))</div>
             </li>
             }
         </ul>

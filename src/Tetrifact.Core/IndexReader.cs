@@ -290,33 +290,53 @@ namespace Tetrifact.Core
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Unexpected error deleting archive file ${archivePath} : ${ex}");
+                }
             }
 
-            // todo : delete package tags
+            // delete tag links for package
+            string[] tagFiles = Directory.GetFiles(_settings.TagsPath, packageId, SearchOption.AllDirectories);
+            foreach (string tagFile in tagFiles)
+            {
+                try
+                {
+                    File.Delete(tagFile);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Unexpected error deleting tag ${tagFile} : ${ex}");
+                }
+            }
+
         }
 
-        public void Clean()
+        public void CleanRepository()
         {
-            ProcessFolder(_settings.RepositoryPath);
+            CleanRepository_Internal(_settings.RepositoryPath);
         }
 
-        private void ProcessFolder(string currentDirectory)
+        /// <summary>
+        /// Recursing method behind Clean() logic.
+        /// </summary>
+        /// <param name="currentDirectory"></param>
+        private void CleanRepository_Internal(string currentDirectory)
         {
             // todo : add max sleep time to prevent permalock
+            // wait if linklock is active, something more important is busy. 
             while (LinkLock.Instance.IsLocked())
                 Thread.Sleep(1000);
 
             string[] files = Directory.GetFiles(currentDirectory);
             string[] directories = Directory.GetDirectories(currentDirectory);
 
+            // if no children at all, delete current node
             if (!files.Any() && !directories.Any())
                 Directory.Delete(currentDirectory);
 
-            if (files.Any() && !directories.Any())
-                Directory.Delete(currentDirectory, true);
-
             foreach (string childDirectory in directories)
-                ProcessFolder(childDirectory);
+                CleanRepository_Internal(childDirectory);
         }
 
 

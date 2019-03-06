@@ -3,7 +3,7 @@
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
 
-    ViewData["Title"] = "Package : " + packageId;
+    ViewData["Title"] = $"Package : {packageId}";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -22,7 +22,7 @@
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc (UTC)
+            @manifest.CreatedUtc.ToLocalTime().ToString("g")
         </div>
     </div>
 

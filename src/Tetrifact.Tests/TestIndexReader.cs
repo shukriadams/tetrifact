@@ -79,7 +79,7 @@ namespace Tetrifact.Tests
             // do nothing
         }
 
-        public void Clean()
+        public void CleanRepository()
         {
             // do nothing
         }
