@@ -33,7 +33,7 @@
             @foreach (Package package in packages)
             {
             <li>
-                <a href="/package/@package.Id">@package.Id</a> (@package.CreatedUtc.ToShortDateString())
+                <a href="/package/@package.Id">@package.Id</a> (@package.CreatedUtc.ToShortDateString() @package.CreatedUtc.ToShortTimeString() UTC)
             </li>
             }
         </ul>

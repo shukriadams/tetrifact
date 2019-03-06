@@ -8,6 +8,15 @@
 }
 
 <div class="layout-section">
+
+    <div class="layout-row">
+        <div class="layout-label">
+        </div>
+        <div class="layout-value">
+            <a class="button" href="/v1/archives/@packageId">&#10515; Download</a> 
+        </div>
+    </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Created
@@ -22,7 +31,7 @@
             Size
         </div>
         <div class="layout-value">
-            @manifest.Size bytes
+            @String.Format("{0:n0}", manifest.Size) bytes
         </div>
     </div>
 
@@ -31,7 +40,7 @@
             Size on disk
         </div>
         <div class="layout-value">
-            @manifest.SizeOnDisk bytes
+            @String.Format("{0:n0}", manifest.SizeOnDisk) bytes
         </div>
     </div>
 
@@ -46,17 +55,16 @@
 
     <div class="layout-row">
         <div class="layout-label">
-            Download
+            Info
         </div>
         <div class="layout-value">
-            <a href="/v1/archives/@packageId">Archive</a> |
             <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
         </div>
     </div>
 
     <div class="layout-row">
         <div class="layout-label">
-            Delete
+            Functions
         </div>
         <div class="layout-value">
             <a href="javascript:void(0);" onclick="packageDelete('@ViewData["packageId"]')">Delete</a>

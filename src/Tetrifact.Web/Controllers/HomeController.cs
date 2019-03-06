@@ -23,7 +23,7 @@ namespace Tetrifact.Web
 
         public IActionResult Index()
         {
-            ViewData["packages"] = _packageList.Get(0, 100);
+            ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
             ViewData["tags"] = _tagService.GetTags();
             return View();
         }
