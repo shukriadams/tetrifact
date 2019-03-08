@@ -13,7 +13,7 @@
         <div class="layout-label">
         </div>
         <div class="layout-value">
-            <a class="button" href="/v1/archives/@packageId">&#10515; Download</a> 
+            <a class="button" href="/v1/archives/@packageId">&#10515; Download</a>
         </div>
     </div>
 
@@ -23,6 +23,15 @@
         </div>
         <div class="layout-value">
             @manifest.CreatedUtc.ToLocalTime().ToString("g")
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Description
+        </div>
+        <div class="layout-value">
+            @manifest.Description
         </div>
     </div>
 
@@ -68,7 +77,7 @@
         </div>
         <div class="layout-value">
             <a href="javascript:void(0);" onclick="packageDelete('@ViewData["packageId"]')">Delete</a>
-            
+
         </div>
     </div>
 

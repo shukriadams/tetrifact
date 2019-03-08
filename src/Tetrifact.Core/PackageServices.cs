@@ -82,6 +82,8 @@ namespace Tetrifact.Core
                     workspace.WriteFile(filePath, fileHash, newPackage.Id);
                 }
 
+                workspace.Manifest.Description = newPackage.Description;
+
                 // calculate package hash from child hashes
                 workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
 

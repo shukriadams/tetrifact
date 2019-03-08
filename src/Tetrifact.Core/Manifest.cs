@@ -8,6 +8,14 @@ namespace Tetrifact.Core
     /// </summary>
     public class Manifest
     {
+        #region FIELDS
+
+        private string _description = String.Empty;
+
+        #endregion
+
+        #region PROPERTIES
+
         /// <summary>
         /// The hash of the combined hash of all items, sorted alphabetically by path.
         /// </summary>
@@ -39,9 +47,21 @@ namespace Tetrifact.Core
         public DateTime CreatedUtc { get; set; }
 
         /// <summary>
-        /// Optional free text field for manifest.
+        /// Optional free text field for manifest. Returns an emptry string if empty.
         /// </summary>
-        public string Description { get; set; }
+        public string Description
+        {
+            get
+            {
+                return _description;
+            }
+            set
+            {
+                _description = value ?? string.Empty;
+            }
+        }
+
+        #endregion
 
         #region CTORS
 
@@ -50,7 +70,6 @@ namespace Tetrifact.Core
             this.Files = new List<ManifestItem>();
             this.Tags = new HashSet<string>();
             this.CreatedUtc = DateTime.UtcNow;
-            this.Description = String.Empty;
         }
 
         #endregion
