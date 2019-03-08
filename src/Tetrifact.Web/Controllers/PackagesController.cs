@@ -48,7 +48,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [HttpGet("")]
-        public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex,  [FromQuery(Name = "size")] int pageSize = 25)
+        public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
             if (isFull)
             {
