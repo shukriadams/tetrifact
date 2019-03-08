@@ -10,6 +10,6 @@ namespace Tetrifact.Core
 
         IEnumerable<string> GetTags();
 
-        IEnumerable<string> GetPackagesWithTag(string tag);
+        IEnumerable<string> GetPackageIdsWithTag(string tag);
     }
 }

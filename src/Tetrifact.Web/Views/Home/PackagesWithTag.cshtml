@@ -1,19 +1,20 @@
-﻿@{
+﻿@using Tetrifact.Core;
+@{
     string tag = ViewData["tag"] as string;
     ViewData["Title"] = $"Tag : {tag}";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    IEnumerable<string> packageIds = ViewData["packageIds"] as IEnumerable<string>;
+    IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
 }
 
 <div>
     <h2>Packages : </h2>
-    @if (packageIds.Any())
+    @if (packages.Any())
     {
         <ul>
-            @foreach (string packageId in packageIds)
+            @foreach (Package package in packages)
             {
                 <li>
-                    <a href="/package/@packageId">@packageId</a>
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g"))</div>
                 </li>
             }
         </ul>
@@ -21,7 +22,7 @@
     else
     {
         <text>
-            No packages have been added yet.
+            No packages found for this tag.
         </text>
     }
 

@@ -48,7 +48,7 @@ namespace Tetrifact.Web
             try
             {
                 ViewData["tag"] = tag;
-                ViewData["packageIds"] = _tagService.GetPackagesWithTag(tag);
+                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.IndexPackageListLength);
                 return View();
             }
             catch (TagNotFoundException)

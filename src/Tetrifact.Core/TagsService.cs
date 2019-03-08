@@ -68,7 +68,7 @@ namespace Tetrifact.Core
             return tags.Select(r => Path.GetFileName(r));
         }
 
-        public IEnumerable<string> GetPackagesWithTag(string tag)
+        public IEnumerable<string> GetPackageIdsWithTag(string tag)
         {
             string tagDirectory = Path.Combine(_settings.TagsPath, tag);
             if (!Directory.Exists(tagDirectory))
