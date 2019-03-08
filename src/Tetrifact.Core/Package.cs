@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Tetrifact.Core
 {
@@ -10,5 +11,11 @@ namespace Tetrifact.Core
         public string Id { get; set; }
 
         public DateTime CreatedUtc { get; set; }
+
+        public string Description { get; set; }
+
+        public string Hash { get; set; }
+
+        public IEnumerable<string> Tags { get; set; }
     }
 }

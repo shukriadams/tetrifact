@@ -18,7 +18,7 @@ namespace Tetrifact.Core
         /// available package.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<string> GetPackageIds();
+        IEnumerable<string> GetPackageIds(int pageIndex, int pageSize);
 
         /// <summary>
         /// create all required folders and stuctures.

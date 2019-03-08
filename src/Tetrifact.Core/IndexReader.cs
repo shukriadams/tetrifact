@@ -42,10 +42,10 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(_settings.TagsPath);
         }
 
-        public IEnumerable<string> GetPackageIds()
+        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r));
+            return rawList.Skip(pageIndex).Take(pageSize).Select(r => Path.GetRelativePath(_settings.PackagePath, r));
         }
 
         public bool PackageNameInUse(string id)

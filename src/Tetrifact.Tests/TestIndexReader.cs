@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -29,7 +28,7 @@ namespace Tetrifact.Tests
 
         #region METHODS
 
-        public IEnumerable<string> GetPackageIds()
+        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             return this.Test_Indexes;
         }

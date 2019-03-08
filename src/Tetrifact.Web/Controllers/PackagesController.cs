@@ -44,14 +44,21 @@ namespace Tetrifact.Web
 
 
         /// <summary>
+        /// Gets a page of 
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
         [HttpGet("")]
-        public JsonResult ListPackages()
+        public JsonResult ListPackages([FromQuery(Name = "full")] bool isFull, [FromQuery(Name = "index")] int pageIndex,  [FromQuery(Name = "size")] int pageSize = 25)
         {
-            IEnumerable<string> ids = IndexService.GetPackageIds();
-            return new JsonResult(ids);
+            if (isFull)
+            {
+                return new JsonResult(_packageList.Get(pageIndex, pageSize));
+            }
+            else
+            {
+                return new JsonResult(IndexService.GetPackageIds(pageIndex, pageSize));
+            }
         }
 
 

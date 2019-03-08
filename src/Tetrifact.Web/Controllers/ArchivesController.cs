@@ -35,7 +35,7 @@ namespace Tetrifact.Web
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{packageId}")]
-        public async Task<ActionResult> GetArchive(string packageId)
+        public ActionResult GetArchive(string packageId)
         {
             try
             {

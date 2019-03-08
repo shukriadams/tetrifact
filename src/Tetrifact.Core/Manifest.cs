@@ -38,6 +38,11 @@ namespace Tetrifact.Core
         /// </summary>
         public DateTime CreatedUtc { get; set; }
 
+        /// <summary>
+        /// Optional free text field for manifest.
+        /// </summary>
+        public string Description { get; set; }
+
         #region CTORS
 
         public Manifest()
@@ -45,6 +50,7 @@ namespace Tetrifact.Core
             this.Files = new List<ManifestItem>();
             this.Tags = new HashSet<string>();
             this.CreatedUtc = DateTime.UtcNow;
+            this.Description = String.Empty;
         }
 
         #endregion

@@ -33,12 +33,17 @@
         int ArchiveAvailablePollInterval { get; set; }
 
         /// <summary>
-        /// Time in seconds to wait for a package archive to build
+        /// Time in seconds to wait for a package archive to build.
         /// </summary>
         int ArchiveWaitTimeout { get; set; }
 
         /// <summary>
-        /// Number of packages to list on index page
+        /// Time in seconds for objects in cache to timeout.
+        /// </summary>
+        int CacheTimeout { get; set; }
+
+        /// <summary>
+        /// Number of packages to list on index page.
         /// </summary>
         int IndexPackageListLength { get; set; }
     }

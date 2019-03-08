@@ -45,7 +45,13 @@ namespace Tetrifact.Core
                     try
                     {
                         Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(packageDirectory, "manifest.json")));
-                        packageData.Add(new Package { CreatedUtc = manifest.CreatedUtc, Id = Path.GetFileName(packageDirectory) });
+                        packageData.Add(new Package {
+                            CreatedUtc = manifest.CreatedUtc,
+                            Id = Path.GetFileName(packageDirectory),
+                            Description = manifest.Description,
+                            Hash = manifest.Hash,
+                            Tags = manifest.Tags
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -57,11 +63,7 @@ namespace Tetrifact.Core
 
                 // Set cache options.
                 MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(1))
-                    // Keep in cache for this time, reset time if accessed.
-                    /*.SetSlidingExpiration(TimeSpan.FromHours(1))*/;
-
-                
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
                 
                 _cache.Set(cacheKey, packageData);
             }
