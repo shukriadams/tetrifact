@@ -42,6 +42,12 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(_settings.TagsPath);
         }
 
+        public IEnumerable<string> GetAllPackageIds()
+        {
+            IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
+            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r));
+        }
+
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
@@ -314,14 +320,19 @@ namespace Tetrifact.Core
 
         public void CleanRepository()
         {
-            CleanRepository_Internal(_settings.RepositoryPath);
+            // get a list of existing packages at time of calling. It is vital that new packages not be created
+            // while clean running, they will be cleaned up as they are not on this list
+            IEnumerable<string> existingPackageIds = this.GetAllPackageIds();
+
+            CleanRepository_Internal(_settings.RepositoryPath, existingPackageIds, false);
+            
         }
 
         /// <summary>
         /// Recursing method behind Clean() logic.
         /// </summary>
         /// <param name="currentDirectory"></param>
-        private void CleanRepository_Internal(string currentDirectory)
+        private void CleanRepository_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentFolderPackages)
         {
             // todo : add max sleep time to prevent permalock
             // wait if linklock is active, something more important is busy. 
@@ -335,10 +346,82 @@ namespace Tetrifact.Core
             if (!files.Any() && !directories.Any())
                 Directory.Delete(currentDirectory);
 
+            if (isCurrentFolderPackages)
+            {
+                if (files.Any())
+                {
+                    foreach (string file in files)
+                    {
+                        if (!existingPackageIds.Contains(Path.GetFileName(file)))
+                        {
+                            try
+                            {
+                                File.Delete(file);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                                _logger.LogError($"Unexpected error deleting file ${file} ", ex);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // if this is a package folder with no packages, it is safe to delete it and it's parent bin file
+                    string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
+                    if (File.Exists(binFilePath))
+                    {
+                        try
+                        {
+                            File.Delete(binFilePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                            _logger.LogError($"Unexpected error deleting file ${binFilePath} ", ex);
+                        }
+                    }
+
+                    try
+                    {
+                        Directory.Delete(currentDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                        _logger.LogError($"Unexpected error deleting folder ${currentDirectory} ", ex);
+                    }
+
+                    return;
+                }
+
+            }
+
+            bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");
+            if (binFilePresent && !directories.Any())
+            {
+                // bin file is orphaned (no package, no package folders)
+                string filePath = Path.Join(currentDirectory, "bin");
+                try
+                {
+                    
+                    File.Delete(filePath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    _logger.LogError($"Unexpected error deleting file ${filePath} ", ex);
+                }
+                return;
+            }
+
             foreach (string childDirectory in directories)
-                CleanRepository_Internal(childDirectory);
+            {
+                bool isPackageFolder = Path.GetFileName(childDirectory) == "packages" && binFilePresent;
+                CleanRepository_Internal(childDirectory, existingPackageIds, isPackageFolder);
+            }
+
         }
-
-
     }
 }

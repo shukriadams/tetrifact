@@ -9,6 +9,13 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IIndexReader
     {
+
+        /// <summary>
+        /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetAllPackageIds();
+
         /// <summary>
         /// Gets a list of all packages which can be linked to. A package that cannot be linked to can still be downloaded from 
         /// through a file link from another package.

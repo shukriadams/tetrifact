@@ -93,6 +93,11 @@ namespace Tetrifact.Tests
             
         }
 
+        public IEnumerable<string> GetAllPackageIds()
+        {
+            return this.Test_Indexes;
+        }
+
         #endregion
     }
 }
