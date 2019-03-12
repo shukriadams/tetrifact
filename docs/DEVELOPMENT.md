@@ -41,6 +41,8 @@ to view navigate your browser to
 
     http://localhost:3000/
 
+All content is placed in /src/Tetrifact.Web/bin/Debug/netcoreapp2.2/data
+
 ## Build for deploy
 
 from command line
