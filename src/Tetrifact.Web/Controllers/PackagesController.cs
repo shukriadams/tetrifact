@@ -67,9 +67,9 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [HttpGet("{packageId}/exists")]
-        public ActionResult<int> PackageExists(string packageId)
+        public ActionResult<bool> PackageExists(string packageId)
         {
-            return IndexService.GetManifest(packageId) == null ? 0 : 1;
+            return IndexService.GetManifest(packageId) != null;
         }
        
 
