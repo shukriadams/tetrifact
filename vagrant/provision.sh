@@ -22,5 +22,5 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 echo "cd /vagrant/src" >> /home/vagrant/.bashrc
 
 # set hostname, makes console easier to identify
-sudo echo "tetri" > /etc/hostname
-sudo echo "127.0.0.1 tetri" >> /etc/hosts
+sudo echo "tetrifact" > /etc/hostname
+sudo echo "127.0.0.1 tetrifact" >> /etc/hosts

@@ -3,17 +3,35 @@
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
 
-    ViewData["Title"] = "Package : " + packageId;
+    ViewData["Title"] = $"Package : {packageId}";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="layout-section">
+
+    <div class="layout-row">
+        <div class="layout-label">
+        </div>
+        <div class="layout-value">
+            <a class="button" href="/v1/archives/@packageId">&#10515; Download</a>
+        </div>
+    </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc (UTC)
+            @manifest.CreatedUtc.ToLocalTime().ToString("g")
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Description
+        </div>
+        <div class="layout-value">
+            @manifest.Description
         </div>
     </div>
 
@@ -22,7 +40,7 @@
             Size
         </div>
         <div class="layout-value">
-            @manifest.Size bytes
+            @String.Format("{0:n0}", manifest.Size) bytes
         </div>
     </div>
 
@@ -31,7 +49,7 @@
             Size on disk
         </div>
         <div class="layout-value">
-            @manifest.SizeOnDisk bytes
+            @String.Format("{0:n0}", manifest.SizeOnDisk) bytes
         </div>
     </div>
 
@@ -46,21 +64,20 @@
 
     <div class="layout-row">
         <div class="layout-label">
-            Download
+            Info
         </div>
         <div class="layout-value">
-            <a href="/v1/archives/@packageId">Archive</a> |
             <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
         </div>
     </div>
 
     <div class="layout-row">
         <div class="layout-label">
-            Delete
+            Functions
         </div>
         <div class="layout-value">
             <a href="javascript:void(0);" onclick="packageDelete('@ViewData["packageId"]')">Delete</a>
-            
+
         </div>
     </div>
 
@@ -71,7 +88,7 @@
         
         @if (manifest.Tags.Any())
         {
-        <h2>Tags</h2>
+            <h2>Tags</h2>
             <ul>
                 @foreach (string tag in manifest.Tags)
                 {
@@ -80,7 +97,6 @@
                     </li>
                 }
             </ul>
-
         }
         else
         {

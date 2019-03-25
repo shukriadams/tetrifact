@@ -29,7 +29,7 @@ namespace Tetrifact.Web.Controllers
         [HttpGet("")]
         public ActionResult Clean()
         {
-            this.IndexService.Clean();
+            this.IndexService.CleanRepository();
             this.IndexService.PurgeOldArchives();
             return Ok("Clean complete");
         }

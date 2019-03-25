@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -29,7 +28,7 @@ namespace Tetrifact.Tests
 
         #region METHODS
 
-        public IEnumerable<string> GetPackages()
+        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             return this.Test_Indexes;
         }
@@ -59,7 +58,7 @@ namespace Tetrifact.Tests
             return new GetFileResponse(this.Test_PackageItem, id);
         }
 
-        public async Task<Stream> GetPackageAsArchiveAsync(string packageId)
+        public Stream GetPackageAsArchive(string packageId)
         {
             return this.Test_PackageArchive;
         }
@@ -79,7 +78,7 @@ namespace Tetrifact.Tests
             // do nothing
         }
 
-        public void Clean()
+        public void CleanRepository()
         {
             // do nothing
         }
@@ -92,6 +91,11 @@ namespace Tetrifact.Tests
         public void RemoveTag(string packageId, string tag)
         {
             
+        }
+
+        public IEnumerable<string> GetAllPackageIds()
+        {
+            return this.Test_Indexes;
         }
 
         #endregion

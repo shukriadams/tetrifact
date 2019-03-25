@@ -25,7 +25,7 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             // write tag to fs
-            string targetFolder = Path.Combine(_settings.TagsPath, tag);
+            string targetFolder = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
             if (!Directory.Exists(targetFolder))
                 Directory.CreateDirectory(targetFolder);
 
@@ -65,12 +65,12 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetTags()
         {
             string[] tags = Directory.GetDirectories(_settings.TagsPath);
-            return tags.Select(r => Path.GetFileName(r));
+            return tags.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
         }
 
-        public IEnumerable<string> GetPackagesWithTag(string tag)
+        public IEnumerable<string> GetPackageIdsWithTag(string tag)
         {
-            string tagDirectory = Path.Combine(_settings.TagsPath, tag);
+            string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
             if (!Directory.Exists(tagDirectory))
                 throw new TagNotFoundException();
 
@@ -84,7 +84,7 @@ namespace Tetrifact.Core
             if (!File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
 
-            string targetPath = Path.Combine(_settings.TagsPath, tag, packageId);
+            string targetPath = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag), packageId);
             if (!File.Exists(targetPath))
                 throw new TagNotFoundException();
 

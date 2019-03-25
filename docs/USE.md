@@ -37,9 +37,9 @@ Each file's "name" property must be "Files". The filename property should be the
 Were you posting actual files with CURL it should look like
 
     curl -X post \
-        -H Content-Type: multipart/form-data \
-        -F Files=@~/mybuild/1.txt;filename=1.txt \
-        -F Files=@~/mybuild/path/to/2.txt;filename=path/to/2.txt \
+        -H "Content-Type: multipart/form-data" \
+        -F "Files=@~/mybuild/1.txt;filename=1.txt" \
+        -F "Files=@~/mybuild/path/to/2.txt;filename=path/to/2.txt" \
         http://myTetrifact.server/v1/packages/myPackageName 
 
 
@@ -70,5 +70,30 @@ BODY :
 
 When posting a zip, note the following
 - only a single file can be attached to your post. If you add more than one, you'll get an error.
-- filename content doesn't matter, as it won't be used
+- filename doesn't matter, as it won't be used
 - the archive's root will be treated as the root of the project, meaning all file paths will be mapped relative to this.
+
+### Curl
+
+To create package "myPackage" from a zip file, use
+
+    curl -X post -H "Content-Type: multipart/form-data" -F "Files=@path/to/archive" http://tetriserver.example.com/v1/packages/myPackage?isArchive=true 
+
+### Posting an archive from NodeJS
+
+This uses the request package (https://www.npmjs.com/package/request).
+
+    let request = require('request');
+    let fs = require('fs');
+
+    let formdata = {
+        Files : fs.createReadStream('path/to/archive')
+    };
+
+    request.post({url: 'http://tetriserver.example.com', formData: formdata}, function(err, httpResponse, body) {
+        if (err) {
+            return console.error('upload failed : ', err);
+        }
+
+        console.log('Upload succeeded : ', body);
+    });

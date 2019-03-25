@@ -10,20 +10,21 @@ namespace Tetrifact.Web
         public readonly IIndexReader IndexService;
         private readonly ILogger<HomeController> _log;
         private ITagsService _tagService;
+        private PackageList _packageList;
 
-        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService)
+        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, PackageList packageList)
         {
             _settings = settings;
             IndexService = indexService;
             _log = log;
             _tagService = tagService;
-
+            _packageList = packageList;
         }
 
         public IActionResult Index()
         {
-            ViewData["packagedIds"] = this.IndexService.GetPackages();
-            ViewData["tags"] = this._tagService.GetTags();
+            ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
+            ViewData["tags"] = _tagService.GetTags();
             return View();
         }
 
@@ -47,7 +48,7 @@ namespace Tetrifact.Web
             try
             {
                 ViewData["tag"] = tag;
-                ViewData["packageIds"] = _tagService.GetPackagesWithTag(tag);
+                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.IndexPackageListLength);
                 return View();
             }
             catch (TagNotFoundException)

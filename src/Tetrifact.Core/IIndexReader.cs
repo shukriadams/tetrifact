@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -10,6 +9,13 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IIndexReader
     {
+
+        /// <summary>
+        /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetAllPackageIds();
+
         /// <summary>
         /// Gets a list of all packages which can be linked to. A package that cannot be linked to can still be downloaded from 
         /// through a file link from another package.
@@ -19,7 +25,7 @@ namespace Tetrifact.Core
         /// available package.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<string> GetPackages();
+        IEnumerable<string> GetPackageIds(int pageIndex, int pageSize);
 
         /// <summary>
         /// create all required folders and stuctures.
@@ -54,7 +60,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        Task<Stream> GetPackageAsArchiveAsync(string packageId);
+        Stream GetPackageAsArchive(string packageId);
 
         /// <summary>
         /// Cleans out trash in archives folder.
@@ -80,9 +86,10 @@ namespace Tetrifact.Core
         void DeletePackage(string packageId);
 
         /// <summary>
-        /// 
+        /// Cleans dead files out from repository folder. When a package is deleted, it's contents in the repositiry folder stay behind. 
+        /// Cleaning them out must be run seperately.
         /// </summary>
-        void Clean();
+        void CleanRepository();
 
     }
 }

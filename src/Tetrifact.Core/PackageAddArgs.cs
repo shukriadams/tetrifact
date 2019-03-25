@@ -29,9 +29,14 @@ namespace Tetrifact.Core
         [FromQuery] public bool IsArchive { get; set; }
 
         /// <summary>
-        /// Format of uploaded archive. Default is tar. Allowed values : tar|zip
+        /// Format of uploaded archive. Default is tar. Allowed values : zip
         /// </summary>
         [FromQuery] public string Format { get; set; }
+
+        /// <summary>
+        /// Optional description for package
+        /// </summary>
+        [FromQuery] public string Description { get; set; }
 
         #endregion
 

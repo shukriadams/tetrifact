@@ -23,6 +23,29 @@ ul {
     padding: 0;
 }
 
+.subtext {
+    color: gray;
+    font-size: 12px;
+}
+
+.listItem {
+    padding-bottom: 4px;
+    padding-bottom: 4px;
+}
+
+.button {
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: none;
+    white-space: nowrap;
+    background-color: orangered;
+    color: white;
+    padding: 10px 20px;
+}
+
 .shell {
     display: flex;
     flex-direction: column;

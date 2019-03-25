@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -24,6 +23,7 @@ namespace Tetrifact.Web
         public IIndexReader IndexService;
         private ILogger<PackagesController> _log;
         private PackageService _packageService;
+        private PackageList _packageList;
 
         /// <summary>
         /// 
@@ -32,8 +32,9 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public PackagesController(PackageService packageService, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(PackageService packageService, PackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
         {
+            _packageList = packageList;
             _packageService = packageService;
             _settings = settings;
             IndexService = indexService;
@@ -42,14 +43,21 @@ namespace Tetrifact.Web
 
 
         /// <summary>
+        /// Gets a page of 
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
         [HttpGet("")]
-        public JsonResult ListPackages()
+        public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
-            IEnumerable<string> ids = IndexService.GetPackages();
-            return new JsonResult(ids);
+            if (isFull)
+            {
+                return new JsonResult(_packageList.Get(pageIndex, pageSize));
+            }
+            else
+            {
+                return new JsonResult(IndexService.GetPackageIds(pageIndex, pageSize));
+            }
         }
 
 
@@ -59,9 +67,9 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [HttpGet("{packageId}/exists")]
-        public ActionResult<int> PackageExists(string packageId)
+        public ActionResult<bool> PackageExists(string packageId)
         {
-            return IndexService.GetManifest(packageId) == null ? 0 : 1;
+            return IndexService.GetManifest(packageId) != null;
         }
        
 
@@ -81,7 +89,11 @@ namespace Tetrifact.Web
             {
                 PackageAddResult result = await _packageService.AddPackageAsync(post);
                 if (result.Success)
+                {
+                    _packageList.Clear();
                     return Ok();
+                }
+                    
 
                 if (result.ErrorType == PackageAddErrorTypes.InvalidArchiveFormat)
                     return Responses.InvalidArchiveFormatError(post.Format);
@@ -114,6 +126,7 @@ namespace Tetrifact.Web
             try
             {
                 IndexService.DeletePackage(packageId);
+                _packageList.Clear();
                 return Ok();
             }
             catch (PackageNotFoundException)
