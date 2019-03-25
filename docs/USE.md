@@ -97,3 +97,16 @@ This uses the request package (https://www.npmjs.com/package/request).
 
         console.log('Upload succeeded : ', body);
     });
+
+## Tagging
+
+### Curl
+
+To add the tag "MyTag" to the package "MyPackage, use
+
+    curl -X post http://tetriserver.example.com/v1/tags/MyTag/MyPackage
+
+To remove the tag
+
+    curl -X delete http://tetriserver.example.com/v1/tags/MyTag/MyPackage
+

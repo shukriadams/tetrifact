@@ -12,10 +12,13 @@ namespace Tetrifact.Core
 
         private ILogger<TagsService> _logger;
 
-        public TagsService(ITetriSettings settings, ILogger<TagsService> logger)
+        private PackageList _packageList;
+
+        public TagsService(ITetriSettings settings, ILogger<TagsService> logger, PackageList packageList)
         {
             _settings = settings;
             _logger = logger;
+            _packageList = packageList;
         }
 
         public void AddTag(string packageId, string tag)
@@ -41,6 +44,9 @@ namespace Tetrifact.Core
                 manifest.Tags.Add(tag);
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
             }
+
+            // flush in-memory tags
+            _packageList.Clear();
 
             /*
             using (FileStream fileStream = new FileStream(manifestPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
@@ -97,6 +103,10 @@ namespace Tetrifact.Core
                 manifest.Tags.Remove(tag);
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
             }
+
+            // flush in-memory tags
+            _packageList.Clear();
+
             /*
             using (FileStream fileStream = new FileStream(manifestPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
             {
