@@ -89,7 +89,9 @@ namespace Tetrifact.Web
 
             loggerFactory.AddFile(logPath);
 
-            app.UseHttpsRedirection();
+            if (Environment.GetEnvironmentVariable("FORCE_HTTPS") == "true")
+                app.UseHttpsRedirection();
+
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

@@ -16,8 +16,6 @@ namespace Tetrifact.Tests
 
             Bind<IIndexReader>().To<TestIndexReader>();
             Bind<IWorkspaceProvider>().To<TestWorkspaceProvider>();
-
-            
         }
     }
 }
