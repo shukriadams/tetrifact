@@ -4,6 +4,10 @@ Tetrifact stores builds as packages. A package is a group of files which are add
 
 Don't worry if your revision hashes are difficult to pass around, share or remember, packages can be tagged with additional human-friendly names too.
 
+## REST
+
+All Tetrifact's functionality is exposed via a REST API, so it should be familiar.
+
 ## Adding a package 
 
 ### As individual files 
@@ -36,7 +40,7 @@ Each file's "name" property must be "Files". The filename property should be the
 
 Were you posting actual files with CURL it should look like
 
-    curl -X post \
+    curl -X POST \
         -H "Content-Type: multipart/form-data" \
         -F "Files=@~/mybuild/1.txt;filename=1.txt" \
         -F "Files=@~/mybuild/path/to/2.txt;filename=path/to/2.txt" \
@@ -73,22 +77,20 @@ When posting a zip, note the following
 - filename doesn't matter, as it won't be used
 - the archive's root will be treated as the root of the project, meaning all file paths will be mapped relative to this.
 
-### Curl
 
-To create package "myPackage" from a zip file, use
+With CURL it would look like
 
-    curl -X post -H "Content-Type: multipart/form-data" -F "Files=@path/to/archive" http://tetriserver.example.com/v1/packages/myPackage?isArchive=true 
+    curl -X POST -H "Content-Type: multipart/form-data" -F "Files=@path/to/archive" http://tetriserver.example.com/v1/packages/myPackage?isArchive=true 
 
 ### Posting an archive from NodeJS
 
 This uses the request package (https://www.npmjs.com/package/request).
 
-    let request = require('request');
-    let fs = require('fs');
-
-    let formdata = {
-        Files : fs.createReadStream('path/to/archive')
-    };
+    let request = require('request'),
+        fs = require('fs'),
+        formdata = {
+            Files : fs.createReadStream('path/to/archive')
+        };
 
     request.post({url: 'http://tetriserver.example.com', formData: formdata}, function(err, httpResponse, body) {
         if (err) {
@@ -104,9 +106,9 @@ This uses the request package (https://www.npmjs.com/package/request).
 
 To add the tag "MyTag" to the package "MyPackage, use
 
-    curl -X post http://tetriserver.example.com/v1/tags/MyTag/MyPackage
+    curl -X POST http://tetriserver.example.com/v1/tags/MyTag/MyPackage
 
 To remove the tag
 
-    curl -X delete http://tetriserver.example.com/v1/tags/MyTag/MyPackage
+    curl -X DELETE http://tetriserver.example.com/v1/tags/MyTag/MyPackage
 
