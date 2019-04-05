@@ -74,7 +74,7 @@ namespace Tetrifact.Web
             try
             {
                 this.TagsService.AddTag(packageId, tag);
-                return Ok();
+                return Ok($"Tag {tag} was added to package {packageId}");
             }
             catch (PackageNotFoundException)
             {
@@ -95,7 +95,7 @@ namespace Tetrifact.Web
             try
             {
                 this.TagsService.RemoveTag(packageId, tag);
-                return Ok();
+                return Ok($"Tag {tag} was removed from package {packageId}");
             }
             catch (PackageNotFoundException)
             {
