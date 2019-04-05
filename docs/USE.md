@@ -42,6 +42,7 @@ Were you posting actual files with CURL it should look like
 
     curl -X POST \
         -H "Content-Type: multipart/form-data" \
+        -H "Transfer-Encoding: chunked" \
         -F "Files=@~/mybuild/1.txt;filename=1.txt" \
         -F "Files=@~/mybuild/path/to/2.txt;filename=path/to/2.txt" \
         http://myTetrifact.server/v1/packages/myPackageName 
@@ -80,7 +81,10 @@ When posting a zip, note the following
 
 With CURL it would look like
 
-    curl -X POST -H "Content-Type: multipart/form-data" -F "Files=@path/to/archive" http://tetriserver.example.com/v1/packages/myPackage?isArchive=true 
+    curl -X POST -H "Content-Type: multipart/form-data" -H "Transfer-Encoding: chunked" -F "Files=@path/to/archive" http://tetriserver.example.com/v1/packages/myPackage?isArchive=true 
+
+Chunking the upload is important if your archive is large, as this might exceeded the multipart body attachment size.
+
 
 ### Posting an archive from NodeJS
 
