@@ -1,5 +1,6 @@
-﻿function packageDelete(packageId)
-{
+﻿function removePackage() {
+    let packageId = document.querySelector('.packageId').value
+
     if (!window.fetch)
         return alert('This browser does not support AJAX calls, plese upgrade to a modern browser.');
 
@@ -16,3 +17,43 @@
         });
     
 }
+
+async function addTag() {
+    let packageId = document.querySelector('.packageId').value
+    let tag = document.querySelector('.newTag').value;
+
+    if (!tag) {
+        alert('Tag is required.');
+        return;
+    }
+
+    fetch(`/v1/tags/${encodeURIComponent(tag)}/${packageId}`, { method: "POST" })
+        .then(function () {
+            window.location.reload(true);
+        });
+}
+
+
+async function removeTag(e) {
+    let tag = e.target.getAttributeNode('data-tag').value;
+    let packageId = document.querySelector('.packageId').value
+
+    if (!confirm(`Are you sure you want to remove the tag "${tag}"?`))
+        return;
+
+    fetch(`/v1/tags/${encodeURIComponent(tag)}/${packageId}`, { method: "DELETE" })
+        .then(function () {
+            window.location.reload(true);
+        });
+}
+
+async function onClick(e) {
+    if (e.target.classList && e.target.classList.contains('addTag'))
+        await addTag(e);
+    else if (e.target.classList && e.target.classList.contains('removeTag'))
+        await removeTag(e);
+    else if (e.target.classList && e.target.classList.contains('removePackage'))
+        await removePackage();
+}
+
+document.addEventListener('click', onClick, false);

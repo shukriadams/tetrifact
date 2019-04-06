@@ -1,5 +1,6 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
+@using System.Web;
 @{
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
@@ -7,6 +8,8 @@
     ViewData["Title"] = $"Package : {packageId}";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<input type="hidden" class="packageId" value="@packageId" />
 
 <div class="layout-section">
     <div class="layout-row">
@@ -77,33 +80,40 @@
             Functions
         </div>
         <div class="layout-value">
-            <a href="javascript:void(0);" onclick="packageDelete('@ViewData["packageId"]')">Delete</a>
+            <a href="javascript:void(0);" class="removePackage">Delete</a>
         </div>
     </div>
 </div>
 
 <div class="layout-section">
+    <h2>Tags</h2>
     <div>
         
-        @if (manifest.Tags.Any())
-        {
-            <h2>Tags</h2>
-            <ul>
-                @foreach (string tag in manifest.Tags)
-                {
+        <input class="newTag" type="text" placeholder="New tag" />
+        <button class="button addTag">Add</button>
+
+        <div >
+            @if (manifest.Tags.Any())
+            {
+                <ul>
+                    @foreach (string tag in manifest.Tags)
+                    {
                     <li>
+                        <a class="removeTag" data-tag="@tag" href="javascript:void(null)">
+                            <img class="package-deleteIcon" src="/icons/delete.svg" alt="Delete">
+                        </a>
                         <a href="/packagesWithTag/@tag">@tag</a>
                     </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <text>
-                This package is untagged.
-            </text>
-        }
-
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>
+                    This package is untagged.
+                </p>
+            }
+        </div>
     </div>
 </div>
 

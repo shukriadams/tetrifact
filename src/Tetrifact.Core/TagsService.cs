@@ -33,10 +33,11 @@ namespace Tetrifact.Core
             if (!Directory.Exists(targetFolder))
                 Directory.CreateDirectory(targetFolder);
 
+            
             string targetPath = Path.Combine(targetFolder, packageId);
             if (!File.Exists(targetPath))
-                File.Create(targetPath);
-
+                File.WriteAllText(targetPath, string.Empty);
+                
 
             // WARNING - NO FILE LOCK HERE!!
             Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
@@ -112,10 +113,8 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             string targetPath = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag), packageId);
-            if (!File.Exists(targetPath))
-                throw new TagNotFoundException();
-
-            File.Delete(targetPath);
+            if (File.Exists(targetPath))
+                File.Delete(targetPath);
 
             // WARNING - NO FILE LOCK HERE!!
             Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
