@@ -1,4 +1,5 @@
 ﻿@using Tetrifact.Core;
+@using Humanizer;
 @{
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
@@ -8,7 +9,6 @@
 }
 
 <div class="layout-section">
-
     <div class="layout-row">
         <div class="layout-label">
         </div>
@@ -16,16 +16,14 @@
             <a class="button" href="/v1/archives/@packageId">&#10515; Download</a>
         </div>
     </div>
-
     <div class="layout-row">
         <div class="layout-label">
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc.ToLocalTime().ToString("g")
+            @manifest.CreatedUtc.ToLocalTime().ToString("g") (@manifest.CreatedUtc.ToLocalTime().Humanize())
         </div>
     </div>
-
     <div class="layout-row">
         <div class="layout-label">
             Description
@@ -34,7 +32,14 @@
             @manifest.Description
         </div>
     </div>
-
+    <div class="layout-row">
+        <div class="layout-label">
+            File count
+        </div>
+        <div class="layout-value">
+            @manifest.Files.Count
+        </div>
+    </div>
     <div class="layout-row">
         <div class="layout-label">
             Size
@@ -43,7 +48,6 @@
             @String.Format("{0:n0}", manifest.Size) bytes
         </div>
     </div>
-
     <div class="layout-row">
         <div class="layout-label">
             Size on disk
@@ -52,7 +56,6 @@
             @String.Format("{0:n0}", manifest.SizeOnDisk) bytes
         </div>
     </div>
-
     <div class="layout-row">
         <div class="layout-label">
             Hash
@@ -61,7 +64,6 @@
             @manifest.Hash
         </div>
     </div>
-
     <div class="layout-row">
         <div class="layout-label">
             Info
@@ -70,17 +72,14 @@
             <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
         </div>
     </div>
-
     <div class="layout-row">
         <div class="layout-label">
             Functions
         </div>
         <div class="layout-value">
             <a href="javascript:void(0);" onclick="packageDelete('@ViewData["packageId"]')">Delete</a>
-
         </div>
     </div>
-
 </div>
 
 <div class="layout-section">
