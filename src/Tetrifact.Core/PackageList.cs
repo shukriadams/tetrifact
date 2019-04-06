@@ -30,7 +30,7 @@ namespace Tetrifact.Core
             _cache.Remove("_packageCache");
         }
 
-        private IList<Package> Generate()
+        private IList<Package> GeneratePackageData()
         {
             IList<Package> packageData = new List<Package>();
 
@@ -68,14 +68,37 @@ namespace Tetrifact.Core
             return packageData;
         }
 
+        public IEnumerable<string> GetPopularTags(int count)
+        {
+            IList<Package> packageData;
+
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            Dictionary<string, int> tags = new Dictionary<string, int>();
+            foreach (Package package in packageData)
+            {
+                foreach (string tag in package.Tags)
+                {
+                    if (!tags.ContainsKey(tag))
+                        tags.Add(tag, 0);
+
+                    tags[tag]++;
+                }
+            }
+
+            return tags.OrderByDescending(r => r.Value).Take(count).Select(r => r.Key);
+        }
+
         public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
         {
             IList<Package> packageData;
 
-
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.Generate();
+                packageData = this.GeneratePackageData();
             }
 
             return packageData.Where(r => r.Tags.Contains(tag)).Skip(pageIndex * pageSize).Take(pageSize);
@@ -88,7 +111,7 @@ namespace Tetrifact.Core
             
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.Generate();
+                packageData = this.GeneratePackageData();
             }
 
             return packageData.Skip(pageIndex * pageSize).Take(pageSize);

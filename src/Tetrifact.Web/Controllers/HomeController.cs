@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -24,7 +26,7 @@ namespace Tetrifact.Web
         public IActionResult Index()
         {
             ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
-            ViewData["tags"] = _tagService.ReadTagsFromIndex();
+            ViewData["tags"] = _packageList.GetPopularTags(10);
             return View();
         }
 
