@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -68,10 +69,29 @@ namespace Tetrifact.Core
             */
         }
 
+        /// <summary>
+        /// Gets tags from tags index (not directly from individual packages). 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GetTags()
         {
-            string[] tags = Directory.GetDirectories(_settings.TagsPath);
-            return tags.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
+            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            List<string> tags = new List<string>();
+
+            foreach (string rawTag in rawTags)
+            {
+                try
+                {
+                    tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)));
+                }
+                catch (FormatException)
+                {
+                    // log invalid tag folders, and continue.
+                    _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
+                }
+            }
+
+            return tags;
         }
 
         public IEnumerable<string> GetPackageIdsWithTag(string tag)
