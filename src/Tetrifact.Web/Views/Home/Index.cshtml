@@ -1,6 +1,5 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
-
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Tetrifact";
@@ -8,28 +7,10 @@
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
 }
 
-<div>
+<div class="layout-section">
 
-    <h2>Frequent tags</h2>
-    @if (tags.Any())
-    {
-        <ul>
-            @foreach (string tag in tags)
-            {
-                <li>
-                    <a href="/packagesWithTag/@tag">@tag</a>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <text>
-            No tags have been added yet.
-        </text>
-    }
+    <h2>Recent Packages</h2>
 
-    <h2>Packages</h2>
     @if (packages.Any())
     {
         <ul class="list">
@@ -47,5 +28,27 @@
             No packages have been added yet.
         </text>
     }
+</div>
 
+<div class="layout-section">
+
+    <h2>Frequently Used Tags</h2>
+
+    @if (tags.Any())
+    {
+        <ul>
+            @foreach (string tag in tags)
+            {
+                <li class="listItem">
+                    <a href="/packagesWithTag/@tag">@tag</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <text>
+            No tags have been added yet.
+        </text>
+    }
 </div>

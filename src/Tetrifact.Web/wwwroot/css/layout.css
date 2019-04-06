@@ -2,20 +2,25 @@
     padding-bottom: 40px;
 }
 
+.layout-table {
+    display: table;
+    width: 100%;
+}
+
 .layout-row {
     display: table-row;
 }
 
 .layout-label {
     display: table-cell;
-    padding: 8px 32px 4px 8px;
     font-weight: bold;
-    border-bottom: solid 1px #bababa;
+    padding: 8px 0;
+    border-bottom: solid 1px #e6e6e6;
 }
 
 .layout-value {
     display: table-cell;
-    padding: 8px;
-    border-bottom: solid 1px #bababa;
     word-break: break-word;
+    padding: 8px 0;
+    border-bottom: solid 1px #e6e6e6;
 }

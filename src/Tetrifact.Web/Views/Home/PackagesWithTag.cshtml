@@ -14,7 +14,7 @@
         <ul>
             @foreach (Package package in packages)
             {
-                <li>
+                <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
                 </li>
             }

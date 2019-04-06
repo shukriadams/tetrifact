@@ -50,9 +50,9 @@ async function removeTag(e) {
 async function onClick(e) {
     if (e.target.classList && e.target.classList.contains('addTag'))
         await addTag(e);
-    else if (e.target.classList && e.target.classList.contains('removeTag'))
+    else if (e.target.classList && e.target.classList.contains('package-removeTag'))
         await removeTag(e);
-    else if (e.target.classList && e.target.classList.contains('removePackage'))
+    else if (e.target.classList && e.target.classList.contains('package-removePackage'))
         await removePackage();
 }
 

@@ -104,3 +104,8 @@ footer {
 .copyright {
     font-size: 14px;
 }
+
+.listItem {
+    padding: 8px 0;
+    border-bottom: solid 1px #e6e6e6;
+}

@@ -1,6 +1,6 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
-@using System.Web;
+
 @{
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
@@ -11,7 +11,8 @@
 
 <input type="hidden" class="packageId" value="@packageId" />
 
-<div class="layout-section">
+<div class="layout-section layout-table">
+
     <div class="layout-row">
         <div class="layout-label">
         </div>
@@ -19,6 +20,7 @@
             <a class="button" href="/v1/archives/@packageId">&#10515; Download</a>
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Created
@@ -27,6 +29,7 @@
             @manifest.CreatedUtc.ToLocalTime().ToString("g") (@manifest.CreatedUtc.ToLocalTime().Humanize())
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Description
@@ -35,6 +38,7 @@
             @manifest.Description
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             File count
@@ -43,6 +47,7 @@
             @manifest.Files.Count
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Size
@@ -51,6 +56,7 @@
             @String.Format("{0:n0}", manifest.Size) bytes
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Size on disk
@@ -59,6 +65,7 @@
             @String.Format("{0:n0}", manifest.SizeOnDisk) bytes
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Hash
@@ -67,6 +74,7 @@
             @manifest.Hash
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Info
@@ -75,35 +83,37 @@
             <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
         </div>
     </div>
+
     <div class="layout-row">
         <div class="layout-label">
             Functions
         </div>
         <div class="layout-value">
-            <a href="javascript:void(0);" class="removePackage">Delete</a>
+            <a href="javascript:void(0);" class="package-removePackage">Delete</a>
         </div>
     </div>
+
 </div>
 
 <div class="layout-section">
     <h2>Tags</h2>
     <div>
-        
+
         <input class="newTag" type="text" placeholder="New tag" />
         <button class="button addTag">Add</button>
 
-        <div >
+        <div>
             @if (manifest.Tags.Any())
             {
                 <ul>
                     @foreach (string tag in manifest.Tags)
                     {
-                    <li>
-                        <a class="removeTag" data-tag="@tag" href="javascript:void(null)">
-                            <img class="package-deleteIcon" src="/icons/delete.svg" alt="Delete">
-                        </a>
-                        <a href="/packagesWithTag/@tag">@tag</a>
-                    </li>
+                        <li class="listItem">
+                            <a class="package-removeTag" data-tag="@tag" href="javascript:void(null)">
+                                <img class="package-deleteIcon" src="/icons/delete.svg" alt="Delete">
+                            </a>
+                            <a href="/packagesWithTag/@tag">@tag</a>
+                        </li>
                     }
                 </ul>
             }
@@ -116,7 +126,6 @@
         </div>
     </div>
 </div>
-
 <div class="layout-section">
     <div>
         <h2>Files</h2>
@@ -125,12 +134,10 @@
             <div>
                 @foreach (ManifestItem file in manifest.Files)
                 {
-                <div class="layout-row">
-                    <div class="layout-value">
+                    <div class="listItem">
                         <a class="package-download" href="/v1/files/@file.Id">&#10515;</a>
                         @file.Path
                     </div>
-                </div>
                 }
             </div>
 
@@ -143,6 +150,4 @@
         }
     </div>
 </div>
-
-
 

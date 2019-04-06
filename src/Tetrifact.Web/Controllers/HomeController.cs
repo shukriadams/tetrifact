@@ -26,7 +26,7 @@ namespace Tetrifact.Web
         public IActionResult Index()
         {
             ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
-            ViewData["tags"] = _packageList.GetPopularTags(10);
+            ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
             return View();
         }
 
