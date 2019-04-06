@@ -33,7 +33,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                return this.TagsService.GetTags().ToArray();
+                return this.TagsService.ReadTagsFromIndex().ToArray();
             }
             catch (PackageNotFoundException)
             {

@@ -24,7 +24,7 @@ namespace Tetrifact.Web
         public IActionResult Index()
         {
             ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
-            ViewData["tags"] = _tagService.GetTags();
+            ViewData["tags"] = _tagService.ReadTagsFromIndex();
             return View();
         }
 

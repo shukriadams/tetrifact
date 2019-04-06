@@ -69,11 +69,12 @@ namespace Tetrifact.Core
             */
         }
 
+
         /// <summary>
-        /// Gets tags from tags index (not directly from individual packages). 
+        /// Gets tags from /tags index folder  (not directly from individual packages). 
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> GetTags()
+        public IEnumerable<string> ReadTagsFromIndex()
         {
             string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
             List<string> tags = new List<string>();
