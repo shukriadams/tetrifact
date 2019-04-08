@@ -2,7 +2,6 @@
 @using Humanizer;
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Tetrifact";
     IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
 }
