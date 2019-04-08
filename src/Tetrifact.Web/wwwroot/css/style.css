@@ -107,5 +107,8 @@ footer {
 
 .listItem {
     padding: 8px 0;
+}
+
+.listItem:not(:last-child) {
     border-bottom: solid 1px #e6e6e6;
 }
