@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web

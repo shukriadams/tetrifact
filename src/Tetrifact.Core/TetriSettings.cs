@@ -21,6 +21,8 @@ namespace Tetrifact.Core
 
         public int IndexPackageListLength { get; set; }
 
+        public int IndexTagListLength { get; set; }
+
         public int CacheTimeout { get; set; }
 
         public TetriSettings()
@@ -28,7 +30,8 @@ namespace Tetrifact.Core
             // defaults
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
-            this.IndexPackageListLength = 100;
+            this.IndexPackageListLength = 50;
+            this.IndexTagListLength = 20;
             this.CacheTimeout = 60 * 60;                // 1 hour
 
             // get settings from env variables

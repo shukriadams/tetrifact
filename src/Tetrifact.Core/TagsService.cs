@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,10 +33,11 @@ namespace Tetrifact.Core
             if (!Directory.Exists(targetFolder))
                 Directory.CreateDirectory(targetFolder);
 
+            
             string targetPath = Path.Combine(targetFolder, packageId);
             if (!File.Exists(targetPath))
-                File.Create(targetPath);
-
+                File.WriteAllText(targetPath, string.Empty);
+                
 
             // WARNING - NO FILE LOCK HERE!!
             Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
@@ -68,10 +70,30 @@ namespace Tetrifact.Core
             */
         }
 
-        public IEnumerable<string> GetTags()
+
+        /// <summary>
+        /// Gets tags from /tags index folder  (not directly from individual packages). 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> ReadTagsFromIndex()
         {
-            string[] tags = Directory.GetDirectories(_settings.TagsPath);
-            return tags.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
+            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            List<string> tags = new List<string>();
+
+            foreach (string rawTag in rawTags)
+            {
+                try
+                {
+                    tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)));
+                }
+                catch (FormatException)
+                {
+                    // log invalid tag folders, and continue.
+                    _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
+                }
+            }
+
+            return tags;
         }
 
         public IEnumerable<string> GetPackageIdsWithTag(string tag)
@@ -91,10 +113,8 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             string targetPath = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag), packageId);
-            if (!File.Exists(targetPath))
-                throw new TagNotFoundException();
-
-            File.Delete(targetPath);
+            if (File.Exists(targetPath))
+                File.Delete(targetPath);
 
             // WARNING - NO FILE LOCK HERE!!
             Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));

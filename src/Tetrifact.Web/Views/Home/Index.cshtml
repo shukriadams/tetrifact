@@ -1,4 +1,5 @@
 ﻿@using Tetrifact.Core;
+@using Humanizer;
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Tetrifact";
@@ -6,15 +7,39 @@
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
 }
 
-<div>
+<div class="layout-section">
 
-    <h2>Tags</h2>
+    <h2>Recent Packages</h2>
+
+    @if (packages.Any())
+    {
+        <ul class="list">
+            @foreach (Package package in packages)
+            {
+                <li class="listItem">
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize())</div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <text>
+            No packages have been added yet.
+        </text>
+    }
+</div>
+
+<div class="layout-section">
+
+    <h2>Frequently Used Tags</h2>
+
     @if (tags.Any())
     {
         <ul>
             @foreach (string tag in tags)
             {
-                <li>
+                <li class="listItem">
                     <a href="/packagesWithTag/@tag">@tag</a>
                 </li>
             }
@@ -26,24 +51,4 @@
             No tags have been added yet.
         </text>
     }
-
-    <h2>Packages</h2>
-    @if (packages.Any())
-    {
-        <ul class="list">
-            @foreach (Package package in packages)
-            {
-                <li class="listItem">
-                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g"))</div>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <text>
-            No packages have been added yet.
-        </text>
-    }
-
 </div>

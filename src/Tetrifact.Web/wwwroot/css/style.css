@@ -30,7 +30,7 @@ ul {
 
 .listItem {
     padding-bottom: 4px;
-    padding-bottom: 4px;
+    padding-bottom: 8px;
 }
 
 .button {
@@ -44,6 +44,11 @@ ul {
     background-color: orangered;
     color: white;
     padding: 10px 20px;
+}
+
+input[type=text] {
+    height: 35px;
+    padding: 6px;
 }
 
 .shell {
@@ -98,4 +103,9 @@ footer {
 
 .copyright {
     font-size: 14px;
+}
+
+.listItem {
+    padding: 8px 0;
+    border-bottom: solid 1px #e6e6e6;
 }

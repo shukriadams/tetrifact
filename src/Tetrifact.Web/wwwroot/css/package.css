@@ -1,5 +1,16 @@
-﻿.package-download {
+﻿.package-removeTag{
+    margin-right: 16px;
+}
+
+.package-download {
     font-weight: bold;
     font-size: 16px;
     padding: 0 8px;
+}
+
+.package-deleteIcon {
+    width: 19px;
+    position: relative;
+    top: 4px;
+    pointer-events: none;
 }

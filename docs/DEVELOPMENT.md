@@ -69,3 +69,13 @@ External tests : first start the server from another process. Then
     cd Tetri.ExternalTests
     dotnet build
     dotnet run
+
+## Architecture
+
+This is a brief explanation of Tetrifact's structure and concepts
+
+### Tags
+
+Packages can be tagged with strings to aid identification. Tags are stored in manifest.json of a given package, but are also written to the /tags folder. The latter is used as a fast index to effeciently list all tags without having to iterate and load every manifest. Tags in this folder are base64 encoded to allow tags to contain characters unsupported by the filesystem. 
+
+The source of truth for tags are manifest files, the /tags folder is secondary and can be rebuilt at any time should they become corrupted. If a tag folder is directly renamed so its text is not a valid base64 string, it will not appear in tag read lists.
