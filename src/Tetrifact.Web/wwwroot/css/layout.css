@@ -14,7 +14,7 @@
 .layout-label {
     display: table-cell;
     font-weight: bold;
-    padding: 8px 0;
+    padding: 8px 20px 0;
     border-bottom: solid 1px #e6e6e6;
 }
 
