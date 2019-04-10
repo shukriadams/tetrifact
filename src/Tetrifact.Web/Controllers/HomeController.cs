@@ -25,7 +25,7 @@ namespace Tetrifact.Web
 
         public IActionResult Index()
         {
-            ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
+            ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
             ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
             return View();
         }
@@ -44,7 +44,20 @@ namespace Tetrifact.Web
             if (manifest == null)
                 return View("Error404");
 
-            ViewData["manifest"] = IndexService.GetManifest(packageId) ?? new Manifest();
+            ViewData["manifest"] = IndexService.GetManifest(packageId);
+            return View();
+        }
+
+        [Route("packages/{page?}")]
+        public IActionResult Packages(int page)
+        {
+            if (page != 0)
+                page--;
+
+            Pager pager = new Pager();
+            PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
+            ViewData["pager"] = pager.Render<Package>(packages, 10, "/packages", "page");
+            ViewData["packages"] = packages;
             return View();
         }
 
@@ -54,7 +67,7 @@ namespace Tetrifact.Web
             try
             {
                 ViewData["tag"] = tag;
-                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.IndexPackageListLength);
+                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.ListPageSize);
                 return View();
             }
             catch (TagNotFoundException)

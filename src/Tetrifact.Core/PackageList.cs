@@ -117,5 +117,18 @@ namespace Tetrifact.Core
             return packageData.Skip(pageIndex * pageSize).Take(pageSize);
         }
 
+        public PageableData<Package> GetPage(int pageIndex, int pageSize)
+        {
+            IList<Package> packageData;
+
+
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            return new PageableData<Package>(packageData.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packageData.Count);
+        }
+
     }
 }

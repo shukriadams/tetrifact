@@ -45,7 +45,7 @@
         /// <summary>
         /// Number of packages to list on index page.
         /// </summary>
-        int IndexPackageListLength { get; set; }
+        int ListPageSize { get; set; }
 
         /// <summary>
         /// Number of tags to list on index page
