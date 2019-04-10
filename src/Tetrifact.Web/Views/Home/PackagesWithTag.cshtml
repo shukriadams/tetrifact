@@ -2,13 +2,12 @@
 @using Humanizer;
 @{
     string tag = ViewData["tag"] as string;
-    ViewData["Title"] = $"Tag : {tag}";
+    ViewData["Title"] = $"Packages tagged with \"{tag}\"";
     Layout = "~/Views/Shared/_Layout.cshtml";
     IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
 }
 
 <div>
-    <h2>Packages : </h2>
     @if (packages.Any())
     {
         <ul>
@@ -26,5 +25,4 @@
             No packages found for this tag.
         </text>
     }
-
 </div>

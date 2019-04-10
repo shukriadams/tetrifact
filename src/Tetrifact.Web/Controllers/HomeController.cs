@@ -40,6 +40,10 @@ namespace Tetrifact.Web
         public IActionResult Package(string packageId)
         {
             ViewData["packageId"] = packageId;
+            Manifest manifest = IndexService.GetManifest(packageId);
+            if (manifest == null)
+                return View("Error404");
+
             ViewData["manifest"] = IndexService.GetManifest(packageId) ?? new Manifest();
             return View();
         }
@@ -73,3 +77,4 @@ namespace Tetrifact.Web
         }
     }
 }
+
