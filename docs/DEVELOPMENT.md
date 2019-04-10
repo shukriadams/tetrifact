@@ -22,9 +22,12 @@ To-do list
     - Ability to receive new builds while file index is disconnected for maintenance.
 
 
-## Running from command line 
+## Running from Visual Studio
 
-You can of course run everything from Visual Studio, but if you're using the command line, read on.
+Set Tetrifact.Web as your start project and run in IIS Express.
+
+
+## Running from command line 
 
 Opening for the first time? Run
 
