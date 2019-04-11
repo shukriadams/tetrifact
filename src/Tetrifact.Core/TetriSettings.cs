@@ -26,6 +26,8 @@ namespace Tetrifact.Core
 
         public int IndexTagListLength { get; set; }
 
+        public int PagesPerPageGroup { get; set; }
+
         public int CacheTimeout { get; set; }
 
         public TetriSettings(ILogger<TetriSettings> log)
@@ -37,6 +39,7 @@ namespace Tetrifact.Core
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.ListPageSize = 50;
             this.IndexTagListLength = 20;
+            this.PagesPerPageGroup = 20;
             this.CacheTimeout = 60 * 60;                // 1 hour
 
             // get settings from env variables

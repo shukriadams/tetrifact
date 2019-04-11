@@ -1,27 +1,16 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Tetrifact.Core;
-using Microsoft.AspNetCore.Http;
 
 namespace Tetrifact.Web
 {
     public class Pager
     {
-
-        
-
         #region PROPERTIES
 
         /// <summary>
         /// 
         /// </summary>
-        [Obsolete]
         public string CssClass { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string CssClassUl { get; set; }
 
         /// <summary>
         /// Unique id of page. Used to give child elements unique elements.
@@ -59,8 +48,7 @@ namespace Tetrifact.Web
 
         public Pager()
         {
-            // default class is Twitter bootstrap's pagination class
-            this.CssClass = "pagination pagination-centered";
+            this.CssClass = "pager";
             this.Inline = string.Empty;
         }
 
@@ -139,25 +127,17 @@ namespace Tetrifact.Web
         {
             StringBuilder s = new StringBuilder();
 
-            s.Append(string.Format("<div class='{0}'>", this.CssClass));
-            s.Append(string.Format("<ul class='{0}'>", this.CssClassUl));
-
-            // remove pageindexname if it exists in url
-            // HttpContext current = new HttpContextAccessor().HttpContext;
-            //if (string.IsNullOrEmpty(baseurl))
-            //    baseurl = current.Request.Host.Host;
-
-            //baseurl = WebLib.RemoveQueryString(baseurl, pageIndexName);
-            //if (!baseurl.Contains("?"))
-            //    baseurl = baseurl + "?";
+            s.Append($"<ul class='{this.CssClass}'>");
 
 
             // previous
             if (this.Currentgroup > 0)
             {
                 int back = ((this.Currentgroup * pagesPerGroup) - 1);
-                s.Append($"<li><a id='{this.Id}_back' href='{baseurl}/{pageIndexName}={back + 1}'>");
+                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{pageIndexName}={back + 1}'>");
+                s.Append("<span class='pager-linkContent'>");
                 s.Append("..");
+                s.Append("</span>");
                 s.Append("</a></li>");
             }
 
@@ -169,14 +149,18 @@ namespace Tetrifact.Web
 
                 if (isActive)
                 {
-                    s.Append($"<li class='active'><a id='{this.Id}_link_active_{c + 1}'>");
+                    s.Append($"<li class='pager-item'><a class='pager-link pager-link--active'>");
+                    s.Append("<span class='pager-linkContent'>");
                     s.Append(c + 1);
+                    s.Append("</span>");
                     s.Append("</a></li>");
                 }
                 else
                 {
-                    s.Append($"<li><a id='{this.Id}_link_{c + 1}' href='{baseurl}/{c + 1}'>");
+                    s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{c + 1}'>");
+                    s.Append("<span class='pager-linkContent'>");
                     s.Append(c + 1);
+                    s.Append("</span>");
                     s.Append("</a></li>");
                 }
             }
@@ -186,13 +170,14 @@ namespace Tetrifact.Web
             if (this.Currentgroup < this.TotalGroups - 1)
             {
                 int forward = (this.Currentgroup + 1) * pagesPerGroup;
-                s.Append($"<li><a id='{this.Id}_forward' href='{baseurl}/{forward + 1}'>");
+                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{forward + 1}'>");
+                s.Append("<span class='pager-linkContent'>");
                 s.Append("..");
+                s.Append("</span>");
                 s.Append("</a></li>");
             }
 
             s.Append("</ul>");
-            s.Append("</div>");
 
             return s.ToString();
         }
