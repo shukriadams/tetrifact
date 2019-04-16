@@ -8,7 +8,7 @@ namespace Tetrifact.Core
 
         void RemoveTag(string packageId, string tag);
 
-        IEnumerable<string> GetTags();
+        IEnumerable<string> ReadTagsFromIndex();
 
         IEnumerable<string> GetPackageIdsWithTag(string tag);
     }

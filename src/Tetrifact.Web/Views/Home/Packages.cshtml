@@ -1,0 +1,31 @@
+﻿@using Tetrifact.Core;
+@using Humanizer;
+
+@{
+    ViewData["Title"] = "Packages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    PageableData<Package> packages = ViewData["packages"] as PageableData<Package>;
+    string pager = ViewData["pager"] as string;
+}
+
+<div>
+    @if (packages.Page.Any())
+    {
+    <ul>
+        @foreach (Package package in packages.Page)
+        {
+            <li class="listItem">
+                <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+            </li>
+        }
+
+        @Html.Raw(pager)
+    </ul>
+    }
+    else
+    {
+        <text>
+
+        </text>
+    }
+</div>

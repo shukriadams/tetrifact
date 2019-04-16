@@ -62,6 +62,7 @@ namespace Tetrifact.Web
 
 
         /// <summary>
+        /// Get rid of this, use GetPackage instead
         /// Returns 1 if the package exists, 0 if not
         /// </summary>
         /// <param name="packageId"></param>
@@ -71,7 +72,33 @@ namespace Tetrifact.Web
         {
             return IndexService.GetManifest(packageId) != null;
         }
-       
+
+
+        /// <summary>
+        /// Returns the manifest for a package
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        [HttpGet("{packageId}")]
+        public ActionResult GetPackage(string packageId)
+        {
+            try
+            {
+                Manifest manifest = IndexService.GetManifest(packageId);
+                if (manifest == null)
+                    return NotFound();
+
+                return new JsonResult(manifest);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                Console.WriteLine("An unexpected error occurred : ");
+                Console.WriteLine(ex);
+                return Responses.UnexpectedError();
+            }
+        }
+
 
         /// <summary>
         /// Handles posting a new package to system. 
@@ -93,7 +120,6 @@ namespace Tetrifact.Web
                     _packageList.Clear();
                     return Ok();
                 }
-                    
 
                 if (result.ErrorType == PackageAddErrorTypes.InvalidArchiveFormat)
                     return Responses.InvalidArchiveFormatError(post.Format);
@@ -114,6 +140,7 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
+
 
         /// <summary>
         /// 

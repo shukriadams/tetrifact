@@ -40,7 +40,7 @@ namespace Tetrifact.Web
             {
                 // SECURITY WARNING : the limit on attachment part size is removed to support large
                 // builds. 
-                options.MultipartBodyLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = long.MaxValue;
             });
 
             // do all ninject stuff here
@@ -89,9 +89,7 @@ namespace Tetrifact.Web
 
             loggerFactory.AddFile(logPath);
 
-            if (Environment.GetEnvironmentVariable("FORCE_HTTPS") == "true")
-                app.UseHttpsRedirection();
-
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

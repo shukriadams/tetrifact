@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -23,8 +25,8 @@ namespace Tetrifact.Web
 
         public IActionResult Index()
         {
-            ViewData["packages"] = _packageList.Get(0, _settings.IndexPackageListLength);
-            ViewData["tags"] = _tagService.GetTags();
+            ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
+            ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
             return View();
         }
 
@@ -38,7 +40,25 @@ namespace Tetrifact.Web
         public IActionResult Package(string packageId)
         {
             ViewData["packageId"] = packageId;
-            ViewData["manifest"] = IndexService.GetManifest(packageId) ?? new Manifest();
+            Manifest manifest = IndexService.GetManifest(packageId);
+            if (manifest == null)
+                return View("Error404");
+
+            ViewData["manifest"] = IndexService.GetManifest(packageId);
+            return View();
+        }
+
+        [Route("packages/{page?}")]
+        public IActionResult Packages(int page)
+        {
+            // user-facing page values start at 1 instead of 0. reset
+            if (page != 0)
+                page--;
+
+            Pager pager = new Pager();
+            PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
+            ViewData["pager"] = pager.Render<Package>(packages, _settings.PagesPerPageGroup, "/packages", "page");
+            ViewData["packages"] = packages;
             return View();
         }
 
@@ -48,7 +68,7 @@ namespace Tetrifact.Web
             try
             {
                 ViewData["tag"] = tag;
-                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.IndexPackageListLength);
+                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.ListPageSize);
                 return View();
             }
             catch (TagNotFoundException)
@@ -71,3 +91,4 @@ namespace Tetrifact.Web
         }
     }
 }
+

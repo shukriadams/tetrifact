@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Web;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -33,7 +34,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                return this.TagsService.GetTags().ToArray();
+                return this.TagsService.ReadTagsFromIndex().ToArray();
             }
             catch (PackageNotFoundException)
             {
@@ -73,8 +74,9 @@ namespace Tetrifact.Web
         {
             try
             {
+                tag = HttpUtility.UrlDecode(tag);
                 this.TagsService.AddTag(packageId, tag);
-                return Ok();
+                return Ok($"Tag {tag} was added to package {packageId}");
             }
             catch (PackageNotFoundException)
             {
@@ -94,8 +96,9 @@ namespace Tetrifact.Web
         {
             try
             {
+                tag = HttpUtility.UrlDecode(tag);
                 this.TagsService.RemoveTag(packageId, tag);
-                return Ok();
+                return Ok($"Tag {tag} was removed from package {packageId}");
             }
             catch (PackageNotFoundException)
             {

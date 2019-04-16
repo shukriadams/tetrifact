@@ -19,7 +19,7 @@ namespace Tetrifact.Tests.Workspace
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-            Settings = new TetriSettings();
+            Settings = new TetriSettings(new TestLogger<TetriSettings>());
             Settings.RepositoryPath = Path.Join(testFolder, "HashIndex");
             Settings.PackagePath = Path.Join(testFolder, "Package");
             Settings.TempPath = Path.Join(testFolder, "Temp");

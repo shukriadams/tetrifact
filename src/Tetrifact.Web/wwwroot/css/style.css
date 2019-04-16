@@ -30,7 +30,7 @@ ul {
 
 .listItem {
     padding-bottom: 4px;
-    padding-bottom: 4px;
+    padding-bottom: 8px;
 }
 
 .button {
@@ -44,6 +44,11 @@ ul {
     background-color: orangered;
     color: white;
     padding: 10px 20px;
+}
+
+input[type=text] {
+    height: 35px;
+    padding: 6px;
 }
 
 .shell {
@@ -88,6 +93,50 @@ main {
     padding: 16px 8px;
 }
 
+
+.copyright {
+    font-size: 14px;
+}
+
+.listItem {
+    padding: 8px 0;
+}
+
+.listItem:not(:last-child) {
+    border-bottom: solid 1px #e6e6e6;
+}
+
+
+/******************************************************************************
+ *footer
+ *****************************************************************************/
+.pager {
+    padding: 8px 0;
+}
+
+.pager-item {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+
+.pager-link {
+    background-color: orangered;
+    color: white;
+    display: block;
+    padding: 10px 14px;
+}
+
+.pager-link.pager-link--active {
+    background-color: lightcoral;
+}
+
+
+
+/******************************************************************************
+ *footer
+ *****************************************************************************/
 footer {
     background-color: #343434;
     color: white;
@@ -96,6 +145,9 @@ footer {
     border-top: orangered 12px solid;
 }
 
-.copyright {
-    font-size: 14px;
+.footer-section {
+    display: inline-block;
+    vertical-align: top;
+    padding-right: 24px;
+    width: 150px;
 }

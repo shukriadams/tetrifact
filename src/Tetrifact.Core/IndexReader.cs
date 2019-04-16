@@ -110,20 +110,6 @@ namespace Tetrifact.Core
 
         }
 
-        private bool IsFileAvailable(string path)
-        {
-            try
-            {
-                // open with no sharing to ensure fil
-                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) { }
-                return true;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-        }
-
         /// <summary>
         /// Todo : this is far too simplistic, expand to delete based on available disk space.
         /// </summary>
@@ -215,7 +201,7 @@ namespace Tetrifact.Core
                 }
             }
 
-            // flip temp file to final path, this means it's ready for use
+            // flip temp file to final path, it is ready for use only when this happens
             File.Move(archivePathTemp, archivePath);
         }
 
@@ -259,7 +245,7 @@ namespace Tetrifact.Core
                 return 0;
             }
 
-            if (!IsFileAvailable(archivePath))
+            if (!File.Exists(archivePath))
                 return 1;
 
             return 2;

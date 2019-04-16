@@ -20,7 +20,7 @@ namespace Tetrifact.Tests.IndexReader
 
             Directory.CreateDirectory(testFolder);
 
-            this.Settings = new TetriSettings();
+            this.Settings = new TetriSettings(new TestLogger<TetriSettings>());
             this.Settings.RepositoryPath = Path.Join(testFolder, "HashIndex");
             this.Settings.PackagePath = Path.Join(testFolder, "Package");
             this.Settings.TempPath = Path.Join(testFolder, "Temp");
