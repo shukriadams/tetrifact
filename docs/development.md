@@ -2,10 +2,8 @@
 
 ## Requirements
 
-Dotnetcore 2.2
-
-Note that Visual Studio is quirky with Dotnetcore - you probably want to run the latest version of it, and make sure you have the Dotnetcore 2.2 SDK installed (not just the runtime).
-
+- Dotnetcore 2.2 SDK
+- Visual Studio 2017 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
 
 ## Project status
 
@@ -21,11 +19,9 @@ To-do list
     - Post-commit hooks
     - Ability to receive new builds while file index is disconnected for maintenance.
 
-
 ## Running from Visual Studio
 
 Set Tetrifact.Web as your start project and run in IIS Express.
-
 
 ## Running from command line 
 
