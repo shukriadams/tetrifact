@@ -26,7 +26,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageAddResult CreatePackage(PackageCreateArguments newPackage)
+        public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
             IWorkspace workspace = null;
@@ -36,26 +36,26 @@ namespace Tetrifact.Core
             {
                 // validate the contents of "newPackage" object
                 if (newPackage.Files == null)
-                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.MissingValue, PublicError = "Expected 'Files' collection is missing." };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Expected 'Files' collection is missing." };
 
                 if (string.IsNullOrEmpty(newPackage.Id))
-                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.MissingValue, PublicError = "Id is required" };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required" };
 
                 // ensure package does not already exist
                 if (this.IndexReader.PackageNameInUse(newPackage.Id))
-                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.PackageExists };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists };
 
                 // if archive, ensure correct file count
                 if (newPackage.IsArchive && newPackage.Files.Count() == 0)
-                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.InvalidFileCount };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
                 // if archive, ensure correct file count
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
-                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.InvalidFileCount };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
                 // if archive, ensure correct file format 
                 if (newPackage.IsArchive && !new string[] { "zip" }.Contains(newPackage.Format))
-                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.InvalidArchiveFormat };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
                 workspace = _packageWorkspaceProvider.Get();
 
@@ -93,13 +93,13 @@ namespace Tetrifact.Core
                 // calculate package hash from child hashes
                 workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
 
-                return new PackageAddResult { Success = true, PackageHash = workspace.Manifest.Hash };
+                return new PackageCreateResult { Success = true, PackageHash = workspace.Manifest.Hash };
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, string.Empty);
                 Console.WriteLine(string.Format("Unexpected error : {0}", ex));
-                return new PackageAddResult { ErrorType = PackageAddErrorTypes.UnexpectedError };
+                return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }
             finally
             {

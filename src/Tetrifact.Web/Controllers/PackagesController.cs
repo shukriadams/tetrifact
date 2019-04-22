@@ -114,23 +114,23 @@ namespace Tetrifact.Web
         {
             try
             {
-                PackageAddResult result = _packageService.CreatePackage(post);
+                PackageCreateResult result = _packageService.CreatePackage(post);
                 if (result.Success)
                 {
                     _packageList.Clear();
                     return Ok($"Success - package \"{post.Id}\" created.");
                 }
 
-                if (result.ErrorType == PackageAddErrorTypes.InvalidArchiveFormat)
+                if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
                     return Responses.InvalidArchiveFormatError(post.Format);
 
-                if (result.ErrorType == PackageAddErrorTypes.InvalidFileCount)
+                if (result.ErrorType == PackageCreateErrorTypes.InvalidFileCount)
                     return Responses.InvalidArchiveContent();
 
-                if (result.ErrorType == PackageAddErrorTypes.PackageExists)
+                if (result.ErrorType == PackageCreateErrorTypes.PackageExists)
                     return Responses.PackageExistsError(post.Id);
 
-                if (result.ErrorType == PackageAddErrorTypes.MissingValue)
+                if (result.ErrorType == PackageCreateErrorTypes.MissingValue)
                     return Responses.MissingInputError(result.PublicError);
 
                 return Responses.UnexpectedError();

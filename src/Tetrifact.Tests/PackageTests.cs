@@ -60,7 +60,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
             Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
@@ -110,7 +110,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
             Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
@@ -133,9 +133,9 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.False(result.Success);
-            Assert.Equal(PackageAddErrorTypes.InvalidFileCount, result.ErrorType);
+            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }
     }
 }
