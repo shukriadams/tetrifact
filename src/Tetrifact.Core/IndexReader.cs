@@ -101,13 +101,11 @@ namespace Tetrifact.Core
                     return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(path));
 
                 return null;
-
             }
             catch (FormatException)
             {
                 throw new InvalidFileIdException();
             }
-
         }
 
         /// <summary>
@@ -301,7 +299,6 @@ namespace Tetrifact.Core
                     _logger.LogError($"Unexpected error deleting tag ${tagFile} : ${ex}");
                 }
             }
-
         }
 
         public void CleanRepository()
@@ -311,7 +308,6 @@ namespace Tetrifact.Core
             IEnumerable<string> existingPackageIds = this.GetAllPackageIds();
 
             CleanRepository_Internal(_settings.RepositoryPath, existingPackageIds, false);
-            
         }
 
         /// <summary>
@@ -389,9 +385,9 @@ namespace Tetrifact.Core
             {
                 // bin file is orphaned (no package, no package folders)
                 string filePath = Path.Join(currentDirectory, "bin");
+
                 try
                 {
-                    
                     File.Delete(filePath);
                 }
                 catch (Exception ex)
@@ -399,6 +395,7 @@ namespace Tetrifact.Core
                     Console.WriteLine(ex);
                     _logger.LogError($"Unexpected error deleting file ${filePath} ", ex);
                 }
+
                 return;
             }
 
