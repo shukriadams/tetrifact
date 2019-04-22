@@ -6,7 +6,7 @@ namespace Tetrifact.Core
 {
     public class TetriSettings : ITetriSettings
     {
-        private ILogger<TetriSettings> _log;
+        private ILogger<ITetriSettings> _log;
 
         public string PackagePath { get; set; }
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Core
 
         public int CacheTimeout { get; set; }
 
-        public TetriSettings(ILogger<TetriSettings> log)
+        public TetriSettings(ILogger<ITetriSettings> log)
         {
             _log = log;
 

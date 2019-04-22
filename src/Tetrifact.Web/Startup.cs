@@ -43,12 +43,12 @@ namespace Tetrifact.Web
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
 
-            // do all ninject stuff here
+            // register type injections here
             services.AddTransient<ITetriSettings, TetriSettings>();
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IWorkspaceProvider, WorkspaceProvider>();
             services.AddTransient<ITagsService, TagsService>();
-            services.AddTransient<PackageService, PackageService>();
+            services.AddTransient<IPackageService, PackageService>();
             services.AddTransient<PackageList, PackageList>();
 
             // prettify JSON output

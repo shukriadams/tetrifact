@@ -4,6 +4,7 @@ namespace Tetrifact.Web
 {
     public class Responses
     {
+
         /// <summary>
         /// 
         /// </summary>
@@ -100,5 +101,21 @@ namespace Tetrifact.Web
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public static BadRequestObjectResult MissingInputError(string error)
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 106,
+                    Message = error
+                }
+            });
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace Tetrifact.Web
         private readonly ITetriSettings _settings;
         public IIndexReader IndexService;
         private ILogger<PackagesController> _log;
-        private PackageService _packageService;
+        private IPackageService _packageService;
         private PackageList _packageList;
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public PackagesController(PackageService packageService, PackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(IPackageService packageService, PackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
@@ -114,11 +114,11 @@ namespace Tetrifact.Web
         {
             try
             {
-                PackageAddResult result = await _packageService.AddPackageAsync(post);
+                PackageAddResult result = await _packageService.CreatePackageAsync(post);
                 if (result.Success)
                 {
                     _packageList.Clear();
-                    return Ok();
+                    return Ok($"Success - package \"{post.Id}\" created.");
                 }
 
                 if (result.ErrorType == PackageAddErrorTypes.InvalidArchiveFormat)
@@ -129,6 +129,9 @@ namespace Tetrifact.Web
 
                 if (result.ErrorType == PackageAddErrorTypes.PackageExists)
                     return Responses.PackageExistsError(post.Id);
+
+                if (result.ErrorType == PackageAddErrorTypes.MissingValue)
+                    return Responses.MissingInputError(result.PublicError);
 
                 return Responses.UnexpectedError();
             }

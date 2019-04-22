@@ -8,17 +8,21 @@ using System.Linq;
 
 namespace Tetrifact.Core
 {
-    public class PackageList
+    /// <summary>
+    /// Package list logic ; implements in-memory caching to save on expensive read operations, as generating a list of packages requires 
+    /// loading the JSON manifest of each package.
+    /// </summary>
+    public class PackageList : IPackageList
     {
         private IMemoryCache _cache;
 
         private ITetriSettings _settings;
 
-        private ILogger<PackageList> _logger;
+        private ILogger<IPackageList> _logger;
 
         readonly string _cacheKey = "_packageCache";
 
-        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ILogger<PackageList> logger)
+        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;

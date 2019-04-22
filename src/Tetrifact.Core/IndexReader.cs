@@ -14,9 +14,9 @@ namespace Tetrifact.Core
     {
         private ITetriSettings _settings;
 
-        private ILogger<IndexReader> _logger;
+        private ILogger<IIndexReader> _logger;
 
-        public IndexReader(ITetriSettings settings, ILogger<IndexReader> logger)
+        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger)
         {
             _settings = settings;
             _logger = logger;

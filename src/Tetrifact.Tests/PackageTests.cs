@@ -15,12 +15,12 @@ namespace Tetrifact.Tests
     public class PackageTests : TestBase
     {
         PackagesController _packagesController;
-        PackageService _packageService;
+        IPackageService _packageService;
 
         public PackageTests()
         {
             _packagesController = this.Kernel.Get<PackagesController>();
-            _packageService = this.Kernel.Get<PackageService>();
+            _packageService = this.Kernel.Get<IPackageService>();
 
             TestWorkspaceProvider.Reset();
         }
@@ -60,7 +60,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.AddPackageAsync(postArgs);
+            PackageAddResult result = await _packageService.CreatePackageAsync(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
             Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
@@ -110,7 +110,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.AddPackageAsync(postArgs);
+            PackageAddResult result = await _packageService.CreatePackageAsync(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
             Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
@@ -133,7 +133,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.AddPackageAsync(postArgs);
+            PackageAddResult result = await _packageService.CreatePackageAsync(postArgs);
             Assert.False(result.Success);
             Assert.Equal(PackageAddErrorTypes.InvalidFileCount, result.ErrorType);
         }

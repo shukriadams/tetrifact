@@ -11,11 +11,11 @@ namespace Tetrifact.Core
     {
         private ITetriSettings _settings;
 
-        private ILogger<TagsService> _logger;
+        private ILogger<ITagsService> _logger;
 
-        private PackageList _packageList;
+        private IPackageList _packageList;
 
-        public TagsService(ITetriSettings settings, ILogger<TagsService> logger, PackageList packageList)
+        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IPackageList packageList)
         {
             _settings = settings;
             _logger = logger;

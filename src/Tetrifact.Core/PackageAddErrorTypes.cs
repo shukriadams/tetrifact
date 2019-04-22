@@ -2,6 +2,7 @@
 {
     public enum PackageAddErrorTypes
     {
+        MissingValue,
         PackageExists,
         InvalidFileCount,
         InvalidArchiveFormat,

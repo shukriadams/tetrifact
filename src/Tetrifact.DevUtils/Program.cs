@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Ninject;
+using System;
 using System.IO;
+using System.Reflection;
 
 namespace Tetrifact.DevUtils
 {
@@ -7,6 +9,9 @@ namespace Tetrifact.DevUtils
     {
         static void Main(string[] args)
         {
+            StandardKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
+
             CommandLineArgumentParser commandArgs = new CommandLineArgumentParser(args, "--", true);
 
             if (!commandArgs.Contains("run"))
@@ -18,20 +23,26 @@ namespace Tetrifact.DevUtils
             switch (commandArgs.Get("run"))
             {
                 case "generatePackages" :
+                {
                     if (!commandArgs.Contains("size"))
                     {
                         Console.WriteLine("Missing --size argument");
                         Environment.Exit(1);
                     }
 
-                    PackageGenerator.CreatePackages(
+                    PackageGenerator packageGenerater = kernel.Get<PackageGenerator>();
+                    packageGenerater.CreatePackages(
                         Int32.Parse(commandArgs.Get("size")),
                         Path.Join(AppDomain.CurrentDomain.BaseDirectory, "packages"));
 
                     return;
+                }
                 case "indexPerf":
-                    PackageGenerator.GetIndexes(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "packages"));
+                {
+                    PackageGenerator packageGenerater = kernel.Get<PackageGenerator>();
+                    packageGenerater.GetIndexes(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "packages"));
                     return;
+                }
 
                 default:
                 {

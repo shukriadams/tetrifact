@@ -3,16 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using Tetrifact.Core;
 
 namespace Tetrifact.DevUtils
 {
-    class PackageGenerator
+    public class PackageGenerator
     {
+        IPackageService _packageServices;
+
+        public PackageGenerator(IPackageService packageServices)
+        {
+            _packageServices = packageServices;
+        }
+
         /// <summary>
         /// Generates given number of packages in the path. Wipes the target path
         /// </summary>
         /// <param name="count"></param>
-        public static void CreatePackages(int count, string path)
+        public void CreatePackages(int count, string path)
         {
 
             if (Directory.Exists(path))
@@ -33,7 +41,7 @@ namespace Tetrifact.DevUtils
             File.WriteAllText(Path.Join(path, "index.json"), indexData);
         }
 
-        public static void GetIndexes(string path)
+        public void GetIndexes(string path)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();

@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
-    public class PackageService
+    public class PackageService : IPackageService
     {
         public IIndexReader IndexReader;
         private IWorkspaceProvider _packageWorkspaceProvider;
         private ITetriSettings _settings;
-        private ILogger<PackageService> _log;
+        private ILogger<IPackageService> _log;
 
-        public PackageService(IIndexReader indexReader, ITetriSettings settings, ILogger<PackageService> log, IWorkspaceProvider packageWorkspaceProvider)
+        public PackageService(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageService> log, IWorkspaceProvider packageWorkspaceProvider)
         {
             this.IndexReader = indexReader;
             _settings = settings;
@@ -27,7 +27,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public async Task<PackageAddResult> AddPackageAsync(PackageAddArgs newPackage)
+        public async Task<PackageAddResult> CreatePackageAsync(PackageAddArgs newPackage)
         {
             List<string> transactionLog = new List<string>();
             IWorkspace workspace = null;
@@ -35,6 +35,13 @@ namespace Tetrifact.Core
 
             try
             {
+                // validate the contents of "newPackage" object
+                if (newPackage.Files == null)
+                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.MissingValue, PublicError = "Expected 'Files' collection is missing." };
+
+                if (string.IsNullOrEmpty(newPackage.Id))
+                    return new PackageAddResult { ErrorType = PackageAddErrorTypes.MissingValue, PublicError = "Id is required" };
+
                 // ensure package does not already exist
                 if (this.IndexReader.PackageNameInUse(newPackage.Id))
                     return new PackageAddResult { ErrorType = PackageAddErrorTypes.PackageExists };
@@ -100,7 +107,5 @@ namespace Tetrifact.Core
                 LinkLock.Instance.Unlock(newPackage.Id);
             }
         }
-
-
     }
 }
