@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="newPackage"></param>
         /// <returns></returns>
-        PackageAddResult CreatePackage(PackageAddArgs newPackage);
+        PackageAddResult CreatePackage(PackageCreateArguments newPackage);
     }
 }

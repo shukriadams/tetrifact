@@ -49,7 +49,7 @@ namespace Tetrifact.Web
             services.AddTransient<IWorkspaceProvider, WorkspaceProvider>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageService, PackageService>();
-            services.AddTransient<PackageList, PackageList>();
+            services.AddTransient<IPackageList, PackageList>();
 
             // prettify JSON output
             services.AddMvc()

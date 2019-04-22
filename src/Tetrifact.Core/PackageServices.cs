@@ -26,7 +26,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageAddResult CreatePackage(PackageAddArgs newPackage)
+        public PackageAddResult CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
             IWorkspace workspace = null;

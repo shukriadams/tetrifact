@@ -23,7 +23,7 @@ namespace Tetrifact.Web
         public IIndexReader IndexService;
         private ILogger<PackagesController> _log;
         private IPackageService _packageService;
-        private PackageList _packageList;
+        private IPackageList _packageList;
 
         /// <summary>
         /// 
@@ -32,7 +32,7 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageService packageService, PackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(IPackageService packageService, IPackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
@@ -110,7 +110,7 @@ namespace Tetrifact.Web
         /// <param name="post"></param>
         /// <returns></returns>
         [HttpPost("{id}")]
-        public ActionResult AddPackage([FromForm]PackageAddArgs post)
+        public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
             try
             {

@@ -22,7 +22,6 @@ namespace Tetrifact.DevUtils
         /// <param name="count"></param>
         public void CreatePackages(int count, string path)
         {
-
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
 
@@ -31,7 +30,7 @@ namespace Tetrifact.DevUtils
 
             for (int i = 0; i < count; i++)
             {
-                PackageAddArgs package = new PackageAddArgs {
+                PackageCreateArguments package = new PackageCreateArguments {
                     Id = Guid.NewGuid().ToString(),
                 };
                 _packageServices.CreatePackage(package);

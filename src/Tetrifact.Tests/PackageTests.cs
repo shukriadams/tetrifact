@@ -50,7 +50,7 @@ namespace Tetrifact.Tests
                 HashService.FromString("folder2/file2.txt") +
                 HashService.FromString(file2Content));
 
-            PackageAddArgs postArgs = new PackageAddArgs
+            PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
                 Files = new IFormFile[]
@@ -99,7 +99,7 @@ namespace Tetrifact.Tests
                 }
             }
 
-            PackageAddArgs postArgs = new PackageAddArgs
+            PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
                 Format = "zip",
@@ -122,7 +122,7 @@ namespace Tetrifact.Tests
         {
             Stream file = StreamsHelper.StreamFromString("some content");
 
-            PackageAddArgs postArgs = new PackageAddArgs
+            PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
                 IsArchive = true,

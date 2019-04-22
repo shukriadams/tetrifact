@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -12,9 +10,9 @@ namespace Tetrifact.Web
         public readonly IIndexReader IndexService;
         private readonly ILogger<HomeController> _log;
         private ITagsService _tagService;
-        private PackageList _packageList;
+        private IPackageList _packageList;
 
-        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, PackageList packageList)
+        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, IPackageList packageList)
         {
             _settings = settings;
             IndexService = indexService;

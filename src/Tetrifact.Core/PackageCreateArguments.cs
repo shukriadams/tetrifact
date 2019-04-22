@@ -7,7 +7,7 @@ namespace Tetrifact.Core
     /// <summary>
     /// Holds required data for adding a new package to system. Can be used as route data.
     /// </summary>
-    public class PackageAddArgs
+    public class PackageCreateArguments
     {
         #region FIELDS
 
@@ -45,7 +45,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Default ctor
         /// </summary>
-        public PackageAddArgs()
+        public PackageCreateArguments()
         {
             this.Format = "zip";
         }
@@ -55,7 +55,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="id"></param>
         /// <param name="files"></param>
-        public PackageAddArgs(string id, IEnumerable<IFormFile> files)
+        public PackageCreateArguments(string id, IEnumerable<IFormFile> files)
         {
             this.Id = id;
             this.Files = files;
