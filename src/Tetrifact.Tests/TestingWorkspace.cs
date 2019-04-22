@@ -2,7 +2,6 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -22,14 +21,14 @@ namespace Tetrifact.Tests
         /// </summary>
         public string WorkspacePath { get { return string.Empty; } }
 
-        async public Task<bool> AddIncomingFileAsync(Stream fileStream, string relativePath)
+        public bool AddIncomingFile(Stream fileStream, string relativePath)
         {
             if (fileStream.Length == 0)
                 return false;
 
             using (var stream = new MemoryStream())
             {
-                await fileStream.CopyToAsync(stream);
+                fileStream.CopyTo(stream);
                 this.Incoming.Add(relativePath, stream.ToArray());
                 return true;
             }

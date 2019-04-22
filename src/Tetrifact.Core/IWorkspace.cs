@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -23,7 +22,7 @@ namespace Tetrifact.Core
         /// Add a single file to the packages's incoming folder. Stream can be sourced from a POSTed IFormfile, or a generic data stream.
         /// </summary>
         /// <param name="file"></param>
-        Task<bool> AddIncomingFileAsync(Stream file, string relativePath);
+        bool AddIncomingFile(Stream file, string relativePath);
 
         /// <summary>
         /// Adds the contents of an archive to the package's incoming folder. Must be a valid archive stream. Stream can be sourced from a POSTed IFormfile, or a generic data stream.

@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.IndexReader
     public class GetPackageAsArchive : Base
     {
         [Fact]
-        public async void GetBasic()
+        public void GetBasic()
         {
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
@@ -16,7 +16,7 @@ namespace Tetrifact.Tests.IndexReader
             string package = "somepackage";
             
             Core.IWorkspace workspace = new Core.Workspace(this.Settings);
-            await workspace.AddIncomingFileAsync(Core.StreamsHelper.StreamFromString("some content"), path);
+            workspace.AddIncomingFile(Core.StreamsHelper.StreamFromString("some content"), path);
             workspace.WriteFile(path, "somehash", package);
             workspace.WriteManifest(package, "somehash2");
 

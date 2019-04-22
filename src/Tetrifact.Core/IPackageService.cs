@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Tetrifact.Core
+﻿namespace Tetrifact.Core
 {
     public interface IPackageService
     {
@@ -9,6 +7,6 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="newPackage"></param>
         /// <returns></returns>
-        Task<PackageAddResult> CreatePackageAsync(PackageAddArgs newPackage);
+        PackageAddResult CreatePackage(PackageAddArgs newPackage);
     }
 }

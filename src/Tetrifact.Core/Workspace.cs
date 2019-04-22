@@ -48,7 +48,7 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        async public Task<bool> AddIncomingFileAsync(Stream formFile, string relativePath)
+        public bool AddIncomingFile(Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
                 return false;
@@ -58,7 +58,7 @@ namespace Tetrifact.Core
 
             using (var stream = new FileStream(targetPath, FileMode.Create))
             {
-                await formFile.CopyToAsync(stream);
+                formFile.CopyTo(stream);
                 return true;
             }
         }

@@ -63,6 +63,5 @@ namespace Tetrifact.Core
         }
 
         #endregion
-
     }
 }

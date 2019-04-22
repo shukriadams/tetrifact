@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -27,7 +26,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public async Task<PackageAddResult> CreatePackageAsync(PackageAddArgs newPackage)
+        public PackageAddResult CreatePackage(PackageAddArgs newPackage)
         {
             List<string> transactionLog = new List<string>();
             IWorkspace workspace = null;
@@ -68,7 +67,7 @@ namespace Tetrifact.Core
                     workspace.AddArchiveContent(newPackage.Files.First().OpenReadStream());
                 else
                     foreach (IFormFile formFile in newPackage.Files)
-                        await workspace.AddIncomingFileAsync(formFile.OpenReadStream(), formFile.FileName);
+                        workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 string[] files = workspace.GetIncomingFileNames().ToArray();

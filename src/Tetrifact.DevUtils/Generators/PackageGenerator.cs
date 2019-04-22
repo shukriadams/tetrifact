@@ -31,10 +31,10 @@ namespace Tetrifact.DevUtils
 
             for (int i = 0; i < count; i++)
             {
-                string packageName = Guid.NewGuid().ToString();
-                string packageFolder = Path.Combine(path, packageName);
-                Directory.CreateDirectory(packageFolder);
-                packages.Add(packageName);
+                PackageAddArgs package = new PackageAddArgs {
+                    Id = Guid.NewGuid().ToString(),
+                };
+                _packageServices.CreatePackage(package);
             }
 
             string indexData = JsonConvert.SerializeObject(packages);

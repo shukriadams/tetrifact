@@ -110,11 +110,11 @@ namespace Tetrifact.Web
         /// <param name="post"></param>
         /// <returns></returns>
         [HttpPost("{id}")]
-        public async Task<ActionResult> AddPackage([FromForm]PackageAddArgs post)
+        public ActionResult AddPackage([FromForm]PackageAddArgs post)
         {
             try
             {
-                PackageAddResult result = await _packageService.CreatePackageAsync(post);
+                PackageAddResult result = _packageService.CreatePackage(post);
                 if (result.Success)
                 {
                     _packageList.Clear();

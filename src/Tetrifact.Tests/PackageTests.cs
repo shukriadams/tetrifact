@@ -38,7 +38,7 @@ namespace Tetrifact.Tests
 
 
         [Fact]
-        async public void AddPackageAsFiles()
+        public void AddPackageAsFiles()
         {
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
@@ -60,7 +60,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.CreatePackageAsync(postArgs);
+            PackageAddResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
             Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
@@ -69,7 +69,7 @@ namespace Tetrifact.Tests
 
 
         [Fact]
-        async public void AddPackageAsArchive()
+        public void AddPackageAsArchive()
         {
             Dictionary<string, string> files = new Dictionary<string, string>();
             string file1Content = "file 1 content";
@@ -110,7 +110,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.CreatePackageAsync(postArgs);
+            PackageAddResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
             Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
@@ -118,7 +118,7 @@ namespace Tetrifact.Tests
         }
 
         [Fact]
-        async public void EnsureSingleFileWhenAddArchive()
+        public void EnsureSingleFileWhenAddArchive()
         {
             Stream file = StreamsHelper.StreamFromString("some content");
 
@@ -133,7 +133,7 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.CreatePackageAsync(postArgs);
+            PackageAddResult result = _packageService.CreatePackage(postArgs);
             Assert.False(result.Success);
             Assert.Equal(PackageAddErrorTypes.InvalidFileCount, result.ErrorType);
         }
