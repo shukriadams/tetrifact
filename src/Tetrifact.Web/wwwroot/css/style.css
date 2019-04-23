@@ -18,9 +18,10 @@ h2 {
     margin-top: 40px;
 }
 
-ul {
+ol, ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .subtext {
@@ -96,6 +97,7 @@ main {
 
 .copyright {
     font-size: 14px;
+    padding: 8px 0;
 }
 
 .listItem {
@@ -149,5 +151,17 @@ footer {
     display: inline-block;
     vertical-align: top;
     padding-right: 24px;
-    width: 150px;
+    width: 250px;
+    margin: 20px 0;
+}
+
+.footer-item {
+    padding: 4px 0;
+}
+
+@media all and (max-width: 720px) {
+    .footer-section {
+        margin: 0;
+        width: 100%;
+    }
 }
