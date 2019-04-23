@@ -13,7 +13,7 @@ The Linux version of Tetrifact is available via Docker @ https://hub.docker.com/
 - Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
 - Tetrifact will need permission to control this folder, use
 
-    chown 1000 -R ./data
+    chown -R 1000 ./data
 
 - Assuming you are starting with docker-compose, use the following example config and customize as needed
 
