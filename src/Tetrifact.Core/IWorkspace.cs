@@ -37,7 +37,7 @@ namespace Tetrifact.Core
         IEnumerable<string> GetIncomingFileNames();
 
         /// <summary>
-        /// Moves a file from incoming to "Files" folder. This file will be directly accessible.
+        /// Moves a file from incoming to respository folder. This file will be immediately be directly accessible if looked for in the repo.
         /// </summary>
         /// <param name="fileInIncoming"></param>
         /// <param name="hash"></param>

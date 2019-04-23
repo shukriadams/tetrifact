@@ -102,7 +102,7 @@ main {
     padding: 8px 0;
 }
 
-.listItem:not(:last-child) {
+.listItem:not(:last-of-type) {
     border-bottom: solid 1px #e6e6e6;
 }
 
