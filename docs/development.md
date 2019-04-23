@@ -46,13 +46,13 @@ All content is placed in /src/Tetrifact.Web/bin/Debug/netcoreapp2.2/data
 
 from command line
 
-    cd /src/Tetri.Web
-    dotnet publish /property:PublishWithAspNetCoreTargetManifest=false
+    cd /src
+    dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release
 
-Your build artefacts will be in /src/Tetri.Web/bin/Debug/netcoreapp2.2/publish/
-To start the server run the following from the same folder as the build arfecats
+Your build artefacts will be in /src/Tetrifact.Web/bin/Debug/netcoreapp2.2/publish/
+To start the server run the following from the same folder as the build artefacts
 
-    dotnet run Tetri.Web.dll
+    dotnet Tetrifact.Web.dll
 
 ## Test
 
@@ -65,7 +65,7 @@ from visual studio, open Test > Windows > Test Explorer, run tests.
 
 External tests : first start the server from another process. Then
 
-    cd Tetri.ExternalTests
+    cd Tetrifact.ExternalTests
     dotnet build
     dotnet run
 

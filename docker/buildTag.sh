@@ -17,8 +17,8 @@ mkdir -p .artefacts &&
 docker-compose -f docker-compose-build.yml kill &&
 
 # build and start new build container. the dotnetcore sdk takes up 1.7 gig of space
-# so we want to build in a container, then copy the build artefacts out to the
-# hosting container
+# so we want to compile the app in a private build container, then copy the artefacts out to the
+# leaner hosting container
 docker-compose -f docker-compose-build.yml up -d &&
 
 # write tag to currentVersion.txt in source, this will be displayed by web ui

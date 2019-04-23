@@ -1,10 +1,42 @@
 # Tetrifact
 
-Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact exposes a simple HTTP REST API so it's easily integrated into your CI build chain. It also has a simple human-friendly interface .
+Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact exposes a simple HTTP REST API so it's easily integrated into your CI build chain. It also has a simple human-friendly interface.
 
 Tetrifact is written in Dotnetcore 2.2, and should run on any system that supports Dotnetcore ASP. 
 
-It is available as a Docker image at https://hub.docker.com/r/shukriadams/tetrifact (currently, Linux only).
+## Install
+
+### Linux
+
+The Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
+
+- Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
+- Tetrifact will need permission to control this folder, use
+
+    chown 1000 -R ./data
+
+- Assuming you are starting with docker-compose, use the following example config and customize as needed
+
+    version: "2"
+    services:
+    tetrifact:
+        image: shukriadams/tetrifact:latest
+        container_name: tetrifact
+        restart: unless-stopped
+        environment:
+          ASPNETCORE_URLS : http://*:5000
+        volumes:
+          - ./data:/var/tetrifact/data/:rw
+        ports:
+        - "49022:5000"
+
+### Windows
+
+You can download prebuilt binaries from this github page under releases. To start Tetrifact run
+
+    dotnet Tetrifact.web.dll
+
+Tetrifact expects all configuration to be passed in as environment variables, these can be set in web.config.
 
 ## How it works
 
@@ -18,15 +50,15 @@ Tetrifact is intended for use in your in-house CI build chain, and replaces the 
 
 ## Using
 
-See /docs/USE.md for documention on how to use Tetrifact.
+See /docs/use.md for documention on how to use Tetrifact.
 
 ## Development
 
-See /docs/DEVELOPMENT.md for details if you're interested in contributing to Tetrifact's development.
+See /docs/development.md for details if you're interested in contributing to Tetrifact's development.
 
 ## Security
 
-Tetrifact currently has no security model - it is 100% open. Use it on an internal network where everyone is trusted. Security will be added later.
+NOTE : Tetrifact currently has no security model - it is 100% open. Use it on an internal network where everyone is trusted. Security will be added later.
 
 ## License
 
