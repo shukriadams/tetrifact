@@ -21,7 +21,6 @@ namespace Tetrifact.Core
         /// </summary>
         [FromForm] public IEnumerable<IFormFile> Files { get; set; }
 
-
         /// <summary>
         /// True if the querystring IsArchive is set to true. If true, Files will be treated as an archive and unpacked.
         /// Format 

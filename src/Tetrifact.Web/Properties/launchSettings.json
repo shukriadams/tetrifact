@@ -12,7 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "LIST_PAGE_SIZE": "2",
+        "LIST_PAGE_SIZE": "20",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "IS_IIS": "true"
       }

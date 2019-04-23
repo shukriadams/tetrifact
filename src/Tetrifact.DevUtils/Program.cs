@@ -33,6 +33,8 @@ namespace Tetrifact.DevUtils
                     PackageGenerator packageGenerater = kernel.Get<PackageGenerator>();
                     packageGenerater.CreatePackages(
                         Int32.Parse(commandArgs.Get("size")),
+                        10, 
+                        10,
                         Path.Join(AppDomain.CurrentDomain.BaseDirectory, "packages"));
 
                     return;
