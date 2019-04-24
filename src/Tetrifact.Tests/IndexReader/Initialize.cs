@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class Initialize : Base
+    public class Initialize : FileSystemBase
     {
         /// <summary>
         /// Confirms that Initialize() worked - this was called in the CTOR of Base.

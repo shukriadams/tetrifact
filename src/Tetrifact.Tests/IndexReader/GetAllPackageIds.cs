@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetAllPackageIds : Base
+    public class GetAllPackageIds : FileSystemBase
     {
         /// <summary>
         /// Confirms that methods returns a list of directory basenames from within packages directory

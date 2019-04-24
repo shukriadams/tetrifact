@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class CleanRepository : Base
+    public class CleanRepository : FileSystemBase
     {
         [Fact]
         public void BasicClean()

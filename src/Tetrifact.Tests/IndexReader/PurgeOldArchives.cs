@@ -3,18 +3,16 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class PurgeOldArchives : Base
+    public class PurgeOldArchives : FileSystemBase
     {
         [Fact]
         public void PurgeBasic()
         {
-            // create fake archives 
-            File.WriteAllText(Path.Combine(this.Settings.ArchivePath, "arch1.zip"), string.Empty);
-            File.WriteAllText(Path.Combine(this.Settings.ArchivePath, "arch2.zip"), string.Empty);
-            File.WriteAllText(Path.Combine(this.Settings.ArchivePath, "arch3.zip"), string.Empty);
-            File.WriteAllText(Path.Combine(this.Settings.ArchivePath, "arch4.zip"), string.Empty);
+            // create fake archives, max nr + 1
+            for (int i = 0; i < this.Settings.MaxArchives + 1; i++) 
+                File.WriteAllText(Path.Combine(this.Settings.ArchivePath, $"arch{i}.zip"), string.Empty);
     
-            // ensure archives exceed max allowed
+            // ensure max archives exceeded by
             string[] archives = Directory.GetFiles(this.Settings.ArchivePath);
             Assert.True(archives.Length > this.Settings.MaxArchives);
 

@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class DeletePackage : Base
+    public class DeletePackage : FileSystemBase
     {
         [Fact]
         public void BasicDelete()
