@@ -56,5 +56,10 @@
         /// Number of page links to display at a time on pager bar.
         /// </summary>
         int PagesPerPageGroup { get; set; }
+
+        /// <summary>
+        /// Maximum number of archives to allow - once exceeded, older archives will be autodeleted
+        /// </summary>
+        int MaxArchives { get; set; }
     }
 }

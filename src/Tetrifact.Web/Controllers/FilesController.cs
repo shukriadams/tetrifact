@@ -50,7 +50,7 @@ namespace Tetrifact.Web
                 GetFileResponse payload = _indexService.GetFile(fileId);
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }
-            catch (InvalidFileIdException)
+            catch (InvalidFileIdentifierException )
             {
                 return Responses.InvalidFileId();
             }

@@ -6,6 +6,9 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    /// <summary>
+    /// Base uses the CORE version of IndexReader (ie, the one that actuall accesses filesystem)
+    /// </summary>
     public abstract class Base
     {
         protected IIndexReader IndexReader;
@@ -25,11 +28,14 @@ namespace Tetrifact.Tests.IndexReader
             this.Settings.PackagePath = Path.Join(testFolder, "Package");
             this.Settings.TempPath = Path.Join(testFolder, "Temp");
             this.Settings.ArchivePath = Path.Join(testFolder, "Archives");
+            this.Settings.MaxArchives = 3;
 
             this.Logger = new TestLogger<Core.IndexReader>();
 
+            // note that indexreader here is from core, not the test shim.
             IndexReader = new Core.IndexReader(Settings, Logger);
-            Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
+
+            Thread.Sleep(200);// resolves race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }
     }

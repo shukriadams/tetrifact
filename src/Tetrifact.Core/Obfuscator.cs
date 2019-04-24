@@ -9,7 +9,7 @@ namespace Tetrifact.Core
     /// </summary>
     public static class Obfuscator
     {
-        public  static string Cloak(string input)
+        public static string Cloak(string input)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
         }
@@ -18,5 +18,7 @@ namespace Tetrifact.Core
         {
             return Encoding.UTF8.GetString(Convert.FromBase64String(input));
         }
+
+
     }
 }

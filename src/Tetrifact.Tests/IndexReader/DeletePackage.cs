@@ -3,10 +3,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class Delete : Base
+    public class DeletePackage : Base
     {
         [Fact]
-        public void Basic()
+        public void BasicDelete()
         {
             // create package, files folder and item location in one
             string path = "path/to/file";

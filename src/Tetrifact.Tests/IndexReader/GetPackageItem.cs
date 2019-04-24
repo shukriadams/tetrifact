@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.IndexReader
 
             File.WriteAllBytes(Path.Join(packageFolder, "bin"), content);
 
-            Stream stream = this.IndexReader.GetFile(Core.Obfuscator.Cloak("path/to/file::" + hash)).Content;
+            Stream stream = this.IndexReader.GetFile(Core.FileIdentifier.Cloak("path/to/file", hash)).Content;
             byte[] testContent = Core.StreamsHelper.StreamToByteArray(stream);
             Assert.Equal(content, testContent);
         }
@@ -26,7 +26,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidPackageAndPath()
         {
-            Assert.Null(this.IndexReader.GetFile(Core.Obfuscator.Cloak("invalid/path/to/file::invalid hash")));
+            Assert.Null(this.IndexReader.GetFile(Core.FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Tetrifact.Tests.IndexReader
             string packageFolder = Path.Combine(this.Settings.PackagePath, "somepackage", "files");
             Directory.CreateDirectory(packageFolder);
 
-            Assert.Null(this.IndexReader.GetFile(Core.Obfuscator.Cloak("invalid/path/to/file::invalid hash")));
+            Assert.Null(this.IndexReader.GetFile(Core.FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
         }
 
     }

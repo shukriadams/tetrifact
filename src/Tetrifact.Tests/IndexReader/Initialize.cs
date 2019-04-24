@@ -6,7 +6,7 @@ namespace Tetrifact.Tests.IndexReader
     public class Initialize : Base
     {
         /// <summary>
-        /// Tests Initialize() method called in this class' constructor.
+        /// Confirms that Initialize() worked - this was called in the CTOR of Base.
         /// </summary>
         [Fact]
         public void InitializeTest()
@@ -14,6 +14,8 @@ namespace Tetrifact.Tests.IndexReader
             Assert.True(Directory.Exists(this.Settings.RepositoryPath));
             Assert.True(Directory.Exists(this.Settings.PackagePath));
             Assert.True(Directory.Exists(this.Settings.TempPath));
+            Assert.True(Directory.Exists(this.Settings.ArchivePath));
+            Assert.True(Directory.Exists(this.Settings.TagsPath));
         }
 
     }
