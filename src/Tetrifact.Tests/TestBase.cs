@@ -13,9 +13,7 @@ namespace Tetrifact.Tests
         {
             this.Kernel = new StandardKernel();
             this.Kernel.Load(Assembly.GetExecutingAssembly());
-
             this.Settings = Kernel.Get<ITetriSettings>();
-            
         }
     }
 }
