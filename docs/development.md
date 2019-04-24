@@ -56,22 +56,42 @@ To start the server run the following from the same folder as the build artefact
 
 ## Test
 
-From command line
+To run tests in a container (requires bash && Docker)
+
+    cd /tests
+    sh ./test.sh
+
+To run tests natively from the command line (requires dotnetcore sdk)
 
     cd /src
     dotnet test
 
-from visual studio, open Test > Windows > Test Explorer, run tests.
-
-External tests : first start the server from another process. Then
-
-    cd Tetrifact.ExternalTests
-    dotnet build
-    dotnet run
+To run tests in Visual Studio, open Test > Windows > Test Explorer, run desired tests from explorer window.
 
 ## Architecture
 
 This is a brief explanation of Tetrifact's structure and concepts
+
+### Package
+
+A package is a collection of one or more files that are added to Tetrifact. A package is expected to have a unique name, assigned at creation, and this name will be used by you the user to retrieve the package again. Normally in a continuous integration setup, name corresponds one-to-one with a build id, which in turn usually corresponds with the version control revision id or hash from which the build was done. 
+
+### Repository
+
+The files in a package are stored in the repository directory, by default at /data/repository. A file added to Tetrifact has an absolute path within its package, and this corresponds to the path the file will have in the repository directory. A file isn't written directly into it's parent directory ; rather, it is nested within two additional directories - the first is a directory with the name (including extension) of the file,and then an additional folder named for the file's hash. The file itself is always named "bin" (no file extension). Next to file is a "packages" folder, which in turn contains a file for each package which contains that file at the hash.
+
+For example, if you create a package called "123" with the file /diagrams/image.jpg" in it, and that file had a hash of 0f16cd, the repository would contain the following items
+
+    data
+    +-- repository
+        +-- diagrams
+            +-- image.jpg
+                +-- 0f16cd
+                    |-- packages
+                    |    +-- 123
+                    +-- bin
+
+This simple filesystem-based indexing system allows packages to share a file if file's absolute path and hash are identical, without creating unnnecessary entanglement between packages. If a package is deleted, its file in the /packages folder is removed, but the binary of the file can remain if other packages still reference it.
 
 ### Tags
 
