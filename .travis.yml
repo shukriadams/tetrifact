@@ -1,12 +1,9 @@
 services:
   - docker
 
-# language: csharp
-
 before_install:
 - docker pull shukriadams/tetrifact-build:0.0.1
 - docker run --name tetrifactbuild -dit shukriadams/tetrifact-build:0.0.1
 
 script:
-  - cd src
-  - dotnet test    
+  - docker exec tetrifactbuild sh -c "cd src && dotnet test"
