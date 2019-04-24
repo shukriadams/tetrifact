@@ -14,6 +14,8 @@ namespace Tetrifact.Core
 
         #endregion
 
+        #region PROPERTIES
+
         /// <summary>
         /// The unique name of the package, corresponds to folder name in "/packages" folder.
         /// </summary>
@@ -48,6 +50,8 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         public HashSet<string> Tags { get; set; }
+
+        #endregion
 
         #region CTORS
 

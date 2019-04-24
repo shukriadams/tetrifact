@@ -12,15 +12,25 @@ namespace Tetrifact.Core
 {
     public class IndexReader : IIndexReader
     {
+        #region FIELDS
+
         private ITetriSettings _settings;
 
         private ILogger<IIndexReader> _logger;
+
+        #endregion
+
+        #region CTORS
 
         public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger)
         {
             _settings = settings;
             _logger = logger;
         }
+
+        #endregion
+
+        #region METHODS
 
         public void Initialize()
         {
@@ -406,5 +416,7 @@ namespace Tetrifact.Core
             }
 
         }
+
+        #endregion
     }
 }

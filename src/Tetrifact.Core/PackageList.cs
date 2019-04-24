@@ -14,6 +14,8 @@ namespace Tetrifact.Core
     /// </summary>
     public class PackageList : IPackageList
     {
+        #region FIELDS
+
         private IMemoryCache _cache;
 
         private ITetriSettings _settings;
@@ -22,12 +24,20 @@ namespace Tetrifact.Core
 
         readonly string _cacheKey = "_packageCache";
 
+        #endregion
+
+        #region CTORS
+
         public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;
             _logger = logger;
         }
+
+        #endregion
+
+        #region METHODS
 
         public void Clear()
         {
@@ -134,5 +144,6 @@ namespace Tetrifact.Core
             return new PageableData<Package>(packageData.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packageData.Count);
         }
 
+        #endregion
     }
 }

@@ -9,18 +9,28 @@ namespace Tetrifact.Core
 {
     public class PackageCreate : IPackageCreate
     {
-        public IIndexReader IndexReader;
+        #region FIELDS
+
+        private IIndexReader _indexReader;
         private IWorkspace _workspace;
         private ITetriSettings _settings;
         private ILogger<IPackageCreate> _log;
 
+        #endregion
+
+        #region CTORS
+
         public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
         {
-            this.IndexReader = indexReader;
+            _indexReader = indexReader;
             _settings = settings;
             _log = log;
             _workspace = workspace;
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// 
@@ -41,7 +51,7 @@ namespace Tetrifact.Core
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required" };
 
                 // ensure package does not already exist
-                if (this.IndexReader.PackageNameInUse(newPackage.Id))
+                if (_indexReader.PackageNameInUse(newPackage.Id))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists };
 
                 // if archive, ensure correct file count
@@ -103,5 +113,7 @@ namespace Tetrifact.Core
                 LinkLock.Instance.Unlock(newPackage.Id);
             }
         }
+
+        #endregion
     }
 }

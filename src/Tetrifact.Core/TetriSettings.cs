@@ -6,7 +6,13 @@ namespace Tetrifact.Core
 {
     public class TetriSettings : ITetriSettings
     {
+        #region FIELDS
+
         private ILogger<ITetriSettings> _log;
+
+        #endregion
+
+        #region PROPERTIES
 
         public string PackagePath { get; set; }
 
@@ -29,6 +35,10 @@ namespace Tetrifact.Core
         public int PagesPerPageGroup { get; set; }
 
         public int CacheTimeout { get; set; }
+
+        #endregion
+
+        #region CTORS
 
         public TetriSettings(ILogger<ITetriSettings> log)
         {
@@ -75,5 +85,7 @@ namespace Tetrifact.Core
             if (string.IsNullOrEmpty(TagsPath))
                 TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
         }
+
+        #endregion
     }
 }
