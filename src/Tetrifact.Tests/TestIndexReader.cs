@@ -14,7 +14,7 @@ namespace Tetrifact.Tests
 
         #region PROPERTIES
 
-        public IEnumerable<string> Test_Indexes { get; set; }
+        public static IEnumerable<string> Test_Indexes { get; set; }
 
         public bool Test_PackageIdExists { get; set; }
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
 
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
-            return this.Test_Indexes;
+            return Test_Indexes;
         }
 
         public bool PackageNameInUse(string id)
@@ -95,7 +95,7 @@ namespace Tetrifact.Tests
 
         public IEnumerable<string> GetAllPackageIds()
         {
-            return this.Test_Indexes;
+            return Test_Indexes;
         }
 
         #endregion

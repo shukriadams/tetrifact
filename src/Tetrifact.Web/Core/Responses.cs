@@ -4,6 +4,7 @@ namespace Tetrifact.Web
 {
     public class Responses
     {
+        #region METHODS
 
         /// <summary>
         /// 
@@ -117,5 +118,7 @@ namespace Tetrifact.Web
                 }
             });
         }
+
+        #endregion
     }
 }

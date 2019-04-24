@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
         public void GetPackageList()
         {
             // inject 3 indices
-            ((TestIndexReader)_packagesController.IndexService).Test_Indexes = new string[] { "1", "2", "3" };
+            TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
 
             IEnumerable<string> ids = _packagesController.ListPackages(false, 0, 10).Value as IEnumerable<string>;
             Assert.True(ids.Count() == 3);

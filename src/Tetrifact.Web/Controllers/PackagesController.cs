@@ -19,11 +19,17 @@ namespace Tetrifact.Web
     [ApiController]
     public class PackagesController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public IIndexReader IndexService;
+        private IIndexReader _indexService;
         private ILogger<PackagesController> _log;
         private IPackageCreate _packageService;
         private IPackageList _packageList;
+
+        #endregion
+
+        #region CTORS
 
         /// <summary>
         /// 
@@ -37,10 +43,13 @@ namespace Tetrifact.Web
             _packageList = packageList;
             _packageService = packageService;
             _settings = settings;
-            IndexService = indexService;
+            _indexService = indexService;
             _log = log;
         }
 
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// Gets a page of 
@@ -56,7 +65,7 @@ namespace Tetrifact.Web
             }
             else
             {
-                return new JsonResult(IndexService.GetPackageIds(pageIndex, pageSize));
+                return new JsonResult(_indexService.GetPackageIds(pageIndex, pageSize));
             }
         }
 
@@ -70,7 +79,7 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}/exists")]
         public ActionResult<bool> PackageExists(string packageId)
         {
-            return IndexService.GetManifest(packageId) != null;
+            return _indexService.GetManifest(packageId) != null;
         }
 
 
@@ -84,7 +93,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                Manifest manifest = IndexService.GetManifest(packageId);
+                Manifest manifest = _indexService.GetManifest(packageId);
                 if (manifest == null)
                     return NotFound();
 
@@ -155,7 +164,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                IndexService.DeletePackage(packageId);
+                _indexService.DeletePackage(packageId);
                 _packageList.Clear();
                 return Ok();
             }
@@ -172,5 +181,6 @@ namespace Tetrifact.Web
             }
         }
 
+        #endregion
     }
 }

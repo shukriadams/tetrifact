@@ -8,9 +8,15 @@ namespace Tetrifact.Web
     [ApiController]
     public class ManifestsController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public IIndexReader IndexService;
+        private IIndexReader _indexService;
         private ILogger<ManifestsController> _log;
+
+        #endregion
+
+        #region CTORS
 
         /// <summary>
         /// 
@@ -22,9 +28,13 @@ namespace Tetrifact.Web
         public ManifestsController(ITetriSettings settings, IIndexReader indexService, ILogger<ManifestsController> log)
         {
             _settings = settings;
-            IndexService = indexService;
+            _indexService = indexService;
             _log = log;
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// 
@@ -34,7 +44,9 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}")]
         public ActionResult<Manifest> GetManifest(string packageId)
         {
-            return IndexService.GetManifest(packageId);
+            return _indexService.GetManifest(packageId);
         }
+
+        #endregion
     }
 }

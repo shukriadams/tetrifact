@@ -10,9 +10,15 @@ namespace Tetrifact.Web
     [ApiController]
     public class ArchivesController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public IIndexReader IndexService;
+        private IIndexReader _indexService;
         private ILogger<ArchivesController> _log;
+
+        #endregion
+
+        #region CTORS
 
         /// <summary>
         /// 
@@ -24,9 +30,13 @@ namespace Tetrifact.Web
         public ArchivesController(ITetriSettings settings, IIndexReader indexService, ILogger<ArchivesController> log)
         {
             _settings = settings;
-            IndexService = indexService;
+            _indexService = indexService;
             _log = log;
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
@@ -38,8 +48,8 @@ namespace Tetrifact.Web
         {
             try
             {
-                IndexService.PurgeOldArchives();
-                Stream archiveStream = IndexService.GetPackageAsArchive(packageId);
+                _indexService.PurgeOldArchives();
+                Stream archiveStream = _indexService.GetPackageAsArchive(packageId);
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
             }
             catch (PackageNotFoundException)
@@ -68,9 +78,9 @@ namespace Tetrifact.Web
         {
             try
             {
-                IndexService.PurgeOldArchives();
+                _indexService.PurgeOldArchives();
 
-                return IndexService.GetPackageArchiveStatus(packageId);
+                return _indexService.GetPackageArchiveStatus(packageId);
             }
             catch (PackageNotFoundException)
             {
@@ -83,5 +93,7 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
+
+        #endregion
     }
 }
