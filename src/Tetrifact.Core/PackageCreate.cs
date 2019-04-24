@@ -10,16 +10,16 @@ namespace Tetrifact.Core
     public class PackageCreate : IPackageCreate
     {
         public IIndexReader IndexReader;
-        private IWorkspaceProvider _packageWorkspaceProvider;
+        private IWorkspaceProvider _workspaceProvider;
         private ITetriSettings _settings;
         private ILogger<IPackageCreate> _log;
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspaceProvider packageWorkspaceProvider)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspaceProvider workspaceProvider)
         {
             this.IndexReader = indexReader;
             _settings = settings;
             _log = log;
-            _packageWorkspaceProvider = packageWorkspaceProvider;
+            _workspaceProvider = workspaceProvider;
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive && !new string[] { "zip" }.Contains(newPackage.Format))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
-                workspace = _packageWorkspaceProvider.Get();
+                workspace = _workspaceProvider.Get();
 
                 // write attachments to work folder 
                 long size = newPackage.Files.Sum(f => f.Length);
