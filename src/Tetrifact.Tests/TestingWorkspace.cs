@@ -8,13 +8,23 @@ namespace Tetrifact.Tests
 {
     public class TestingWorkspace : IWorkspace
     {
-        private Manifest _manifest = new Manifest();
+        private static Manifest _manifest = new Manifest();
 
-        public Dictionary<string, byte[]> Incoming = new Dictionary<string, byte[]>();
+        public static Dictionary<string, byte[]> Incoming = new Dictionary<string, byte[]>();
 
-        public Dictionary<string, byte[]> Repository = new Dictionary<string, byte[]>();
+        public static Dictionary<string, byte[]> Repository = new Dictionary<string, byte[]>();
 
         public Manifest Manifest { get { return _manifest; } }
+
+        /// <summary>
+        /// For testing purposes. Wipes contents of this workspace
+        /// </summary>
+        public static void Reset()
+        {
+            Incoming = new Dictionary<string, byte[]>();
+            Repository = new Dictionary<string, byte[]>();
+            _manifest = new Manifest();
+        }
 
         /// <summary>
         /// Return empty string, this implementation has no file system presence.
@@ -29,7 +39,7 @@ namespace Tetrifact.Tests
             using (var stream = new MemoryStream())
             {
                 fileStream.CopyTo(stream);
-                this.Incoming.Add(relativePath, stream.ToArray());
+                Incoming.Add(relativePath, stream.ToArray());
                 return true;
             }
         }
@@ -49,7 +59,7 @@ namespace Tetrifact.Tests
                         {
                             unzippedEntryStream.CopyTo(ms);
                             byte[] unzippedArray = ms.ToArray();
-                            this.Incoming.Add(entry.FullName, ms.ToArray());
+                            Incoming.Add(entry.FullName, ms.ToArray());
                         }
                     }
 
@@ -59,14 +69,14 @@ namespace Tetrifact.Tests
 
         public IEnumerable<string> GetIncomingFileNames()
         {
-            return this.Incoming.Select(r => r.Key);
+            return Incoming.Select(r => r.Key);
         }
 
         public void WriteFile(string fileInIncoming, string hash, string packageId)
         {
             // move file to public folder
-            this.Repository.Add(fileInIncoming, this.Incoming[fileInIncoming]);
-            this.Incoming.Remove(fileInIncoming);
+            Repository.Add(fileInIncoming, Incoming[fileInIncoming]);
+            Incoming.Remove(fileInIncoming);
             this.Manifest.Files.Add(new ManifestItem { Path = fileInIncoming, Hash = hash });
         }
 
@@ -78,7 +88,7 @@ namespace Tetrifact.Tests
 
         public string GetIncomingFileHash(string path)
         {
-            byte[] content = this.Incoming[path];
+            byte[] content = Incoming[path];
             return HashService.FromByteArray(content);
         }
 

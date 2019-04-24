@@ -22,7 +22,7 @@ namespace Tetrifact.Tests
             _packagesController = this.Kernel.Get<PackagesController>();
             _packageService = this.Kernel.Get<IPackageCreate>();
 
-            TestWorkspaceProvider.Reset();
+            TestingWorkspace.Reset();
         }
 
 
@@ -62,8 +62,8 @@ namespace Tetrifact.Tests
 
             PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
-            Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
-            Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
+            Assert.Equal(2, TestingWorkspace.Repository.Count());
+            Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -112,8 +112,8 @@ namespace Tetrifact.Tests
 
             PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
-            Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
-            Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
+            Assert.Equal(2, TestingWorkspace.Repository.Count());
+            Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 

@@ -15,7 +15,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
 
             Bind<IIndexReader>().To<TestIndexReader>();
-            Bind<IWorkspaceProvider>().To<TestWorkspaceProvider>();
+            Bind<IWorkspace>().To<TestingWorkspace>();
         }
     }
 }

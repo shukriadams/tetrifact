@@ -10,16 +10,16 @@ namespace Tetrifact.Core
     public class PackageCreate : IPackageCreate
     {
         public IIndexReader IndexReader;
-        private IWorkspaceProvider _workspaceProvider;
+        private IWorkspace _workspace;
         private ITetriSettings _settings;
         private ILogger<IPackageCreate> _log;
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspaceProvider workspaceProvider)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
         {
             this.IndexReader = indexReader;
             _settings = settings;
             _log = log;
-            _workspaceProvider = workspaceProvider;
+            _workspace = workspace;
         }
 
         /// <summary>
@@ -29,7 +29,6 @@ namespace Tetrifact.Core
         public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
-            IWorkspace workspace = null;
             StringBuilder hashes = new StringBuilder();
 
             try
@@ -57,20 +56,18 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive && !new string[] { "zip" }.Contains(newPackage.Format))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
-                workspace = _workspaceProvider.Get();
-
                 // write attachments to work folder 
                 long size = newPackage.Files.Sum(f => f.Length);
 
                 // if archive, unzip
                 if (newPackage.IsArchive)
-                    workspace.AddArchiveContent(newPackage.Files.First().OpenReadStream());
+                    _workspace.AddArchiveContent(newPackage.Files.First().OpenReadStream());
                 else
                     foreach (IFormFile formFile in newPackage.Files)
-                        workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
+                        _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
-                string[] files = workspace.GetIncomingFileNames().ToArray();
+                string[] files = _workspace.GetIncomingFileNames().ToArray();
                 Array.Sort(files, (x, y) => String.Compare(x, y));
                 
                 // prevent deletes of empty repository folders this package might need to write to
@@ -79,21 +76,21 @@ namespace Tetrifact.Core
                 foreach (string filePath in files)
                 {
                     // get hash of incoming file
-                    string fileHash = workspace.GetIncomingFileHash(filePath);
+                    string fileHash = _workspace.GetIncomingFileHash(filePath);
 
                     hashes.Append(HashService.FromString(filePath));
                     hashes.Append(fileHash);
 
                     // todo : this would be a good place to confirm that existingPackageId is actually valid
-                    workspace.WriteFile(filePath, fileHash, newPackage.Id);
+                    _workspace.WriteFile(filePath, fileHash, newPackage.Id);
                 }
 
-                workspace.Manifest.Description = newPackage.Description;
+                _workspace.Manifest.Description = newPackage.Description;
 
                 // calculate package hash from child hashes
-                workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
+                _workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
 
-                return new PackageCreateResult { Success = true, PackageHash = workspace.Manifest.Hash };
+                return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }
             catch (Exception ex)
             {

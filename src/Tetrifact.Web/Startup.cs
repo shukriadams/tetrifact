@@ -46,7 +46,7 @@ namespace Tetrifact.Web
             // register type injections here
             services.AddTransient<ITetriSettings, TetriSettings>();
             services.AddTransient<IIndexReader, IndexReader>();
-            services.AddTransient<IWorkspaceProvider, WorkspaceProvider>();
+            services.AddTransient<IWorkspace, Workspace>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();

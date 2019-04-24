@@ -11,7 +11,7 @@ namespace Tetrifact.DevUtils
             Bind<IPackageCreate>().To<PackageCreate>();
             Bind<IIndexReader>().To<IndexReader>();
             Bind<ITetriSettings>().To<TetriSettings>();
-            Bind<IWorkspaceProvider>().To<WorkspaceProvider>();
+            Bind<IWorkspace>().To<Workspace>();
             Bind<ILogger<ITetriSettings>>().To<FileLogger<ITetriSettings>>();
             Bind<ILogger<IPackageCreate>>().To<FileLogger<IPackageCreate>>();
             Bind<ILogger<IIndexReader>>().To<FileLogger<IIndexReader>>();
