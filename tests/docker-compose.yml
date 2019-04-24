@@ -1,0 +1,8 @@
+version: "2"
+services:
+  tetritest:
+    image: shukriadams/tetrifact-build:0.0.1
+    container_name: tetritest
+    restart: unless-stopped
+    volumes:
+      - ./../src:/tmp/tetrifact/:rw

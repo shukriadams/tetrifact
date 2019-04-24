@@ -1,9 +1,6 @@
 services:
   - docker
 
-before_install:
-- docker pull shukriadams/tetrifact-build:0.0.1
-- docker run --name tetrifactbuild -dit shukriadams/tetrifact-build:0.0.1
-
 script:
-  - docker exec tetrifactbuild sh -c "cd src && dotnet test"
+  - cd tests
+  - sh ./test.sh
