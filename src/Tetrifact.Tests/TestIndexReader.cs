@@ -40,7 +40,7 @@ namespace Tetrifact.Tests
 
         public void AddHash(string path, string hash, string package)
         {
-            _matchingHashPackage.Add(string.Format("{0}:{1}", path, hash), package);
+            _matchingHashPackage.Add($"{path}:{hash}", package);
         }
 
         public void Initialize()

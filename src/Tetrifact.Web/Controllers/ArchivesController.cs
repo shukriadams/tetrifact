@@ -40,7 +40,7 @@ namespace Tetrifact.Web
             {
                 IndexService.PurgeOldArchives();
                 Stream archiveStream = IndexService.GetPackageAsArchive(packageId);
-                return File(archiveStream, "application/octet-stream", string.Format("{0}.zip", packageId));
+                return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
             }
             catch (PackageNotFoundException)
             {

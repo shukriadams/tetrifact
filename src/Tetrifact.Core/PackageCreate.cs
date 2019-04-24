@@ -98,7 +98,7 @@ namespace Tetrifact.Core
             catch (Exception ex)
             {
                 _log.LogError(ex, string.Empty);
-                Console.WriteLine(string.Format("Unexpected error : {0}", ex));
+                Console.WriteLine($"Unexpected error : {ex}");
                 return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }
             finally

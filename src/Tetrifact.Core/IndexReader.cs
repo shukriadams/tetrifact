@@ -73,7 +73,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, string.Format("Unexpected error trying to reading manifest @ {0}", filePath));
+                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {filePath}");
                 return null;
             }
         }
@@ -191,7 +191,7 @@ namespace Tetrifact.Core
                         {
                             Stream itemStream = this.GetFile(file.Id).Content;
                             if (itemStream == null)
-                                throw new Exception(string.Format("Fatal error - item {0}, package {1} returned a null stream", file.Path, packageId));
+                                throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
 
                             await itemStream.CopyToAsync(entryStream);
                         }
