@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Tetrifact.Web\Tetrifact.Web.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PackageCreate\" />
-  </ItemGroup>
-
 </Project>
