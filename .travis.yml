@@ -1,7 +1,7 @@
 services:
   - docker
 
-language: csharp
+# language: csharp
 
 before_install:
 - docker pull shukriadams/tetrifact-build:0.0.1
