@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.IndexReader
             byte[] content = Encoding.ASCII.GetBytes("some content");
             string path = "path/to/file";
             string package = "somepackage";
-            
+
             Core.IWorkspace workspace = new Core.Workspace(this.Settings);
             workspace.AddIncomingFile(Core.StreamsHelper.StreamFromString("some content"), path);
             workspace.WriteFile(path, "somehash", package);
