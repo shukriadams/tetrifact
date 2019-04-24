@@ -30,6 +30,9 @@ docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet rest
 docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet publish /property:PublishWithAspNetCoreTargetManifest=false' &&
 docker cp tetrifactbuild:/tmp/tetrifact/Tetrifact.Web/bin/Debug/netcoreapp2.2/publish/. ./.artefacts &&
 
+# kill build container
+docker-compose -f docker-compose-build.yml kill &&
+
 # build hosting container
 docker build -t shukriadams/tetrifact . &&
 docker tag shukriadams/tetrifact:latest shukriadams/tetrifact:$TAG 

@@ -1,8 +1,6 @@
 version: "2"
 services:
   tetribuild:
-    build:
-      context: .
-      dockerfile: Dockerfile-build
+    image: shukriadams/tetrifact-build:0.0.1
     container_name: tetrifactbuild
     restart: unless-stopped
