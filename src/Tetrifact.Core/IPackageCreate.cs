@@ -1,6 +1,9 @@
 ﻿namespace Tetrifact.Core
 {
-    public interface IPackageService
+    /// <summary>
+    /// Defines a type that creates a package.
+    /// </summary>
+    public interface IPackageCreate
     {
         /// <summary>
         /// Creates a package

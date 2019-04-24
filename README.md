@@ -11,7 +11,7 @@ Tetrifact is written in Dotnetcore 2.2, and should run on any system that suppor
 The Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
 
 - Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
-- Tetrifact will need permission to control this folder, use
+- Tetrifact runs with user id 1000, and needs permission to control this folder, set this with
 
     chown -R 1000 ./data
 

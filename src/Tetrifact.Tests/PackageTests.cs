@@ -15,12 +15,12 @@ namespace Tetrifact.Tests
     public class PackageTests : TestBase
     {
         PackagesController _packagesController;
-        IPackageService _packageService;
+        IPackageCreate _packageService;
 
         public PackageTests()
         {
             _packagesController = this.Kernel.Get<PackagesController>();
-            _packageService = this.Kernel.Get<IPackageService>();
+            _packageService = this.Kernel.Get<IPackageCreate>();
 
             TestWorkspaceProvider.Reset();
         }

@@ -7,14 +7,14 @@ using System.Text;
 
 namespace Tetrifact.Core
 {
-    public class PackageService : IPackageService
+    public class PackageCreate : IPackageCreate
     {
         public IIndexReader IndexReader;
         private IWorkspaceProvider _packageWorkspaceProvider;
         private ITetriSettings _settings;
-        private ILogger<IPackageService> _log;
+        private ILogger<IPackageCreate> _log;
 
-        public PackageService(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageService> log, IWorkspaceProvider packageWorkspaceProvider)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspaceProvider packageWorkspaceProvider)
         {
             this.IndexReader = indexReader;
             _settings = settings;

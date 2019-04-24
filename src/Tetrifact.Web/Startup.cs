@@ -48,7 +48,7 @@ namespace Tetrifact.Web
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IWorkspaceProvider, WorkspaceProvider>();
             services.AddTransient<ITagsService, TagsService>();
-            services.AddTransient<IPackageService, PackageService>();
+            services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
 
             // prettify JSON output

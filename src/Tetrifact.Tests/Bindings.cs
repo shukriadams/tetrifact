@@ -10,9 +10,9 @@ namespace Tetrifact.Tests
         public override void Load()
         {
             Bind<ITetriSettings>().To<TetriSettings>();
-            Bind<IPackageService>().To<PackageService>();
+            Bind<IPackageCreate>().To<PackageCreate>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
-            Bind<ILogger<IPackageService>>().To<TestLogger<IPackageService>>();
+            Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
 
             Bind<IIndexReader>().To<TestIndexReader>();
             Bind<IWorkspaceProvider>().To<TestWorkspaceProvider>();
