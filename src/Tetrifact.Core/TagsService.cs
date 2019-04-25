@@ -9,18 +9,28 @@ namespace Tetrifact.Core
 {
     public class TagsService : ITagsService
     {
+        #region FIELDS
+
         private ITetriSettings _settings;
 
-        private ILogger<TagsService> _logger;
+        private ILogger<ITagsService> _logger;
 
-        private PackageList _packageList;
+        private IPackageList _packageList;
 
-        public TagsService(ITetriSettings settings, ILogger<TagsService> logger, PackageList packageList)
+        #endregion
+
+        #region CTORS
+
+        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IPackageList packageList)
         {
             _settings = settings;
             _logger = logger;
             _packageList = packageList;
         }
+
+        #endregion
+
+        #region METHODS
 
         public void AddTag(string packageId, string tag)
         {
@@ -146,5 +156,7 @@ namespace Tetrifact.Core
             }
             */
         }
+
+        #endregion
     }
 }

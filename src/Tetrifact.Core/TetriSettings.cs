@@ -6,7 +6,13 @@ namespace Tetrifact.Core
 {
     public class TetriSettings : ITetriSettings
     {
-        private ILogger<TetriSettings> _log;
+        #region FIELDS
+
+        private ILogger<ITetriSettings> _log;
+
+        #endregion
+
+        #region PROPERTIES
 
         public string PackagePath { get; set; }
 
@@ -30,7 +36,13 @@ namespace Tetrifact.Core
 
         public int CacheTimeout { get; set; }
 
-        public TetriSettings(ILogger<TetriSettings> log)
+        public int MaxArchives { get; set; }
+
+        #endregion
+
+        #region CTORS
+
+        public TetriSettings(ILogger<ITetriSettings> log)
         {
             _log = log;
 
@@ -41,6 +53,7 @@ namespace Tetrifact.Core
             this.IndexTagListLength = 20;
             this.PagesPerPageGroup = 20;
             this.CacheTimeout = 60 * 60;                // 1 hour
+            this.MaxArchives = 10;
 
             // get settings from env variables
             PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -53,9 +66,18 @@ namespace Tetrifact.Core
             {
                 int listPageSize = this.ListPageSize;
                 if (Int32.TryParse(Environment.GetEnvironmentVariable("LIST_PAGE_SIZE"), out listPageSize))
-                    ListPageSize = listPageSize;
+                    this.ListPageSize = listPageSize;
                 else
                     _log.LogError($"Environment variable for LIST_PAGE_SIZE ({Environment.GetEnvironmentVariable("LIST_PAGE_SIZE")}) is not a valid integer.");
+            }
+
+            if (Environment.GetEnvironmentVariable("MAX_ARCHIVES") != null)
+            {
+                int maxArchives = this.MaxArchives;
+                if (Int32.TryParse(Environment.GetEnvironmentVariable("MAX_ARCHIVES"), out maxArchives))
+                    this.MaxArchives = maxArchives;
+                else
+                    _log.LogError($"Environment variable for MAX_ARCHIVES ({Environment.GetEnvironmentVariable("MAX_ARCHIVES")}) is not a valid integer.");
             }
 
 
@@ -75,5 +97,7 @@ namespace Tetrifact.Core
             if (string.IsNullOrEmpty(TagsPath))
                 TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
         }
+
+        #endregion
     }
 }

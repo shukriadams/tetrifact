@@ -1,6 +1,6 @@
 version: "2"
 services:
-  tetri:
+  tetrifact:
     image: shukriadams/tetrifact:latest
     container_name: tetrifact
     restart: unless-stopped

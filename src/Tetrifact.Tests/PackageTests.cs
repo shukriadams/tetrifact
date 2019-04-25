@@ -15,14 +15,14 @@ namespace Tetrifact.Tests
     public class PackageTests : TestBase
     {
         PackagesController _packagesController;
-        PackageService _packageService;
+        IPackageCreate _packageService;
 
         public PackageTests()
         {
             _packagesController = this.Kernel.Get<PackagesController>();
-            _packageService = this.Kernel.Get<PackageService>();
+            _packageService = this.Kernel.Get<IPackageCreate>();
 
-            TestWorkspaceProvider.Reset();
+            TestingWorkspace.Reset();
         }
 
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
         public void GetPackageList()
         {
             // inject 3 indices
-            ((TestIndexReader)_packagesController.IndexService).Test_Indexes = new string[] { "1", "2", "3" };
+            TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
 
             IEnumerable<string> ids = _packagesController.ListPackages(false, 0, 10).Value as IEnumerable<string>;
             Assert.True(ids.Count() == 3);
@@ -38,7 +38,7 @@ namespace Tetrifact.Tests
 
 
         [Fact]
-        async public void AddPackageAsFiles()
+        public void AddPackageAsFiles()
         {
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
@@ -50,7 +50,7 @@ namespace Tetrifact.Tests
                 HashService.FromString("folder2/file2.txt") +
                 HashService.FromString(file2Content));
 
-            PackageAddArgs postArgs = new PackageAddArgs
+            PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
                 Files = new IFormFile[]
@@ -60,16 +60,16 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.AddPackageAsync(postArgs);
+            PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
-            Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
-            Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
+            Assert.Equal(2, TestingWorkspace.Repository.Count());
+            Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
 
         [Fact]
-        async public void AddPackageAsArchive()
+        public void AddPackageAsArchive()
         {
             Dictionary<string, string> files = new Dictionary<string, string>();
             string file1Content = "file 1 content";
@@ -99,7 +99,7 @@ namespace Tetrifact.Tests
                 }
             }
 
-            PackageAddArgs postArgs = new PackageAddArgs
+            PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
                 Format = "zip",
@@ -110,19 +110,19 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.AddPackageAsync(postArgs);
+            PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
-            Assert.Equal(2, TestWorkspaceProvider.Instance.Repository.Count());
-            Assert.Empty(TestWorkspaceProvider.Instance.Incoming);
+            Assert.Equal(2, TestingWorkspace.Repository.Count());
+            Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
         [Fact]
-        async public void EnsureSingleFileWhenAddArchive()
+        public void EnsureSingleFileWhenAddArchive()
         {
             Stream file = StreamsHelper.StreamFromString("some content");
 
-            PackageAddArgs postArgs = new PackageAddArgs
+            PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
                 IsArchive = true,
@@ -133,9 +133,9 @@ namespace Tetrifact.Tests
                 }
             };
 
-            PackageAddResult result = await _packageService.AddPackageAsync(postArgs);
+            PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.False(result.Success);
-            Assert.Equal(PackageAddErrorTypes.InvalidFileCount, result.ErrorType);
+            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }
     }
 }

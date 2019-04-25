@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -48,7 +47,7 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        async public Task<bool> AddIncomingFileAsync(Stream formFile, string relativePath)
+        public bool AddIncomingFile(Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
                 return false;
@@ -58,7 +57,7 @@ namespace Tetrifact.Core
 
             using (var stream = new FileStream(targetPath, FileMode.Create))
             {
-                await formFile.CopyToAsync(stream);
+                formFile.CopyTo(stream);
                 return true;
             }
         }
@@ -95,7 +94,7 @@ namespace Tetrifact.Core
             // write package id under hash, subscribing it to that hash
             File.WriteAllText(Path.Join(packagesDirectory, packageId), string.Empty);
 
-            string pathAndHash = Obfuscator.Cloak(filePath + "::" + hash);
+            string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
 
             FileInfo fileInfo = new FileInfo(targetPath);

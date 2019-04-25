@@ -9,9 +9,15 @@ namespace Tetrifact.Web
     [ApiController]
     public class FilesController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public IIndexReader IndexService;
+        private IIndexReader _indexService;
         private ILogger<FilesController> _log;
+
+        #endregion
+
+        #region CTORS
 
         /// <summary>
         /// 
@@ -23,9 +29,13 @@ namespace Tetrifact.Web
         public FilesController(ITetriSettings settings, IIndexReader indexService, ILogger<FilesController> log)
         {
             _settings = settings;
-            IndexService = indexService;
+            _indexService = indexService;
             _log = log;
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// 
@@ -37,10 +47,10 @@ namespace Tetrifact.Web
         {
             try
             {
-                GetFileResponse payload = this.IndexService.GetFile(fileId);
+                GetFileResponse payload = _indexService.GetFile(fileId);
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }
-            catch (InvalidFileIdException)
+            catch (InvalidFileIdentifierException)
             {
                 return Responses.InvalidFileId();
             }
@@ -53,5 +63,7 @@ namespace Tetrifact.Web
             }
             
         }
+
+        #endregion
     }
 }

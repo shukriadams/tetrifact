@@ -48,12 +48,12 @@ namespace Tetrifact.Core
 
         /// <summary>
         /// Gets a file from a package, as a binary array. Returns null if the package or file is invalid.
-        /// file id is file path + "::" + file hash, base64 encoded.
+        /// file fileIdentifier is file path + "::" + file hash, base64 encoded.
         /// </summary>
         /// <param name="packageId"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        GetFileResponse GetFile(string id);
+        GetFileResponse GetFile(string fileIdentifier);
 
         /// <summary>
         /// Gets a package as an archive. Create the archive if the archive doesn't already exist.

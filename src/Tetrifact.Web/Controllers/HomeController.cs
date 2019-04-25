@@ -1,27 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
     public class HomeController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public readonly IIndexReader IndexService;
+        private readonly IIndexReader _indexService;
         private readonly ILogger<HomeController> _log;
         private ITagsService _tagService;
-        private PackageList _packageList;
+        private IPackageList _packageList;
 
-        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, PackageList packageList)
+        #endregion
+
+        #region CTORS
+
+        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, IPackageList packageList)
         {
             _settings = settings;
-            IndexService = indexService;
+            _indexService = indexService;
             _log = log;
             _tagService = tagService;
             _packageList = packageList;
         }
+
+        #endregion
+
+        #region METHODS
 
         public IActionResult Index()
         {
@@ -40,11 +48,11 @@ namespace Tetrifact.Web
         public IActionResult Package(string packageId)
         {
             ViewData["packageId"] = packageId;
-            Manifest manifest = IndexService.GetManifest(packageId);
+            Manifest manifest = _indexService.GetManifest(packageId);
             if (manifest == null)
                 return View("Error404");
 
-            ViewData["manifest"] = IndexService.GetManifest(packageId);
+            ViewData["manifest"] = _indexService.GetManifest(packageId);
             return View();
         }
 
@@ -89,6 +97,8 @@ namespace Tetrifact.Web
             Response.StatusCode = 404;
             return View();
         }
+
+        #endregion
     }
 }
 

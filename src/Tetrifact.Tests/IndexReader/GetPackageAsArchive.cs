@@ -5,18 +5,18 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetPackageAsArchive : Base
+    public class GetPackageAsArchive : FileSystemBase
     {
         [Fact]
-        public async void GetBasic()
+        public void GetBasic()
         {
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
             string path = "path/to/file";
             string package = "somepackage";
-            
+
             Core.IWorkspace workspace = new Core.Workspace(this.Settings);
-            await workspace.AddIncomingFileAsync(Core.StreamsHelper.StreamFromString("some content"), path);
+            workspace.AddIncomingFile(Core.StreamsHelper.StreamFromString("some content"), path);
             workspace.WriteFile(path, "somehash", package);
             workspace.WriteManifest(package, "somehash2");
 

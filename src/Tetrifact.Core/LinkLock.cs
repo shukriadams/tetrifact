@@ -8,12 +8,22 @@ namespace Tetrifact.Core
     /// </summary>
     public class LinkLock
     {
+        #region FIELDS
+
         public static LinkLock Instance;
+
+        #endregion
+
+        #region CTORS
 
         static LinkLock() 
         {
             Reset();
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// This is for testing purposes only!
@@ -51,5 +61,7 @@ namespace Tetrifact.Core
                 _isLocked = _packageIds.Any();
             }
         }
+
+        #endregion
     }
 }

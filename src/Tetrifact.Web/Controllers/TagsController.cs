@@ -11,9 +11,15 @@ namespace Tetrifact.Web
     [ApiController]
     public class TagsController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public ITagsService TagsService;
+        private ITagsService _tagsService;
         private ILogger<TagsController> _log;
+
+        #endregion
+
+        #region CTORS
 
         /// <summary>
         /// 
@@ -25,16 +31,20 @@ namespace Tetrifact.Web
         public TagsController(ITetriSettings settings, ITagsService tagsService, ILogger<TagsController> log)
         {
             _settings = settings;
-            TagsService = tagsService;
+            _tagsService = tagsService;
             _log = log;
         }
+
+        #endregion
+
+        #region METHODS
 
         [HttpGet("")]
         public ActionResult<string[]> GetTags()
         {
             try
             {
-                return this.TagsService.ReadTagsFromIndex().ToArray();
+                return _tagsService.ReadTagsFromIndex().ToArray();
             }
             catch (PackageNotFoundException)
             {
@@ -54,7 +64,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                return this.TagsService.GetPackageIdsWithTag(tag).ToArray();
+                return _tagsService.GetPackageIdsWithTag(tag).ToArray();
             }
             catch (PackageNotFoundException)
             {
@@ -75,7 +85,7 @@ namespace Tetrifact.Web
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                this.TagsService.AddTag(packageId, tag);
+                _tagsService.AddTag(packageId, tag);
                 return Ok($"Tag {tag} was added to package {packageId}");
             }
             catch (PackageNotFoundException)
@@ -97,7 +107,7 @@ namespace Tetrifact.Web
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                this.TagsService.RemoveTag(packageId, tag);
+                _tagsService.RemoveTag(packageId, tag);
                 return Ok($"Tag {tag} was removed from package {packageId}");
             }
             catch (PackageNotFoundException)
@@ -112,5 +122,7 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
+
+        #endregion
     }
 }

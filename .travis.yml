@@ -1,0 +1,11 @@
+services:
+  - docker
+
+branches:
+  only:
+  - master
+  - develop
+  
+script:
+  - cd tests
+  - sh ./test.sh

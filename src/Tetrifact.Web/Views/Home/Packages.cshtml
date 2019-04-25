@@ -11,21 +11,25 @@
 <div>
     @if (packages.Page.Any())
     {
-    <ul>
-        @foreach (Package package in packages.Page)
-        {
-            <li class="listItem">
-                <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
-            </li>
-        }
+        @Html.Raw(pager)
+
+        <ul>
+
+            @foreach (Package package in packages.Page)
+            {
+                <li class="listItem">
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+                </li>
+            }
+
+        </ul>
 
         @Html.Raw(pager)
-    </ul>
     }
     else
     {
         <text>
-
+            No packages found.
         </text>
     }
 </div>

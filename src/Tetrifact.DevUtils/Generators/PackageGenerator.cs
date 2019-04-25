@@ -3,37 +3,57 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using Tetrifact.Core;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Troschuetz.Random;
 
 namespace Tetrifact.DevUtils
 {
-    class PackageGenerator
+    public class PackageGenerator
     {
+        IPackageCreate _packageServices;
+
+        public PackageGenerator(IPackageCreate packageServices)
+        {
+            _packageServices = packageServices;
+        }
+
         /// <summary>
         /// Generates given number of packages in the path. Wipes the target path
         /// </summary>
         /// <param name="count"></param>
-        public static void CreatePackages(int count, string path)
+        public void CreatePackages(int count, int maxFiles, int maxFileSize, string path)
         {
-
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
 
             Directory.CreateDirectory(path);
             List<string> packages = new List<string>();
 
+            TRandom random = new TRandom();
             for (int i = 0; i < count; i++)
             {
-                string packageName = Guid.NewGuid().ToString();
-                string packageFolder = Path.Combine(path, packageName);
-                Directory.CreateDirectory(packageFolder);
-                packages.Add(packageName);
+                List<IFormFile> files = new List<IFormFile>();
+                int filesToAdd = random.Next(0, maxFiles);
+                for (int j = 0; j < filesToAdd; j++)
+                {
+                    byte[] buffer = new byte[maxFileSize];
+                    random.NextBytes(buffer);
+                    Stream file = new MemoryStream(buffer);
+                    files.Add(new FormFile(file, 0, file.Length, "Files", $"folder{Guid.NewGuid()}/{Guid.NewGuid()}"));
+                }
+                PackageCreateArguments package = new PackageCreateArguments {
+                    Id = Guid.NewGuid().ToString(),
+                    Files = files
+                };
+                _packageServices.CreatePackage(package);
+                Console.WriteLine($"Generated package {package.Id}");
             }
 
-            string indexData = JsonConvert.SerializeObject(packages);
-            File.WriteAllText(Path.Join(path, "index.json"), indexData);
         }
 
-        public static void GetIndexes(string path)
+        public void GetIndexes(string path)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();

@@ -14,7 +14,7 @@ namespace Tetrifact.Tests
 
         #region PROPERTIES
 
-        public IEnumerable<string> Test_Indexes { get; set; }
+        public static IEnumerable<string> Test_Indexes { get; set; }
 
         public bool Test_PackageIdExists { get; set; }
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
 
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
-            return this.Test_Indexes;
+            return Test_Indexes;
         }
 
         public bool PackageNameInUse(string id)
@@ -40,7 +40,7 @@ namespace Tetrifact.Tests
 
         public void AddHash(string path, string hash, string package)
         {
-            _matchingHashPackage.Add(string.Format("{0}:{1}", path, hash), package);
+            _matchingHashPackage.Add($"{path}:{hash}", package);
         }
 
         public void Initialize()
@@ -95,7 +95,7 @@ namespace Tetrifact.Tests
 
         public IEnumerable<string> GetAllPackageIds()
         {
-            return this.Test_Indexes;
+            return Test_Indexes;
         }
 
         #endregion

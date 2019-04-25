@@ -147,22 +147,17 @@ namespace Tetrifact.Web
                 int c = (this.Currentgroup * pagesPerGroup) + i;
                 bool isActive = currentPage == c;
 
+                s.Append($"<li class='pager-item'>");
+
                 if (isActive)
-                {
-                    s.Append($"<li class='pager-item'><a class='pager-link pager-link--active'>");
-                    s.Append("<span class='pager-linkContent'>");
-                    s.Append(c + 1);
-                    s.Append("</span>");
-                    s.Append("</a></li>");
-                }
+                    s.Append($"<a class='pager-link pager-link--active'>");
                 else
-                {
-                    s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{c + 1}'>");
-                    s.Append("<span class='pager-linkContent'>");
-                    s.Append(c + 1);
-                    s.Append("</span>");
-                    s.Append("</a></li>");
-                }
+                    s.Append($"<a class='pager-link' href='{baseurl}/{c + 1}'>");
+
+                s.Append("<span class='pager-linkContent'>");
+                s.Append(c + 1);
+                s.Append("</span>");
+                s.Append("</a></li>");
             }
 
 

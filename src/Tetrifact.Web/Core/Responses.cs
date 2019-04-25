@@ -4,6 +4,8 @@ namespace Tetrifact.Web
 {
     public class Responses
     {
+        #region METHODS
+
         /// <summary>
         /// 
         /// </summary>
@@ -16,7 +18,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 100,
-                    Message = string.Format("A package with id {0} already exists.", packageId)
+                    Message = $"A package with id {packageId} already exists."
                 }
             });
         }
@@ -44,7 +46,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 102,
-                    Message = string.Format("Invalid package content. A package flagged as archive must contain a single zip file.")
+                    Message = "Invalid package content. A package flagged as archive must contain a single zip file."
                 }
             });
         }
@@ -61,7 +63,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 103,
-                    Message = string.Format("The package format {0} is not valid. Valid values are : zip", format)
+                    Message = $"The package format {format} is not valid. Valid values are : zip" 
                 }
             });
         }
@@ -79,7 +81,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 104,
-                    Message = string.Format("The package upload failed. Please check log enry {0} for more information.", logId)
+                    Message = $"The package upload failed. Please check log enry {logId} for more information."
                 }
             });
         }
@@ -95,10 +97,28 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 105,
-                    Message = string.Format("The file id you gave is not valid. File ids should be obtained from manifests. ")
+                    Message = "The file id you gave is not valid. File ids should be obtained from manifests."
                 }
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public static BadRequestObjectResult MissingInputError(string error)
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 106,
+                    Message = error
+                }
+            });
+        }
+
+        #endregion
     }
 }

@@ -5,22 +5,31 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Tetrifact.Core
 {
     public class IndexReader : IIndexReader
     {
+        #region FIELDS
+
         private ITetriSettings _settings;
 
-        private ILogger<IndexReader> _logger;
+        private ILogger<IIndexReader> _logger;
 
-        public IndexReader(ITetriSettings settings, ILogger<IndexReader> logger)
+        #endregion
+
+        #region CTORS
+
+        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger)
         {
             _settings = settings;
             _logger = logger;
         }
+
+        #endregion
+
+        #region METHODS
 
         public void Initialize()
         {
@@ -51,7 +60,7 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Skip(pageIndex).Take(pageSize).Select(r => Path.GetRelativePath(_settings.PackagePath, r));
+            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string id)
@@ -73,41 +82,27 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, string.Format("Unexpected error trying to reading manifest @ {0}", filePath));
+                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {filePath}");
                 return null;
             }
         }
 
         public GetFileResponse GetFile(string id)
         {
-            string path = string.Empty;
-            string hash = string.Empty;
-
             try
             {
-                string pathAndHash = Obfuscator.Decloak(id);
-                Regex regex = new Regex("(.*)::(.*)");
-                MatchCollection matches = regex.Matches(pathAndHash);
-
-                if (matches.Count() != 1)
-                    throw new InvalidFileIdException();
-
-                path = matches[0].Groups[1].Value;
-                hash = matches[0].Groups[2].Value;
-
-                string directFilePath = Path.Combine(_settings.RepositoryPath, path, hash, "bin");
+                FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
+                string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
 
                 if (File.Exists(directFilePath))
-                    return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(path));
+                    return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
 
                 return null;
-
             }
             catch (FormatException)
             {
-                throw new InvalidFileIdException();
+                throw new InvalidFileIdentifierException ();
             }
-
         }
 
         /// <summary>
@@ -117,8 +112,7 @@ namespace Tetrifact.Core
         {
             DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
 
-            // find all files older then 10 newest ones.
-            IEnumerable<FileInfo> files = info.GetFiles().OrderByDescending(p => p.CreationTime).Skip(10);
+            IEnumerable<FileInfo> files = info.GetFiles().OrderByDescending(p => p.CreationTime).Skip(_settings.MaxArchives);
 
             foreach (FileInfo file in files)
             {
@@ -128,81 +122,9 @@ namespace Tetrifact.Core
                 }
                 catch (IOException)
                 {
-                    // ignore these, file might be being downloaded
+                    // ignore these, file might be in use, in which case we'll try to delete it next purge
                 }
             }
-        }
-
-        private string GetPackageArchivePath(string packageId)
-        {
-            return Path.Combine(_settings.ArchivePath, packageId + ".zip");
-        }
-
-        private string GetPackageArchiveTempPath(string packageId)
-        {
-            return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
-        }
-
-        private bool DoesPackageExist(string packageId)
-        {
-            try
-            {
-                Manifest manifest = this.GetManifest(packageId);
-                return manifest != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        private async void CreateArchive(string packageId)
-        {
-            // store path with .tmp extension while building, this is used to detect if archiving has already started
-            string archivePath = this.GetPackageArchivePath(packageId);
-            string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
-
-            // if temp archive exists, it's already building
-            if (File.Exists(archivePathTemp))
-                return;
-
-            string archiveFolder = Path.GetDirectoryName(archivePathTemp);
-            if (!Directory.Exists(archiveFolder))
-                Directory.CreateDirectory(archiveFolder);
-
-            // create zip file on disk asap to lock file name off
-            using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
-            {
-                Manifest manifest = this.GetManifest(packageId);
-                if (manifest == null)
-                {
-                    // clean up first
-                    zipStream.Close();
-                    File.Delete(archivePathTemp);
-
-                    throw new PackageNotFoundException(packageId);
-                }
-
-                using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
-                {
-                    foreach (var file in manifest.Files)
-                    {
-                        ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
-
-                        using (Stream entryStream = fileEntry.Open())
-                        {
-                            Stream itemStream = this.GetFile(file.Id).Content;
-                            if (itemStream == null)
-                                throw new Exception(string.Format("Fatal error - item {0}, package {1} returned a null stream", file.Path, packageId));
-
-                            await itemStream.CopyToAsync(entryStream);
-                        }
-                    }
-                }
-            }
-
-            // flip temp file to final path, it is ready for use only when this happens
-            File.Move(archivePathTemp, archivePath);
         }
 
         public Stream GetPackageAsArchive(string packageId)
@@ -301,7 +223,6 @@ namespace Tetrifact.Core
                     _logger.LogError($"Unexpected error deleting tag ${tagFile} : ${ex}");
                 }
             }
-
         }
 
         public void CleanRepository()
@@ -311,7 +232,6 @@ namespace Tetrifact.Core
             IEnumerable<string> existingPackageIds = this.GetAllPackageIds();
 
             CleanRepository_Internal(_settings.RepositoryPath, existingPackageIds, false);
-            
         }
 
         /// <summary>
@@ -389,9 +309,9 @@ namespace Tetrifact.Core
             {
                 // bin file is orphaned (no package, no package folders)
                 string filePath = Path.Join(currentDirectory, "bin");
+
                 try
                 {
-                    
                     File.Delete(filePath);
                 }
                 catch (Exception ex)
@@ -399,6 +319,7 @@ namespace Tetrifact.Core
                     Console.WriteLine(ex);
                     _logger.LogError($"Unexpected error deleting file ${filePath} ", ex);
                 }
+
                 return;
             }
 
@@ -409,5 +330,79 @@ namespace Tetrifact.Core
             }
 
         }
+
+        private string GetPackageArchivePath(string packageId)
+        {
+            return Path.Combine(_settings.ArchivePath, packageId + ".zip");
+        }
+
+        private string GetPackageArchiveTempPath(string packageId)
+        {
+            return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
+        }
+
+        private bool DoesPackageExist(string packageId)
+        {
+            try
+            {
+                Manifest manifest = this.GetManifest(packageId);
+                return manifest != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private async void CreateArchive(string packageId)
+        {
+            // store path with .tmp extension while building, this is used to detect if archiving has already started
+            string archivePath = this.GetPackageArchivePath(packageId);
+            string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
+
+            // if temp archive exists, it's already building
+            if (File.Exists(archivePathTemp))
+                return;
+
+            string archiveFolder = Path.GetDirectoryName(archivePathTemp);
+            if (!Directory.Exists(archiveFolder))
+                Directory.CreateDirectory(archiveFolder);
+
+            // create zip file on disk asap to lock file name off
+            using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
+            {
+                Manifest manifest = this.GetManifest(packageId);
+                if (manifest == null)
+                {
+                    // clean up first
+                    zipStream.Close();
+                    File.Delete(archivePathTemp);
+
+                    throw new PackageNotFoundException(packageId);
+                }
+
+                using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                {
+                    foreach (var file in manifest.Files)
+                    {
+                        ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
+
+                        using (Stream entryStream = fileEntry.Open())
+                        {
+                            Stream itemStream = this.GetFile(file.Id).Content;
+                            if (itemStream == null)
+                                throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
+
+                            await itemStream.CopyToAsync(entryStream);
+                        }
+                    }
+                }
+            }
+
+            // flip temp file to final path, it is ready for use only when this happens
+            File.Move(archivePathTemp, archivePath);
+        }
+
+        #endregion
     }
 }

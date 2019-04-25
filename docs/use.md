@@ -8,20 +8,20 @@ Don't worry if your revision hashes are difficult to pass around, share or remem
 
 All Tetrifact's functionality is exposed via a REST API, so it should be familiar.
 
-## Adding a package 
+## Adding a package
 
-### As individual files 
+### As individual files
 
-HTTP METHOD : 
+HTTP METHOD :
 
     POST
 
-ENDPOINT : 
+ENDPOINT :
 
     /v1/packages/myPackageName
 
-HEADER : 
-    
+HEADER :
+
     Content-Type: multipart/form-data; boundary=-------------------------acebdf13572468 
 
 BODY :
@@ -47,21 +47,20 @@ Were you posting actual files with CURL it should look like
         -F "Files=@~/mybuild/path/to/2.txt;filename=path/to/2.txt" \
         http://myTetrifact.server/v1/packages/myPackageName 
 
-
 ### As an archive
 
 To post your build as an archive, use the following.
 
-HTTP METHOD : 
+HTTP METHOD :
 
     POST
 
-ENDPOINT : 
+ENDPOINT :
 
     /v1/packages/myPackageName?IsArchive=true
 
-HEADER : 
-    
+HEADER :
+
     Content-Type: multipart/form-data; boundary=-------------------------acebdf13572468 
 
 BODY :
@@ -74,17 +73,16 @@ BODY :
     ---------------------------acebdf13572468
 
 When posting a zip, note the following
+
 - only a single file can be attached to your post. If you add more than one, you'll get an error.
 - filename doesn't matter, as it won't be used
 - the archive's root will be treated as the root of the project, meaning all file paths will be mapped relative to this.
-
 
 With CURL it would look like
 
     curl -X POST -H "Content-Type: multipart/form-data" -H "Transfer-Encoding: chunked" -F "Files=@path/to/archive" http://tetriserver.example.com/v1/packages/myPackage?isArchive=true 
 
 Chunking the upload is important if your archive is large, as this might exceeded the multipart body attachment size.
-
 
 ### Posting an archive from NodeJS
 
@@ -115,4 +113,3 @@ To add the tag "MyTag" to the package "MyPackage, use
 To remove the tag
 
     curl -X DELETE http://tetriserver.example.com/v1/tags/MyTag/MyPackage
-

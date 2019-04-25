@@ -8,9 +8,15 @@ namespace Tetrifact.Web.Controllers
     [ApiController]
     public class CleanController : Controller
     {
+        #region FIELDS
+
         private readonly ITetriSettings _settings;
-        public IIndexReader IndexService;
+        private IIndexReader _indexService;
         private ILogger<CleanController> _log;
+
+        #endregion
+
+        #region CTORS
 
         /// <summary>
         /// 
@@ -22,16 +28,22 @@ namespace Tetrifact.Web.Controllers
         public CleanController(ITetriSettings settings, IIndexReader indexService, ILogger<CleanController> log)
         {
             _settings = settings;
-            IndexService = indexService;
+            _indexService = indexService;
             _log = log;
         }
+
+        #endregion
+
+        #region METHODS
 
         [HttpGet("")]
         public ActionResult Clean()
         {
-            this.IndexService.CleanRepository();
-            this.IndexService.PurgeOldArchives();
+            _indexService.CleanRepository();
+            _indexService.PurgeOldArchives();
             return Ok("Clean complete");
         }
+
+        #endregion
     }
 }
