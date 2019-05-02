@@ -13,6 +13,7 @@ namespace Tetrifact.Tests
     {
         public static IList<Package> Packages = new List<Package>();
         public static IList<string> PopularTags = new List<string>();
+        public static Package LatestPackage;
 
         public static void Reset()
         {
@@ -37,6 +38,11 @@ namespace Tetrifact.Tests
         public IEnumerable<Package> Get(int pageIndex, int pageSize)
         {
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
+        }
+
+        public Package GetLatestWithTag(string tag)
+        {
+            return LatestPackage;
         }
 
         public PageableData<Package> GetPage(int pageIndex, int pageSize)

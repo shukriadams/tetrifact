@@ -71,6 +71,32 @@ namespace Tetrifact.Web
 
 
         /// <summary>
+        /// Gets latest package with the given tag.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        [HttpGet("latest/{tag}")]
+        public ActionResult<Package> GetLatestPackageWithTag(string tag)
+        {
+            try
+            {
+                Package package = _packageList.GetLatestWithTag(tag);
+                if (package == null)
+                    return NotFound($"Couldn't find any packages tagged with \"{tag}\". Try another tag maybe?");
+
+                return package;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                Console.WriteLine("An unexpected error occurred : ");
+                Console.WriteLine(ex);
+                return Responses.UnexpectedError();
+            }
+        }
+
+
+        /// <summary>
         /// Get rid of this, use GetPackage instead
         /// Returns 1 if the package exists, 0 if not
         /// </summary>
