@@ -12,39 +12,44 @@ Tetrifact is a server that stores build arfefacts. It was written as a storage s
 
 Tetrifact is written in Dotnetcore 2.2, and should run on any system that supports Dotnetcore ASP. 
 
-## Install
+## Download
 
-### Linux
+### As a Docker image
 
-The Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
+A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
 
 - Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
 - Tetrifact runs with user id 1000, and needs permission to control this folder, set this with
 
-    chown -R 1000 ./data
+        chown -R 1000 ./data
 
 - Assuming you are starting with docker-compose, use the following example config and customize as needed
 
-    version: "2"
-    services:
-    tetrifact:
-        image: shukriadams/tetrifact:latest
-        container_name: tetrifact
-        restart: unless-stopped
-        environment:
-          ASPNETCORE_URLS : http://*:5000
-        volumes:
-          - ./data:/var/tetrifact/data/:rw
-        ports:
-        - "49022:5000"
+        version: "2"
+        services:
+        tetrifact:
+            image: shukriadams/tetrifact:latest
+            container_name: tetrifact
+            restart: unless-stopped
+            environment:
+              ASPNETCORE_URLS : http://*:5000
+            volumes:
+              - ./data:/var/tetrifact/data/:rw
+            ports:
+            - "49022:5000"
 
-### Windows
+### As binaries
 
-You can download prebuilt binaries from this github page under releases. To start Tetrifact run
+Recent build :
+[Version 1.0.0](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.zip)
+
+Binaries for Tetrifact are availabe from Github under [releases](https://github.com/shukriadams/tetrifact/releases).
+
+To start Tetrifact unzip and run
 
     dotnet Tetrifact.web.dll
 
-Tetrifact expects all configuration to be passed in as environment variables, these can be set in web.config.
+Tetrifact expects all configuration to be passed in as environment variables - these can also be set from web.config.
 
 ## How it works
 
