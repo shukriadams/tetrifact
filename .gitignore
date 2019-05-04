@@ -23,3 +23,7 @@
 /docker/.artefacts
 /docker/data
 /docker/.clone
+/build/win/out
+/build/win/clone
+/build/linux/out
+/build/linux/clone

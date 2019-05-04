@@ -10,7 +10,9 @@ namespace Tetrifact.Core
 {
     /// <summary>
     /// Package list logic ; implements in-memory caching to save on expensive read operations, as generating a list of packages requires 
-    /// loading the JSON manifest of each package.
+    /// loading the JSON manifest of each package. 
+    /// 
+    /// Note that _cache can be null in test mode, we don't have a mock system in place yet so we're bypassing caching entirely for unit tests.
     /// </summary>
     public class PackageList : IPackageList
     {
@@ -41,8 +43,87 @@ namespace Tetrifact.Core
 
         public void Clear()
         {
-            _cache.Remove("_packageCache");
+            if (_cache!= null)
+                _cache.Remove("_packageCache");
         }
+
+        public IEnumerable<string> GetPopularTags(int count)
+        {
+            IList<Package> packageData;
+
+            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            Dictionary<string, int> tags = new Dictionary<string, int>();
+            foreach (Package package in packageData)
+            {
+                foreach (string tag in package.Tags)
+                {
+                    if (!tags.ContainsKey(tag))
+                        tags.Add(tag, 0);
+
+                    tags[tag]++;
+                }
+            }
+
+            return tags.OrderByDescending(r => r.Value).Take(count).Select(r => r.Key);
+        }
+
+        public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
+        {
+            IList<Package> packageData;
+
+            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            return packageData.Where(r => r.Tags.Contains(tag)).Skip(pageIndex * pageSize).Take(pageSize);
+        }
+
+        public IEnumerable<Package> Get(int pageIndex, int pageSize)
+        {
+            IList<Package> packageData;
+            
+            
+            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            return packageData.Skip(pageIndex * pageSize).Take(pageSize);
+        }
+
+        public PageableData<Package> GetPage(int pageIndex, int pageSize)
+        {
+            IList<Package> packageData;
+
+
+            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            return new PageableData<Package>(packageData.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packageData.Count);
+        }
+
+        public Package GetLatestWithTag(string tag)
+        {
+            IList<Package> packageData;
+
+            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            return packageData.Where(r => r.Tags.Contains(tag)).OrderByDescending(r => r.CreatedUtc).FirstOrDefault();
+        }
+
+        #endregion
+
+        #region METHODS Private
 
         private IList<Package> GeneratePackageData()
         {
@@ -77,71 +158,10 @@ namespace Tetrifact.Core
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
 
-            _cache.Set(_cacheKey, packageData);
+            if (_cache != null)
+                _cache.Set(_cacheKey, packageData);
 
             return packageData;
-        }
-
-        public IEnumerable<string> GetPopularTags(int count)
-        {
-            IList<Package> packageData;
-
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
-            {
-                packageData = this.GeneratePackageData();
-            }
-
-            Dictionary<string, int> tags = new Dictionary<string, int>();
-            foreach (Package package in packageData)
-            {
-                foreach (string tag in package.Tags)
-                {
-                    if (!tags.ContainsKey(tag))
-                        tags.Add(tag, 0);
-
-                    tags[tag]++;
-                }
-            }
-
-            return tags.OrderByDescending(r => r.Value).Take(count).Select(r => r.Key);
-        }
-
-        public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
-        {
-            IList<Package> packageData;
-
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
-            {
-                packageData = this.GeneratePackageData();
-            }
-
-            return packageData.Where(r => r.Tags.Contains(tag)).Skip(pageIndex * pageSize).Take(pageSize);
-        }
-
-        public IEnumerable<Package> Get(int pageIndex, int pageSize)
-        {
-            IList<Package> packageData;
-            
-            
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
-            {
-                packageData = this.GeneratePackageData();
-            }
-
-            return packageData.Skip(pageIndex * pageSize).Take(pageSize);
-        }
-
-        public PageableData<Package> GetPage(int pageIndex, int pageSize)
-        {
-            IList<Package> packageData;
-
-
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
-            {
-                packageData = this.GeneratePackageData();
-            }
-
-            return new PageableData<Package>(packageData.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packageData.Count);
         }
 
         #endregion

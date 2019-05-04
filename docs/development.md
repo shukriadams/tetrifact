@@ -1,5 +1,11 @@
 # Development
 
+Note : if all you want is to build Tetrifact from source, check the /build folder in the project root.
+
+## Vagrant
+
+If you want to develop Linux on Windows, Vagrant is an excellent and convenient option for getting the best of both worlds. The how and why of Vagrant is beyond the scope of this document, check out https://www.vagrantup.com for more info. The full Vagrant setup for this project is in the /vagrant folder. 
+
 ## Requirements
 
 - Dotnetcore 2.2 SDK
