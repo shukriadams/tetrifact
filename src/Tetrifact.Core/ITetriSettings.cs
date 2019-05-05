@@ -61,5 +61,10 @@
         /// Maximum number of archives to allow - once exceeded, older archives will be autodeleted
         /// </summary>
         int MaxArchives { get; set; }
+
+        /// <summary>
+        /// The required auth level a user needs for the current Tetrifact instance.
+        /// </summary>
+        AuthorizationLevel AuthorizationLevel { get; set; }
     }
 }

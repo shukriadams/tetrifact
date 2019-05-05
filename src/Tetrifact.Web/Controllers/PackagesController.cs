@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 
@@ -56,6 +55,7 @@ namespace Tetrifact.Web
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("")]
         public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
@@ -75,6 +75,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("latest/{tag}")]
         public ActionResult<Package> GetLatestPackageWithTag(string tag)
         {
@@ -102,6 +103,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("{packageId}/exists")]
         public ActionResult<bool> PackageExists(string packageId)
         {
@@ -114,6 +116,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("{packageId}")]
         public ActionResult GetPackage(string packageId)
         {
@@ -144,6 +147,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="post"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Write)]
         [HttpPost("{id}")]
         public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
@@ -185,6 +189,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Write)]
         [HttpDelete("{packageId}")]
         public ActionResult DeletePackage(string packageId)
         {

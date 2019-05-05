@@ -12,6 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "AUTH_LEVEL": "Read",
         "LIST_PAGE_SIZE": "10",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "IS_IIS": "true"

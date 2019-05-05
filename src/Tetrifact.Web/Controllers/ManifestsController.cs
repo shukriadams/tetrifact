@@ -41,6 +41,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("{packageId}")]
         public ActionResult<Manifest> GetManifest(string packageId)
         {

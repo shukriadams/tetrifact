@@ -43,6 +43,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("{packageId}")]
         public ActionResult GetArchive(string packageId)
         {
@@ -73,6 +74,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("{packageId}/status")]
         public ActionResult<int> GetArchiveStatus(string packageId)
         {

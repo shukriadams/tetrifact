@@ -31,6 +31,7 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        [Authorization(ActionLevel.Read)]
         public IActionResult Index()
         {
             ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
@@ -38,12 +39,16 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [Authorization(ActionLevel.Read)]
         [Route("api")]
         public IActionResult Api()
         {
             return View();
         }
 
+
+        [Authorization(ActionLevel.Read)]
         [Route("package/{packageId}")]
         public IActionResult Package(string packageId)
         {
@@ -56,6 +61,8 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [Authorization(ActionLevel.Read)]
         [Route("packages/{page?}")]
         public IActionResult Packages(int page)
         {
@@ -70,6 +77,8 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [Authorization(ActionLevel.Read)]
         [Route("packagesWithTag/{tag}")]
         public IActionResult PackagesWithTag(string tag)
         {
@@ -85,12 +94,16 @@ namespace Tetrifact.Web
             }
         }
 
+
+        [Authorization(ActionLevel.Read)]
         [Route("error/404")]
         public IActionResult Error404()
         {
             return View();
         }
 
+
+        [Authorization(ActionLevel.Read)]
         [Route("{*url}", Order = 999)]
         public IActionResult CatchAll()
         {

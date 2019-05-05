@@ -42,6 +42,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Authorization(ActionLevel.Read)]
         [HttpGet("{fileId}")]
         public ActionResult GetItem(string fileId)
         {
