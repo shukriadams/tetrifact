@@ -36,7 +36,7 @@ namespace Tetrifact.Web.Controllers
 
         #region METHODS
 
-        [Authorization(ActionLevel.Write)]
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("")]
         public ActionResult Clean()
         {

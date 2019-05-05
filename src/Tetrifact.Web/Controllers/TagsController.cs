@@ -39,7 +39,7 @@ namespace Tetrifact.Web
 
         #region METHODS
 
-        [Authorization(ActionLevel.Read)]
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
         public ActionResult<string[]> GetTags()
         {
@@ -61,7 +61,7 @@ namespace Tetrifact.Web
         }
 
 
-        [Authorization(ActionLevel.Read)]
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{tag}/packages")]
         public ActionResult<string[]> GetTagPackages(string tag)
         {
@@ -83,7 +83,7 @@ namespace Tetrifact.Web
         }
 
 
-        [Authorization(ActionLevel.Write)]
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{tag}/{packageId}")]
         public ActionResult AddTag(string tag, string packageId)
         {
@@ -107,7 +107,7 @@ namespace Tetrifact.Web
         }
 
 
-        [Authorization(ActionLevel.Write)]
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{tag}/{packageId}")]
         public ActionResult RemoveTag(string tag, string packageId)
         {

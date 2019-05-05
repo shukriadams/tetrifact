@@ -55,7 +55,7 @@ namespace Tetrifact.Web
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
-        [Authorization(ActionLevel.Read)]
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
         public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
@@ -75,7 +75,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        [Authorization(ActionLevel.Read)]
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("latest/{tag}")]
         public ActionResult<Package> GetLatestPackageWithTag(string tag)
         {
@@ -103,7 +103,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        [Authorization(ActionLevel.Read)]
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/exists")]
         public ActionResult<bool> PackageExists(string packageId)
         {
@@ -116,7 +116,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        [Authorization(ActionLevel.Read)]
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
         public ActionResult GetPackage(string packageId)
         {
@@ -147,7 +147,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="post"></param>
         /// <returns></returns>
-        [Authorization(ActionLevel.Write)]
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{id}")]
         public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
@@ -189,7 +189,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        [Authorization(ActionLevel.Write)]
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{packageId}")]
         public ActionResult DeletePackage(string packageId)
         {
