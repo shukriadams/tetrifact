@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -19,7 +20,10 @@ namespace Tetrifact.Web
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-
+            context.Result = new ViewResult
+            {
+                ViewName = "~/Views/Home/Error403.cshtml"
+            };
         }
     }
 }

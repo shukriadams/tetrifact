@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -14,15 +15,19 @@ namespace Tetrifact.Web
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            string test = "";
-            //context.HttpContext.Response.Redirect("/denied");
+            // do nothing
         }
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
 
-            string test = "";
+            if (_settings.AuthorizationLevel > AuthorizationLevel.Read)
+                return;
 
+            context.Result = new ViewResult
+            {
+                ViewName = "~/Views/Home/Error403.cshtml"
+            };
         }
     }
 }

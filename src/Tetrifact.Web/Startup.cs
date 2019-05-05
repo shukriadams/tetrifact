@@ -87,7 +87,7 @@ namespace Tetrifact.Web
             }
 
 
-            // register 404
+            // register custom error pages
             app.Use(async (context, next) =>
             {
                 await next();
@@ -95,6 +95,12 @@ namespace Tetrifact.Web
                 if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
                 {
                     context.Request.Path = "/error/404";
+                    await next();
+                }
+
+                if (context.Response.StatusCode == 403 && !context.Response.HasStarted)
+                {
+                    context.Request.Path = "/error/403";
                     await next();
                 }
             });

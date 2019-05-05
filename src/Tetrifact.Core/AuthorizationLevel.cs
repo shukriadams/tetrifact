@@ -1,6 +1,6 @@
 ﻿namespace Tetrifact.Core
 {
-    public enum AuthorizationLevel
+    public enum AuthorizationLevel : int
     {
         None,
         Read,
