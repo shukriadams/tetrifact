@@ -20,9 +20,10 @@ namespace Tetrifact.Web
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-
-            if (_settings.AuthorizationLevel > AuthorizationLevel.Read)
+            if (_settings.AuthorizationLevel == AuthorizationLevel.None || _settings.AuthorizationLevel > AuthorizationLevel.Read)
                 return;
+
+            context.HttpContext.Response.StatusCode = 403;
 
             context.Result = new ViewResult
             {

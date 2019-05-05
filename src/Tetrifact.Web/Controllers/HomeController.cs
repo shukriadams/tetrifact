@@ -102,19 +102,11 @@ namespace Tetrifact.Web
         }
 
         [Route("error/500")]
-        public IActionResult CatchAll()
+        public IActionResult Error500()
         {
             return View();
         }
 
-        /*
-        [Route("{*url}", Order = 999)]
-        public IActionResult CatchAll()
-        {
-            Response.StatusCode = 500;
-            return View();
-        }
-        */
         #endregion
     }
 }

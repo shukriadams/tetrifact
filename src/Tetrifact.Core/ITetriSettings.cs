@@ -1,4 +1,6 @@
-﻿namespace Tetrifact.Core
+﻿using System.Collections.Generic;
+
+namespace Tetrifact.Core
 {
     public interface ITetriSettings
     {
@@ -66,5 +68,10 @@
         /// The required auth level a user needs for the current Tetrifact instance.
         /// </summary>
         AuthorizationLevel AuthorizationLevel { get; set; }
+
+        /// <summary>
+        /// Collection of tokens which provide write access to 
+        /// </summary>
+        IEnumerable<string> AccessTokens { get; set; }
     }
 }

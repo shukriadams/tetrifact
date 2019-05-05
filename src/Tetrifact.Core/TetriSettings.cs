@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Tetrifact.Core
@@ -40,6 +41,8 @@ namespace Tetrifact.Core
 
         public AuthorizationLevel AuthorizationLevel { get; set; }
 
+        public IEnumerable<string> AccessTokens { get; set; }
+
         #endregion
 
         #region CTORS
@@ -68,7 +71,8 @@ namespace Tetrifact.Core
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
-
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
+                this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
 
             // fall back to defaults
             if (string.IsNullOrEmpty(PackagePath))
