@@ -51,6 +51,10 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
 
+            // register filterws
+            services.AddScoped<ReadLevel>();
+            services.AddScoped<WriteLevel>();
+
             // prettify JSON output
             services.AddMvc()
                 .AddJsonOptions(options =>
@@ -76,12 +80,25 @@ namespace Tetrifact.Web
             }
             else
             {
-                app.UseStatusCodePagesWithReExecute("/Home/Error");
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/error/500");
 
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+
+            // register 404
+            app.Use(async (context, next) =>
+            {
+                await next();
+
+                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+                {
+                    context.Request.Path = "/error/404";
+                    await next();
+                }
+            });
+
 
             string logPath = Environment.GetEnvironmentVariable("LOG_PATH");
             if (string.IsNullOrEmpty(logPath))
@@ -100,7 +117,6 @@ namespace Tetrifact.Web
             foreach (IIndexReader indexReader in indexReaders)
                 indexReader.Initialize();
 
-            app.UseStatusCodePagesWithReExecute("/error/{0}");
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
