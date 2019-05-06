@@ -4,7 +4,9 @@ Tetrifact is a server that stores build arfefacts. It was written as a storage s
 
 It is written in Dotnetcore 2.2, and will run on any system that supports this framework.
 
-Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance @ https://tetrifact.manafeed.com, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
+## Demo
+
+Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance *https://tetrifact.manafeed.com*, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
 
 ## Status
 
