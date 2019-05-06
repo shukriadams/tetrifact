@@ -1,9 +1,36 @@
 # Tetrifact
 
-Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact exposes a simple HTTP REST API so it's easily integrated into your CI build chain. It also has a simple human-friendly interface.
+Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact saves on storage space by sharing identical files across builds. It exposes an HTTP REST API so it can easily be integrated into your CI build chain. It also has a simple human-friendly interface.
 
 It is written in Dotnetcore 2.2, and will run on any system that supports this framework.
 
+## How
+
+Lets suppose you work for the ACME Game Corporation, and you're developing Thingernator.
+In your Thingernator build script, after compiling, zip Thingernator and then post it with
+
+        curl 
+            -X POST 
+            -H "Content-Type: multipart/form-data" 
+            -F "Files=@path/to/thingernator-build.zip" 
+            http://tetriserver.example.com/v1/packages/Thingernator-alpha-build-0.0.6?isArchive=true 
+
+Your QA team's automated test system wants builds of Thingernator. Tag your new build so it know this build is testable.
+
+        curl -X POST http://tetriserver.example.com/v1/tag/test-me!/Thingernator-alpha-build-0.0.6
+
+The QA system can query new builds with
+
+        curl http://tetriserver.example.com/v1/packages/latest/test-me! -> returns "Thingernator-alpha-build-0.0.6"
+        
+or 
+
+        curl http://tetriserver.example.com/v1/tags/test-me!/packages -> returns a JSON array of builds with "Test-me!" tag.
+
+A zip of the build can then be downloaded from
+        
+        curl http://tetriserver.example.com/v1/archives/Thingernator-alpha-build-0.0.6
+        
 ## Demo
 
 Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance *https://tetrifact.manafeed.com*, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
