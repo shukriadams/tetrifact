@@ -41,6 +41,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
         public ActionResult<Manifest> GetManifest(string packageId)
         {

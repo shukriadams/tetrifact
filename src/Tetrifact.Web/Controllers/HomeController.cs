@@ -31,6 +31,7 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        [ServiceFilter(typeof(ReadLevel))]
         public IActionResult Index()
         {
             ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
@@ -38,12 +39,16 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [ServiceFilter(typeof(ReadLevel))]
         [Route("api")]
         public IActionResult Api()
         {
             return View();
         }
 
+
+        [ServiceFilter(typeof(ReadLevel))]
         [Route("package/{packageId}")]
         public IActionResult Package(string packageId)
         {
@@ -56,6 +61,8 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [ServiceFilter(typeof(ReadLevel))]
         [Route("packages/{page?}")]
         public IActionResult Packages(int page)
         {
@@ -70,6 +77,8 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [ServiceFilter(typeof(ReadLevel))]
         [Route("packagesWithTag/{tag}")]
         public IActionResult PackagesWithTag(string tag)
         {
@@ -85,16 +94,16 @@ namespace Tetrifact.Web
             }
         }
 
+
         [Route("error/404")]
         public IActionResult Error404()
         {
             return View();
         }
 
-        [Route("{*url}", Order = 999)]
-        public IActionResult CatchAll()
+        [Route("error/500")]
+        public IActionResult Error500()
         {
-            Response.StatusCode = 404;
             return View();
         }
 

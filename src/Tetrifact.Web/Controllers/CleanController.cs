@@ -36,6 +36,7 @@ namespace Tetrifact.Web.Controllers
 
         #region METHODS
 
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("")]
         public ActionResult Clean()
         {

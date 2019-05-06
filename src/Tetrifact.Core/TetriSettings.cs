@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Tetrifact.Core
@@ -38,6 +39,10 @@ namespace Tetrifact.Core
 
         public int MaxArchives { get; set; }
 
+        public AuthorizationLevel AuthorizationLevel { get; set; }
+
+        public IEnumerable<string> AccessTokens { get; set; }
+
         #endregion
 
         #region CTORS
@@ -54,32 +59,20 @@ namespace Tetrifact.Core
             this.PagesPerPageGroup = 20;
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.MaxArchives = 10;
+            this.AuthorizationLevel = AuthorizationLevel.None;
+
 
             // get settings from env variables
-            PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
-            TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
-            RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
-            ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
-            TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
-
-            if (Environment.GetEnvironmentVariable("LIST_PAGE_SIZE") != null)
-            {
-                int listPageSize = this.ListPageSize;
-                if (Int32.TryParse(Environment.GetEnvironmentVariable("LIST_PAGE_SIZE"), out listPageSize))
-                    this.ListPageSize = listPageSize;
-                else
-                    _log.LogError($"Environment variable for LIST_PAGE_SIZE ({Environment.GetEnvironmentVariable("LIST_PAGE_SIZE")}) is not a valid integer.");
-            }
-
-            if (Environment.GetEnvironmentVariable("MAX_ARCHIVES") != null)
-            {
-                int maxArchives = this.MaxArchives;
-                if (Int32.TryParse(Environment.GetEnvironmentVariable("MAX_ARCHIVES"), out maxArchives))
-                    this.MaxArchives = maxArchives;
-                else
-                    _log.LogError($"Environment variable for MAX_ARCHIVES ({Environment.GetEnvironmentVariable("MAX_ARCHIVES")}) is not a valid integer.");
-            }
-
+            this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
+            this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
+            this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
+            this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
+            this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
+            this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
+            this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
+            this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
+                this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
 
             // fall back to defaults
             if (string.IsNullOrEmpty(PackagePath))
@@ -96,6 +89,50 @@ namespace Tetrifact.Core
 
             if (string.IsNullOrEmpty(TagsPath))
                 TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
+        }
+
+        /// <summary>
+        /// Safely gets integer setting from environment variable. Logs error if value is invalid.
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private int GetSetting(string settingsName, int defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (settingsRawVariable == null)
+                return defaultValue;
+
+            if (!int.TryParse(settingsRawVariable, out defaultValue))
+                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Safely gets enum setting from environment variable. Logs error if value is invalid.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private TEnum GetSetting<TEnum>(string settingsName, TEnum defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (settingsRawVariable == null)
+                return defaultValue;
+
+            // messy using try/catch instead of TryParse, but I can't figure out enum tryparse with generics
+            try
+            {
+                defaultValue = (TEnum)Enum.Parse(typeof(TEnum), settingsRawVariable);
+            }
+            catch
+            {
+                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is invalid, it must match one of {string.Join(",", Enum.GetNames(typeof(TEnum)))}.");
+            }
+
+            return defaultValue;
         }
 
         #endregion
