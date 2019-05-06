@@ -1,5 +1,13 @@
 # Tetrifact
 
+Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact exposes a simple HTTP REST API so it's easily integrated into your CI build chain. It also has a simple human-friendly interface.
+
+It is written in Dotnetcore 2.2, and will run on any system that supports this framework.
+
+Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance @ https://tetrifact.manafeed.com, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
+
+## Status
+
 Master branch
 
 [![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=master)](https://travis-ci.org/shukriadams/tetrifact)
@@ -8,11 +16,9 @@ Develop branch
 
 [![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=develop)](https://travis-ci.org/shukriadams/tetrifact)
 
-Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact exposes a simple HTTP REST API so it's easily integrated into your CI build chain. It also has a simple human-friendly interface.
+## Download 
 
-Tetrifact is written in Dotnetcore 2.2, and should run on any system that supports Dotnetcore ASP. 
-
-## Download
+## From Tetrifact
 
 ### As a Docker image
 
@@ -40,12 +46,8 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
 
 ### As binaries
 
-Binary builds requires DotNetCore 2.2 or better, and will work on any operating system DotNetCore will run on. Binaries for Tetrifact can be found under [releases](https://github.com/shukriadams/tetrifact/releases).
-
-Recent builds :
-
-- [version 1.0.0 zip](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.zip)
-- [version 1.0.0 tar.gz](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.tar.gz)
+Binary builds require DotNetCore 2.2 or better. Binaries can be found under [releases](https://github.com/shukriadams/tetrifact/releases), or from the  
+[Tetrifact demo server](https://hub.docker.com/r/shukriadams/tetrifact).
 
 To start Tetrifact unzip, and from the command line run
 
