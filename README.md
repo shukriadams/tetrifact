@@ -40,16 +40,18 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
 
 ### As binaries
 
-Recent build :
-[Version 1.0.0](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.zip)
+Binary builds requires DotNetCore 2.2 or better, and will work on any operating system DotNetCore will run on. Binaries for Tetrifact can be found under [releases](https://github.com/shukriadams/tetrifact/releases).
 
-Binaries for Tetrifact are availabe from Github under [releases](https://github.com/shukriadams/tetrifact/releases).
+Recent builds :
 
-To start Tetrifact unzip and run
+- [version 1.0.0 zip](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.zip)
+- [version 1.0.0 tar.gz](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.tar.gz)
+
+To start Tetrifact unzip, and from the command line run
 
     dotnet Tetrifact.web.dll
 
-Tetrifact expects all configuration to be passed in as environment variables - these can also be set from web.config.
+All configuration is passed in as environment variables - these can also be set from web.config.
 
 ## How it works
 
