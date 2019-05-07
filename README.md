@@ -1,8 +1,5 @@
 # Tetrifact
 
-
-## Status
-
 Master branch
 
 [![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=master)](https://travis-ci.org/shukriadams/tetrifact)
