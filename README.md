@@ -1,6 +1,17 @@
 # Tetrifact
 
-Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact saves on storage space by sharing identical files across builds. It exposes an HTTP REST API so it can easily be integrated into your CI build chain. It also has a simple human-friendly interface.
+
+## Status
+
+Master branch
+
+[![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=master)](https://travis-ci.org/shukriadams/tetrifact)
+
+Develop branch
+
+[![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=develop)](https://travis-ci.org/shukriadams/tetrifact)
+
+Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. Tetrifact cuts down on storage space by sharing identical files across builds. It exposes an HTTP REST API so it can easily be integrated into your CI build chain. It also has a simple human-friendly interface.
 
 It is written in Dotnetcore 2.2, and will run on any system that supports this framework.
 
@@ -29,7 +40,7 @@ or
         curl http://tetriserver.example.com/v1/tags/test-me!/packages 
         -> returns a JSON array of builds with "Test-me!" tag.
 
-A zip of the build can then be downloaded from
+A zip of the build can then be downloaded with
         
         curl http://tetriserver.example.com/v1/archives/Thingernator-alpha-build-0.0.6
         
@@ -37,21 +48,20 @@ A zip of the build can then be downloaded from
 
 Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance *https://tetrifact.manafeed.com*, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
 
-## Status
-
-Master branch
-
-[![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=master)](https://travis-ci.org/shukriadams/tetrifact)
-
-Develop branch
-
-[![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=develop)](https://travis-ci.org/shukriadams/tetrifact)
-
 ## Download 
 
-## From Tetrifact
+### Binaries
 
-### As a Docker image
+Binary builds require DotNetCore 2.2 or better to run. Binaries can be found under [releases](https://github.com/shukriadams/tetrifact/releases), or from the  
+[Tetrifact demo server](https://hub.docker.com/r/shukriadams/tetrifact).
+
+To start Tetrifact unzip and from the command line run
+
+    dotnet Tetrifact.web.dll
+
+All configuration is passed in as environment variables - these can also be set from web.config.
+
+### Docker image
 
 A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
 
@@ -74,23 +84,6 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
               - ./data:/var/tetrifact/data/:rw
             ports:
             - "49022:5000"
-
-### As binaries
-
-Binary builds require DotNetCore 2.2 or better. Binaries can be found under [releases](https://github.com/shukriadams/tetrifact/releases), or from the  
-[Tetrifact demo server](https://hub.docker.com/r/shukriadams/tetrifact).
-
-To start Tetrifact unzip, and from the command line run
-
-    dotnet Tetrifact.web.dll
-
-All configuration is passed in as environment variables - these can also be set from web.config.
-
-## How it works
-
-Tetrifact stores files on whatever filesystem it runs on. If a build contains a file with a unique hash, that file is written to disk. If another build contains a file with the same hash, it reuses the file from the first build. That is basically all that Tetrifact does. It's a file hash table running on a filesystem, with an HTTP API around it.
-
-The built-in user interface for Tetrifact is rudimentary, and this is largely because one would construct a custom workflow on top of Tetrifact using its REST API. 
 
 ## What it isn't
 
