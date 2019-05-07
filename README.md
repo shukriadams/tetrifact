@@ -21,11 +21,13 @@ Your QA team's automated test system wants builds of Thingernator. Tag your new 
 
 The QA system can query new builds with
 
-        curl http://tetriserver.example.com/v1/packages/latest/test-me! -> returns "Thingernator-alpha-build-0.0.6"
+        curl http://tetriserver.example.com/v1/packages/latest/test-me! 
+        -> returns "Thingernator-alpha-build-0.0.6"
         
 or 
 
-        curl http://tetriserver.example.com/v1/tags/test-me!/packages -> returns a JSON array of builds with "Test-me!" tag.
+        curl http://tetriserver.example.com/v1/tags/test-me!/packages 
+        -> returns a JSON array of builds with "Test-me!" tag.
 
 A zip of the build can then be downloaded from
         
