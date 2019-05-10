@@ -16,10 +16,10 @@ Tetrifact is written in Dotnetcore 2.2, and should run on any system that suppor
 
 ### As a Docker image
 
-A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
+An Ubuntu-based version of Tetrifact is available as a Docker image @ https://hub.docker.com/r/shukriadams/tetrifact 
 
 - Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
-- Tetrifact runs with user id 1000, and needs permission to control this folder, set this with
+- Tetrifact runs with user id 1000, and depending on your system might require permission to control this folder, set this with
 
         chown -R 1000 ./data
 
@@ -43,7 +43,7 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
 Recent build :
 [Version 1.0.0](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.zip)
 
-Binaries for Tetrifact are availabe from Github under [releases](https://github.com/shukriadams/tetrifact/releases).
+Binaries for Tetrifact are available from Github under [releases](https://github.com/shukriadams/tetrifact/releases).
 
 To start Tetrifact unzip and run
 
