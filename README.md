@@ -8,18 +8,62 @@ Develop branch
 
 [![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=develop)](https://travis-ci.org/shukriadams/tetrifact)
 
-Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve. Tetrifact exposes a simple HTTP REST API so it's easily integrated into your CI build chain. It also has a simple human-friendly interface.
+Tetrifact is a server that stores build arfefacts. It was written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. Tetrifact cuts down on storage space by sharing identical files across builds. It exposes an HTTP REST API so it can easily be integrated into your CI build chain. It also has a simple human-friendly interface.
 
-Tetrifact is written in Dotnetcore 2.2, and should run on any system that supports Dotnetcore ASP. 
+It is written in Dotnetcore 2.2, and will run on any system that supports this framework.
 
-## Download
+## How
 
-### As a Docker image
+Lets suppose you work for the ACME Game Corporation, and you're developing Thingernator.
+In your Thingernator build script, after compiling, zip Thingernator and then post it with
 
-An Ubuntu-based version of Tetrifact is available as a Docker image @ https://hub.docker.com/r/shukriadams/tetrifact 
+        curl 
+            -X POST 
+            -H "Content-Type: multipart/form-data" 
+            -F "Files=@path/to/thingernator-build.zip" 
+            http://tetriserver.example.com/v1/packages/Thingernator-alpha-build-0.0.6?isArchive=true 
+
+Your QA team's automated test system wants builds of Thingernator. Tag your new build so it know this build is testable.
+
+        curl -X POST http://tetriserver.example.com/v1/tag/test-me!/Thingernator-alpha-build-0.0.6
+
+The QA system can query new builds with
+
+        curl http://tetriserver.example.com/v1/packages/latest/test-me! 
+        -> returns "Thingernator-alpha-build-0.0.6"
+        
+or 
+
+        curl http://tetriserver.example.com/v1/tags/test-me!/packages 
+        -> returns a JSON array of builds with "Test-me!" tag.
+
+A zip of the build can then be downloaded with
+        
+        curl http://tetriserver.example.com/v1/archives/Thingernator-alpha-build-0.0.6
+        
+## Demo
+
+Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance *https://tetrifact.manafeed.com*, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
+
+## Download 
+
+### Binaries
+
+Binary builds require DotNetCore 2.2 or better to run. Binaries can be found under [releases](https://github.com/shukriadams/tetrifact/releases), or from the  
+[Tetrifact demo server](https://hub.docker.com/r/shukriadams/tetrifact).
+
+To start Tetrifact unzip and from the command line run
+
+    dotnet Tetrifact.web.dll
+
+All configuration is passed in as environment variables - these can also be set from web.config.
+
+### Docker image
+
+A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
 
 - Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
-- Tetrifact runs with user id 1000, and depending on your system might require permission to control this folder, set this with
+- Tetrifact runs with user id 1000, and needs permission to control this folder, set this with
 
         chown -R 1000 ./data
 
@@ -37,25 +81,6 @@ An Ubuntu-based version of Tetrifact is available as a Docker image @ https://hu
               - ./data:/var/tetrifact/data/:rw
             ports:
             - "49022:5000"
-
-### As binaries
-
-Recent build :
-[Version 1.0.0](https://github.com/shukriadams/tetrifact/releases/download/1.0.0/Tetrifact.1.0.0.zip)
-
-Binaries for Tetrifact are available from Github under [releases](https://github.com/shukriadams/tetrifact/releases).
-
-To start Tetrifact unzip and run
-
-    dotnet Tetrifact.web.dll
-
-Tetrifact expects all configuration to be passed in as environment variables - these can also be set from web.config.
-
-## How it works
-
-Tetrifact stores files on whatever filesystem it runs on. If a build contains a file with a unique hash, that file is written to disk. If another build contains a file with the same hash, it reuses the file from the first build. That is basically all that Tetrifact does. It's a file hash table running on a filesystem, with an HTTP API around it.
-
-The built-in user interface for Tetrifact is rudimentary, and this is largely because one would construct a custom workflow on top of Tetrifact using its REST API. 
 
 ## What it isn't
 
