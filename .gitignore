@@ -27,3 +27,4 @@
 /build/win/clone
 /build/linux/out
 /build/linux/clone
+/src/Tetrifact.Tests/coverage.xml
