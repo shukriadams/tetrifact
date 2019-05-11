@@ -8,4 +8,4 @@ docker-compose kill &&
 docker-compose up -d &&
 
 # runs Tetrifact.Tests project in build container
-docker exec tetritest sh -c "cd /tmp/tetrifact && dotnet test"
+docker exec tetritest sh -c "cd /tmp/tetrifact && dotnet test /p:AltCover=true"
