@@ -67,12 +67,21 @@ To run tests in a container (requires bash && Docker)
     cd /tests
     sh ./test.sh
 
-To run tests natively from the command line (requires dotnetcore sdk)
+This is mostly intended for running tests on CI systems like Travis. To run tests natively from the command line (requires dotnetcore sdk)  run
 
     cd /src
-    dotnet test
+    dotnet test /p:AltCover=true
 
 To run tests in Visual Studio, open Test > Windows > Test Explorer, run desired tests from explorer window.
+
+## Test coverage reports
+
+Unit test coverage is done with https://github.com/SteveGilham/altcover. To visualize your tests
+
+- Install ReportGenerator (https://github.com/danielpalme/ReportGenerator)
+- after testing run 
+
+    ReportGenerator.exe -reports:path/to/src/Tetrifact.Tests/coverage.xml -targetdir:./coverage
 
 ## Architecture
 
