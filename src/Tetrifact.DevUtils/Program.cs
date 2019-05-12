@@ -12,7 +12,7 @@ namespace Tetrifact.DevUtils
             StandardKernel kernel = new StandardKernel();
             kernel.Load(Assembly.GetExecutingAssembly());
 
-            CommandLineArgumentParser commandArgs = new CommandLineArgumentParser(args, "--", true);
+            CommandLineSwitches commandArgs = new CommandLineSwitches(args, "--", true);
 
             if (!commandArgs.Contains("run"))
             {
