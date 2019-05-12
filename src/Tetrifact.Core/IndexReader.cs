@@ -101,7 +101,7 @@ namespace Tetrifact.Core
             }
             catch (FormatException)
             {
-                throw new InvalidFileIdentifierException ();
+                throw new InvalidFileIdentifierException(id);
             }
         }
 
