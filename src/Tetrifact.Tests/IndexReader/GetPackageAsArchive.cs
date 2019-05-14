@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -26,5 +27,20 @@ namespace Tetrifact.Tests.IndexReader
             Assert.Single(items);
             Assert.Equal(content, items[path]);
         }
+
+        [Fact]
+        public void GetNonExistent()
+        {
+            try
+            {
+                this.IndexReader.GetPackageAsArchive("invalid id");
+                Assert.True(false);
+            }
+            catch (PackageNotFoundException ex)
+            {
+                Assert.Equal("invalid id", ex.PackageId);
+            }
+        }
+
     }
 }

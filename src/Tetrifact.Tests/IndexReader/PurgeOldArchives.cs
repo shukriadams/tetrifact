@@ -21,5 +21,20 @@ namespace Tetrifact.Tests.IndexReader
             archives = Directory.GetFiles(this.Settings.ArchivePath);
             Assert.Equal(this.Settings.MaxArchives, archives.Length);
         }
+
+        [Fact]
+        public void PurgeLockedArchive()
+        {
+            Assert.Empty(base.Logger.LogEntries);
+
+            this.Settings.MaxArchives = 0;
+            string path = Path.Join(Settings.ArchivePath, "block.zip");
+            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                base.IndexReader.PurgeOldArchives();
+                Assert.Single(base.Logger.LogEntries);
+            }
+            
+        }
     }
 }

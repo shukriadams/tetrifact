@@ -23,5 +23,22 @@ namespace Tetrifact.Tests.IndexReader
             string retrievedContent = reader.ReadToEnd();
             Assert.Equal(content, retrievedContent);
         }
+
+        /// <summary>
+        /// Confirms throwing of proper exception on invalid file identifier
+        /// </summary>
+        [Fact]
+        public void GetFileInvalidIdentifier()
+        {
+            try
+            {
+                GetFileResponse response = IndexReader.GetFile("definitely-an-invalid-file-identifier");
+                Assert.True(false);
+            }
+            catch (InvalidFileIdentifierException)
+            {
+                Assert.True(true);
+            }
+        }
     }
 }

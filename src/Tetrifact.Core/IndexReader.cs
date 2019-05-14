@@ -120,9 +120,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(file.FullName);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
+                    _logger.LogWarning($"Failed to purge archive ${file}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }
