@@ -12,7 +12,7 @@ namespace Tetrifact.Tests
     public abstract class FileSystemBase
     {
         protected ITetriSettings Settings;
-        protected ILogger<IIndexReader> Logger;
+        protected TestLogger<IIndexReader> Logger;
         protected IIndexReader IndexReader;
 
         public FileSystemBase()
