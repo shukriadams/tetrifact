@@ -78,10 +78,14 @@ To run tests in Visual Studio, open Test > Windows > Test Explorer, run desired 
 
 Unit test coverage is done with https://github.com/SteveGilham/altcover. To visualize your tests
 
-- Install ReportGenerator (https://github.com/danielpalme/ReportGenerator)
+- Install ReportGenerator 
+
+        dotnet tool install --global dotnet-reportgenerator-globaltool
+
 - after testing run 
 
-    ReportGenerator.exe -reports:path/to/src/Tetrifact.Tests/coverage.xml -targetdir:./coverage
+    cd src/Tetrifact.Tests
+    reportgenerator -reports:coverage.xml -targetdir:./coverage
 
 ## Architecture
 
