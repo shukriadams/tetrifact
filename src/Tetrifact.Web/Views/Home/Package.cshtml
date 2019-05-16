@@ -127,8 +127,10 @@
                 @foreach (ManifestItem file in manifest.Files)
                 {
                     <div class="listItem">
-                        <a class="package-download" href="/v1/files/@file.Id">&#10515;</a>
-                        @file.Path
+                        <a class="listItem-icon package-download" href="/v1/files/@file.Id">&#10515;</a>
+                        <div class="listItem-text">
+                            @file.Path
+                        </div>
                     </div>
                 }
             </div>
