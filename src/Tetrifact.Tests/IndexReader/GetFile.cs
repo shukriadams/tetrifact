@@ -19,9 +19,11 @@ namespace Tetrifact.Tests.IndexReader
             string fileIdentifier = FileIdentifier.Cloak(path, hash);
 
             GetFileResponse response = IndexReader.GetFile(fileIdentifier);
-            StreamReader reader = new StreamReader(response.Content);
-            string retrievedContent = reader.ReadToEnd();
-            Assert.Equal(content, retrievedContent);
+            using (StreamReader reader = new StreamReader(response.Content))
+            {
+                string retrievedContent = reader.ReadToEnd();
+                Assert.Equal(content, retrievedContent);
+            }
         }
 
         /// <summary>
