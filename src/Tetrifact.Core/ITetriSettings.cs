@@ -30,7 +30,7 @@ namespace Tetrifact.Core
         string TagsPath { get; set; }
 
         /// <summary>
-        /// Milliseconds.
+        /// Interval at which archive's existence will be polled. In milliseconds.
         /// </summary>
         int ArchiveAvailablePollInterval { get; set; }
 

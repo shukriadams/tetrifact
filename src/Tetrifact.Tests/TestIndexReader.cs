@@ -68,6 +68,11 @@ namespace Tetrifact.Tests
             // do nothing
         }
 
+        public string GetPackageArchiveTempPath(string packageId)
+        {
+            return $"{packageId}.zip.tmp";
+        }
+
         public int GetPackageArchiveStatus(string packageId)
         {
             return 0;

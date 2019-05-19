@@ -80,6 +80,15 @@ namespace Tetrifact.Core
         int GetPackageArchiveStatus(string packageId);
 
         /// <summary>
+        /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
+        /// final public package name when archive generation is done. Therefore, the existence of the temp file 
+        /// is used as an indicator that archive creation is still in progress (or failed while in progress).
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        string GetPackageArchiveTempPath(string packageId);
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="packageId"></param>

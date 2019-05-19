@@ -330,7 +330,7 @@ namespace Tetrifact.Core
             return Path.Combine(_settings.ArchivePath, packageId + ".zip");
         }
 
-        private string GetPackageArchiveTempPath(string packageId)
+        public string GetPackageArchiveTempPath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
         }
@@ -383,11 +383,13 @@ namespace Tetrifact.Core
 
                         using (Stream entryStream = fileEntry.Open())
                         {
-                            Stream itemStream = this.GetFile(file.Id).Content;
-                            if (itemStream == null)
-                                throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
+                            using (Stream itemStream = this.GetFile(file.Id).Content)
+                            {
+                                if (itemStream == null)
+                                    throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
 
-                            await itemStream.CopyToAsync(entryStream);
+                                await itemStream.CopyToAsync(entryStream);
+                            }
                         }
                     }
                 }
