@@ -89,20 +89,13 @@ namespace Tetrifact.Core
 
         public GetFileResponse GetFile(string id)
         {
-            try
-            {
-                FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-                string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
+            FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
+            string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
 
-                if (File.Exists(directFilePath))
-                    return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
+            if (File.Exists(directFilePath))
+                return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
 
-                return null;
-            }
-            catch (FormatException)
-            {
-                throw new InvalidFileIdentifierException(id);
-            }
+            return null;
         }
 
         /// <summary>
