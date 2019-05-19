@@ -2,6 +2,11 @@
 
 Note : if all you want is to build Tetrifact from source, check the /build folder in the project root.
 
+## Conventions
+
+    - all file endings are LF, NOT CRLF.
+    - indent with 4 spaces, never use tabs.
+
 ## Vagrant
 
 If you want to develop Linux on Windows, Vagrant is an excellent and convenient option for getting the best of both worlds. The how and why of Vagrant is beyond the scope of this document, check out https://www.vagrantup.com for more info. The full Vagrant setup for this project is in the /vagrant folder. 
@@ -10,20 +15,6 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 
 - Dotnetcore 2.2 SDK
 - Visual Studio 2017 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
-
-## Project status
-
-To-do list
-
-    - UI improvements
-    - Tests
-    - Documentation 
-    - Security and permissions
-    - Integrity self-checks
-    - Self-repairing of index data
-    - Support for tarballs
-    - Post-commit hooks
-    - Ability to receive new builds while file index is disconnected for maintenance.
 
 ## Running from Visual Studio
 
