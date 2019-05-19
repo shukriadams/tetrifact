@@ -17,6 +17,16 @@ namespace Tetrifact.Core
         {
             return new MemoryStream(Encoding.UTF8.GetBytes(value ?? string.Empty));
         }
+    
+        /// <summary>
+        /// Generates a stream from a byte array
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static MemoryStream StreamFromBytes(byte[] value)
+        {
+            return new MemoryStream(value);
+        }
 
         /// <summary>
         /// 

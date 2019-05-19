@@ -192,13 +192,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(archivePath);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Unexpected error deleting archive file ${archivePath} : ${ex}");
+                    _logger.LogWarning($"Failed to purge archive ${archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
 
@@ -210,9 +207,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(tagFile);
                 }
-                catch (Exception ex)
+                catch (IOException ex)
                 {
-                    _logger.LogError($"Unexpected error deleting tag ${tagFile} : ${ex}");
+                    // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
+                    _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }

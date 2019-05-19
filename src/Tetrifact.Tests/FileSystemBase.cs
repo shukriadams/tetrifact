@@ -36,7 +36,7 @@ namespace Tetrifact.Tests
             testPackage.Name = "somepackage";
 
             IWorkspace workspace = new Core.Workspace(this.Settings);
-            workspace.AddIncomingFile(StreamsHelper.StreamFromString("some content"), testPackage.Path);
+            workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
             workspace.WriteManifest(testPackage.Name, "somehash2");
 
