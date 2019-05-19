@@ -153,15 +153,13 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             string archivePath = this.GetPackageArchivePath(packageId);
+            string temptPath = this.GetPackageArchiveTempPath(packageId);
 
-            // create
-            if (!File.Exists(archivePath))
-            {
-                this.CreateArchive(packageId);
+            // archive doesn't exist and isn't being created
+            if (!File.Exists(archivePath) && !File.Exists(temptPath))
                 return 0;
-            }
 
-            if (!File.Exists(archivePath))
+            if (File.Exists(temptPath))
                 return 1;
 
             return 2;
@@ -325,7 +323,7 @@ namespace Tetrifact.Core
 
         }
 
-        private string GetPackageArchivePath(string packageId)
+        public string GetPackageArchivePath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip");
         }

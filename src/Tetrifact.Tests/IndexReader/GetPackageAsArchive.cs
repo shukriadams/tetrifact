@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Tetrifact.Core;
 using Xunit;
 
@@ -12,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            TestPackage testPackage = this.CreatePackage();
+            TestPackage testPackage = base.CreatePackage();
             using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
@@ -33,7 +32,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetExistingArchive()
         {
-            TestPackage testPackage = this.CreatePackage();
+            TestPackage testPackage = base.CreatePackage();
             using (Stream testContent1 = this.IndexReader.GetPackageAsArchive(testPackage.Name))
             {
                 // get again
@@ -72,7 +71,7 @@ namespace Tetrifact.Tests.IndexReader
             base.Settings.ArchiveAvailablePollInterval = 0;
 
             // we need a valid package first
-            TestPackage testPackage = this.CreatePackage();
+            TestPackage testPackage = base.CreatePackage();
 
             // mock a temp archive file, this means actual archive creation will be skipped and
             // therefore never complete.
@@ -85,34 +84,6 @@ namespace Tetrifact.Tests.IndexReader
                     // do nothing, exception expected
                 }
             });
-        }
-        
-        private class TestPackage
-        {
-            public byte[] Content;
-            public string Path;
-            public string Name;
-        }
-
-        /// <summary>
-        /// Generates a valid package, returns its unique id.
-        /// </summary>
-        /// <returns></returns>
-        private TestPackage CreatePackage()
-        {
-            TestPackage testPackage = new TestPackage();
-
-            // create package, files folder and item location in one
-            testPackage.Content = Encoding.ASCII.GetBytes("some content");
-            testPackage.Path = "path/to/file";
-            testPackage.Name = "somepackage";
-
-            IWorkspace workspace = new Core.Workspace(this.Settings);
-            workspace.AddIncomingFile(StreamsHelper.StreamFromString("some content"), testPackage.Path);
-            workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, "somehash2");
-
-            return testPackage;
         }
     }
 }

@@ -89,6 +89,13 @@ namespace Tetrifact.Core
         string GetPackageArchiveTempPath(string packageId);
 
         /// <summary>
+        /// Gets the path for a package archive.
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        string GetPackageArchivePath(string packageId);
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="packageId"></param>

@@ -66,11 +66,10 @@ namespace Tetrifact.Web
         }
 
         /// <summary>
-        /// Returns a status code the given archive. Requesting status for a given archive will also start
-        /// generating that archive.
-        /// 0 : Archive creation started.
-        ///  1 : Archive is being created.
-        ///  2 : Archive is available for download.
+        /// Returns a status code the given archive.
+        /// 0 : Archive does not exist and has not been queued for creation.
+        /// 1 : Archive is being created.
+        /// 2 : Archive is available for download.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

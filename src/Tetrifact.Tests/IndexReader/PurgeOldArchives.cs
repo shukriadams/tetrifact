@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -30,12 +31,16 @@ namespace Tetrifact.Tests.IndexReader
             this.Settings.MaxArchives = 0;
             string path = Path.Join(Settings.ArchivePath, "block.zip");
             
+            // open stream in write mode to lock it, then attempt to purge archives
             using (FileStream fs = File.OpenWrite(path))
             {
+                // force write something to stream to ensure it locks
+                fs.Write(Encoding.ASCII.GetBytes("random"));
+
                 base.IndexReader.PurgeOldArchives();
                 Assert.Single(base.Logger.LogEntries);
+                Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
             }
-            
         }
     }
 }
