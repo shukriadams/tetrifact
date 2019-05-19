@@ -102,6 +102,19 @@ main {
 
 .listItem {
     padding: 8px 0;
+    display: table;
+    width: 100%;
+}
+
+.listItem-icon {
+    display: table-cell;
+    width: 34px;
+    vertical-align: middle;
+}
+
+.listItem-text {
+    word-break: break-word;
+    display: table-cell;
 }
 
 .listItem:not(:last-of-type) {

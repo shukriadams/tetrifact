@@ -29,7 +29,8 @@ namespace Tetrifact.Tests.IndexReader
 
             this.Settings.MaxArchives = 0;
             string path = Path.Join(Settings.ArchivePath, "block.zip");
-            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+            
+            using (FileStream fs = File.OpenWrite(path))
             {
                 base.IndexReader.PurgeOldArchives();
                 Assert.Single(base.Logger.LogEntries);
