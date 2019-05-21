@@ -14,6 +14,6 @@ jobs:
       - sh ./test.sh
     - stage: deploy
       on:
-      tags: true
+        tags: true
       script:
       - echo "tag"
