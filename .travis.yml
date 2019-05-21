@@ -9,8 +9,7 @@ branches:
 jobs:
   include:
     - stage: deploy
-      on:
-        tags: true
+      if: tag IS present
       script:
       - echo "tag"
     - stage: test
