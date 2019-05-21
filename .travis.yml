@@ -5,7 +5,15 @@ branches:
   only:
   - master
   - develop
+
+on:
+  tags: true
+  env:
+  - ISTAG=true
   
 script:
   - cd tests
   - sh ./test.sh
+  - if [ ${ISTAG} = "true" ]; then
+  echo "tag set"
+  fi
