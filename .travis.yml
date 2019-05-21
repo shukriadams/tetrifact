@@ -8,12 +8,13 @@ branches:
 
 jobs:
   include:
-    - stage: test
-      script:
-      - cd tests
-      - sh ./test.sh
     - stage: deploy
       on:
         tags: true
       script:
       - echo "tag"
+    - stage: test
+      script:
+      - cd tests
+      - sh ./test.sh
+
