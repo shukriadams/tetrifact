@@ -6,14 +6,14 @@ branches:
   - master
   - develop
 
-on:
-  tags: true
-  env:
-  - ISTAG=true
-  
-script:
-  - cd tests
-  - sh ./test.sh
-  - if [ ${ISTAG} = "true" ]; then
-  echo "tag set"
-  fi
+jobs:
+  include:
+    - stage: test
+      script:
+      - cd tests
+      - sh ./test.sh
+    - stage: deploy
+      on:
+      tags: true
+      script:
+      - echo "tag"
