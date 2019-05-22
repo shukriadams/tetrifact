@@ -23,21 +23,28 @@ namespace Tetrifact.Tests.IndexReader
             Assert.Equal(this.Settings.MaxArchives, archives.Length);
         }
 
+        /// <summary>
+        /// Confirms that attempting to purge an archive that's in use is handled gracefully and
+        /// logs an error. The error loggging is mainly used to indicate that the lock has been 
+        /// effective.
+        /// </summary>
         [Fact]
         public void PurgeLockedArchive()
         {
             Assert.Empty(base.Logger.LogEntries);
 
             this.Settings.MaxArchives = 0;
-            string path = Path.Join(Settings.ArchivePath, "block.zip");
-            
-            // open stream in write mode to lock it, then attempt to purge archives
+            string path = Path.Join(Settings.ArchivePath, "dummy.zip");
+    
+            // force create dummy zip file in archive folder
+            File.WriteAllText(path, "dummy content");
+
+            // open dummy zip in write mode to lock it 
             using (FileStream fs = File.OpenWrite(path))
             {
-                // force write something to stream to ensure it locks
-                fs.Write(Encoding.ASCII.GetBytes("random"));
-
+                // attempt to purge content of archive folder
                 base.IndexReader.PurgeOldArchives();
+
                 Assert.Single(base.Logger.LogEntries);
                 Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
             }

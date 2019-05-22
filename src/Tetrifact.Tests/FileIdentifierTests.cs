@@ -16,33 +16,18 @@ namespace Tetrifact.Tests
         [Fact]
         public void GracefulNoBase64Encoding()
         {
-            try
+            Assert.Throws<InvalidFileIdentifierException>(() =>
             {
-                FileIdentifier.Decloak("an-inproperly-formatted-id");
-                // should not reach here
-                Assert.True(false);
-            }
-            catch(InvalidFileIdentifierException)
-            {
-                // should reach here
-                Assert.True(true);
-            }
+               FileIdentifier.Decloak("an-inproperly-formatted-id");
+            });
         }
 
         [Fact]
         public void GracefulInvalidContent()
         {
-            try
-            {
+            Assert.Throws<InvalidFileIdentifierException>(()=>{
                 FileIdentifier.Decloak(Obfuscator.Cloak("an-inproperly-formatted-id"));
-                // should not reach here
-                Assert.True(false);
-            }
-            catch (InvalidFileIdentifierException)
-            {
-                // should reach here
-                Assert.True(true);
-            }
+            });
         }
 
     }

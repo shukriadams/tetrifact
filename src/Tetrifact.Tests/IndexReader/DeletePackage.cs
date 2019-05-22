@@ -43,6 +43,9 @@ namespace Tetrifact.Tests.IndexReader
             string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Name);
             File.WriteAllText(archivePath, string.Empty);
 
+            // force create dummy zip file in archive folder
+            File.WriteAllText(archivePath, "dummy content");
+
             // open stream in write mode to lock it, then attempt to purge archives
             using (FileStream fs = File.OpenWrite(archivePath))
             {

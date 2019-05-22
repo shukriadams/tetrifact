@@ -33,15 +33,10 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetFileByInvalidIdentifier()
         {
-            try
+            Assert.Throws<InvalidFileIdentifierException>(()=> 
             {
-                GetFileResponse response = IndexReader.GetFile("definitely-an-invalid-file-identifier");
-                Assert.True(false);
-            }
-            catch (InvalidFileIdentifierException)
-            {
-                Assert.True(true);
-            }
+                IndexReader.GetFile("definitely-an-invalid-file-identifier");
+            });
         }
 
         /// <summary>
