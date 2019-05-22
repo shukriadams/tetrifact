@@ -1,18 +1,12 @@
 services:
   - docker
 
-branches:
-  only:
-  - master
-  - develop
-
 jobs:
   include:
     - stage: deploy
-      on:
-        tags: true
+      if: tag IS present
       script:
-      - echo "tag present"
+      - echo "tag"
     - stage: test
       script:
       - cd tests
