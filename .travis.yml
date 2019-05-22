@@ -16,4 +16,3 @@ jobs:
       script:
       - cd tests
       - sh ./test.sh
-
