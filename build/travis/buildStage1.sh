@@ -28,6 +28,6 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -H "Authorization: token ${TETRIFACT_UPLOAD_TOKEN}" \
     -F "Files=@./Tetrifact.${TAG}.zip;filename=Tetrifact.zip" \
-    https://tetrifact.manafeed.com/v1/packages/$TAG?isarchive=true
+    https://tetrifact.manafeed.com/v1/packages/Tetrifact.$TAG?isarchive=true
 
 
