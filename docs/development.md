@@ -2,6 +2,11 @@
 
 Note : if all you want is to build Tetrifact from source, check the /build folder in the project root.
 
+## Conventions
+
+    - all file endings are LF, NOT CRLF.
+    - indent with 4 spaces, never use tabs.
+
 ## Vagrant
 
 If you want to develop Linux on Windows, Vagrant is an excellent and convenient option for getting the best of both worlds. The how and why of Vagrant is beyond the scope of this document, check out https://www.vagrantup.com for more info. The full Vagrant setup for this project is in the /vagrant folder. 
@@ -10,20 +15,6 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 
 - Dotnetcore 2.2 SDK
 - Visual Studio 2017 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
-
-## Project status
-
-To-do list
-
-    - UI improvements
-    - Tests
-    - Documentation 
-    - Security and permissions
-    - Integrity self-checks
-    - Self-repairing of index data
-    - Support for tarballs
-    - Post-commit hooks
-    - Ability to receive new builds while file index is disconnected for maintenance.
 
 ## Running from Visual Studio
 
@@ -67,12 +58,25 @@ To run tests in a container (requires bash && Docker)
     cd /tests
     sh ./test.sh
 
-To run tests natively from the command line (requires dotnetcore sdk)
+This is mostly intended for running tests on CI systems like Travis. To run tests natively from the command line (requires dotnetcore sdk)  run
 
     cd /src
-    dotnet test
+    dotnet test /p:AltCover=true
 
 To run tests in Visual Studio, open Test > Windows > Test Explorer, run desired tests from explorer window.
+
+## Test coverage reports
+
+Unit test coverage is done with https://github.com/SteveGilham/altcover. To visualize your tests
+
+- Install ReportGenerator 
+
+        dotnet tool install --global dotnet-reportgenerator-globaltool
+
+- after testing run 
+
+    cd src/Tetrifact.Tests
+    reportgenerator -reports:coverage.xml -targetdir:./coverage
 
 ## Architecture
 

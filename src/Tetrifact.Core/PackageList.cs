@@ -11,8 +11,6 @@ namespace Tetrifact.Core
     /// <summary>
     /// Package list logic ; implements in-memory caching to save on expensive read operations, as generating a list of packages requires 
     /// loading the JSON manifest of each package. 
-    /// 
-    /// Note that _cache can be null in test mode, we don't have a mock system in place yet so we're bypassing caching entirely for unit tests.
     /// </summary>
     public class PackageList : IPackageList
     {
@@ -43,15 +41,14 @@ namespace Tetrifact.Core
 
         public void Clear()
         {
-            if (_cache!= null)
-                _cache.Remove("_packageCache");
+            _cache.Remove("_packageCache");
         }
 
         public IEnumerable<string> GetPopularTags(int count)
         {
             IList<Package> packageData;
 
-            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -75,7 +72,7 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData;
 
-            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -88,7 +85,7 @@ namespace Tetrifact.Core
             IList<Package> packageData;
             
             
-            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -101,7 +98,7 @@ namespace Tetrifact.Core
             IList<Package> packageData;
 
 
-            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -113,7 +110,7 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData;
 
-            if (_cache == null || !_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -158,8 +155,7 @@ namespace Tetrifact.Core
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
 
-            if (_cache != null)
-                _cache.Set(_cacheKey, packageData);
+            _cache.Set(_cacheKey, packageData);
 
             return packageData;
         }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -14,25 +15,47 @@ namespace Tetrifact.Tests.IndexReader
             Directory.CreateDirectory(packagePath);
 
             // create manifest
-            Core.Manifest manifest = new Core.Manifest
+            Manifest manifest = new Manifest
             {
                 Hash = "somehash"
             };
-            manifest.Files.Add(new Core.ManifestItem { Hash = "itemhash", Path = "path/to/item" });
+            manifest.Files.Add(new ManifestItem { Hash = "itemhash", Path = "path/to/item" });
             File.WriteAllText(Path.Join(packagePath, "manifest.json"), JsonConvert.SerializeObject(manifest));
 
-            Core.Manifest testManifest = this.IndexReader.GetManifest("somepackage");
+            Manifest testManifest = this.IndexReader.GetManifest("somepackage");
             Assert.Equal("somehash", testManifest.Hash);
             Assert.Single(testManifest.Files);
             Assert.Equal("itemhash", testManifest.Files[0].Hash);
             Assert.Equal("path/to/item", testManifest.Files[0].Path);
         }
 
+        /// <summary>
+        /// Handles reading a manifest that doesn't exist.
+        /// </summary>
         [Fact]
         public void GetEmpty()
         {
-            Core.Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
+            Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
             Assert.Null(testManifest);
+
+            // should not generate a log message
+            Assert.Empty(((TestLogger<IIndexReader>)this.Logger).LogEntries);
+        }
+
+        /// <summary>
+        /// Handles reading an existing manifest file that isn't a valid json file.
+        /// </summary>
+        [Fact]
+        public void GetInvalidManifet()
+        {
+            string packagefolder = Path.Combine(Settings.PackagePath, "someinvalidpackage");
+            Directory.CreateDirectory(packagefolder);
+            File.WriteAllText(Path.Combine(packagefolder, "manifest.json"), "invalid json!");
+            Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
+            Assert.Null(testManifest);
+
+            // should generate a error
+            Assert.Single(this.Logger.LogEntries);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                return _tagsService.ReadTagsFromIndex().ToArray();
+                return _tagsService.GetAllTags().ToArray();
             }
             catch (PackageNotFoundException)
             {

@@ -89,20 +89,13 @@ namespace Tetrifact.Core
 
         public GetFileResponse GetFile(string id)
         {
-            try
-            {
-                FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-                string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
+            FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
+            string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
 
-                if (File.Exists(directFilePath))
-                    return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
+            if (File.Exists(directFilePath))
+                return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
 
-                return null;
-            }
-            catch (FormatException)
-            {
-                throw new InvalidFileIdentifierException ();
-            }
+            return null;
         }
 
         /// <summary>
@@ -120,9 +113,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(file.FullName);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
+                    _logger.LogWarning($"Failed to purge archive ${file}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }
@@ -159,15 +153,13 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             string archivePath = this.GetPackageArchivePath(packageId);
+            string temptPath = this.GetPackageArchiveTempPath(packageId);
 
-            // create
-            if (!File.Exists(archivePath))
-            {
-                this.CreateArchive(packageId);
+            // archive doesn't exist and isn't being created
+            if (!File.Exists(archivePath) && !File.Exists(temptPath))
                 return 0;
-            }
 
-            if (!File.Exists(archivePath))
+            if (File.Exists(temptPath))
                 return 1;
 
             return 2;
@@ -200,13 +192,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(archivePath);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Unexpected error deleting archive file ${archivePath} : ${ex}");
+                    _logger.LogWarning($"Failed to purge archive ${archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
 
@@ -218,9 +207,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(tagFile);
                 }
-                catch (Exception ex)
+                catch (IOException ex)
                 {
-                    _logger.LogError($"Unexpected error deleting tag ${tagFile} : ${ex}");
+                    // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
+                    _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }
@@ -331,12 +321,12 @@ namespace Tetrifact.Core
 
         }
 
-        private string GetPackageArchivePath(string packageId)
+        public string GetPackageArchivePath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip");
         }
 
-        private string GetPackageArchiveTempPath(string packageId)
+        public string GetPackageArchiveTempPath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
         }
@@ -389,11 +379,13 @@ namespace Tetrifact.Core
 
                         using (Stream entryStream = fileEntry.Open())
                         {
-                            Stream itemStream = this.GetFile(file.Id).Content;
-                            if (itemStream == null)
-                                throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
+                            using (Stream itemStream = this.GetFile(file.Id).Content)
+                            {
+                                if (itemStream == null)
+                                    throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
 
-                            await itemStream.CopyToAsync(entryStream);
+                                await itemStream.CopyToAsync(entryStream);
+                            }
                         }
                     }
                 }

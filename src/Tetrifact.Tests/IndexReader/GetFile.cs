@@ -19,9 +19,35 @@ namespace Tetrifact.Tests.IndexReader
             string fileIdentifier = FileIdentifier.Cloak(path, hash);
 
             GetFileResponse response = IndexReader.GetFile(fileIdentifier);
-            StreamReader reader = new StreamReader(response.Content);
-            string retrievedContent = reader.ReadToEnd();
-            Assert.Equal(content, retrievedContent);
+            using (StreamReader reader = new StreamReader(response.Content))
+            {
+                string retrievedContent = reader.ReadToEnd();
+                Assert.Equal(content, retrievedContent);
+            }
+        }
+
+        /// <summary>
+        /// Confirms throwing of proper exception on invalid file identifier. This checks formatting of 
+        /// identifier only, not file
+        /// </summary>
+        [Fact]
+        public void GetFileByInvalidIdentifier()
+        {
+            Assert.Throws<InvalidFileIdentifierException>(()=> 
+            {
+                IndexReader.GetFile("definitely-an-invalid-file-identifier");
+            });
+        }
+
+        /// <summary>
+        /// Tests graceful handling by GetFile if the file doesn't exist.
+        /// </summary>
+        [Fact]
+        public void GetNonExistentFile()
+        {
+            string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
+            GetFileResponse response = IndexReader.GetFile(fileIdentifier);
+            Assert.Null(response);
         }
     }
 }

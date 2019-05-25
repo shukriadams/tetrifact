@@ -80,42 +80,6 @@ namespace Tetrifact.Core
             */
         }
 
-
-        /// <summary>
-        /// Gets tags from /tags index folder  (not directly from individual packages). 
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<string> ReadTagsFromIndex()
-        {
-            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
-            List<string> tags = new List<string>();
-
-            foreach (string rawTag in rawTags)
-            {
-                try
-                {
-                    tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)));
-                }
-                catch (FormatException)
-                {
-                    // log invalid tag folders, and continue.
-                    _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
-                }
-            }
-
-            return tags;
-        }
-
-        public IEnumerable<string> GetPackageIdsWithTag(string tag)
-        {
-            string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
-            if (!Directory.Exists(tagDirectory))
-                throw new TagNotFoundException();
-
-            string[] files = Directory.GetFiles(tagDirectory);
-            return files.Select(r => Path.GetFileName(r));
-        }
-
         public void RemoveTag(string packageId, string tag)
         {
             string manifestPath = Path.Combine(_settings.PackagePath, packageId, "manifest.json");
@@ -155,6 +119,46 @@ namespace Tetrifact.Core
                 }
             }
             */
+        }
+
+        /// <summary>
+        /// Gets a list of all tags from tag index folder. Tags are not read from package manifests. 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetAllTags()
+        {
+            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            List<string> tags = new List<string>();
+
+            foreach (string rawTag in rawTags)
+            {
+                try
+                {
+                    tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)));
+                }
+                catch (FormatException)
+                {
+                    // log invalid tag folders, and continue.
+                    _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
+                }
+            }
+
+            return tags;
+        }
+
+        /// <summary>
+        /// Gets packages with tag from the tag index, not directly from package manifests.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public IEnumerable<string> GetPackageIdsWithTag(string tag)
+        {
+            string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
+            if (!Directory.Exists(tagDirectory))
+                throw new TagNotFoundException();
+
+            string[] files = Directory.GetFiles(tagDirectory);
+            return files.Select(r => Path.GetFileName(r));
         }
 
         #endregion

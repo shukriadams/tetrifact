@@ -21,12 +21,12 @@ namespace Tetrifact.Core
             MatchCollection matches = regex.Matches(cloakedId);
 
             if (matches.Count() != 1)
-                throw new InvalidFileIdentifierException ();
+                throw new InvalidFileIdentifierException(cloakedId);
 
             return new FileIdentifier
             {
-                Hash = matches[0].Groups[2].Value,
-                Path = matches[0].Groups[1].Value
+                Path = matches[0].Groups[1].Value,
+                Hash = matches[0].Groups[2].Value
             };
         }
     }

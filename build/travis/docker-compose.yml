@@ -1,0 +1,11 @@
+version: "2"
+services:
+  tetrifactbuild:
+    image: shukriadams/tetrifact-build:0.0.3
+    container_name: tetrifactbuild
+    restart: unless-stopped
+    environment:
+      TETRIFACT_UPLOAD_TOKEN : ${TETRIFACT_UPLOAD_TOKEN}
+    volumes:
+      - ./../../:/tmp/tetrifact/:rw
+      - ./buildStage1.sh:/tmp/buildStage1.sh

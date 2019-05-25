@@ -17,6 +17,5 @@ namespace Tetrifact.Tests.IndexReader
             Assert.True(Directory.Exists(this.Settings.ArchivePath));
             Assert.True(Directory.Exists(this.Settings.TagsPath));
         }
-
     }
 }

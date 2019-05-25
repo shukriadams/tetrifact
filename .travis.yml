@@ -1,11 +1,16 @@
 services:
   - docker
 
-branches:
-  only:
-  - master
-  - develop
-  
-script:
-  - cd tests
-  - sh ./test.sh
+jobs:
+  include:
+    - stage: test
+      script:
+      - cd tests
+      - sh ./test.sh
+    - stage: deploy
+      if: tag IS present
+      script:
+      - cd build/travis
+      - docker-compose up -d
+      - docker exec -it tetrifactbuild bash -c "cd /tmp && sh ./buildStage1.sh"
+      - sh ./buildStage2.sh

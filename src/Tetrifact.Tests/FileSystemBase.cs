@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using Tetrifact.Core;
 
@@ -12,8 +12,36 @@ namespace Tetrifact.Tests
     public abstract class FileSystemBase
     {
         protected ITetriSettings Settings;
-        protected ILogger<IIndexReader> Logger;
+        protected TestLogger<IIndexReader> Logger;
         protected IIndexReader IndexReader;
+
+        protected class TestPackage
+        {
+            public byte[] Content;
+            public string Path;
+            public string Name;
+        }
+
+        /// <summary>
+        /// Generates a valid package, returns its unique id.
+        /// </summary>
+        /// <returns></returns>
+        protected TestPackage CreatePackage()
+        {
+            TestPackage testPackage = new TestPackage();
+
+            // create package, files folder and item location in one
+            testPackage.Content = Encoding.ASCII.GetBytes("some content");
+            testPackage.Path = "path/to/file";
+            testPackage.Name = "somepackage";
+
+            IWorkspace workspace = new Core.Workspace(this.Settings);
+            workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
+            workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
+            workspace.WriteManifest(testPackage.Name, "somehash2");
+
+            return testPackage;
+        }
 
         public FileSystemBase()
         {
