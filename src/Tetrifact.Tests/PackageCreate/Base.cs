@@ -8,7 +8,11 @@ namespace Tetrifact.Tests.PackageCreate
 
         public Base()
         {
-            PackageCreate = new Core.PackageCreate(IndexReader, Settings, new TestLogger<IPackageCreate>(), new Core.Workspace(Settings));
+            PackageCreate = new Core.PackageCreate(
+                IndexReader, 
+                Settings, 
+                new TestLogger<IPackageCreate>(), 
+                new Core.Workspace(Settings, new TestLogger<IWorkspace>()));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
@@ -46,6 +47,9 @@ namespace Tetrifact.Tests.PackageCreate
             StreamReader reader = new StreamReader(response.Content);
             string retrievedContent = reader.ReadToEnd();
             Assert.Equal(retrievedContent, fileContent);
+
+            // ensure that workspace has been cleaned up
+            Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
         }
     }
 }

@@ -56,5 +56,10 @@ namespace Tetrifact.Core
         /// <param name="path"></param>
         /// <returns></returns>
         string GetIncomingFileHash(string path);
+
+        /// <summary>
+        /// Cleans up workspace.
+        /// </summary>
+        void Dispose();
     }
 }
