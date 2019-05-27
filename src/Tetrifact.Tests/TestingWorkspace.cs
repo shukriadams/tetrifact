@@ -92,5 +92,9 @@ namespace Tetrifact.Tests
             return HashService.FromByteArray(content);
         }
 
+        public void Dispose()
+        {
+
+        }
     }
 }

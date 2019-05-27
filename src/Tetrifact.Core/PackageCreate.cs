@@ -100,6 +100,8 @@ namespace Tetrifact.Core
                 // calculate package hash from child hashes
                 _workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
 
+                _workspace.Dispose();
+
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }
             catch (Exception ex)

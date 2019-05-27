@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,8 @@ namespace Tetrifact.Core
 
         private ITetriSettings _settings;
 
+        private ILogger<IWorkspace> _logger;
+
         #endregion
 
         #region PROPERTIES
@@ -25,9 +28,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Workspace(ITetriSettings settings)
+        public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger)
         {
             _settings = settings;
+            _logger = logger;
             this.Manifest = new Manifest();
 
             // workspaces have random names, for safety ensure name is not already in use
@@ -146,6 +150,19 @@ namespace Tetrifact.Core
         public string GetIncomingFileHash(string relativePath)
         {
             return HashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                if (Directory.Exists(this.WorkspacePath))
+                    Directory.Delete(this.WorkspacePath, true);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogWarning($"Failed to delete temp folder {this.WorkspacePath}", ex);
+            }
         }
 
         #endregion

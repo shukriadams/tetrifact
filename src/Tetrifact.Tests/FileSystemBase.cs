@@ -13,6 +13,7 @@ namespace Tetrifact.Tests
     {
         protected ITetriSettings Settings;
         protected TestLogger<IIndexReader> Logger;
+        protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
 
         protected class TestPackage
@@ -35,7 +36,8 @@ namespace Tetrifact.Tests
             testPackage.Path = "path/to/file";
             testPackage.Name = "somepackage";
 
-            IWorkspace workspace = new Core.Workspace(this.Settings);
+            this.WorkspaceLogger = new TestLogger<IWorkspace>();
+            IWorkspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
             workspace.WriteManifest(testPackage.Name, "somehash2");
