@@ -43,14 +43,14 @@ A zip of the build can then be downloaded with
         
 ## Demo
 
-Tetrifact is now self-hosting - you can download builds of Tetrifact from a Tetrifact instance *https://tetrifact.manafeed.com*, which also acts as a convenient demo of the server interface. Note that all write/change operations on this instance are disabled.
+A Tetrifact instance is running at *https://tetrifact.manafeed.com*.
 
 ## Download 
 
 ### Binaries
 
-Binary builds require DotNetCore 2.2 or better to run. Binaries can be found under [releases](https://github.com/shukriadams/tetrifact/releases), or from the  
-[Tetrifact demo server](https://hub.docker.com/r/shukriadams/tetrifact).
+Binary builds require DotNetCore 2.2 or better to run. Binaries can be downloaded from the 
+[official Tetrifact demo server](https://tetrifact.manafeed.com).
 
 To start Tetrifact unzip and from the command line run
 
@@ -81,6 +81,8 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
               - ./data:/var/tetrifact/data/:rw
             ports:
             - "49022:5000"
+
+Note that Docker for Windows now supports Linux containers, so you can this container on Windows hosts too.
 
 ## What it isn't
 
