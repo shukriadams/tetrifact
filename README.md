@@ -43,7 +43,7 @@ A zip of the build can then be downloaded with
         
 ## Demo
 
-A Tetrifact instance is running at *https://tetrifact.manafeed.com*.
+A Tetrifact instance is running at *https://tetrifact.manafeed.com*. For internet reasons, all write operations from the web interface are disabled on this instance.
 
 ## Download 
 
