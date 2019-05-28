@@ -107,6 +107,12 @@ namespace Tetrifact.Web
             return View();
         }
 
+        [Route("isAlive")]
+        public IActionResult IsAlive()
+        {
+            return Ok("200");
+        }
+
         #endregion
     }
 }
