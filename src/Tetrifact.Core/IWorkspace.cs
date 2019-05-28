@@ -9,6 +9,11 @@ namespace Tetrifact.Core
     public interface IWorkspace
     {
         /// <summary>
+        /// Starts workspace. Must be called before anything can be added to workspace.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// A manifest generated for the incoming package. If on the filesystem, can be written as a json file.
         /// </summary>
         Manifest Manifest { get; }
