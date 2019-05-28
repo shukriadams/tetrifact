@@ -69,6 +69,8 @@ namespace Tetrifact.Core
                 // write attachments to work folder 
                 long size = newPackage.Files.Sum(f => f.Length);
 
+                _workspace.Initialize();
+
                 // if archive, unzip
                 if (newPackage.IsArchive)
                     _workspace.AddArchiveContent(newPackage.Files.First().OpenReadStream());

@@ -16,6 +16,11 @@ namespace Tetrifact.Tests
 
         public Manifest Manifest { get { return _manifest; } }
 
+        public void Initialize()
+        {
+            
+        }
+
         /// <summary>
         /// For testing purposes. Wipes contents of this workspace
         /// </summary>
@@ -96,5 +101,7 @@ namespace Tetrifact.Tests
         {
 
         }
+
+
     }
 }

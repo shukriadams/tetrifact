@@ -32,6 +32,14 @@ namespace Tetrifact.Core
         {
             _settings = settings;
             _logger = logger;
+        }
+
+        #endregion
+
+        #region METHODS
+
+        public void Initialize()
+        {
             this.Manifest = new Manifest();
 
             // workspaces have random names, for safety ensure name is not already in use
@@ -46,10 +54,6 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(this.WorkspacePath);
             Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
         }
-
-        #endregion
-
-        #region METHODS
 
         public bool AddIncomingFile(Stream formFile, string relativePath)
         {
