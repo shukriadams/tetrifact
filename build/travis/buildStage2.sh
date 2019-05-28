@@ -24,9 +24,22 @@ cp -R ./../../src/Tetrifact.Web/bin/Release/netcoreapp2.2/publish/* ./.stage/.ar
 # build hosting container
 cd ./.stage
 docker build -t shukriadams/tetrifact . &&
-docker tag shukriadams/tetrifact:latest shukriadams/tetrifact:$TAG 
-docker login -u $DOCKER_USER -p $DOCKER_PASS
-docker push shukriadams/tetrifact:latest
-docker push shukriadams/tetrifact:$TAG 
+docker tag shukriadams/tetrifact:latest shukriadams/tetrifact:$TAG &&
+cd ..
+
+docker-compose -f docker-compose-test.yml down &&
+docker-compose -f docker-compose-test.yml up -d &&
+sleep 5 && # wait a few seconds to make sure app in container has started
+STATUS=$(curl localhost:49022/isalive) &&
+docker-compose -f docker-compose-test.yml down &&
+
+if [ "$STATUS" != "200" ]; then
+    echo "test container returned unexpected value ${STATUS}"
+    exit 1;
+fi
+
+docker login -u $DOCKER_USER -p $DOCKER_PASS &&
+docker push shukriadams/tetrifact:latest &&
+docker push shukriadams/tetrifact:$TAG && 
 
 cd -
