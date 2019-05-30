@@ -19,7 +19,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Files to upload to package (multipart/form-data).
         /// </summary>
-        [FromForm] public IEnumerable<IFormFile> Files { get; set; }
+        [FromForm] public IList<IFormFile> Files { get; set; }
 
         /// <summary>
         /// True if the querystring IsArchive is set to true. If true, Files will be treated as an archive and unpacked.
@@ -46,6 +46,7 @@ namespace Tetrifact.Core
         /// </summary>
         public PackageCreateArguments()
         {
+            this.Files = new List<IFormFile>();
             this.Format = "zip";
         }
 
