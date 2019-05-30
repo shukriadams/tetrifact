@@ -123,9 +123,6 @@ namespace Tetrifact.Core
 
         public Stream GetPackageAsArchive(string packageId)
         {
-            if (!this.DoesPackageExist(packageId))
-                throw new PackageNotFoundException(packageId);
-
             string archivePath = this.GetPackageArchivePath(packageId);
 
             // create
@@ -344,7 +341,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private async void CreateArchive(string packageId)
+        private void CreateArchive(string packageId)
         {
             // store path with .tmp extension while building, this is used to detect if archiving has already started
             string archivePath = this.GetPackageArchivePath(packageId);
@@ -354,18 +351,13 @@ namespace Tetrifact.Core
             if (File.Exists(archivePathTemp))
                 return;
 
+            if (!this.DoesPackageExist(packageId))
+                throw new PackageNotFoundException(packageId);
+
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
                 Manifest manifest = this.GetManifest(packageId);
-                if (manifest == null)
-                {
-                    // clean up first
-                    zipStream.Close();
-                    File.Delete(archivePathTemp);
-
-                    throw new PackageNotFoundException(packageId);
-                }
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
@@ -377,7 +369,7 @@ namespace Tetrifact.Core
                         {
                             using (Stream itemStream = this.GetFile(file.Id).Content)
                             {
-                                await itemStream.CopyToAsync(entryStream);
+                                itemStream.CopyTo(entryStream);
                             }
                         }
                     }
