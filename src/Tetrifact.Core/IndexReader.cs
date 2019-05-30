@@ -354,10 +354,6 @@ namespace Tetrifact.Core
             if (File.Exists(archivePathTemp))
                 return;
 
-            string archiveFolder = Path.GetDirectoryName(archivePathTemp);
-            if (!Directory.Exists(archiveFolder))
-                Directory.CreateDirectory(archiveFolder);
-
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
@@ -381,9 +377,6 @@ namespace Tetrifact.Core
                         {
                             using (Stream itemStream = this.GetFile(file.Id).Content)
                             {
-                                if (itemStream == null)
-                                    throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
-
                                 await itemStream.CopyToAsync(entryStream);
                             }
                         }

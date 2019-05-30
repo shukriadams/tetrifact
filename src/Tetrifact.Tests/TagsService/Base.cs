@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using Tetrifact.Core;
 
-namespace Tetrifact.Tests.TagsServoce
+namespace Tetrifact.Tests.TagsService
 {
     public class Base : FileSystemBase, IDisposable
     {

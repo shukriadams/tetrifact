@@ -49,18 +49,6 @@ namespace Tetrifact.Core
             this.Format = "zip";
         }
 
-        /// <summary>
-        /// Testing shorthand ctor.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="files"></param>
-        public PackageCreateArguments(string id, IEnumerable<IFormFile> files)
-        {
-            this.Id = id;
-            this.Files = files;
-            this.Format = "zip";
-        }
-
         #endregion
     }
 }
