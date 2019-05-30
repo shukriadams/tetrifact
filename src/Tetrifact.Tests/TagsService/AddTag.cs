@@ -3,7 +3,7 @@ using Tetrifact.Core;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tetrifact.Tests.TagsServoce
+namespace Tetrifact.Tests.TagsService
 {
     public class AddTag : Base 
     {
