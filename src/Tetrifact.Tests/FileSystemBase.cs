@@ -29,12 +29,18 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         protected TestPackage CreatePackage()
         {
-            TestPackage testPackage = new TestPackage();
+            return this.CreatePackage("somepackage");
+        }
 
+        protected TestPackage CreatePackage(string packageName)
+        {
             // create package, files folder and item location in one
-            testPackage.Content = Encoding.ASCII.GetBytes("some content");
-            testPackage.Path = "path/to/file";
-            testPackage.Name = "somepackage";
+            TestPackage testPackage = new TestPackage
+            {
+                Content = Encoding.ASCII.GetBytes("some content"),
+                Path = $"path/to/{packageName}",
+                Name = packageName
+            };
 
             this.WorkspaceLogger = new TestLogger<IWorkspace>();
             IWorkspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
@@ -54,12 +60,14 @@ namespace Tetrifact.Tests
 
             Directory.CreateDirectory(testFolder);
 
-            Settings = new TetriSettings(new TestLogger<TetriSettings>());
-            Settings.RepositoryPath = Path.Join(testFolder, "repository");
-            Settings.PackagePath = Path.Join(testFolder, "packages");
-            Settings.TempPath = Path.Join(testFolder, "temp");
-            Settings.ArchivePath = Path.Join(testFolder, "archives");
-            Settings.TagsPath = Path.Join(testFolder, "tags");
+            Settings = new TetriSettings(new TestLogger<TetriSettings>())
+            {
+                RepositoryPath = Path.Join(testFolder, "repository"),
+                PackagePath = Path.Join(testFolder, "packages"),
+                TempPath = Path.Join(testFolder, "temp"),
+                ArchivePath = Path.Join(testFolder, "archives"),
+                TagsPath = Path.Join(testFolder, "tags")
+            };
 
             Logger = new TestLogger<IIndexReader>();
 

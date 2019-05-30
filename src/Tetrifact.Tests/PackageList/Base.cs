@@ -11,14 +11,11 @@ namespace Tetrifact.Tests.PackageList
 
         protected TestLogger<IPackageList> PackageListLogger { get; private set; }
 
-        private IMemoryCache _memoryCache;
+        private readonly IMemoryCache _memoryCache;
 
         public Base()
         {
-            ServiceCollection services = new ServiceCollection();
-            services.AddMemoryCache();
-            ServiceProvider serviceProvider = services.BuildServiceProvider();
-            _memoryCache = serviceProvider.GetService<IMemoryCache>();
+            _memoryCache = MemoryCacheHelper.GetInstance();
             this.PackageListLogger = new TestLogger<IPackageList>();
             this.PackageList = new Core.PackageList(_memoryCache, Settings, this.PackageListLogger);
         }
