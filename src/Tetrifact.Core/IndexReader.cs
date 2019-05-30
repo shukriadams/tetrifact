@@ -251,7 +251,7 @@ namespace Tetrifact.Core
                             {
                                 File.Delete(file);
                             }
-                            catch (Exception ex)
+                            catch (IOException ex)
                             {
                                 Console.WriteLine(ex);
                                 _logger.LogError($"Unexpected error deleting file ${file} ", ex);
@@ -264,31 +264,12 @@ namespace Tetrifact.Core
                     // if this is a package folder with no packages, it is safe to delete it and it's parent bin file
                     string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
                     if (File.Exists(binFilePath))
-                    {
-                        try
-                        {
-                            File.Delete(binFilePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex);
-                            _logger.LogError($"Unexpected error deleting file ${binFilePath} ", ex);
-                        }
-                    }
+                        File.Delete(binFilePath);
 
-                    try
-                    {
-                        Directory.Delete(currentDirectory);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                        _logger.LogError($"Unexpected error deleting folder ${currentDirectory} ", ex);
-                    }
+                    Directory.Delete(currentDirectory);
 
                     return;
                 }
-
             }
 
             bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");
@@ -301,10 +282,10 @@ namespace Tetrifact.Core
                 {
                     File.Delete(filePath);
                 }
-                catch (Exception ex)
+                catch (IOException ex)
                 {
                     Console.WriteLine(ex);
-                    _logger.LogError($"Unexpected error deleting file ${filePath} ", ex);
+                    _logger.LogError($"Failed to delete file ${filePath} ", ex);
                 }
 
                 return;
@@ -330,15 +311,8 @@ namespace Tetrifact.Core
 
         private bool DoesPackageExist(string packageId)
         {
-            try
-            {
-                Manifest manifest = this.GetManifest(packageId);
-                return manifest != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            Manifest manifest = this.GetManifest(packageId);
+            return manifest != null;
         }
 
         private void CreateArchive(string packageId)
