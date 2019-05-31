@@ -40,6 +40,11 @@ namespace Tetrifact.Core
         int ArchiveWaitTimeout { get; set; }
 
         /// <summary>
+        /// Time in milliseconds to wait for a locked link to be released.
+        /// </summary>
+        int LinkLockWaitTime { get; set; }
+
+        /// <summary>
         /// Time in seconds for objects in cache to timeout.
         /// </summary>
         int CacheTimeout { get; set; }

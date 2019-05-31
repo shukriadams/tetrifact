@@ -37,6 +37,8 @@ namespace Tetrifact.Core
 
         public int CacheTimeout { get; set; }
 
+        public int LinkLockWaitTime { get; set; }
+
         public int MaxArchives { get; set; }
 
         public AuthorizationLevel AuthorizationLevel { get; set; }
@@ -54,13 +56,13 @@ namespace Tetrifact.Core
             // defaults
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
+            this.LinkLockWaitTime = 1000;               // 1 second
+            this.CacheTimeout = 60 * 60;                // 1 hour
             this.ListPageSize = 50;
             this.IndexTagListLength = 20;
             this.PagesPerPageGroup = 20;
-            this.CacheTimeout = 60 * 60;                // 1 hour
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
-
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -71,6 +73,7 @@ namespace Tetrifact.Core
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
+            
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
 

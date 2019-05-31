@@ -230,7 +230,7 @@ namespace Tetrifact.Core
             // todo : add max sleep time to prevent permalock
             // wait if linklock is active, something more important is busy. 
             while (LinkLock.Instance.IsLocked())
-                Thread.Sleep(1000);
+                Thread.Sleep(_settings.LinkLockWaitTime);
 
             string[] files = Directory.GetFiles(currentDirectory);
             string[] directories = Directory.GetDirectories(currentDirectory);
