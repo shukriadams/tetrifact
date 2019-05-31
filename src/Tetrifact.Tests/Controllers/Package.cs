@@ -12,15 +12,15 @@ using System.IO.Compression;
 
 namespace Tetrifact.Tests.Controlers
 {
-    public class PackageTests : TestBase
+    public class Package : TestBase
     {
-        private readonly PackagesController _packagesController;
+        private readonly PackagesController _controller;
 
         private readonly IPackageCreate _packageService;
 
-        public PackageTests()
+        public Package()
         {
-            _packagesController = this.Kernel.Get<PackagesController>();
+            _controller = this.Kernel.Get<PackagesController>();
             _packageService = this.Kernel.Get<IPackageCreate>();
 
             TestingWorkspace.Reset();
@@ -32,7 +32,7 @@ namespace Tetrifact.Tests.Controlers
             // inject 3 indices
             TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
 
-            IEnumerable<string> ids = _packagesController.ListPackages(false, 0, 10).Value as IEnumerable<string>;
+            IEnumerable<string> ids = _controller.ListPackages(false, 0, 10).Value as IEnumerable<string>;
             Assert.True(ids.Count() == 3);
         }
 

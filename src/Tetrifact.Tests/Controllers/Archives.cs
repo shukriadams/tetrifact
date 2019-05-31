@@ -12,13 +12,13 @@ using System.IO.Compression;
 
 namespace Tetrifact.Tests.Controlers
 {
-    public class CleanController : TestBase
+    public class Archives : TestBase
     {
-        private readonly Tetrifact.Web.CleanController _cleanController;
+        private readonly Tetrifact.Web.ArchivesController _controller;
 
-        public CleanController()
+        public Archives()
         {
-            _cleanController = this.Kernel.Get<Tetrifact.Web.CleanController>();
+            _controller = this.Kernel.Get<Tetrifact.Web.ArchivesController>();
 
             TestingWorkspace.Reset();
         }
@@ -29,8 +29,7 @@ namespace Tetrifact.Tests.Controlers
         [Fact]
         public void Touch()
         {
-            _cleanController.Clean();
+            _controller.GetArchive("invalid-package");
         }
-        
     }
 }
