@@ -9,7 +9,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private ILogger<ITetriSettings> _log;
+        private readonly ILogger<ITetriSettings> _log;
 
         #endregion
 

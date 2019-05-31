@@ -10,9 +10,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
-        private IIndexReader _indexService;
-        private ILogger<ManifestsController> _log;
+        private readonly IIndexReader _indexService;
 
         #endregion
 
@@ -25,11 +23,9 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ManifestsController(ITetriSettings settings, IIndexReader indexService, ILogger<ManifestsController> log)
+        public ManifestsController(IIndexReader indexService)
         {
-            _settings = settings;
             _indexService = indexService;
-            _log = log;
         }
 
         #endregion

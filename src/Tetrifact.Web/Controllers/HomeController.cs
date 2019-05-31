@@ -10,20 +10,16 @@ namespace Tetrifact.Web
 
         private readonly ITetriSettings _settings;
         private readonly IIndexReader _indexService;
-        private readonly ILogger<HomeController> _log;
-        private ITagsService _tagService;
-        private IPackageList _packageList;
+        private readonly IPackageList _packageList;
 
         #endregion
 
         #region CTORS
 
-        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, IPackageList packageList)
+        public HomeController(ITetriSettings settings, IIndexReader indexService, IPackageList packageList)
         {
             _settings = settings;
             _indexService = indexService;
-            _log = log;
-            _tagService = tagService;
             _packageList = packageList;
         }
 

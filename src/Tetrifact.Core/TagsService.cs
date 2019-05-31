@@ -11,11 +11,11 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private ITetriSettings _settings;
+        private readonly ITetriSettings _settings;
 
-        private ILogger<ITagsService> _logger;
+        private readonly ILogger<ITagsService> _logger;
 
-        private IPackageList _packageList;
+        private readonly IPackageList _packageList;
 
         #endregion
 

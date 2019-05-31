@@ -10,12 +10,13 @@ using Microsoft.AspNetCore.Http.Internal;
 using System;
 using System.IO.Compression;
 
-namespace Tetrifact.Tests
+namespace Tetrifact.Tests.Controlers
 {
     public class PackageTests : TestBase
     {
-        PackagesController _packagesController;
-        IPackageCreate _packageService;
+        private readonly PackagesController _packagesController;
+
+        private readonly IPackageCreate _packageService;
 
         public PackageTests()
         {
@@ -24,7 +25,6 @@ namespace Tetrifact.Tests
 
             TestingWorkspace.Reset();
         }
-
 
         [Fact]
         public void GetPackageList()
@@ -35,7 +35,6 @@ namespace Tetrifact.Tests
             IEnumerable<string> ids = _packagesController.ListPackages(false, 0, 10).Value as IEnumerable<string>;
             Assert.True(ids.Count() == 3);
         }
-
 
         [Fact]
         public void AddPackageAsFiles()
@@ -66,7 +65,6 @@ namespace Tetrifact.Tests
             Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
-
 
         [Fact]
         public void AddPackageAsArchive()

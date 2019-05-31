@@ -33,7 +33,7 @@ namespace Tetrifact.Core
             Instance = new LinkLock();
         }
 
-        private Dictionary<string, bool> _packageIds = new Dictionary<string, bool>();
+        private readonly Dictionary<string, bool> _packageIds = new Dictionary<string, bool>();
 
         private bool _isLocked;
 

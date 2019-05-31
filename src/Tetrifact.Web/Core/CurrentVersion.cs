@@ -5,7 +5,7 @@ namespace Tetrifact.Web
 {
     public static class CurrentVersion
     {
-        private static string _version;
+        private readonly static string _version;
 
         static CurrentVersion()
         {

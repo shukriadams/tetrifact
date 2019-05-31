@@ -12,9 +12,9 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private ITetriSettings _settings;
+        private readonly ITetriSettings _settings;
 
-        private ILogger<IWorkspace> _logger;
+        private readonly ILogger<IWorkspace> _logger;
 
         #endregion
 

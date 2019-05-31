@@ -11,19 +11,17 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private IIndexReader _indexReader;
-        private IWorkspace _workspace;
-        private ITetriSettings _settings;
-        private ILogger<IPackageCreate> _log;
+        private readonly IIndexReader _indexReader;
+        private readonly IWorkspace _workspace;
+        private readonly ILogger<IPackageCreate> _log;
 
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
+        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, IWorkspace workspace)
         {
             _indexReader = indexReader;
-            _settings = settings;
             _log = log;
             _workspace = workspace;
         }

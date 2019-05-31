@@ -11,9 +11,9 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
-        private IIndexReader _indexService;
-        private ILogger<FilesController> _log;
+        private readonly IIndexReader _indexService;
+        
+        private readonly ILogger<FilesController> _log;
 
         #endregion
 
@@ -26,9 +26,8 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public FilesController(ITetriSettings settings, IIndexReader indexService, ILogger<FilesController> log)
+        public FilesController(IIndexReader indexService, ILogger<FilesController> log)
         {
-            _settings = settings;
             _indexService = indexService;
             _log = log;
         }

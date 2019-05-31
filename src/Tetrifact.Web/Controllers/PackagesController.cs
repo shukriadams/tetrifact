@@ -20,11 +20,10 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
-        private IIndexReader _indexService;
-        private ILogger<PackagesController> _log;
-        private IPackageCreate _packageService;
-        private IPackageList _packageList;
+        private readonly IIndexReader _indexService;
+        private readonly ILogger<PackagesController> _log;
+        private readonly IPackageCreate _packageService;
+        private readonly IPackageList _packageList;
 
         #endregion
 
@@ -37,11 +36,10 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageList packageList, IIndexReader indexService, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
-            _settings = settings;
             _indexService = indexService;
             _log = log;
         }
