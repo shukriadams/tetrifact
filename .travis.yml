@@ -5,7 +5,7 @@ jobs:
   include:
     - stage: test
       script:
-      - cd tests
+      - cd build/travis
       - sh ./test.sh
     - stage: deploy
       if: tag IS present
