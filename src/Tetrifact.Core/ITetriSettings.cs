@@ -70,6 +70,11 @@ namespace Tetrifact.Core
         int MaxArchives { get; set; }
 
         /// <summary>
+        /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
+        /// </summary>
+        long SpaceSafetyThreshold { get; set; }
+
+        /// <summary>
         /// The required auth level a user needs for the current Tetrifact instance.
         /// </summary>
         AuthorizationLevel AuthorizationLevel { get; set; }

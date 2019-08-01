@@ -41,6 +41,8 @@ namespace Tetrifact.Core
 
         public int MaxArchives { get; set; }
 
+        public long SpaceSafetyThreshold { get; set; }
+
         public AuthorizationLevel AuthorizationLevel { get; set; }
 
         public IEnumerable<string> AccessTokens { get; set; }
@@ -73,7 +75,8 @@ namespace Tetrifact.Core
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
-            
+            this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
+
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
 
@@ -107,6 +110,25 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             if (!int.TryParse(settingsRawVariable, out defaultValue))
+                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Safely gets long setting from environment variable. Logs error if value is invalid.
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+
+        private long GetSetting(string settingsName, long defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (settingsRawVariable == null)
+                return defaultValue;
+
+            if (!long.TryParse(settingsRawVariable, out defaultValue))
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
 
             return defaultValue;

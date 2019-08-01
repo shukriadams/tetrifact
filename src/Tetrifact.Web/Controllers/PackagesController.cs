@@ -24,6 +24,7 @@ namespace Tetrifact.Web
         private readonly ILogger<PackagesController> _log;
         private readonly IPackageCreate _packageService;
         private readonly IPackageList _packageList;
+        private readonly ITetriSettings _settings;
 
         #endregion
 
@@ -35,12 +36,14 @@ namespace Tetrifact.Web
         /// <param name="packageService"></param>
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
+        /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
             _indexService = indexService;
+            _settings = settings;
             _log = log;
         }
 
@@ -151,6 +154,11 @@ namespace Tetrifact.Web
         {
             try
             {
+                // check if there is space available
+                DiskUseStats useStats = FileHelper.GetDiskUseSats();
+                if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
+                    return Responses.InsufficientSpace("Insufficient space on storage drive.");
+
                 PackageCreateResult result = _packageService.CreatePackage(post);
                 if (result.Success)
                 {
