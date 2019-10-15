@@ -60,7 +60,7 @@ namespace Tetrifact.Core
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.LinkLockWaitTime = 1000;               // 1 second
             this.CacheTimeout = 60 * 60;                // 1 hour
-            this.ListPageSize = 50;
+            this.ListPageSize = 20;
             this.IndexTagListLength = 20;
             this.PagesPerPageGroup = 20;
             this.MaxArchives = 10;

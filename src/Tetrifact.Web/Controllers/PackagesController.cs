@@ -52,7 +52,7 @@ namespace Tetrifact.Web
         #region METHODS
 
         /// <summary>
-        /// Gets a page of 
+        /// Gets a page of packages
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
