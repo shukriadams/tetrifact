@@ -61,7 +61,7 @@ namespace Tetrifact.Core
             string[] directories = Directory.GetDirectories(currentDirectory);
 
             // if no children at all, delete current node
-            if (!files.Any() && !directories.Any())
+            if (!files.Any() && !directories.Any() && Directory.Exists(currentDirectory))
                 Directory.Delete(currentDirectory);
 
             if (isCurrentFolderPackages)
@@ -91,7 +91,8 @@ namespace Tetrifact.Core
                     if (File.Exists(binFilePath))
                         File.Delete(binFilePath);
 
-                    Directory.Delete(currentDirectory);
+                    if (Directory.Exists(currentDirectory))
+                        Directory.Delete(currentDirectory);
 
                     return;
                 }
