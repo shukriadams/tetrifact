@@ -1,0 +1,15 @@
+.tags {
+    padding: 0 0 4px 0;
+}
+
+.tags-tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-top: 4px;
+    background-color: orangered;
+}
+
+.tags-link{
+    color: white;
+}
