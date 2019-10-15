@@ -30,7 +30,12 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = files
             };
 
-            PackageCreate.CreatePackage(package);
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+
+            Assert.True(result.Success);
+            Assert.Null(result.PublicError);
+            Assert.NotEmpty(result.PackageHash);
+            Assert.Null(result.ErrorType);
 
             // check that package can be listed
             IEnumerable<string> packageIds = IndexReader.GetAllPackageIds();
@@ -50,6 +55,109 @@ namespace Tetrifact.Tests.PackageCreate
 
             // ensure that workspace has been cleaned up
             Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
+        }
+
+        /// <summary>
+        /// Confirms graceful handling when attempting to create a package with completely empty arguments.
+        /// The first check to fail should be file empty check.
+        /// </summary>        
+        [Fact]
+        public void CreateWithNoArguments(){
+            // empty argument list
+            PackageCreateArguments args = new PackageCreateArguments();
+
+            PackageCreateResult result = PackageCreate.CreatePackage(args);
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
+            Assert.Equal("Files collection is empty.", result.PublicError);
+        }
+
+        [Fact]
+        public void CreateWithEmptyFiles(){
+
+            PackageCreateArguments args = new PackageCreateArguments
+            {
+                // empty files list
+                Files = new List<IFormFile>()
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(args);
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
+            Assert.Equal("Files collection is empty.", result.PublicError);
+        }        
+
+        [Fact]
+        public void CreateWithNoName(){
+            PackageCreateArguments args = new PackageCreateArguments();
+            Stream fileStream = StreamsHelper.StreamFromString("some text");
+            args.Files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"));
+
+
+            PackageCreateResult result = PackageCreate.CreatePackage(args);
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
+            Assert.Equal("Id is required.", result.PublicError);
+        }   
+
+        [Fact]
+        public void CreateDuplicatePackage()
+        {
+            string packageId = "my package";
+            Stream fileStream = StreamsHelper.StreamFromString("some text");
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = packageId,
+                Files = new List<IFormFile>() {new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")}
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.True(result.Success);
+
+            // attempt to create package with same name
+            result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.PackageExists, result.ErrorType);
+        }
+
+        [Fact]
+        public void CreateArchiveWithTooManyFiles()
+        {
+            string packageId = "my package";
+            Stream fileStream = StreamsHelper.StreamFromString("some text");
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = packageId,
+                IsArchive = true,
+                Files = new List<IFormFile>() {
+                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"), 
+                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
+                }
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
+        }
+
+        [Fact]
+        public void CreateInvalidArchiveFormat()
+        {
+            string packageId = "my package";
+            Stream fileStream = StreamsHelper.StreamFromString("some text");
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = packageId,
+                IsArchive = true,
+                Format = "123",
+                Files = new List<IFormFile>() {
+                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
+                }
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.InvalidArchiveFormat, result.ErrorType);
         }
     }
 }

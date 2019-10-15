@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
+using System.Text;
+using System.IO;
+using System.Reflection;
 
 namespace Tetrifact.Web
 {
@@ -10,20 +13,16 @@ namespace Tetrifact.Web
 
         private readonly ITetriSettings _settings;
         private readonly IIndexReader _indexService;
-        private readonly ILogger<HomeController> _log;
-        private ITagsService _tagService;
-        private IPackageList _packageList;
+        private readonly IPackageList _packageList;
 
         #endregion
 
         #region CTORS
 
-        public HomeController(ITetriSettings settings, IIndexReader indexService, ILogger<HomeController> log, ITagsService tagService, IPackageList packageList)
+        public HomeController(ITetriSettings settings, IIndexReader indexService, IPackageList packageList)
         {
             _settings = settings;
             _indexService = indexService;
-            _log = log;
-            _tagService = tagService;
             _packageList = packageList;
         }
 
@@ -111,6 +110,25 @@ namespace Tetrifact.Web
         public IActionResult IsAlive()
         {
             return Ok("200");
+        }
+
+        [Route("spacecheck")]
+        public IActionResult SpaceCheck()
+        {
+            DiskUseStats useStats = FileHelper.GetDiskUseSats();
+            double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
+
+            StringBuilder s = new StringBuilder();
+            s.AppendLine($"Drive size : {FileHelper.BytesToMegabytes(useStats.TotalBytes)}M");
+            s.AppendLine($"Space available :  {freeMegabytes}M ({useStats.ToPercent()}%)");
+
+            if (freeMegabytes > _settings.SpaceSafetyThreshold){
+                return Ok(s.ToString());
+            }
+
+            s.AppendLine($"Insufficient space for safe operation - minimum allowed is {_settings.SpaceSafetyThreshold}M.");
+
+            return Responses.InsufficientSpace(s.ToString());
         }
 
         #endregion

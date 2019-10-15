@@ -8,7 +8,7 @@ namespace Tetrifact.Tests
     {
         #region FIELDS 
 
-        private Dictionary<string, string> _matchingHashPackage = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _matchingHashPackage = new Dictionary<string, string>();
 
         #endregion
 

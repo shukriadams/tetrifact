@@ -11,19 +11,17 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private IIndexReader _indexReader;
-        private IWorkspace _workspace;
-        private ITetriSettings _settings;
-        private ILogger<IPackageCreate> _log;
+        private readonly IIndexReader _indexReader;
+        private readonly IWorkspace _workspace;
+        private readonly ILogger<IPackageCreate> _log;
 
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
+        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, IWorkspace workspace)
         {
             _indexReader = indexReader;
-            _settings = settings;
             _log = log;
             _workspace = workspace;
         }
@@ -44,26 +42,22 @@ namespace Tetrifact.Core
             try
             {
                 // validate the contents of "newPackage" object
-                if (newPackage.Files == null)
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Expected 'Files' collection is missing." };
+                if (!newPackage.Files.Any())
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
 
                 if (string.IsNullOrEmpty(newPackage.Id))
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required" };
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
 
                 // ensure package does not already exist
                 if (_indexReader.PackageNameInUse(newPackage.Id))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists };
 
                 // if archive, ensure correct file count
-                if (newPackage.IsArchive && newPackage.Files.Count() == 0)
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
-
-                // if archive, ensure correct file count
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
                 // if archive, ensure correct file format 
-                if (newPackage.IsArchive && !new string[] { "zip" }.Contains(newPackage.Format))
+                if (newPackage.IsArchive && newPackage.Format != "zip")
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
                 // write attachments to work folder 
@@ -114,7 +108,8 @@ namespace Tetrifact.Core
             }
             finally
             {
-                LinkLock.Instance.Unlock(newPackage.Id);
+                if (!string.IsNullOrEmpty(newPackage.Id))
+                    LinkLock.Instance.Unlock(newPackage.Id);
             }
         }
 

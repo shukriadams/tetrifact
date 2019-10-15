@@ -8,7 +8,7 @@ namespace Tetrifact.Core
 
         public static PackageDeleteLocks Instance;
 
-        public IList<string> _lockedPackages { get; }
+        private readonly IList<string> _lockedPackages;
 
         #endregion
 
@@ -19,14 +19,6 @@ namespace Tetrifact.Core
             Reset();
         }
 
-        /// <summary>
-        /// For testing only
-        /// </summary>
-        public static void Reset()
-        {
-            Instance = new PackageDeleteLocks();
-        }
-
         public PackageDeleteLocks()
         {
             _lockedPackages = new List<string>();
@@ -35,6 +27,14 @@ namespace Tetrifact.Core
         #endregion
 
         #region METHODS
+        
+        /// <summary>
+        /// For testing only
+        /// </summary>
+        public static void Reset()
+        {
+            Instance = new PackageDeleteLocks();
+        }
 
         public void Lock(string packageId)
         {

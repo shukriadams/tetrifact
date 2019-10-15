@@ -126,12 +126,12 @@ main {
  *footer
  *****************************************************************************/
 .pager {
-    padding: 8px 0;
+    padding: 0 0 8px 0;
 }
 
 .pager-item {
     display: inline-block;
-    margin: 0 2px;
+    margin: 4px 2px;
     position: relative;
 }
 

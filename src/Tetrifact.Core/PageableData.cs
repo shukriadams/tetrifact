@@ -41,11 +41,6 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PageableData()
-        {
-
-        }
-
         public PageableData(IEnumerable<U> page, int pageIndex, int pageSize, long virtualItemCount)
         {
             this.Page = page;
@@ -55,8 +50,7 @@ namespace Tetrifact.Core
 
             this.TotalPages = this.VirtualItemCount / this.PageSize;
             if (this.VirtualItemCount % this.PageSize != 0)
-                this.TotalPages++;
-
+                this.TotalPages ++;
         }
 
         #endregion

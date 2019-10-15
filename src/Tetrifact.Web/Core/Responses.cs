@@ -119,6 +119,23 @@ namespace Tetrifact.Web
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public static BadRequestObjectResult InsufficientSpace(string error)
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 107,
+                    Message = error
+                }
+            });
+        }
+
         #endregion
     }
 }

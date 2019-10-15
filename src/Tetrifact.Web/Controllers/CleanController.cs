@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 
-namespace Tetrifact.Web.Controllers
+namespace Tetrifact.Web
 {
     [Route("v1/[controller]")]
     [ApiController]
@@ -10,9 +10,8 @@ namespace Tetrifact.Web.Controllers
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
-        private IIndexReader _indexService;
-        private ILogger<CleanController> _log;
+        private readonly IIndexReader _indexService;
+        private readonly IRepositoryCleaner _repositoryCleaner;
 
         #endregion
 
@@ -25,11 +24,10 @@ namespace Tetrifact.Web.Controllers
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(ITetriSettings settings, IIndexReader indexService, ILogger<CleanController> log)
+        public CleanController(IRepositoryCleaner repositoryCleaner, IIndexReader indexService)
         {
-            _settings = settings;
             _indexService = indexService;
-            _log = log;
+            _repositoryCleaner = repositoryCleaner;
         }
 
         #endregion
@@ -40,7 +38,7 @@ namespace Tetrifact.Web.Controllers
         [HttpGet("")]
         public ActionResult Clean()
         {
-            _indexService.CleanRepository();
+            _repositoryCleaner.Clean();
             _indexService.PurgeOldArchives();
             return Ok("Clean complete");
         }

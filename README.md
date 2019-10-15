@@ -90,11 +90,11 @@ Tetrifact is intended for use in your in-house CI build chain, and replaces the 
 
 ## Using
 
-See /docs/use.md for documention on how to use Tetrifact.
+See the [advanced use docs](/docs/use.md) for how to use Tetrifact.
 
 ## Development
 
-See /docs/development.md for details if you're interested in contributing to Tetrifact's development.
+See the [developer docs](/docs/development.md) for details on running Tetrifact in a development enviroment if you're interested in debugging or contributing.
 
 ## Security
 

@@ -16,13 +16,13 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
 
-        private ITetriSettings _settings;
+        private readonly ITetriSettings _settings;
 
-        private ILogger<IPackageList> _logger;
+        private readonly ILogger<IPackageList> _logger;
 
-        readonly string _cacheKey = "_packageCache";
+        private readonly string _cacheKey = "_packageCache";
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> GetPopularTags(int count)
         {
-            IList<Package> packageData;
+            IList<Package> packageData = null;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
@@ -70,7 +70,7 @@ namespace Tetrifact.Core
 
         public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
         {
-            IList<Package> packageData;
+            IList<Package> packageData = null;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {

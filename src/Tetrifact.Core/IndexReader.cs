@@ -13,9 +13,9 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private ITetriSettings _settings;
+        private readonly ITetriSettings _settings;
 
-        private ILogger<IIndexReader> _logger;
+        private readonly ILogger<IIndexReader> _logger;
 
         #endregion
 
@@ -123,9 +123,6 @@ namespace Tetrifact.Core
 
         public Stream GetPackageAsArchive(string packageId)
         {
-            if (!this.DoesPackageExist(packageId))
-                throw new PackageNotFoundException(packageId);
-
             string archivePath = this.GetPackageArchivePath(packageId);
 
             // create
@@ -215,112 +212,6 @@ namespace Tetrifact.Core
             }
         }
 
-        public void CleanRepository()
-        {
-            // get a list of existing packages at time of calling. It is vital that new packages not be created
-            // while clean running, they will be cleaned up as they are not on this list
-            IEnumerable<string> existingPackageIds = this.GetAllPackageIds();
-
-            CleanRepository_Internal(_settings.RepositoryPath, existingPackageIds, false);
-        }
-
-        /// <summary>
-        /// Recursing method behind Clean() logic.
-        /// </summary>
-        /// <param name="currentDirectory"></param>
-        private void CleanRepository_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentFolderPackages)
-        {
-            // todo : add max sleep time to prevent permalock
-            // wait if linklock is active, something more important is busy. 
-            while (LinkLock.Instance.IsLocked())
-                Thread.Sleep(1000);
-
-            string[] files = Directory.GetFiles(currentDirectory);
-            string[] directories = Directory.GetDirectories(currentDirectory);
-
-            // if no children at all, delete current node
-            if (!files.Any() && !directories.Any())
-                Directory.Delete(currentDirectory);
-
-            if (isCurrentFolderPackages)
-            {
-                if (files.Any())
-                {
-                    foreach (string file in files)
-                    {
-                        if (!existingPackageIds.Contains(Path.GetFileName(file)))
-                        {
-                            try
-                            {
-                                File.Delete(file);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex);
-                                _logger.LogError($"Unexpected error deleting file ${file} ", ex);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // if this is a package folder with no packages, it is safe to delete it and it's parent bin file
-                    string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
-                    if (File.Exists(binFilePath))
-                    {
-                        try
-                        {
-                            File.Delete(binFilePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex);
-                            _logger.LogError($"Unexpected error deleting file ${binFilePath} ", ex);
-                        }
-                    }
-
-                    try
-                    {
-                        Directory.Delete(currentDirectory);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                        _logger.LogError($"Unexpected error deleting folder ${currentDirectory} ", ex);
-                    }
-
-                    return;
-                }
-
-            }
-
-            bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");
-            if (binFilePresent && !directories.Any())
-            {
-                // bin file is orphaned (no package, no package folders)
-                string filePath = Path.Join(currentDirectory, "bin");
-
-                try
-                {
-                    File.Delete(filePath);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    _logger.LogError($"Unexpected error deleting file ${filePath} ", ex);
-                }
-
-                return;
-            }
-
-            foreach (string childDirectory in directories)
-            {
-                bool isPackageFolder = Path.GetFileName(childDirectory) == "packages" && binFilePresent;
-                CleanRepository_Internal(childDirectory, existingPackageIds, isPackageFolder);
-            }
-
-        }
-
         public string GetPackageArchivePath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip");
@@ -333,18 +224,11 @@ namespace Tetrifact.Core
 
         private bool DoesPackageExist(string packageId)
         {
-            try
-            {
-                Manifest manifest = this.GetManifest(packageId);
-                return manifest != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            Manifest manifest = this.GetManifest(packageId);
+            return manifest != null;
         }
 
-        private async void CreateArchive(string packageId)
+        private void CreateArchive(string packageId)
         {
             // store path with .tmp extension while building, this is used to detect if archiving has already started
             string archivePath = this.GetPackageArchivePath(packageId);
@@ -354,22 +238,13 @@ namespace Tetrifact.Core
             if (File.Exists(archivePathTemp))
                 return;
 
-            string archiveFolder = Path.GetDirectoryName(archivePathTemp);
-            if (!Directory.Exists(archiveFolder))
-                Directory.CreateDirectory(archiveFolder);
+            if (!this.DoesPackageExist(packageId))
+                throw new PackageNotFoundException(packageId);
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
                 Manifest manifest = this.GetManifest(packageId);
-                if (manifest == null)
-                {
-                    // clean up first
-                    zipStream.Close();
-                    File.Delete(archivePathTemp);
-
-                    throw new PackageNotFoundException(packageId);
-                }
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
@@ -381,10 +256,7 @@ namespace Tetrifact.Core
                         {
                             using (Stream itemStream = this.GetFile(file.Id).Content)
                             {
-                                if (itemStream == null)
-                                    throw new Exception($"Fatal error - item {file.Path}, package {packageId} returned a null stream");
-
-                                await itemStream.CopyToAsync(entryStream);
+                                itemStream.CopyTo(entryStream);
                             }
                         }
                     }

@@ -9,7 +9,6 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IIndexReader
     {
-
         /// <summary>
         /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
         /// </summary>
@@ -100,12 +99,5 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         void DeletePackage(string packageId);
-
-        /// <summary>
-        /// Cleans dead files out from repository folder. When a package is deleted, it's contents in the repositiry folder stay behind. 
-        /// Cleaning them out must be run seperately.
-        /// </summary>
-        void CleanRepository();
-
     }
 }

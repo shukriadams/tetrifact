@@ -13,9 +13,8 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
-        private ITagsService _tagsService;
-        private ILogger<TagsController> _log;
+        private readonly ITagsService _tagsService;
+        private readonly ILogger<TagsController> _log;
 
         #endregion
 
@@ -24,13 +23,10 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="packageService"></param>
-        /// <param name="settings"></param>
-        /// <param name="indexService"></param>
+        /// <param name="tagsService"></param>
         /// <param name="log"></param>
-        public TagsController(ITetriSettings settings, ITagsService tagsService, ILogger<TagsController> log)
+        public TagsController(ITagsService tagsService, ILogger<TagsController> log)
         {
-            _settings = settings;
             _tagsService = tagsService;
             _log = log;
         }

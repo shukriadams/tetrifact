@@ -40,6 +40,11 @@ namespace Tetrifact.Core
         int ArchiveWaitTimeout { get; set; }
 
         /// <summary>
+        /// Time in milliseconds to wait for a locked link to be released.
+        /// </summary>
+        int LinkLockWaitTime { get; set; }
+
+        /// <summary>
         /// Time in seconds for objects in cache to timeout.
         /// </summary>
         int CacheTimeout { get; set; }
@@ -63,6 +68,11 @@ namespace Tetrifact.Core
         /// Maximum number of archives to allow - once exceeded, older archives will be autodeleted
         /// </summary>
         int MaxArchives { get; set; }
+
+        /// <summary>
+        /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
+        /// </summary>
+        long SpaceSafetyThreshold { get; set; }
 
         /// <summary>
         /// The required auth level a user needs for the current Tetrifact instance.

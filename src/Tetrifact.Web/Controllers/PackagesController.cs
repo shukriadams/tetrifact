@@ -20,11 +20,11 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
+        private readonly IIndexReader _indexService;
+        private readonly ILogger<PackagesController> _log;
+        private readonly IPackageCreate _packageService;
+        private readonly IPackageList _packageList;
         private readonly ITetriSettings _settings;
-        private IIndexReader _indexService;
-        private ILogger<PackagesController> _log;
-        private IPackageCreate _packageService;
-        private IPackageList _packageList;
 
         #endregion
 
@@ -36,13 +36,14 @@ namespace Tetrifact.Web
         /// <param name="packageService"></param>
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
+        /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, ITetriSettings settings, IIndexReader indexService, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
-            _settings = settings;
             _indexService = indexService;
+            _settings = settings;
             _log = log;
         }
 
@@ -51,7 +52,7 @@ namespace Tetrifact.Web
         #region METHODS
 
         /// <summary>
-        /// Gets a page of 
+        /// Gets a page of packages
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
@@ -153,6 +154,11 @@ namespace Tetrifact.Web
         {
             try
             {
+                // check if there is space available
+                DiskUseStats useStats = FileHelper.GetDiskUseSats();
+                if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
+                    return Responses.InsufficientSpace("Insufficient space on storage drive.");
+
                 PackageCreateResult result = _packageService.CreatePackage(post);
                 if (result.Success)
                 {
