@@ -12,6 +12,10 @@ Tetrifact is a server that stores build arfefacts. It was originally written as 
 
 It is implemented in C# for Dotnetcore 2.2, and will run on any system that supports this framework.
 
+## Demo
+
+A Tetrifact instance is running at *https://tetrifact.manafeed.com*. For internet reasons, all write operations from the web interface are disabled on this instance.
+
 ## How
 
 Suppose you work for the ACME Game Corporation, and you're developing Thingernator. You've just commited your latest changes, and
@@ -40,10 +44,6 @@ or
 A zip of the build can then be downloaded with
         
         curl http://tetriserver.example.com/v1/archives/Thingernator-921
-        
-## Demo
-
-A Tetrifact instance is running at *https://tetrifact.manafeed.com*. For internet reasons, all write operations from the web interface are disabled on this instance.
 
 ## Download 
 
