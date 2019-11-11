@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Text;
-using System.IO;
-using System.Reflection;
 
 namespace Tetrifact.Web
 {
@@ -31,10 +28,11 @@ namespace Tetrifact.Web
         #region METHODS
 
         [ServiceFilter(typeof(ReadLevel))]
-        public IActionResult Index()
+        [Route("{project}")]
+        public IActionResult Index(string project)
         {
-            ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
-            ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
+            ViewData["packages"] = _packageList.Get(project, 0, _settings.ListPageSize);
+            ViewData["tags"] = _packageList.GetPopularTags(project, _settings.IndexTagListLength);
             return View();
         }
 
@@ -48,29 +46,29 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("package/{packageId}")]
-        public IActionResult Package(string packageId)
+        [Route("package/{project}/{packageId}")]
+        public IActionResult Package(string project, string packageId)
         {
             ViewData["packageId"] = packageId;
-            Manifest manifest = _indexService.GetManifest(packageId);
+            Manifest manifest = _indexService.GetManifest(project, packageId);
             if (manifest == null)
                 return View("Error404");
 
-            ViewData["manifest"] = _indexService.GetManifest(packageId);
+            ViewData["manifest"] = _indexService.GetManifest(project, packageId);
             return View();
         }
 
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("packages/{page?}")]
-        public IActionResult Packages(int page)
+        [Route("packages/{project}/{page?}")]
+        public IActionResult Packages(string project, int page)
         {
             // user-facing page values start at 1 instead of 0. reset
             if (page != 0)
                 page--;
 
             Pager pager = new Pager();
-            PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
+            PageableData<Package> packages  = _packageList.GetPage(project, page, _settings.ListPageSize);
             ViewData["pager"] = pager.Render<Package>(packages, _settings.PagesPerPageGroup, "/packages", "page");
             ViewData["packages"] = packages;
             return View();
@@ -78,13 +76,13 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("packagesWithTag/{tag}")]
-        public IActionResult PackagesWithTag(string tag)
+        [Route("packagesWithTag/{project}/{tag}")]
+        public IActionResult PackagesWithTag(string project, string tag)
         {
             try
             {
                 ViewData["tag"] = tag;
-                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.ListPageSize);
+                ViewData["packages"] = _packageList.GetWithTag(project, tag, 0, _settings.ListPageSize);
                 return View();
             }
             catch (TagNotFoundException)

@@ -12,6 +12,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateBasic()
         {
+            this.InitProject();
+
             List<IFormFile> files = new List<IFormFile>();
             string fileContent = "some file content";
             int filesToAdd = 10;
@@ -26,6 +28,7 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = packageId,
+                Project = "some-project",
                 Files = files
             };
 
@@ -37,17 +40,17 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Null(result.ErrorType);
 
             // check that package can be listed
-            IEnumerable<string> packageIds = IndexReader.GetAllPackageIds();
+            IEnumerable<string> packageIds = IndexReader.GetAllPackageIds("some-project");
             Assert.Contains(packageId, packageIds);
             Assert.Single(packageIds);
 
             // check that package can be retrieved as manifest
-            Manifest manifest = IndexReader.GetManifest(packageId);
+            Manifest manifest = IndexReader.GetManifest("some-project", packageId);
             Assert.NotNull(manifest);
             Assert.Equal(manifest.Files.Count, filesToAdd);
 
             // check that a file can be retrieved directly using manifest id
-            GetFileResponse response = IndexReader.GetFile(manifest.Files[0].Id);
+            GetFileResponse response = IndexReader.GetFile("some-project", manifest.Files[0].Id);
 
             using (StreamReader reader = new StreamReader(response.Content))
             {
@@ -65,6 +68,8 @@ namespace Tetrifact.Tests.PackageCreate
         /// </summary>        
         [Fact]
         public void CreateWithNoArguments(){
+            this.InitProject();
+
             // empty argument list
             PackageCreateArguments args = new PackageCreateArguments();
 
@@ -102,12 +107,15 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDuplicatePackage()
         {
+            this.InitProject();
+
             string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = packageId,
+                Project = "some-project",
                 Files = new List<IFormFile>() {new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")}
             };
 
@@ -123,6 +131,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateArchiveWithTooManyFiles()
         {
+            this.InitProject();
+
             string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
@@ -130,6 +140,7 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = packageId,
                 IsArchive = true,
+                Project = "some-project",
                 Files = new List<IFormFile>() {
                     new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"), 
                     new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
@@ -144,12 +155,15 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateInvalidArchiveFormat()
         {
+            this.InitProject();
+
             string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = packageId,
+                Project = "some-project",
                 IsArchive = true,
                 Format = "123",
                 Files = new List<IFormFile>() {

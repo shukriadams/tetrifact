@@ -58,15 +58,15 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
-        public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        public JsonResult ListPackages([FromQuery(Name = "project")] string project, [FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
             if (isFull)
             {
-                return new JsonResult(_packageList.Get(pageIndex, pageSize));
+                return new JsonResult(_packageList.Get(project, pageIndex, pageSize));
             }
             else
             {
-                return new JsonResult(_indexService.GetPackageIds(pageIndex, pageSize));
+                return new JsonResult(_indexService.GetPackageIds(project, pageIndex, pageSize));
             }
         }
 
@@ -77,12 +77,12 @@ namespace Tetrifact.Web
         /// <param name="tag"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("latest/{tag}")]
-        public ActionResult<Package> GetLatestPackageWithTag(string tag)
+        [HttpGet("latest/{project}/{tag}")]
+        public ActionResult<Package> GetLatestPackageWithTag(string project, string tag)
         {
             try
             {
-                Package package = _packageList.GetLatestWithTag(tag);
+                Package package = _packageList.GetLatestWithTag(project, tag);
                 if (package == null)
                     return NotFound($"Couldn't find any packages tagged with \"{tag}\". Try another tag maybe?");
 
@@ -105,10 +105,10 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{packageId}/exists")]
-        public ActionResult<bool> PackageExists(string packageId)
+        [HttpGet("{project}/{package}/exists")]
+        public ActionResult<bool> PackageExists(string project, string package)
         {
-            return _indexService.GetManifest(packageId) != null;
+            return _indexService.GetManifest(project, package) != null;
         }
 
 
@@ -118,12 +118,12 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{packageId}")]
-        public ActionResult GetPackage(string packageId)
+        [HttpGet("{project}/{package}")]
+        public ActionResult GetPackage(string project, string package)
         {
             try
             {
-                Manifest manifest = _indexService.GetManifest(packageId);
+                Manifest manifest = _indexService.GetManifest(project, package);
                 if (manifest == null)
                     return NotFound();
 
@@ -196,12 +196,12 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpDelete("{packageId}")]
-        public ActionResult DeletePackage(string packageId)
+        [HttpDelete("{project}/{packageId}")]
+        public ActionResult DeletePackage(string project, string package)
         {
             try
             {
-                _indexService.DeletePackage(packageId);
+                _indexService.DeletePackage(project, package);
                 _packageList.Clear();
                 return Ok();
             }

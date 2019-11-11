@@ -13,15 +13,15 @@ namespace Tetrifact.Tests.PackageList
         public void Basic()
         {
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2003"));
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2002"));
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2001"));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag1" } }));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2003"));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2002"));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2001"));
+            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
+            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
+            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag1" } }));
 
 
-            IEnumerable<string> tags = this.PackageList.GetPopularTags(3);
+            IEnumerable<string> tags = this.PackageList.GetPopularTags("some-project", 3);
             Assert.Equal("tag2", tags.First());
             Assert.Equal("tag1", tags.ElementAt(1));
         }

@@ -21,57 +21,48 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger)
+        /// <summary>
+        /// Not under IOC control.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="settings"></param>
+        /// <param name="logger"></param>
+        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger) 
         {
             _settings = settings;
             _logger = logger;
+            
         }
 
         #endregion
 
         #region METHODS
 
-        public void Initialize()
+        public IEnumerable<string> GetAllPackageIds(string project)
         {
-            if (!Directory.Exists(_settings.PackagePath))
-                Directory.CreateDirectory(_settings.PackagePath);
-
-            if (!Directory.Exists(_settings.ArchivePath))
-                Directory.CreateDirectory(_settings.ArchivePath);
-
-            // wipe and recreate temp folder on app start
-            if (Directory.Exists(_settings.TempPath))
-                Directory.Delete(_settings.TempPath, true);
-            Directory.CreateDirectory(_settings.TempPath);
-
-            if (!Directory.Exists(_settings.RepositoryPath))
-                Directory.CreateDirectory(_settings.RepositoryPath);
-
-            if (!Directory.Exists(_settings.TagsPath))
-                Directory.CreateDirectory(_settings.TagsPath);
+            string packagesPath = this.GetExpectedPackagesPath(project);
+            IEnumerable<string> rawList = Directory.GetDirectories(packagesPath);
+            return rawList.Select(r => Path.GetRelativePath(packagesPath, r));
         }
 
-        public IEnumerable<string> GetAllPackageIds()
+        public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
         {
-            IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r));
+            string packagesPath = this.GetExpectedPackagesPath(project);
+            IEnumerable<string> rawList = Directory.GetDirectories(packagesPath);
+            return rawList.Select(r => Path.GetRelativePath(packagesPath, r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
-        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
+        public bool PackageNameInUse(string project, string id)
         {
-            IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
-        }
-
-        public bool PackageNameInUse(string id)
-        {
-            string packagePath = Path.Join(_settings.PackagePath, id);
+            string packagesPath = this.GetExpectedPackagesPath(project);
+            string packagePath = Path.Join(packagesPath, id);
             return Directory.Exists(packagePath);
         }
 
-        public Manifest GetManifest(string packageId)
+        public Manifest GetManifest(string project, string packageId)
         {
-            string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
+            string packagesPath = this.GetExpectedPackagesPath(project);
+            string filePath = Path.Join(packagesPath, packageId, "manifest.json");
             if (!File.Exists(filePath))
                 return null;
 
@@ -87,15 +78,16 @@ namespace Tetrifact.Core
             }
         }
 
-        public GetFileResponse GetFile(string id)
+        public GetFileResponse GetFile(string project, string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-            string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
+            string projectPath = this.GetExpectedProjectPath(project);
+            string directFilePath = Path.Combine(projectPath, Constants.RepositoryFragment, fileIdentifier.Path, fileIdentifier.Hash, "bin");
 
-            if (File.Exists(directFilePath))
-                return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
+            if (!File.Exists(directFilePath))
+                throw new Tetrifact.Core.FileNotFoundException(directFilePath);
 
-            return null;
+            return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
         /// <summary>
@@ -121,16 +113,16 @@ namespace Tetrifact.Core
             }
         }
 
-        public Stream GetPackageAsArchive(string packageId)
+        public Stream GetPackageAsArchive(string project, string packageId)
         {
-            string archivePath = this.GetPackageArchivePath(packageId);
+            string archivePath = this.GetPackageArchivePath(project, packageId);
 
             // create
             if (!File.Exists(archivePath))
-                this.CreateArchive(packageId);
+                this.CreateArchive(project, packageId);
 
             // is archive still building?
-            string tempPath = this.GetPackageArchiveTempPath(packageId);
+            string tempPath = this.GetPackageArchiveTempPath(project, packageId);
             DateTime start = DateTime.Now;
             TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
 
@@ -144,13 +136,13 @@ namespace Tetrifact.Core
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public int GetPackageArchiveStatus(string packageId)
+        public int GetPackageArchiveStatus(string project, string packageId)
         {
-            if (!this.DoesPackageExist(packageId))
+            if (!this.DoesPackageExist(project, packageId))
                 throw new PackageNotFoundException(packageId);
 
-            string archivePath = this.GetPackageArchivePath(packageId);
-            string temptPath = this.GetPackageArchiveTempPath(packageId);
+            string archivePath = this.GetPackageArchivePath(project, packageId);
+            string temptPath = this.GetPackageArchiveTempPath(project, packageId);
 
             // archive doesn't exist and isn't being created
             if (!File.Exists(archivePath) && !File.Exists(temptPath))
@@ -162,9 +154,12 @@ namespace Tetrifact.Core
             return 2;
         }
 
-        public void DeletePackage(string packageId)
+        public void DeletePackage(string project, string packageId)
         {
-            Manifest manifest = this.GetManifest(packageId);
+            string packagesPath = this.GetExpectedPackagesPath(project);
+            string projectPath = this.GetExpectedProjectPath(project);
+
+            Manifest manifest = this.GetManifest(project, packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
@@ -177,74 +172,86 @@ namespace Tetrifact.Core
             }
 
             // delete package folder
-            string packageFolder = Path.Combine(_settings.PackagePath, packageId);
+            string packageFolder = Path.Combine(packagesPath, packageId);
             if (Directory.Exists(packageFolder))
                 Directory.Delete(packageFolder, true);
 
-            // delete archives for package
-            string archivePath = Path.Combine(_settings.ArchivePath, packageId + ".zip");
-            if (File.Exists(archivePath))
-            {
-                try
-                {
-                    File.Delete(archivePath);
-                }
-                catch (IOException ex)
-                {
-                    // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _logger.LogWarning($"Failed to purge archive ${archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
-                }
-            }
-
             // delete tag links for package
-            string[] tagFiles = Directory.GetFiles(_settings.TagsPath, packageId, SearchOption.AllDirectories);
-            foreach (string tagFile in tagFiles)
+            string tagsPath = Path.Combine(projectPath, Constants.TagsFragment);
+            if (Directory.Exists(tagsPath)) 
             {
-                try
+                string[] tagFiles = Directory.GetFiles(tagsPath, packageId, SearchOption.AllDirectories);
+                foreach (string tagFile in tagFiles)
                 {
-                    File.Delete(tagFile);
-                }
-                catch (IOException ex)
-                {
-                    // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    try
+                    {
+                        File.Delete(tagFile);
+                    }
+                    catch (IOException ex)
+                    {
+                        // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
+                        _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    }
                 }
             }
         }
 
-        public string GetPackageArchivePath(string packageId)
+        public string GetPackageArchivePath(string project, string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, packageId + ".zip");
+            return Path.Combine(_settings.ArchivePath, string.Format($"{project}_{packageId}.zip"));
         }
 
-        public string GetPackageArchiveTempPath(string packageId)
+        public string GetPackageArchiveTempPath(string project, string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
+            return Path.Combine(_settings.ArchivePath, string.Format($"{project}_{packageId}.zip.tmp"));
         }
 
-        private bool DoesPackageExist(string packageId)
+        private bool DoesPackageExist(string project, string packageId)
         {
-            Manifest manifest = this.GetManifest(packageId);
+            Manifest manifest = this.GetManifest(project, packageId);
             return manifest != null;
         }
 
-        private void CreateArchive(string packageId)
+        /// <summary>
+        /// Gets path for project in data folder. Throws ProjectNotFoundException if not exists.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        private string GetExpectedProjectPath(string project)
+        {
+            string projectPath = Path.Combine(_settings.ProjectsPath, project);
+            if (!Directory.Exists(projectPath))
+                throw new ProjectNotFoundException(project);
+
+            return projectPath;
+        }
+
+        private string GetExpectedPackagesPath(string project)
+        {
+            string packagesPath = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment);
+            if (!Directory.Exists(packagesPath))
+                throw new ProjectNotFoundException(project);
+
+            return packagesPath;
+        }
+
+        private void CreateArchive(string project, string packageId)
         {
             // store path with .tmp extension while building, this is used to detect if archiving has already started
-            string archivePath = this.GetPackageArchivePath(packageId);
-            string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
+            string archivePath = this.GetPackageArchivePath(project, packageId);
+            string archivePathTemp = this.GetPackageArchiveTempPath(project, packageId);
 
             // if temp archive exists, it's already building
             if (File.Exists(archivePathTemp))
                 return;
 
-            if (!this.DoesPackageExist(packageId))
+            if (!this.DoesPackageExist(project, packageId))
                 throw new PackageNotFoundException(packageId);
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
-                Manifest manifest = this.GetManifest(packageId);
+                Manifest manifest = this.GetManifest(project, packageId);
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
@@ -254,7 +261,7 @@ namespace Tetrifact.Core
 
                         using (Stream entryStream = fileEntry.Open())
                         {
-                            using (Stream itemStream = this.GetFile(file.Id).Content)
+                            using (Stream itemStream = this.GetFile(project, file.Id).Content)
                             {
                                 itemStream.CopyTo(entryStream);
                             }

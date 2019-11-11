@@ -7,7 +7,7 @@ using Tetrifact.Core;
 namespace Tetrifact.Tests
 {
     /// <summary>
-    /// Base class for any type which requires concrete file system structures in place
+    /// Base class for any test type which requires concrete file system structures.
     /// </summary>
     public abstract class FileSystemBase
     {
@@ -21,6 +21,43 @@ namespace Tetrifact.Tests
             public byte[] Content;
             public string Path;
             public string Name;
+        }
+
+        public FileSystemBase()
+        {
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
+            if (Directory.Exists(testFolder))
+                Directory.Delete(testFolder, true);
+
+            Directory.CreateDirectory(testFolder);
+
+
+
+            Settings = new TetriSettings(new TestLogger<TetriSettings>())
+            {
+                RepositoryPath = Path.Combine(testFolder, "projects", "some-project", Constants.RepositoryFragment),
+                ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
+                TempPath = Path.Combine(testFolder, "temp"),
+                ArchivePath = Path.Combine(testFolder, "archives")
+            };
+
+            AppLogic appLogic = new AppLogic(Settings);
+            appLogic.Start();
+
+            Logger = new TestLogger<IIndexReader>();
+            this.IndexReader = new Core.IndexReader(Settings, Logger);
+
+            Thread.Sleep(200);// race conditio fix
+        }
+
+        /// <summary>
+        ///  If test requires project to already exist, run this first. Note that creating a package will already do this.
+        /// </summary>
+        protected void InitProject() 
+        {
+            Core.Workspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
+            workspace.Initialize("some-project"); // init workspace to create project structures
+            workspace.Dispose(); // need to dispose to clean up unused workspace folder 
         }
 
         /// <summary>
@@ -44,36 +81,14 @@ namespace Tetrifact.Tests
 
             this.WorkspaceLogger = new TestLogger<IWorkspace>();
             IWorkspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
-            workspace.Initialize();
+            workspace.Initialize("some-project");
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, "somehash2");
+            workspace.WriteManifest("some-project", testPackage.Name, "somehash2");
 
             return testPackage;
         }
 
-        public FileSystemBase()
-        {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
-            if (Directory.Exists(testFolder))
-                Directory.Delete(testFolder, true);
 
-            Directory.CreateDirectory(testFolder);
-
-            Settings = new TetriSettings(new TestLogger<TetriSettings>())
-            {
-                RepositoryPath = Path.Join(testFolder, "repository"),
-                PackagePath = Path.Join(testFolder, "packages"),
-                TempPath = Path.Join(testFolder, "temp"),
-                ArchivePath = Path.Join(testFolder, "archives"),
-                TagsPath = Path.Join(testFolder, "tags")
-            };
-
-            Logger = new TestLogger<IIndexReader>();
-
-            IndexReader = new Core.IndexReader(Settings, Logger);
-            Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
-            IndexReader.Initialize();
-        }
     }
 }

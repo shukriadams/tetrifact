@@ -12,12 +12,12 @@ namespace Tetrifact.Tests.TagsService
             string tag = "mytag";
 
             TestPackage package1 = this.CreatePackage("package1");
-            base.TagsService.AddTag(package1.Name, tag);
+            base.TagsService.AddTag("some-project", package1.Name, tag);
 
             TestPackage package2 = this.CreatePackage("package2");
-            base.TagsService.AddTag(package2.Name, tag);
+            base.TagsService.AddTag("some-project", package2.Name, tag);
 
-            IEnumerable<string> packageIds = base.TagsService.GetPackageIdsWithTag(tag);
+            IEnumerable<string> packageIds = base.TagsService.GetPackagesWithTag("some-project", tag);
 
             Assert.Equal(2, packageIds.Count());
             Assert.Contains("package1", packageIds);

@@ -49,7 +49,7 @@ namespace Tetrifact.Core
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
 
                 // ensure package does not already exist
-                if (_indexReader.PackageNameInUse(newPackage.Id))
+                if (_indexReader.PackageNameInUse(newPackage.Project, newPackage.Id))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists };
 
                 // if archive, ensure correct file count
@@ -63,7 +63,7 @@ namespace Tetrifact.Core
                 // write attachments to work folder 
                 long size = newPackage.Files.Sum(f => f.Length);
 
-                _workspace.Initialize();
+                _workspace.Initialize(newPackage.Project);
 
                 // if archive, unzip
                 if (newPackage.IsArchive)
@@ -94,7 +94,7 @@ namespace Tetrifact.Core
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // calculate package hash from child hashes
-                _workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
+                _workspace.WriteManifest(newPackage.Project, newPackage.Id, HashService.FromString(hashes.ToString()));
 
                 _workspace.Dispose();
 

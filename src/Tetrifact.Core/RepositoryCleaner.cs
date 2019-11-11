@@ -34,11 +34,11 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public void Clean()
+        public void Clean(string project)
         {
             // get a list of existing packages at time of calling. It is vital that new packages not be created
             // while clean running, they will be cleaned up as they are not on this list
-            IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds();
+            IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds(project);
             this.LockPasses = 0;
             this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
         }

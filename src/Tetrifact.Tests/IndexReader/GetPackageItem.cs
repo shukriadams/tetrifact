@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using Xunit;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.IndexReader
 {
@@ -18,24 +19,22 @@ namespace Tetrifact.Tests.IndexReader
 
             File.WriteAllBytes(Path.Join(packageFolder, "bin"), content);
 
-            Stream stream = this.IndexReader.GetFile(Core.FileIdentifier.Cloak("path/to/file", hash)).Content;
+            Stream stream = this.IndexReader.GetFile("some-project", FileIdentifier.Cloak("path/to/file", hash)).Content;
             byte[] testContent = Core.StreamsHelper.StreamToByteArray(stream);
             Assert.Equal(content, testContent);
         }
 
         [Fact]
-        public void GetInvalidPackageAndPath()
+        public void GetInvalidNoProjectInit()
         {
-            Assert.Null(this.IndexReader.GetFile(Core.FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
+            Assert.Throws<ProjectNotFoundException>(() => this.IndexReader.GetFile("some-project", FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
         }
 
         [Fact]
-        public void GetInvalidPath()
+        public void GetInvalidPackageAndPath()
         {
-            string packageFolder = Path.Combine(this.Settings.PackagePath, "somepackage", "files");
-            Directory.CreateDirectory(packageFolder);
-
-            Assert.Null(this.IndexReader.GetFile(Core.FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
+            this.InitProject();
+            Assert.Throws<Core.FileNotFoundException>(() => this.IndexReader.GetFile("some-project", FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
         }
 
     }

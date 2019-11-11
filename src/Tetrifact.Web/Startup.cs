@@ -38,12 +38,12 @@ namespace Tetrifact.Web
 
             // register type injections here
             services.AddTransient<ITetriSettings, TetriSettings>();
-            services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IRepositoryCleaner, RepositoryCleaner>();
             services.AddTransient<IWorkspace, Workspace>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
+            services.AddTransient<IAppLogic, AppLogic>();
 
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -66,7 +66,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings, IAppLogic appLogic)
         {
             // register custom error pages
             if (env.IsDevelopment())
@@ -104,12 +104,7 @@ namespace Tetrifact.Web
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            // initialize indexes
-            IServiceProvider serviceProvider = app.ApplicationServices;
-            IEnumerable<IIndexReader> indexReaders = serviceProvider.GetServices<IIndexReader>();
-
-            foreach (IIndexReader indexReader in indexReaders)
-                indexReader.Initialize();
+            appLogic.Start();
 
             app.UseMvc(routes =>
             {

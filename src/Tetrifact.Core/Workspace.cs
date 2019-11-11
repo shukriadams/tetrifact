@@ -38,7 +38,7 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public void Initialize()
+        public void Initialize(string project)
         {
             this.Manifest = new Manifest();
 
@@ -53,6 +53,25 @@ namespace Tetrifact.Core
             // create all basic directories for a functional workspace
             Directory.CreateDirectory(this.WorkspacePath);
             Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
+
+
+
+            // ensure that project prerequisite folders have been created
+            string projectsRoot = Path.Combine(_settings.ProjectsPath, project);
+            if (!Directory.Exists(projectsRoot))
+                Directory.CreateDirectory(projectsRoot);
+
+            string packagesPath = Path.Combine(projectsRoot, Constants.PackagesFragment);
+            if (!Directory.Exists(packagesPath))
+                Directory.CreateDirectory(packagesPath);
+
+            string repositoryPath = Path.Combine(projectsRoot, Constants.RepositoryFragment);
+            if (!Directory.Exists(repositoryPath))
+                Directory.CreateDirectory(repositoryPath);
+
+            string tagsPath = Path.Combine(projectsRoot, Constants.TagsFragment);
+            if (!Directory.Exists(tagsPath))
+                Directory.CreateDirectory(tagsPath);
         }
 
         public bool AddIncomingFile(Stream formFile, string relativePath)
@@ -111,11 +130,11 @@ namespace Tetrifact.Core
                 this.Manifest.SizeOnDisk += fileInfo.Length;
         }
 
-        public void WriteManifest(string packageId, string combinedHash)
+        public void WriteManifest(string project, string package, string combinedHash)
         {
             // calculate package hash from child hashes
             this.Manifest.Hash = combinedHash;
-            string targetFolder = Path.Join(_settings.PackagePath, packageId);
+            string targetFolder = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package);
             Directory.CreateDirectory(targetFolder);
             File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
         }

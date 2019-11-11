@@ -43,16 +43,24 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{fileId}")]
-        public ActionResult GetItem(string fileId)
+        public ActionResult GetItem(string project, string fileId)
         {
             try
             {
-                GetFileResponse payload = _indexService.GetFile(fileId);
+                GetFileResponse payload = _indexService.GetFile(project, fileId);
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }
             catch (InvalidFileIdentifierException)
             {
                 return Responses.InvalidFileId();
+            }
+            catch (PackageNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Tetrifact.Core.FileNotFoundException) 
+            {
+                return NotFound();
             }
             catch (Exception ex)
             {

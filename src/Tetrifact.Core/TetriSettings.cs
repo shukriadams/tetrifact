@@ -19,15 +19,11 @@ namespace Tetrifact.Core
 
         public string LogPath { get; set; }
 
-        public string PackagePath { get; set; }
-
         public string TempPath { get; set; }
 
         public string RepositoryPath { get; set; }
 
         public string ArchivePath { get; set; }
-
-        public string TagsPath { get; set; }
 
         public int ArchiveAvailablePollInterval { get; set; }
 
@@ -72,11 +68,9 @@ namespace Tetrifact.Core
 
             // get settings from env variables
             this.ProjectsPath = Environment.GetEnvironmentVariable("PROJECTS_PATH");
-            this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
             this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
             this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
-            this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
@@ -92,20 +86,14 @@ namespace Tetrifact.Core
             if (string.IsNullOrEmpty(this.LogPath))
                 this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
 
-            if (string.IsNullOrEmpty(PackagePath))
-                PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
-
             if (string.IsNullOrEmpty(TempPath))
                 TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
 
             if (string.IsNullOrEmpty(RepositoryPath))
-                RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
+                RepositoryPath = Path.Join(this.ProjectsPath, Constants.RepositoryFragment);
 
             if (string.IsNullOrEmpty(ArchivePath))
                 ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
-
-            if (string.IsNullOrEmpty(TagsPath))
-                TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
         }
 
         /// <summary>

@@ -36,12 +36,12 @@ namespace Tetrifact.Web
         #region METHODS
 
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("")]
-        public ActionResult<string[]> GetTags()
+        [HttpGet("{project}")]
+        public ActionResult<string[]> GetTags(string project)
         {
             try
             {
-                return _tagsService.GetAllTags().ToArray();
+                return _tagsService.GetAllTags(project).ToArray();
             }
             catch (PackageNotFoundException)
             {
@@ -58,12 +58,12 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{tag}/packages")]
-        public ActionResult<string[]> GetTagPackages(string tag)
+        [HttpGet("{project}/{tag}/packages")]
+        public ActionResult<string[]> GetTagPackages(string project, string tag)
         {
             try
             {
-                return _tagsService.GetPackageIdsWithTag(tag).ToArray();
+                return _tagsService.GetPackagesWithTag(project, tag).ToArray();
             }
             catch (PackageNotFoundException)
             {
@@ -80,13 +80,13 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpPost("{tag}/{packageId}")]
-        public ActionResult AddTag(string tag, string packageId)
+        [HttpPost("{project}/{tag}/{packageId}")]
+        public ActionResult AddTag(string project, string tag, string packageId)
         {
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                _tagsService.AddTag(packageId, tag);
+                _tagsService.AddTag(project, packageId, tag);
                 return Ok($"Tag {tag} was added to package {packageId}");
             }
             catch (PackageNotFoundException)
@@ -104,13 +104,13 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpDelete("{tag}/{packageId}")]
-        public ActionResult RemoveTag(string tag, string packageId)
+        [HttpDelete("{project}/{tag}/{packageId}")]
+        public ActionResult RemoveTag(string project, string tag, string packageId)
         {
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                _tagsService.RemoveTag(packageId, tag);
+                _tagsService.RemoveTag(project, packageId, tag);
                 return Ok($"Tag {tag} was removed from package {packageId}");
             }
             catch (PackageNotFoundException)

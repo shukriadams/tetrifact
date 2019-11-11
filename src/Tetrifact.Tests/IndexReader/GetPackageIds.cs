@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Xunit;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.IndexReader
 {
@@ -12,11 +13,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.PackagePath, "package2"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.PackagePath, "package1"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.PackagePath, "package3"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package1"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package3"));
 
-            IEnumerable<string> packages = this.IndexReader.GetPackageIds(0, 1);
+            IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 0, 1);
             Assert.Single(packages);
             Assert.Contains("package1", packages);
         }
@@ -27,10 +28,10 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void SoftOverrun()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.PackagePath, "package1"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package1"));
 
             // deliberately overshoot number of available packages
-            IEnumerable<string> packages = this.IndexReader.GetPackageIds(2, 10); 
+            IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 2, 10); 
             Assert.Empty(packages);
         }
     }

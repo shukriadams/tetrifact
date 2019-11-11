@@ -36,9 +36,9 @@ namespace Tetrifact.Web
 
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("")]
-        public ActionResult Clean()
+        public ActionResult Clean(string project)
         {
-            _repositoryCleaner.Clean();
+            _repositoryCleaner.Clean(project);
             _indexService.PurgeOldArchives();
             return Ok("Clean complete");
         }

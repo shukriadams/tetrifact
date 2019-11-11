@@ -15,14 +15,14 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        IEnumerable<string> GetPopularTags(int count);
+        IEnumerable<string> GetPopularTags(string project, int count);
 
         /// <summary>
         /// Gets the latest package with the given tag
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        Package GetLatestWithTag(string tag);
+        Package GetLatestWithTag(string project, string tag);
 
         /// <summary>
         /// Gets a page of packages with the given tag.
@@ -31,7 +31,7 @@ namespace Tetrifact.Core
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize);
+        IEnumerable<Package> GetWithTag(string project, string tag, int pageIndex, int pageSize);
 
         /// <summary>
         /// Gets a page of packages.
@@ -39,7 +39,7 @@ namespace Tetrifact.Core
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        IEnumerable<Package> Get(int pageIndex, int pageSize);
+        IEnumerable<Package> Get(string project, int pageIndex, int pageSize);
 
         /// <summary>
         /// Gets a pageable collection of packages.
@@ -47,6 +47,6 @@ namespace Tetrifact.Core
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        PageableData<Package> GetPage(int pageIndex, int pageSize);
+        PageableData<Package> GetPage(string project, int pageIndex, int pageSize);
     }
 }

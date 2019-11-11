@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         public void Get()
         {
             // create package
-            string packagePath = Path.Join(Settings.PackagePath, "somepackage");
+            string packagePath = Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "somepackage");
             Directory.CreateDirectory(packagePath);
 
             // create manifest
@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.IndexReader
             manifest.Files.Add(new ManifestItem { Hash = "itemhash", Path = "path/to/item" });
             File.WriteAllText(Path.Join(packagePath, "manifest.json"), JsonConvert.SerializeObject(manifest));
 
-            Manifest testManifest = this.IndexReader.GetManifest("somepackage");
+            Manifest testManifest = this.IndexReader.GetManifest("some-project", "somepackage");
             Assert.Equal("somehash", testManifest.Hash);
             Assert.Single(testManifest.Files);
             Assert.Equal("itemhash", testManifest.Files[0].Hash);
@@ -35,7 +35,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetEmpty()
         {
-            Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
+            this.InitProject();
+            Manifest testManifest = this.IndexReader.GetManifest("some-project", "someinvalidpackage");
             Assert.Null(testManifest);
 
             // should not generate a log message
@@ -48,10 +49,10 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidManifet()
         {
-            string packagefolder = Path.Combine(Settings.PackagePath, "someinvalidpackage");
+            string packagefolder = Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "someinvalidpackage");
             Directory.CreateDirectory(packagefolder);
             File.WriteAllText(Path.Combine(packagefolder, "manifest.json"), "invalid json!");
-            Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
+            Manifest testManifest = this.IndexReader.GetManifest("some-project", "someinvalidpackage");
             Assert.Null(testManifest);
 
             // should generate a error

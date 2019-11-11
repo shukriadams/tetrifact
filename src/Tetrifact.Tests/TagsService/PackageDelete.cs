@@ -16,10 +16,10 @@ namespace Tetrifact.Tests.TagsService
         public void Basic(){
             TestPackage package = this.CreatePackage();
             string tag = "mytag";
-            base.TagsService.AddTag(package.Name, tag);
-            base.IndexReader.DeletePackage(package.Name);
+            base.TagsService.AddTag("some-project", package.Name, tag);
+            base.IndexReader.DeletePackage("some-project", package.Name);
 
-            IEnumerable<Package> packages = base.PackageList.GetWithTag(tag, 0, 10);
+            IEnumerable<Package> packages = base.PackageList.GetWithTag("some-project", tag, 0, 10);
             Assert.Empty(packages);
         }
     }

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.Internal;
 using System;
 using System.IO.Compression;
 
-namespace Tetrifact.Tests.Controlers
+namespace Tetrifact.Tests.Controllers
 {
     public class Archives : TestBase
     {
@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.Controlers
         [Fact]
         public void Touch()
         {
-            _controller.GetArchive("invalid-package");
+            _controller.GetArchive("some-project", "invalid-package");
         }
     }
 }

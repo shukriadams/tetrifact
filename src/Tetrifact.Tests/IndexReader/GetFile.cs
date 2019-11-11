@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.IndexReader
             File.WriteAllText(Path.Combine(rootPath, "bin"), content);
             string fileIdentifier = FileIdentifier.Cloak(path, hash);
 
-            GetFileResponse response = IndexReader.GetFile(fileIdentifier);
+            GetFileResponse response = IndexReader.GetFile("some-project", fileIdentifier);
             using (StreamReader reader = new StreamReader(response.Content))
             {
                 string retrievedContent = reader.ReadToEnd();
@@ -35,8 +35,18 @@ namespace Tetrifact.Tests.IndexReader
         {
             Assert.Throws<InvalidFileIdentifierException>(()=> 
             {
-                IndexReader.GetFile("definitely-an-invalid-file-identifier");
+                IndexReader.GetFile("some-project", "definitely-an-invalid-file-identifier");
             });
+        }
+
+        /// <summary>
+        /// Tests graceful handling by GetFile if the project doesn't exist.
+        /// </summary>
+        [Fact]
+        public void GetNonExistentFileFromNonExistentProject()
+        {
+            string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
+            ProjectNotFoundException ex = Assert.Throws<ProjectNotFoundException>(() => this.IndexReader.GetFile("some-project", fileIdentifier));
         }
 
         /// <summary>
@@ -46,8 +56,10 @@ namespace Tetrifact.Tests.IndexReader
         public void GetNonExistentFile()
         {
             string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
-            GetFileResponse response = IndexReader.GetFile(fileIdentifier);
-            Assert.Null(response);
+            Core.Workspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
+            workspace.Initialize("some-project");
+            Tetrifact.Core.FileNotFoundException ex = Assert.Throws<Tetrifact.Core.FileNotFoundException>(() => this.IndexReader.GetFile("some-project", fileIdentifier));
         }
+
     }
 }

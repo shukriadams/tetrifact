@@ -16,7 +16,7 @@ namespace Tetrifact.Tests
 
         public Manifest Manifest { get { return _manifest; } }
 
-        public void Initialize()
+        public void Initialize(string project)
         {
             
         }
@@ -85,7 +85,7 @@ namespace Tetrifact.Tests
             this.Manifest.Files.Add(new ManifestItem { Path = fileInIncoming, Hash = hash });
         }
 
-        public void WriteManifest(string packageId, string combinedHash)
+        public void WriteManifest(string project, string packageId, string combinedHash)
         {
             // calculate package hash from child hashes
             this.Manifest.Hash = combinedHash;

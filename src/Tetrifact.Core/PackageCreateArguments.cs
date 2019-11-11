@@ -12,6 +12,11 @@ namespace Tetrifact.Core
         #region FIELDS
 
         /// <summary>
+        /// Name of project to add package to. The package will be automatically created it it doesn't yet exist.
+        /// </summary>
+        [FromRoute] public string Project { get; set; }
+
+        /// <summary>
         /// Requested public Id of the package. Id cannot already exist. When live, id is taken from the route url.
         /// </summary>
         [FromRoute] public string Id { get; set; }

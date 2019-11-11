@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.Internal;
 using System;
 using System.IO.Compression;
 
-namespace Tetrifact.Tests.Controlers
+namespace Tetrifact.Tests.Controllers
 {
     public class Package : TestBase
     {
@@ -32,7 +32,7 @@ namespace Tetrifact.Tests.Controlers
             // inject 3 indices
             TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
 
-            IEnumerable<string> ids = _controller.ListPackages(false, 0, 10).Value as IEnumerable<string>;
+            IEnumerable<string> ids = _controller.ListPackages("some-project", false, 0, 10).Value as IEnumerable<string>;
             Assert.True(ids.Count() == 3);
         }
 

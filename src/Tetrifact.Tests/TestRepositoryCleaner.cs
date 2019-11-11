@@ -6,7 +6,7 @@ namespace Tetrifact.Tests
     {
         #region METHODS
 
-        public void Clean()
+        public void Clean(string project)
         {
             // do nothing
         }

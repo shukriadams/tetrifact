@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Tetrifact.Core
@@ -13,7 +14,7 @@ namespace Tetrifact.Core
         /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<string> GetAllPackageIds();
+        IEnumerable<string> GetAllPackageIds(string project);
 
         /// <summary>
         /// Gets a list of all packages which can be linked to. A package that cannot be linked to can still be downloaded from 
@@ -24,26 +25,21 @@ namespace Tetrifact.Core
         /// available package.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<string> GetPackageIds(int pageIndex, int pageSize);
-
-        /// <summary>
-        /// create all required folders and stuctures.
-        /// </summary>
-        void Initialize();
+        IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize);
 
         /// <summary>
         /// Returns true if the package is being used. This doesn't mean the package is available, just that the package folder 
         /// exists.
         /// </summary>
         /// <returns></returns>
-        bool PackageNameInUse(string id);
+        bool PackageNameInUse(string project, string id);
 
         /// <summary>
         /// Returns the manifest of a given package if the package exists. Returns null if the package is invalid.
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        Manifest GetManifest(string packageId);
+        Manifest GetManifest(string project, string packageId);
 
         /// <summary>
         /// Gets a file from a package, as a binary array. Returns null if the package or file is invalid.
@@ -52,14 +48,14 @@ namespace Tetrifact.Core
         /// <param name="packageId"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        GetFileResponse GetFile(string fileIdentifier);
+        GetFileResponse GetFile(string project, string fileIdentifier);
 
         /// <summary>
         /// Gets a package as an archive. Create the archive if the archive doesn't already exist.
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        Stream GetPackageAsArchive(string packageId);
+        Stream GetPackageAsArchive(string project, string packageId);
 
         /// <summary>
         /// Cleans out trash in archives folder.
@@ -76,7 +72,7 @@ namespace Tetrifact.Core
         /// throw a PackageNotFoundException if the package does not exist or is marked for delete
         /// </summary>
         /// <returns></returns>
-        int GetPackageArchiveStatus(string packageId);
+        int GetPackageArchiveStatus(string project, string packageId);
 
         /// <summary>
         /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
@@ -85,19 +81,19 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        string GetPackageArchiveTempPath(string packageId);
+        string GetPackageArchiveTempPath(string project, string packageId);
 
         /// <summary>
         /// Gets the path for a package archive.
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        string GetPackageArchivePath(string packageId);
+        string GetPackageArchivePath(string project, string packageId);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="packageId"></param>
-        void DeletePackage(string packageId);
+        void DeletePackage(string project, string packageId);
     }
 }

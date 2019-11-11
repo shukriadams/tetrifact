@@ -11,7 +11,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Starts workspace. Must be called before anything can be added to workspace.
         /// </summary>
-        void Initialize();
+        void Initialize(string project);
 
         /// <summary>
         /// A manifest generated for the incoming package. If on the filesystem, can be written as a json file.
@@ -53,7 +53,7 @@ namespace Tetrifact.Core
         /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file.
         /// </summary>
         /// <param name="combinedHash"></param>
-        void WriteManifest(string packageId, string combinedHash);
+        void WriteManifest(string project, string package, string combinedHash);
 
         /// <summary>
         /// Gets the hash of an incoming file. On filesystems, this is done by reading the file directly and hashing it.

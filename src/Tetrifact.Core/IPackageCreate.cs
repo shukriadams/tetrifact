@@ -8,8 +8,9 @@
         /// <summary>
         /// Creates a package
         /// </summary>
-        /// <param name="newPackage"></param>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
         /// <returns></returns>
-        PackageCreateResult CreatePackage(PackageCreateArguments newPackage);
+        PackageCreateResult CreatePackage(PackageCreateArguments package);
     }
 }

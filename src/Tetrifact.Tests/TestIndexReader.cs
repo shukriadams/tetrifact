@@ -28,12 +28,12 @@ namespace Tetrifact.Tests
 
         #region METHODS
 
-        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
+        public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
         {
             return Test_Indexes;
         }
 
-        public bool PackageNameInUse(string id)
+        public bool PackageNameInUse(string project, string id)
         {
             return this.Test_PackageIdExists;
         }
@@ -48,17 +48,17 @@ namespace Tetrifact.Tests
             // no need to do anything here
         }
 
-        public Manifest GetManifest(string packageId)
+        public Manifest GetManifest(string project, string packageId)
         {
             return this.Test_Manifest;
         }
 
-        public GetFileResponse GetFile(string id)
+        public GetFileResponse GetFile(string project, string id)
         {
             return new GetFileResponse(this.Test_PackageItem, id);
         }
 
-        public Stream GetPackageAsArchive(string packageId)
+        public Stream GetPackageAsArchive(string project, string packageId)
         {
             return this.Test_PackageArchive;
         }
@@ -68,22 +68,22 @@ namespace Tetrifact.Tests
             // do nothing
         }
 
-        public string GetPackageArchiveTempPath(string packageId)
+        public string GetPackageArchiveTempPath(string project, string packageId)
         {
             return $"{packageId}.zip.tmp";
         }
 
-        public string GetPackageArchivePath(string packageId)
+        public string GetPackageArchivePath(string project, string packageId)
         {
             return $"{packageId}.zip";
         }
 
-        public int GetPackageArchiveStatus(string packageId)
+        public int GetPackageArchiveStatus(string project, string packageId)
         {
             return 0;
         }
 
-        public void DeletePackage(string packageId)
+        public void DeletePackage(string project, string packageId)
         {
             // do nothing
         }
@@ -103,7 +103,7 @@ namespace Tetrifact.Tests
             
         }
 
-        public IEnumerable<string> GetAllPackageIds()
+        public IEnumerable<string> GetAllPackageIds(string project)
         {
             return Test_Indexes;
         }

@@ -42,14 +42,14 @@ namespace Tetrifact.Web
         /// <param name="id"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{packageId}")]
-        public ActionResult GetArchive(string packageId)
+        [HttpGet("{project}/{package}")]
+        public ActionResult GetArchive(string project, string package)
         {
             try
             {
                 _indexService.PurgeOldArchives();
-                Stream archiveStream = _indexService.GetPackageAsArchive(packageId);
-                return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
+                Stream archiveStream = _indexService.GetPackageAsArchive(project, package);
+                return File(archiveStream, "application/octet-stream", $"{package}.zip");
             }
             catch (PackageNotFoundException)
             {
@@ -73,13 +73,13 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/status")]
-        public ActionResult<int> GetArchiveStatus(string packageId)
+        public ActionResult<int> GetArchiveStatus(string project, string packageId)
         {
             try
             {
                 _indexService.PurgeOldArchives();
 
-                return _indexService.GetPackageArchiveStatus(packageId);
+                return _indexService.GetPackageArchiveStatus(project, packageId);
             }
             catch (PackageNotFoundException)
             {

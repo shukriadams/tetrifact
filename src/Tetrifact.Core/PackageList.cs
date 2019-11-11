@@ -44,13 +44,13 @@ namespace Tetrifact.Core
             _cache.Remove("_packageCache");
         }
 
-        public IEnumerable<string> GetPopularTags(int count)
+        public IEnumerable<string> GetPopularTags(string project, int count)
         {
             IList<Package> packageData = null;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.GeneratePackageData();
+                packageData = this.GeneratePackageData(project);
             }
 
             Dictionary<string, int> tags = new Dictionary<string, int>();
@@ -68,51 +68,51 @@ namespace Tetrifact.Core
             return tags.OrderByDescending(r => r.Value).Take(count).Select(r => r.Key);
         }
 
-        public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
+        public IEnumerable<Package> GetWithTag(string project, string tag, int pageIndex, int pageSize)
         {
             IList<Package> packageData = null;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.GeneratePackageData();
+                packageData = this.GeneratePackageData(project);
             }
 
             return packageData.Where(r => r.Tags.Contains(tag)).Skip(pageIndex * pageSize).Take(pageSize);
         }
 
-        public IEnumerable<Package> Get(int pageIndex, int pageSize)
+        public IEnumerable<Package> Get(string project, int pageIndex, int pageSize)
         {
             IList<Package> packageData;
             
             
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.GeneratePackageData();
+                packageData = this.GeneratePackageData(project);
             }
 
             return packageData.Skip(pageIndex * pageSize).Take(pageSize);
         }
 
-        public PageableData<Package> GetPage(int pageIndex, int pageSize)
+        public PageableData<Package> GetPage(string project, int pageIndex, int pageSize)
         {
             IList<Package> packageData;
 
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.GeneratePackageData();
+                packageData = this.GeneratePackageData(project);
             }
 
             return new PageableData<Package>(packageData.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packageData.Count);
         }
 
-        public Package GetLatestWithTag(string tag)
+        public Package GetLatestWithTag(string project, string tag)
         {
             IList<Package> packageData;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
             {
-                packageData = this.GeneratePackageData();
+                packageData = this.GeneratePackageData(project);
             }
 
             return packageData.Where(r => r.Tags.Contains(tag)).OrderByDescending(r => r.CreatedUtc).FirstOrDefault();
@@ -122,11 +122,25 @@ namespace Tetrifact.Core
 
         #region METHODS Private
 
-        private IList<Package> GeneratePackageData()
+        private string GetExpectedPackagePath(string project) 
+        {
+            string packagePath = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment);
+            if (!Directory.Exists(packagePath))
+                throw new PackageNotFoundException(project);
+
+            return packagePath;
+        }
+
+        /// <summary>
+        /// Generates an in-memory list of all packages in a given project. In-memory caching saves reads from the
+        /// filesystem.
+        /// </summary>
+        /// <returns></returns>
+        private IList<Package> GeneratePackageData(string project)
         {
             IList<Package> packageData = new List<Package>();
-
-            DirectoryInfo dirInfo = new DirectoryInfo(_settings.PackagePath);
+            string packagePath = this.GetExpectedPackagePath(project);
+            DirectoryInfo dirInfo = new DirectoryInfo(packagePath);
             IEnumerable<string> packageDirectories = dirInfo.EnumerateDirectories().Select(d => d.FullName);
 
             foreach (string packageDirectory in packageDirectories)

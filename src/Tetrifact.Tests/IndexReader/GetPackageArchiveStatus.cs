@@ -12,14 +12,15 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistent()
         {
-            Assert.Throws<PackageNotFoundException>(() => this.IndexReader.GetPackageArchiveStatus("invalid-id"));
+            this.InitProject();
+            Assert.Throws<PackageNotFoundException>(() => this.IndexReader.GetPackageArchiveStatus("some-project", "invalid-id"));
         }
 
         [Fact]
         public void GetDefault()
         {
             TestPackage testPackage = this.CreatePackage();
-            Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
+            Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Name));
         }
 
         [Fact]
@@ -28,9 +29,9 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = this.CreatePackage();
             
             // mock temp archive
-            File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath(testPackage.Name), string.Empty);
+            File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath("some-project", testPackage.Name), string.Empty);
 
-            Assert.Equal(1, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
+            Assert.Equal(1, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Name));
         }
 
         [Fact]
@@ -40,9 +41,9 @@ namespace Tetrifact.Tests.IndexReader
 
             // mock temp archive
 
-            File.WriteAllText(this.IndexReader.GetPackageArchivePath(testPackage.Name), string.Empty);
+            File.WriteAllText(this.IndexReader.GetPackageArchivePath("some-project", testPackage.Name), string.Empty);
 
-            Assert.Equal(2, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
+            Assert.Equal(2, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Name));
         }
     }
 }

@@ -35,28 +35,28 @@ namespace Tetrifact.Tests
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public IEnumerable<Package> Get(int pageIndex, int pageSize)
+        public IEnumerable<Package> Get(string project, int pageIndex, int pageSize)
         {
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
         }
 
-        public Package GetLatestWithTag(string tag)
+        public Package GetLatestWithTag(string project, string tag)
         {
             return LatestPackage;
         }
 
-        public PageableData<Package> GetPage(int pageIndex, int pageSize)
+        public PageableData<Package> GetPage(string project, int pageIndex, int pageSize)
         {
             IEnumerable<Package> page = Packages.Skip(pageIndex * pageSize).Take(pageSize);
             return new PageableData<Package>(page, pageIndex, pageSize, Packages.Count);
         }
 
-        public IEnumerable<string> GetPopularTags(int count)
+        public IEnumerable<string> GetPopularTags(string project, int count)
         {
             return PopularTags.Take(count);   
         }
 
-        public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
+        public IEnumerable<Package> GetWithTag(string project, string tag, int pageIndex, int pageSize)
         {
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
         }

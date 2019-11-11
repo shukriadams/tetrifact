@@ -32,14 +32,14 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public void AddTag(string packageId, string tag)
+        public void AddTag(string project, string packageId, string tag)
         {
-            string manifestPath = Path.Combine(_settings.PackagePath, packageId, "manifest.json");
+            string manifestPath = this.GetManifestPath(project, packageId);
             if (!File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
 
             // write tag to fs
-            string targetFolder = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
+            string targetFolder = Path.Combine(GetExpectedTagsPath(project), Obfuscator.Cloak(tag));
             if (!Directory.Exists(targetFolder))
                 Directory.CreateDirectory(targetFolder);
 
@@ -80,13 +80,13 @@ namespace Tetrifact.Core
             */
         }
 
-        public void RemoveTag(string packageId, string tag)
+        public void RemoveTag(string project, string packageId, string tag)
         {
-            string manifestPath = Path.Combine(_settings.PackagePath, packageId, "manifest.json");
+            string manifestPath = this.GetManifestPath(project, packageId);
             if (!File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
 
-            string targetPath = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag), packageId);
+            string targetPath = Path.Combine(GetExpectedTagsPath(project), Obfuscator.Cloak(tag), packageId);
             if (File.Exists(targetPath))
                 File.Delete(targetPath);
 
@@ -125,9 +125,10 @@ namespace Tetrifact.Core
         /// Gets a list of all tags from tag index folder. Tags are not read from package manifests. 
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> GetAllTags()
+        public IEnumerable<string> GetAllTags(string project)
         {
-            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            string tagsPath = this.GetExpectedTagsPath(project);
+            string[] rawTags = Directory.GetDirectories(tagsPath);
             List<string> tags = new List<string>();
 
             foreach (string rawTag in rawTags)
@@ -151,14 +152,29 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetPackageIdsWithTag(string tag)
+        public IEnumerable<string> GetPackagesWithTag(string project, string tag)
         {
-            string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
+            string tagsPath = this.GetExpectedTagsPath(project);
+            string tagDirectory = Path.Combine(tagsPath, Obfuscator.Cloak(tag));
             if (!Directory.Exists(tagDirectory))
                 throw new TagNotFoundException();
 
             string[] files = Directory.GetFiles(tagDirectory);
             return files.Select(r => Path.GetFileName(r));
+        }
+
+        private string GetExpectedTagsPath(string project) 
+        {
+            string tagsPath = Path.Combine(_settings.ProjectsPath, project, Constants.TagsFragment);
+            if (!Directory.Exists(tagsPath))
+                throw new ProjectNotFoundException(project);
+
+            return tagsPath;
+        }
+
+        private string GetManifestPath(string project, string package) 
+        {
+            return Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package, "manifest.json");
         }
 
         #endregion

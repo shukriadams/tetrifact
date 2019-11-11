@@ -1,25 +1,15 @@
-using Tetrifact.Web;
-using System.Collections.Generic;
 using Xunit;
 using Ninject;
-using Tetrifact.Core;
-using System.Linq;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using System;
-using System.IO.Compression;
 
-namespace Tetrifact.Tests.Controlers
+namespace Tetrifact.Tests.Controllers
 {
     public class Tags : TestBase
     {
-        private readonly Tetrifact.Web.TagsController _controller;
+        private readonly Web.TagsController _controller;
 
         public Tags()
         {
-            _controller = this.Kernel.Get<Tetrifact.Web.TagsController>();
-
+            _controller = this.Kernel.Get<Web.TagsController>();
             TestingWorkspace.Reset();
         }
 
@@ -29,7 +19,7 @@ namespace Tetrifact.Tests.Controlers
         [Fact]
         public void Touch()
         {
-            _controller.GetTags();
+            _controller.GetTags("some-project");
         }
     }
 }

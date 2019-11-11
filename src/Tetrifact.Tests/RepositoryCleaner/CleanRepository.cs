@@ -1,6 +1,4 @@
 ﻿using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 using Tetrifact.Core;
 
@@ -31,6 +29,8 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void BasicClean()
         {
+            this.InitProject();
+
             // create a file and write to repository using path convention of path/to/file/bin. File is 
             // not linked to any package
             string contentPath = CreateRepoContent();
@@ -39,7 +39,7 @@ namespace Tetrifact.Tests.repositoryCleaner
             Assert.True(File.Exists(contentPath));
 
             // assert file is gone after cleaning repo
-            _respositoryCleaner.Clean();
+            _respositoryCleaner.Clean("some-project");
             Assert.False(File.Exists(contentPath));
         }
 

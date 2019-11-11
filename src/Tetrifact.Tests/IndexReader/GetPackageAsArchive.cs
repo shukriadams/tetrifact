@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.IndexReader
         public void GetBasic()
         {
             TestPackage testPackage = base.CreatePackage();
-            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
                 Assert.Single(items);
@@ -33,10 +33,10 @@ namespace Tetrifact.Tests.IndexReader
         public void GetExistingArchive()
         {
             TestPackage testPackage = base.CreatePackage();
-            using (Stream testContent1 = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            using (Stream testContent1 = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
             {
                 // get again
-                using (Stream testContent2 = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+                using (Stream testContent2 = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
                 {
                     Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
                     Assert.Single(items);
@@ -50,8 +50,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistent()
         {
+            this.InitProject();
             PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(() => {
-                using (Stream zipStream = this.IndexReader.GetPackageAsArchive("invalid id"))
+                using (Stream zipStream = this.IndexReader.GetPackageAsArchive("some-project", "invalid id"))
                 {
                     // do nothing, exception expected
                 }
@@ -75,11 +76,11 @@ namespace Tetrifact.Tests.IndexReader
 
             // mock a temp archive file, this means actual archive creation will be skipped and
             // therefore never complete.
-            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath("some-project", testPackage.Name);
             File.WriteAllText(tempArchivePath, string.Empty);
 
             Assert.Throws<TimeoutException>(() =>{
-                using (Stream zipStream = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+                using (Stream zipStream = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
                 {
                     // do nothing, exception expected
                 }
