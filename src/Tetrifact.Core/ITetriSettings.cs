@@ -4,6 +4,19 @@ namespace Tetrifact.Core
 {
     public interface ITetriSettings
     {
+
+        /// <summary>
+        /// Root folder for projects. This is a child of the main data folder, and contains a folder for each
+        /// project on the server. A "default" project will be autocreated, and user-specified projects can be
+        /// set up next to "default".
+        /// </summary>
+        string ProjectsPath { get; set; }
+
+        /// <summary>
+        /// Path where global logs are stored.
+        /// </summary>
+        string LogPath { get; set; }
+
         /// <summary>
         /// Path where packages are stored. Each package lives in its own folder.
         /// </summary>

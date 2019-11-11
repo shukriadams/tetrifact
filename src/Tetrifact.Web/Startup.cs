@@ -9,22 +9,15 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container. 
+        /// Add services to the container. 
         /// </summary>
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
@@ -69,12 +62,13 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline. 
+        /// Configure the HTTP request pipeline. 
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings)
         {
+            // register custom error pages
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -87,8 +81,6 @@ namespace Tetrifact.Web
                 app.UseHsts();
             }
 
-
-            // register custom error pages
             app.Use(async (context, next) =>
             {
                 await next();
@@ -107,12 +99,7 @@ namespace Tetrifact.Web
             });
 
 
-            string logPath = Environment.GetEnvironmentVariable("LOG_PATH");
-            if (string.IsNullOrEmpty(logPath))
-                logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
-
-            loggerFactory.AddFile(logPath);
-
+            loggerFactory.AddFile(settings.LogPath);
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

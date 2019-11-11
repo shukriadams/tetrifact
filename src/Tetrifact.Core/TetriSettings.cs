@@ -15,6 +15,10 @@ namespace Tetrifact.Core
 
         #region PROPERTIES
 
+        public string ProjectsPath { get; set; }
+
+        public string LogPath { get; set; }
+
         public string PackagePath { get; set; }
 
         public string TempPath { get; set; }
@@ -67,6 +71,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = AuthorizationLevel.None;
 
             // get settings from env variables
+            this.ProjectsPath = Environment.GetEnvironmentVariable("PROJECTS_PATH");
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
             this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
             this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
@@ -81,6 +86,12 @@ namespace Tetrifact.Core
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
 
             // fall back to defaults
+            if (string.IsNullOrEmpty(this.ProjectsPath))
+                this.ProjectsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
+
+            if (string.IsNullOrEmpty(this.LogPath))
+                this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+
             if (string.IsNullOrEmpty(PackagePath))
                 PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
 
