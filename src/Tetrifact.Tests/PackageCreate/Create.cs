@@ -48,9 +48,12 @@ namespace Tetrifact.Tests.PackageCreate
 
             // check that a file can be retrieved directly using manifest id
             GetFileResponse response = IndexReader.GetFile(manifest.Files[0].Id);
-            StreamReader reader = new StreamReader(response.Content);
-            string retrievedContent = reader.ReadToEnd();
-            Assert.Equal(retrievedContent, fileContent);
+
+            using (StreamReader reader = new StreamReader(response.Content))
+            {
+                string retrievedContent = reader.ReadToEnd();
+                Assert.Equal(retrievedContent, fileContent);
+            }
 
             // ensure that workspace has been cleaned up
             Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
