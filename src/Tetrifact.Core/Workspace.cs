@@ -45,7 +45,8 @@ namespace Tetrifact.Core
             this.Manifest = new Manifest();
             this._project = project;
 
-            // workspaces have random names, for safety ensure name is not already in use
+            // workspaces have random names, for safety ensure name is not already in use. There's no loop-of-death checking
+            // here, but if we cannot generate a true GUID we have bigger problems.
             while (true)
             {
                 this.WorkspacePath = Path.Join(_settings.TempPath, Guid.NewGuid().ToString());
@@ -53,13 +54,14 @@ namespace Tetrifact.Core
                     break;
             }
 
-            // create all basic directories for a functional workspace
+
+            // create all directories needed for a functional workspace
             Directory.CreateDirectory(this.WorkspacePath);
             Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
+            
 
-
-
-            // ensure that project prerequisite folders have been created
+            // ensure that project prerequisite folders have been created. This could was orphaned from IndexReader and ended up here,
+            // but it should ideally move into a more generic place.
             string projectsRoot = Path.Combine(_settings.ProjectsPath, project);
             if (!Directory.Exists(projectsRoot))
                 Directory.CreateDirectory(projectsRoot);
@@ -101,7 +103,6 @@ namespace Tetrifact.Core
             if (string.IsNullOrEmpty(hash))
                 throw new ArgumentException("Hash value is required");
 
-            // move file to public folder
             string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, _project);
             string targetPath = Path.Combine(reposPath, filePath, hash, "bin");
             string targetDirectory = Path.GetDirectoryName(targetPath);
