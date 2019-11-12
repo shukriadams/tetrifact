@@ -94,5 +94,12 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="package"></param>
         void DeletePackage(string project, string package);
+
+        /// <summary>
+        /// Gets the id of the package at the head of the given project.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        string GetHead(string project);
     }
 }

@@ -98,10 +98,10 @@ namespace Tetrifact.Tests.PackageCreate
 
             // ensure that head has been updated - there should be two head files, the latest being the last package pushed
             string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
-            List<string> headFiles = Directory.GetFiles(headPath).OrderBy(r => r).ToList();
+            List<string> headFiles = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
             Assert.Equal(2, headFiles.Count);
-            Assert.Equal("my package2", File.ReadAllText(headFiles[1]));
-            Assert.Equal("my package1", File.ReadAllText(headFiles[0]));
+            Assert.Equal("my package2", File.ReadAllText(headFiles[0]));
+            Assert.Equal("my package1", File.ReadAllText(headFiles[1]));
         }
 
         /// <summary>

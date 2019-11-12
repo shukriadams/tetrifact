@@ -24,6 +24,8 @@ namespace Tetrifact.Tests
 
         public Stream Test_PackageArchive { get; set; }
 
+        public string Test_Head { get; set; }
+
         #endregion
 
         #region METHODS
@@ -91,6 +93,11 @@ namespace Tetrifact.Tests
         public void CleanRepository()
         {
             // do nothing
+        }
+
+        public string GetHead(string project) 
+        {
+            return this.Test_Head;
         }
 
         public void AddTag(string packageId, string tag)

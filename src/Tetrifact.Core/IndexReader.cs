@@ -207,6 +207,16 @@ namespace Tetrifact.Core
             return Path.Combine(_settings.ArchivePath, string.Format($"{project}_{packageId}.zip.tmp"));
         }
 
+        public string GetHead(string project) 
+        {
+            string headPath = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
+            List<string> files = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
+            if (!files.Any())
+                return null;
+
+            return File.ReadAllText(files.First());
+        }
+
         private bool DoesPackageExist(string project, string packageId)
         {
             Manifest manifest = this.GetManifest(project, packageId);
