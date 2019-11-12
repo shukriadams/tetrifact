@@ -29,11 +29,6 @@ namespace Tetrifact.Core
         string ArchivePath { get; set; }
 
         /// <summary>
-        /// Global path to hash index - this cross-package index is used to determine which package contains a specific hash.
-        /// </summary>
-        string RepositoryPath { get; set; }
-
-        /// <summary>
         /// Interval at which archive's existence will be polled. In milliseconds.
         /// </summary>
         int ArchiveAvailablePollInterval { get; set; }

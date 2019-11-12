@@ -40,7 +40,8 @@ namespace Tetrifact.Core
             // while clean running, they will be cleaned up as they are not on this list
             IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds(project);
             this.LockPasses = 0;
-            this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
+            string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, project);
+            this.Clean_Internal(reposPath, existingPackageIds, false);
         }
 
         /// <summary>

@@ -35,7 +35,6 @@ namespace Tetrifact.Tests
 
             Settings = new TetriSettings(new TestLogger<TetriSettings>())
             {
-                RepositoryPath = Path.Combine(testFolder, "projects", "some-project", Constants.RepositoryFragment),
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),
                 ArchivePath = Path.Combine(testFolder, "archives")

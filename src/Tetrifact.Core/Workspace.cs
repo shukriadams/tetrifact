@@ -16,6 +16,8 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IWorkspace> _logger;
 
+        private string _project;
+
         #endregion
 
         #region PROPERTIES
@@ -41,6 +43,7 @@ namespace Tetrifact.Core
         public void Initialize(string project)
         {
             this.Manifest = new Manifest();
+            this._project = project;
 
             // workspaces have random names, for safety ensure name is not already in use
             while (true)
@@ -95,7 +98,8 @@ namespace Tetrifact.Core
                 throw new ArgumentException("Hash value is required");
 
             // move file to public folder
-            string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
+            string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, _project);
+            string targetPath = Path.Combine(reposPath, filePath, hash, "bin");
             string targetDirectory = Path.GetDirectoryName(targetPath);
             string packagesDirectory = Path.Join(targetDirectory, "packages");
 

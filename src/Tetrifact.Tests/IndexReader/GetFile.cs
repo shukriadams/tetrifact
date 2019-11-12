@@ -9,11 +9,14 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic()
         {
+            base.InitProject();
+
             // create a file and write to repository using path convention of path/to/file/bin
             string hash = "somehash";
             string path = "some/path/filename.file";
             string content = "file content";
-            string rootPath = Path.Combine(base.Settings.RepositoryPath, path, hash);
+            string reposPath = PathHelper.GetExpectedRepositoryPath(base.Settings, "some-project");
+            string rootPath =  Path.Combine(reposPath, path, hash);
             Directory.CreateDirectory(rootPath);
             File.WriteAllText(Path.Combine(rootPath, "bin"), content);
             string fileIdentifier = FileIdentifier.Cloak(path, hash);

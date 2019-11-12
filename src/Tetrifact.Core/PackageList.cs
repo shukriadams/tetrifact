@@ -122,15 +122,6 @@ namespace Tetrifact.Core
 
         #region METHODS Private
 
-        private string GetExpectedPackagePath(string project) 
-        {
-            string packagePath = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment);
-            if (!Directory.Exists(packagePath))
-                throw new PackageNotFoundException(project);
-
-            return packagePath;
-        }
-
         /// <summary>
         /// Generates an in-memory list of all packages in a given project. In-memory caching saves reads from the
         /// filesystem.
@@ -139,7 +130,7 @@ namespace Tetrifact.Core
         private IList<Package> GeneratePackageData(string project)
         {
             IList<Package> packageData = new List<Package>();
-            string packagePath = this.GetExpectedPackagePath(project);
+            string packagePath = PathHelper.GetExpectedPackagesPath(_settings, project);
             DirectoryInfo dirInfo = new DirectoryInfo(packagePath);
             IEnumerable<string> packageDirectories = dirInfo.EnumerateDirectories().Select(d => d.FullName);
 

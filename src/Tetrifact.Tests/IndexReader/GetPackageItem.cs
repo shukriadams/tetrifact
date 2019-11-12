@@ -10,11 +10,14 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetFile()
         {
+            base.InitProject();
+
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
             string hash = Core.HashService.FromByteArray(content);
 
-            string packageFolder = Path.Combine(this.Settings.RepositoryPath, "path", "to", "file", hash);
+            string reposPath = PathHelper.GetExpectedRepositoryPath(base.Settings, "some-project");
+            string packageFolder = Path.Combine(reposPath, "path", "to", "file", hash);
             Directory.CreateDirectory(packageFolder);
 
             File.WriteAllBytes(Path.Join(packageFolder, "bin"), content);

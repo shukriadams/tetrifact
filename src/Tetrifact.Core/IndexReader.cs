@@ -40,28 +40,28 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> GetAllPackageIds(string project)
         {
-            string packagesPath = this.GetExpectedPackagesPath(project);
+            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
             IEnumerable<string> rawList = Directory.GetDirectories(packagesPath);
             return rawList.Select(r => Path.GetRelativePath(packagesPath, r));
         }
 
         public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
         {
-            string packagesPath = this.GetExpectedPackagesPath(project);
+            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
             IEnumerable<string> rawList = Directory.GetDirectories(packagesPath);
             return rawList.Select(r => Path.GetRelativePath(packagesPath, r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string project, string id)
         {
-            string packagesPath = this.GetExpectedPackagesPath(project);
+            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
             string packagePath = Path.Join(packagesPath, id);
             return Directory.Exists(packagePath);
         }
 
         public Manifest GetManifest(string project, string packageId)
         {
-            string packagesPath = this.GetExpectedPackagesPath(project);
+            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
             string filePath = Path.Join(packagesPath, packageId, "manifest.json");
             if (!File.Exists(filePath))
                 return null;
@@ -81,7 +81,7 @@ namespace Tetrifact.Core
         public GetFileResponse GetFile(string project, string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-            string projectPath = this.GetExpectedProjectPath(project);
+            string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
             string directFilePath = Path.Combine(projectPath, Constants.RepositoryFragment, fileIdentifier.Path, fileIdentifier.Hash, "bin");
 
             if (!File.Exists(directFilePath))
@@ -156,17 +156,18 @@ namespace Tetrifact.Core
 
         public void DeletePackage(string project, string packageId)
         {
-            string packagesPath = this.GetExpectedPackagesPath(project);
-            string projectPath = this.GetExpectedProjectPath(project);
+            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
+            string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
 
             Manifest manifest = this.GetManifest(project, packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
             // delete repo entries for this package, the binary will be removed by a cleanup job
+            string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, project);
             foreach (ManifestItem item in manifest.Files)
             {
-                string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
+                string targetPath = Path.Combine(reposPath, item.Path, item.Hash, "packages", packageId);
                 if (File.Exists(targetPath))
                     File.Delete(targetPath);
             }
@@ -210,29 +211,6 @@ namespace Tetrifact.Core
         {
             Manifest manifest = this.GetManifest(project, packageId);
             return manifest != null;
-        }
-
-        /// <summary>
-        /// Gets path for project in data folder. Throws ProjectNotFoundException if not exists.
-        /// </summary>
-        /// <param name="project"></param>
-        /// <returns></returns>
-        private string GetExpectedProjectPath(string project)
-        {
-            string projectPath = Path.Combine(_settings.ProjectsPath, project);
-            if (!Directory.Exists(projectPath))
-                throw new ProjectNotFoundException(project);
-
-            return projectPath;
-        }
-
-        private string GetExpectedPackagesPath(string project)
-        {
-            string packagesPath = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment);
-            if (!Directory.Exists(packagesPath))
-                throw new ProjectNotFoundException(project);
-
-            return packagesPath;
         }
 
         private void CreateArchive(string project, string packageId)

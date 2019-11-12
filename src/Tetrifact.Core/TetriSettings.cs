@@ -21,8 +21,6 @@ namespace Tetrifact.Core
 
         public string TempPath { get; set; }
 
-        public string RepositoryPath { get; set; }
-
         public string ArchivePath { get; set; }
 
         public int ArchiveAvailablePollInterval { get; set; }
@@ -69,7 +67,6 @@ namespace Tetrifact.Core
             // get settings from env variables
             this.ProjectsPath = Environment.GetEnvironmentVariable("PROJECTS_PATH");
             this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
-            this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
@@ -88,9 +85,6 @@ namespace Tetrifact.Core
 
             if (string.IsNullOrEmpty(TempPath))
                 TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
-
-            if (string.IsNullOrEmpty(RepositoryPath))
-                RepositoryPath = Path.Join(this.ProjectsPath, Constants.RepositoryFragment);
 
             if (string.IsNullOrEmpty(ArchivePath))
                 ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");

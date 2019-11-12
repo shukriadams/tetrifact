@@ -39,7 +39,7 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             // write tag to fs
-            string targetFolder = Path.Combine(GetExpectedTagsPath(project), Obfuscator.Cloak(tag));
+            string targetFolder = Path.Combine(PathHelper.GetExpectedTagsPath(_settings, project), Obfuscator.Cloak(tag));
             if (!Directory.Exists(targetFolder))
                 Directory.CreateDirectory(targetFolder);
 
@@ -86,7 +86,7 @@ namespace Tetrifact.Core
             if (!File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
 
-            string targetPath = Path.Combine(GetExpectedTagsPath(project), Obfuscator.Cloak(tag), packageId);
+            string targetPath = Path.Combine(PathHelper.GetExpectedTagsPath(_settings, project), Obfuscator.Cloak(tag), packageId);
             if (File.Exists(targetPath))
                 File.Delete(targetPath);
 
@@ -127,7 +127,7 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public IEnumerable<string> GetAllTags(string project)
         {
-            string tagsPath = this.GetExpectedTagsPath(project);
+            string tagsPath = PathHelper.GetExpectedTagsPath(_settings, project);
             string[] rawTags = Directory.GetDirectories(tagsPath);
             List<string> tags = new List<string>();
 
@@ -154,22 +154,13 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public IEnumerable<string> GetPackagesWithTag(string project, string tag)
         {
-            string tagsPath = this.GetExpectedTagsPath(project);
+            string tagsPath = PathHelper.GetExpectedTagsPath(_settings, project);
             string tagDirectory = Path.Combine(tagsPath, Obfuscator.Cloak(tag));
             if (!Directory.Exists(tagDirectory))
                 throw new TagNotFoundException();
 
             string[] files = Directory.GetFiles(tagDirectory);
             return files.Select(r => Path.GetFileName(r));
-        }
-
-        private string GetExpectedTagsPath(string project) 
-        {
-            string tagsPath = Path.Combine(_settings.ProjectsPath, project, Constants.TagsFragment);
-            if (!Directory.Exists(tagsPath))
-                throw new ProjectNotFoundException(project);
-
-            return tagsPath;
         }
 
         private string GetManifestPath(string project, string package) 

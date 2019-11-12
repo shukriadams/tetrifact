@@ -1,0 +1,48 @@
+﻿using System.IO;
+
+namespace Tetrifact.Core
+{
+    public static class PathHelper
+    {
+        /// <summary>
+        /// Gets path for project in data folder. Throws ProjectNotFoundException if not exists.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        public static string GetExpectedProjectPath(ITetriSettings settings, string project)
+        {
+            string projectPath = Path.Combine(settings.ProjectsPath, project);
+            if (!Directory.Exists(projectPath))
+                throw new ProjectNotFoundException(project);
+
+            return projectPath;
+        }
+
+        public static string GetExpectedRepositoryPath(ITetriSettings settings, string project)
+        {
+            string reposPath = Path.Combine(settings.ProjectsPath, project, Constants.RepositoryFragment);
+            if (!Directory.Exists(reposPath))
+                throw new MissingProjectStructure(project);
+
+            return reposPath;
+        }
+
+        public static string GetExpectedPackagesPath(ITetriSettings settings, string project)
+        {
+            string packagesPath = Path.Combine(settings.ProjectsPath, project, Constants.PackagesFragment);
+            if (!Directory.Exists(packagesPath))
+                throw new ProjectNotFoundException(project);
+
+            return packagesPath;
+        }
+
+        public static string GetExpectedTagsPath(ITetriSettings settings, string project)
+        {
+            string tagsPath = Path.Combine(settings.ProjectsPath, project, Constants.TagsFragment);
+            if (!Directory.Exists(tagsPath))
+                throw new ProjectNotFoundException(project);
+
+            return tagsPath;
+        }
+    }
+}
