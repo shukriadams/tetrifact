@@ -91,6 +91,11 @@ namespace Tetrifact.Tests
             this.Manifest.Hash = combinedHash;
         }
 
+        public void UpdateHead(string project, string package, string diffAgainstPackage) 
+        {
+            
+        }
+
         public string GetIncomingFileHash(string path)
         {
             byte[] content = Incoming[path];

@@ -75,6 +75,10 @@ namespace Tetrifact.Core
             string tagsPath = Path.Combine(projectsRoot, Constants.TagsFragment);
             if (!Directory.Exists(tagsPath))
                 Directory.CreateDirectory(tagsPath);
+
+            string headPath = Path.Combine(projectsRoot, Constants.HeadFragment);
+            if (!Directory.Exists(headPath))
+                Directory.CreateDirectory(headPath);
         }
 
         public bool AddIncomingFile(Stream formFile, string relativePath)
@@ -141,6 +145,26 @@ namespace Tetrifact.Core
             string targetFolder = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package);
             Directory.CreateDirectory(targetFolder);
             File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
+        }
+
+
+        public void UpdateHead(string project, string package, string diffAgainstPackage) 
+        {
+            // if this package is diff'ed against current head, it can never become head
+            if (!string.IsNullOrEmpty(diffAgainstPackage))
+                return;
+
+            // if no head data exists, this package automatically becomes the head
+            string headFolder = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
+            string thisHead = Path.Combine(headFolder, $"{DateTime.UtcNow.Ticks}");
+            if (!Directory.GetFiles(headFolder).Any())
+            {
+                File.WriteAllText(thisHead, package);
+                return;
+            }
+
+            // if reach here, package should be treated as next head
+            File.WriteAllText(thisHead, package);
         }
 
         public IEnumerable<string> GetIncomingFileNames()

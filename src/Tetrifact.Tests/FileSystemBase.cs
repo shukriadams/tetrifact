@@ -25,12 +25,13 @@ namespace Tetrifact.Tests
 
         public FileSystemBase()
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().FullName);
             if (Directory.Exists(testFolder))
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
 
+            Thread.Sleep(200);// race conditio fix
 
 
             Settings = new TetriSettings(new TestLogger<TetriSettings>())
@@ -45,8 +46,6 @@ namespace Tetrifact.Tests
 
             Logger = new TestLogger<IIndexReader>();
             this.IndexReader = new Core.IndexReader(Settings, Logger);
-
-            Thread.Sleep(200);// race conditio fix
         }
 
         /// <summary>

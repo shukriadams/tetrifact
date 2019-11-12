@@ -44,5 +44,20 @@ namespace Tetrifact.Core
 
             return tagsPath;
         }
+
+        /// <summary>
+        /// Note : doesn't check if path exists.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        public static string GetExpectedHeadDirectoryPath(ITetriSettings settings, string project) 
+        {
+            string headPath = Path.Combine(settings.ProjectsPath, project, Constants.HeadFragment);
+            if (!Directory.Exists(headPath))
+                throw new ProjectNotFoundException(project);
+
+            return headPath;
+        }
     }
 }

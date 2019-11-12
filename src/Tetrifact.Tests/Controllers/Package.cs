@@ -39,6 +39,7 @@ namespace Tetrifact.Tests.Controllers
         [Fact]
         public void AddPackageAsFiles()
         {
+
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
             Stream file1 = StreamsHelper.StreamFromString(file1Content);
@@ -52,6 +53,7 @@ namespace Tetrifact.Tests.Controllers
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
+                Project = "some-project",
                 Files = new IFormFile[]
                 {
                     new FormFile(file1, 0, file1.Length, "Files", "folder1/file1.txt"),

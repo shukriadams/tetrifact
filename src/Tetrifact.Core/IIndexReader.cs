@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Tetrifact.Core
@@ -32,20 +31,20 @@ namespace Tetrifact.Core
         /// exists.
         /// </summary>
         /// <returns></returns>
-        bool PackageNameInUse(string project, string id);
+        bool PackageNameInUse(string project, string package);
 
         /// <summary>
         /// Returns the manifest of a given package if the package exists. Returns null if the package is invalid.
         /// </summary>
-        /// <param name="packageId"></param>
+        /// <param name="package"></param>
         /// <returns></returns>
-        Manifest GetManifest(string project, string packageId);
+        Manifest GetManifest(string project, string package);
 
         /// <summary>
         /// Gets a file from a package, as a binary array. Returns null if the package or file is invalid.
         /// file fileIdentifier is file path + "::" + file hash, base64 encoded.
         /// </summary>
-        /// <param name="packageId"></param>
+        /// <param name="package"></param>
         /// <param name="path"></param>
         /// <returns></returns>
         GetFileResponse GetFile(string project, string fileIdentifier);
@@ -55,7 +54,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        Stream GetPackageAsArchive(string project, string packageId);
+        Stream GetPackageAsArchive(string project, string package);
 
         /// <summary>
         /// Cleans out trash in archives folder.
@@ -72,28 +71,28 @@ namespace Tetrifact.Core
         /// throw a PackageNotFoundException if the package does not exist or is marked for delete
         /// </summary>
         /// <returns></returns>
-        int GetPackageArchiveStatus(string project, string packageId);
+        int GetPackageArchiveStatus(string project, string package);
 
         /// <summary>
         /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
         /// final public package name when archive generation is done. Therefore, the existence of the temp file 
         /// is used as an indicator that archive creation is still in progress (or failed while in progress).
         /// </summary>
-        /// <param name="packageId"></param>
+        /// <param name="package"></param>
         /// <returns></returns>
-        string GetPackageArchiveTempPath(string project, string packageId);
+        string GetPackageArchiveTempPath(string project, string package);
 
         /// <summary>
         /// Gets the path for a package archive.
         /// </summary>
-        /// <param name="packageId"></param>
+        /// <param name="package"></param>
         /// <returns></returns>
-        string GetPackageArchivePath(string project, string packageId);
+        string GetPackageArchivePath(string project, string package);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="packageId"></param>
-        void DeletePackage(string project, string packageId);
+        /// <param name="package"></param>
+        void DeletePackage(string project, string package);
     }
 }

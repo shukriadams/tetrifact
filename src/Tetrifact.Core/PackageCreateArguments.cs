@@ -22,6 +22,13 @@ namespace Tetrifact.Core
         [FromRoute] public string Id { get; set; }
 
         /// <summary>
+        /// Package to branch from. Optional. If null, the new pack will diff against head. If set, uploaded package will diff against branchFrom. 
+        /// If set, uploaded package cannot become head. Use this feature to group build variations around clusters and reduce unnecessary "noise" in
+        /// your main binary stream.
+        /// </summary>
+        [FromRoute] public string BranchFrom { get; set; }
+
+        /// <summary>
         /// Files to upload to package (multipart/form-data).
         /// </summary>
         [FromForm] public IList<IFormFile> Files { get; set; }

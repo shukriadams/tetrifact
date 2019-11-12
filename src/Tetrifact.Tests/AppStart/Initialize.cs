@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Xunit;
 
-namespace Tetrifact.Tests.IndexReader
+namespace Tetrifact.Tests.AppStart
 {
     public class Initialize : FileSystemBase
     {

@@ -6,6 +6,7 @@
         PackageExists,
         InvalidFileCount,
         InvalidArchiveFormat,
+        InvalidDiffAgainstPackage,
         UnexpectedError
     }
 }

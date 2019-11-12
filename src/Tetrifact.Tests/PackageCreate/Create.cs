@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.Internal;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Tetrifact.Core;
 using Xunit;
 
@@ -58,8 +59,84 @@ namespace Tetrifact.Tests.PackageCreate
                 Assert.Equal(retrievedContent, fileContent);
             }
 
+            // ensure that head has been updated - there should be only one head file, and it should contain project id
+            string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
+            string[] headFiles = Directory.GetFiles(headPath);
+            Assert.Single(headFiles);
+            Assert.Equal(File.ReadAllText(headFiles[0]), packageId);
+
             // ensure that workspace has been cleaned up
             Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
+        }
+
+        /// <summary>
+        /// confirms that head is updated when a new package is pushed
+        /// </summary>
+        [Fact]
+        public void CreateSubsequent()
+        {
+            this.InitProject();
+
+            Stream fileStream = StreamsHelper.StreamFromString("content");
+            
+            // create first package
+            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            {
+                Id = "my package1",
+                Project = "some-project",
+                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
+            }).Success);
+
+            // create second package
+            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            {
+                Id = "my package2",
+                Project = "some-project",
+                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
+            }).Success);
+
+
+            // ensure that head has been updated - there should be two head files, the latest being the last package pushed
+            string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
+            List<string> headFiles = Directory.GetFiles(headPath).OrderBy(r => r).ToList();
+            Assert.Equal(2, headFiles.Count);
+            Assert.Equal("my package2", File.ReadAllText(headFiles[1]));
+            Assert.Equal("my package1", File.ReadAllText(headFiles[0]));
+        }
+
+        /// <summary>
+        /// confirms that head is updated when a new package is pushed
+        /// </summary>
+        [Fact]
+        public void CreateBranched()
+        {
+            this.InitProject();
+
+            Stream fileStream = StreamsHelper.StreamFromString("content");
+
+            // create first package
+            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            {
+                Id = "my package1",
+                Project = "some-project",
+                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
+            }).Success);
+
+            // create second package
+            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            {
+                Id = "my package2",
+                Project = "some-project",
+                BranchFrom = "my package1",
+                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
+            }).Success);
+
+
+            // ensure that head has not been updated, as second upload branches from first, and is there not eligable to be head
+            string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
+            string[] headFiles = Directory.GetFiles(headPath);
+            Assert.Single(headFiles);
+            Assert.Equal("my package1", File.ReadAllText(headFiles[0]));
         }
 
         /// <summary>

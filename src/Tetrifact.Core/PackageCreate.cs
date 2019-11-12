@@ -60,6 +60,10 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive && newPackage.Format != "zip")
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
+                // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
+                if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetManifest(newPackage.Project, newPackage.BranchFrom) == null) 
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
+
                 // write attachments to work folder 
                 long size = newPackage.Files.Sum(f => f.Length);
 
@@ -93,8 +97,10 @@ namespace Tetrifact.Core
 
                 _workspace.Manifest.Description = newPackage.Description;
 
-                // calculate package hash from child hashes
+                // we calculate package hash from a sum of all child hashes
                 _workspace.WriteManifest(newPackage.Project, newPackage.Id, HashService.FromString(hashes.ToString()));
+
+                _workspace.UpdateHead(newPackage.Project, newPackage.Id, newPackage.BranchFrom);
 
                 _workspace.Dispose();
 

@@ -9,5 +9,7 @@
         public static readonly string RepositoryFragment = "repository";
 
         public static readonly string TagsFragment = "tags";
+
+        public static readonly string HeadFragment = "head";
     }
 }

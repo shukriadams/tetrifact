@@ -1,6 +1,8 @@
 # Development
 
-Note : if all you want is to build Tetrifact from source, check the /build folder in the project root.
+## Just building?
+
+If all you want is to build Tetrifact from source, check the /build folder in the project root.
 
 ## Conventions
 
@@ -80,6 +82,8 @@ Unit test coverage is done with https://github.com/SteveGilham/altcover. To visu
     reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./Tetrifact.Tests/coverage
 
 ## Architecture
+
+Tetrifact is a simple file storage that relies entirely on the file system as a means of storage. All state changes are additive, that is to say, each time you add data to Tetrifact that data will not change existing data. Tetrifact maintains integrity by hiding all data it writes until that data passes a hash integrity test. If the data fails a test, it remains hidden, and can be deleted as garbage at some later point.
 
 This is a brief explanation of Tetrifact's structure and concepts
 
