@@ -107,17 +107,21 @@ namespace Tetrifact.Core
             string targetDirectory = Path.GetDirectoryName(targetPath);
             string packagesDirectory = Path.Join(targetDirectory, "packages");
 
+            // create necessary directories in repository to contain file
             if (!Directory.Exists(targetDirectory))
             {
-                // create both directories if the top one doesn't exist
                 Directory.CreateDirectory(targetDirectory);
                 Directory.CreateDirectory(packagesDirectory);
-            } else if (!Directory.Exists(packagesDirectory))
-                // create sub after checking
+            }
+            else if (!Directory.Exists(packagesDirectory)) 
+            {
                 Directory.CreateDirectory(packagesDirectory);
+            }
 
             bool onDisk = false;
 
+            // Move file from incoming folder to repository folder, but only if it hasn't already been created by a previous package.
+            // Don't force overwrite it, the file could be in use.
             if (!File.Exists(targetPath)) { 
                 File.Move(
                     Path.Join(this.WorkspacePath, "incoming", filePath),
@@ -126,7 +130,7 @@ namespace Tetrifact.Core
                 onDisk = true;
             }
 
-            // write package id under hash, subscribing it to that hash
+            // write package id under hash for this file; this links this package to that hash
             File.WriteAllText(Path.Join(packagesDirectory, packageId), string.Empty);
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
