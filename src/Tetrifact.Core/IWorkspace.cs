@@ -33,7 +33,7 @@ namespace Tetrifact.Core
         /// Adds the contents of an archive to the package's incoming folder. Must be a valid archive stream. Stream can be sourced from a POSTed IFormfile, or a generic data stream.
         /// </summary>
         /// <param name="file"></param>
-        void AddArchiveContent(Stream file);
+        void AddIncomingArchive(Stream file);
 
         /// <summary>
         /// Returns a list of all file names in incoming folder.
@@ -42,18 +42,18 @@ namespace Tetrifact.Core
         IEnumerable<string> GetIncomingFileNames();
 
         /// <summary>
-        /// Moves a file from incoming to respository folder. This file will be immediately be directly accessible if looked for in the repo.
+        /// Moves a file from incoming to staging folder, or writes a diff patch to staging folder if a previous version of file exists.  
         /// </summary>
         /// <param name="fileInIncoming"></param>
         /// <param name="hash"></param>
         /// <param name="packageId"></param>
-        void WriteFile(string fileInIncoming, string hash, string packageId);
+        void StageFile(string fileInIncoming, string hash, string packageId);
 
         /// <summary>
         /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file.
         /// </summary>
         /// <param name="combinedHash"></param>
-        void WriteManifest(string project, string package, string combinedHash);
+        void Finalize(string project, string package, string combinedHash);
 
         /// <summary>
         /// Updates the head of project, if necessary.

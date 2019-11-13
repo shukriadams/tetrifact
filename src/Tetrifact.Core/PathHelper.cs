@@ -45,6 +45,21 @@ namespace Tetrifact.Core
             return tagsPath;
         }
 
+        public static string ResolveFinalFileBinPath(ITetriSettings settings, string project, string package, string filePath) 
+        {
+            return Path.Combine(settings.ProjectsPath, project, "shards", package, filePath, "bin");
+        }
+
+        public static string ResolveFinalFilePathPath(ITetriSettings settings, string project, string package, string filePath)
+        {
+            return Path.Combine(settings.ProjectsPath, project, "shards", package, filePath, "patch");
+        }
+
+        public static string ResolveShardRoot(ITetriSettings settings, string project)
+        {
+            return Path.Combine(settings.ProjectsPath, project, "shards");
+        }
+
         /// <summary>
         /// Note : doesn't check if path exists.
         /// </summary>

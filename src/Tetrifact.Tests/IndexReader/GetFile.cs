@@ -59,7 +59,7 @@ namespace Tetrifact.Tests.IndexReader
         public void GetNonExistentFile()
         {
             string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
-            Core.Workspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
+            Core.Workspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
             workspace.Initialize("some-project");
             Tetrifact.Core.FileNotFoundException ex = Assert.Throws<Tetrifact.Core.FileNotFoundException>(() => this.IndexReader.GetFile("some-project", fileIdentifier));
         }

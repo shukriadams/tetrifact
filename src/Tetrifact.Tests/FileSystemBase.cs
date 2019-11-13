@@ -53,7 +53,7 @@ namespace Tetrifact.Tests
         /// </summary>
         protected void InitProject() 
         {
-            Core.Workspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
+            Core.Workspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
             workspace.Initialize("some-project"); // init workspace to create project structures
             workspace.Dispose(); // need to dispose to clean up unused workspace folder 
         }
@@ -78,11 +78,11 @@ namespace Tetrifact.Tests
             };
 
             this.WorkspaceLogger = new TestLogger<IWorkspace>();
-            IWorkspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
+            IWorkspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
             workspace.Initialize("some-project");
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
-            workspace.WriteManifest("some-project", testPackage.Name, "somehash2");
+            workspace.StageFile(testPackage.Path, "somehash", testPackage.Name);
+            workspace.Finalize("some-project", testPackage.Name, "somehash2");
 
             return testPackage;
         }

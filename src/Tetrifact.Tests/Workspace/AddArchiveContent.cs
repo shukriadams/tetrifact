@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.Workspace
                     }
                 }
 
-                base.Workspace.AddArchiveContent(memoryStream);
+                base.Workspace.AddIncomingArchive(memoryStream);
                 string filePath = Path.Combine(base.Workspace.WorkspacePath, "incoming", "path", "file.txt");
                 string readContent = File.ReadAllText(filePath);
                 Assert.Equal("content", readContent);

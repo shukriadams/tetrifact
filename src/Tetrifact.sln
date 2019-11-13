@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2043
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tetrifact.Tests", "Tetrifact.Tests\Tetrifact.Tests.csproj", "{E5EFBC87-60C1-4805-9008-3EB03C525C46}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tetrifact.Web", "Tetrifact.Web\Tetrifact.Web.csproj", "{094E6233-6158-4BB6-83FE-95455F3D1DCF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tetrifact.Core", "Tetrifact.Core\Tetrifact.Core.csproj", "{E8B7A25E-8AEA-45E1-B318-C59BD5181614}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsDiff", "bsdiff\BsDiff.csproj", "{81057D08-D450-4757-BD10-53B0DFEA330B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{E8B7A25E-8AEA-45E1-B318-C59BD5181614}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8B7A25E-8AEA-45E1-B318-C59BD5181614}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8B7A25E-8AEA-45E1-B318-C59BD5181614}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81057D08-D450-4757-BD10-53B0DFEA330B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81057D08-D450-4757-BD10-53B0DFEA330B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81057D08-D450-4757-BD10-53B0DFEA330B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81057D08-D450-4757-BD10-53B0DFEA330B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

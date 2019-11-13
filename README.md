@@ -98,7 +98,12 @@ See the [developer docs](/docs/development.md) for details on running Tetrifact 
 
 ## Security
 
-NOTE : Tetrifact currently has no security model - it is 100% open. Use it on an internal network where everyone is trusted. Security will be added later.
+NOTE : Tetrifact currently has no security model - it is 100% open. Use it on an internal 
+network where everyone is trusted. Security will be added later.
+
+## 3rd party
+
+BSdiff sourced from https://github.com/LogosBible/bsdiff.net
 
 ## License
 

@@ -49,7 +49,7 @@ namespace Tetrifact.Tests
             }
         }
 
-        public void AddArchiveContent(Stream file)
+        public void AddIncomingArchive(Stream file)
         {
             using (ZipArchive archive = new ZipArchive(file))
             {
@@ -77,7 +77,7 @@ namespace Tetrifact.Tests
             return Incoming.Select(r => r.Key);
         }
 
-        public void WriteFile(string fileInIncoming, string hash, string packageId)
+        public void StageFile(string fileInIncoming, string hash, string packageId)
         {
             // move file to public folder
             Repository.Add(fileInIncoming, Incoming[fileInIncoming]);
@@ -85,7 +85,7 @@ namespace Tetrifact.Tests
             this.Manifest.Files.Add(new ManifestItem { Path = fileInIncoming, Hash = hash });
         }
 
-        public void WriteManifest(string project, string packageId, string combinedHash)
+        public void Finalize(string project, string packageId, string combinedHash)
         {
             // calculate package hash from child hashes
             this.Manifest.Hash = combinedHash;

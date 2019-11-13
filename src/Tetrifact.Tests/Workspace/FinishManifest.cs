@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.Workspace
             string project = "some-project";
             string combinedHash = "somehash";
             string package = "somepackage";
-            this.Workspace.WriteManifest(project, package, combinedHash);
+            this.Workspace.Finalize(project, package, combinedHash);
 
             Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(this.Settings.ProjectsPath, project, Constants.PackagesFragment, package, "manifest.json")));
             Assert.Equal(manifest.Hash, combinedHash);

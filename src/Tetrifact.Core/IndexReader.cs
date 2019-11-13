@@ -90,6 +90,11 @@ namespace Tetrifact.Core
             return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
+        private void Internal_GetFile(string project, string package, string filePath) 
+        { 
+
+        }
+
         /// <summary>
         /// Todo : this is far too simplistic, expand to delete based on available disk space.
         /// </summary>

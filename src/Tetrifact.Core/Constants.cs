@@ -11,5 +11,7 @@
         public static readonly string TagsFragment = "tags";
 
         public static readonly string HeadFragment = "head";
+
+        public static readonly string StagingFragment = "staging";
     }
 }

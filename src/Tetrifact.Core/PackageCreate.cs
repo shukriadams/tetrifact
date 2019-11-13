@@ -71,7 +71,7 @@ namespace Tetrifact.Core
 
                 // if archive, unzip
                 if (newPackage.IsArchive)
-                    _workspace.AddArchiveContent(newPackage.Files.First().OpenReadStream());
+                    _workspace.AddIncomingArchive(newPackage.Files.First().OpenReadStream());
                 else
                     foreach (IFormFile formFile in newPackage.Files)
                         _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
@@ -92,13 +92,13 @@ namespace Tetrifact.Core
                     hashes.Append(fileHash);
 
                     // todo : this would be a good place to confirm that existingPackageId is actually valid
-                    _workspace.WriteFile(filePath, fileHash, newPackage.Id);
+                    _workspace.StageFile(filePath, fileHash, newPackage.Id);
                 }
 
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // we calculate package hash from a sum of all child hashes
-                _workspace.WriteManifest(newPackage.Project, newPackage.Id, HashService.FromString(hashes.ToString()));
+                _workspace.Finalize(newPackage.Project, newPackage.Id, HashService.FromString(hashes.ToString()));
 
                 _workspace.UpdateHead(newPackage.Project, newPackage.Id, newPackage.BranchFrom);
 
