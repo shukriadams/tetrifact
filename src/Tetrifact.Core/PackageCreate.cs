@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Tetrifact.Core
 {
@@ -83,9 +82,7 @@ namespace Tetrifact.Core
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // we calculate package hash from a sum of all child hashes
-                _workspace.Finalize(newPackage.Project, newPackage.Id);
-
-                _workspace.UpdateHead(newPackage.Project, newPackage.Id, newPackage.BranchFrom);
+                _workspace.Finalize(newPackage.Project, newPackage.Id, newPackage.BranchFrom);
 
                 _workspace.Dispose();
 

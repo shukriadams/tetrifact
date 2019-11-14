@@ -48,19 +48,11 @@ namespace Tetrifact.Core
         void StageAllFiles(string packageId);
 
         /// <summary>
-        /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file.
+        /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file. also updated head.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="package"></param>
-        void Finalize(string project, string package);
-
-        /// <summary>
-        /// Updates the head of project, if necessary.
-        /// </summary>
-        /// <param name="project"></param>
-        /// <param name="package"></param>
-        /// <param name="diffAgainstPackage">Package to diff against. Optional.</param>
-        void UpdateHead(string project, string package, string diffAgainstPackage);
+        void Finalize(string project, string package, string diffAgainstPackage);
 
         /// <summary>
         /// Gets the hash of an incoming file. On filesystems, this is done by reading the file directly and hashing it.

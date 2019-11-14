@@ -143,15 +143,8 @@ namespace Tetrifact.Core
             {
                 // get hash of incoming file
                 string fileHash = this.GetIncomingFileHash(filePath);
-
                 _hashes.Append(HashService.FromString(filePath));
                 _hashes.Append(fileHash);
-
-
-                if (string.IsNullOrEmpty(fileHash))
-                    throw new ArgumentException("Hash value is required");
-
-                bool onDisk = false;
 
                 string head = _indexReader.GetHead(_project);
                 string incomingFilePath = Path.Join(this.WorkspacePath, "incoming", filePath);
@@ -163,6 +156,7 @@ namespace Tetrifact.Core
                 // if no head, or head doesn't contain the same file path, write incoming as raw bin
                 string sourceBinPath = PathHelper.ResolveFinalFileBinPath(_settings, _project, packageId, filePath);
                 bool writeRaw = string.IsNullOrEmpty(head) || !File.Exists(sourceBinPath);
+                FileInfo patchFileInfo = null;
 
                 if (writeRaw)
                 {
@@ -174,10 +168,12 @@ namespace Tetrifact.Core
                     // create patch against head version of file
                     byte[] sourceVersionBinary = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
                     byte[] incomingVersionBinary = File.ReadAllBytes(incomingFilePath);
-                    using (FileStream patchOutStream = new FileStream(Path.Combine(stagingBasePath, "patch"), FileMode.Create, FileAccess.Write))
+                    string patchFilePath = Path.Combine(stagingBasePath, "patch");
+                    using (FileStream patchOutStream = new FileStream(patchFilePath, FileMode.Create, FileAccess.Write))
                     {
                         BinaryPatchUtility.Create(sourceVersionBinary, incomingVersionBinary, patchOutStream);
                     }
+                    patchFileInfo = new FileInfo(patchFilePath);
                 }
 
                 string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
@@ -185,16 +181,18 @@ namespace Tetrifact.Core
 
                 FileInfo fileInfo = new FileInfo(incomingFilePath);
                 this.Manifest.Size += fileInfo.Length;
-                if (onDisk)
-                    this.Manifest.SizeOnDisk += fileInfo.Length;
+
+                if (patchFileInfo != null)
+                    this.Manifest.SizeOnDisk += patchFileInfo.Length;
             }
 
         }
 
-        public void Finalize(string project, string package)
+        public void Finalize(string project, string package, string diffAgainstPackage)
         {
-            // calculate package hash from child hashes
+            // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
+
             string targetFolder = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package);
             Directory.CreateDirectory(targetFolder);
             File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
@@ -205,11 +203,9 @@ namespace Tetrifact.Core
             string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
             
             FileHelper.MoveDirectoryContents(stagingRoot, Path.Combine(shardRoot, package));
-        }
 
-        public void UpdateHead(string project, string package, string diffAgainstPackage) 
-        {
-            // if this package is diff'ed against current head, it can never become head
+
+            // UPDATE HEAD : if this package is diff'ed against current head, it can never become head
             if (!string.IsNullOrEmpty(diffAgainstPackage))
                 return;
 

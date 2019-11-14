@@ -11,7 +11,7 @@ namespace Tetrifact.Tests
     {
         private static Manifest _manifest = new Manifest();
 
-        private StringBuilder _hashes = new StringBuilder();
+        private static StringBuilder _hashes = new StringBuilder();
 
         public static Dictionary<string, byte[]> Incoming = new Dictionary<string, byte[]>();
 
@@ -32,6 +32,7 @@ namespace Tetrifact.Tests
             Incoming = new Dictionary<string, byte[]>();
             Repository = new Dictionary<string, byte[]>();
             _manifest = new Manifest();
+            _hashes = new StringBuilder();
         }
 
         /// <summary>
@@ -95,15 +96,10 @@ namespace Tetrifact.Tests
             Incoming.Clear();
         }
 
-        public void Finalize(string project, string packageId)
+        public void Finalize(string project, string packageId, string diffAgainstPackage)
         {
             // calculate package hash from child hashes
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
-        }
-
-        public void UpdateHead(string project, string package, string diffAgainstPackage) 
-        {
-            
         }
 
         public string GetIncomingFileHash(string path)
