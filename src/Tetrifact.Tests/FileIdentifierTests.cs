@@ -10,7 +10,7 @@ namespace Tetrifact.Tests
         {
             FileIdentifier identifier = FileIdentifier.Decloak(Obfuscator.Cloak("myPath::myHash"));
             Assert.Equal("myPath", identifier.Path);
-            Assert.Equal("myHash", identifier.Hash);
+            Assert.Equal("myHash", identifier.Package);
         }
 
         [Fact]

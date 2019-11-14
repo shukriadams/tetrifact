@@ -30,6 +30,9 @@ namespace Tetrifact.Core
             if (!Directory.Exists(_settings.TempPath))
                 Directory.CreateDirectory(_settings.TempPath);
 
+            if (!Directory.Exists(_settings.TempBinaries))
+                Directory.CreateDirectory(_settings.TempBinaries);
+
         }
     }
 }

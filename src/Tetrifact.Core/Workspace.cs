@@ -222,7 +222,7 @@ namespace Tetrifact.Core
 
             // if no head data exists, this package automatically becomes the head
             string headFolder = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
-            string thisHead = Path.Combine(headFolder, $"{DateTime.UtcNow.Ticks}");
+            string thisHead = Path.Combine(headFolder, $"{DateTime.UtcNow.Ticks}_{package}");
             if (!Directory.GetFiles(headFolder).Any())
             {
                 File.WriteAllText(thisHead, package);
@@ -230,7 +230,7 @@ namespace Tetrifact.Core
             }
 
             // if reach here, package should be treated as next head
-            File.WriteAllText(thisHead, package);
+            File.WriteAllText(thisHead, string.Empty);
         }
 
         public IEnumerable<string> GetIncomingFileNames()

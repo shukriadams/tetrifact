@@ -13,5 +13,7 @@
         public static readonly string HeadFragment = "head";
 
         public static readonly string StagingFragment = "staging";
+
+        public static readonly string ShardsFragment = "shards";
     }
 }

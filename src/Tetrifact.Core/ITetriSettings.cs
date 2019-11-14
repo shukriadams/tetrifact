@@ -23,6 +23,11 @@ namespace Tetrifact.Core
         string TempPath { get; set; }
  
         /// <summary>
+        /// Folder where patched binary files are stored.
+        /// </summary>
+        string TempBinaries { get; set; }
+
+        /// <summary>
         /// Folder to store complete archives. Each archive is named for the project + package it contains. Archives are global
         /// across all projects.
         /// </summary>

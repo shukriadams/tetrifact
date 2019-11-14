@@ -13,6 +13,7 @@ namespace Tetrifact.Tests.AppStart
         {
             Assert.True(Directory.Exists(this.Settings.TempPath));
             Assert.True(Directory.Exists(this.Settings.ArchivePath));
+            Assert.True(Directory.Exists(this.Settings.TempBinaries));
         }
     }
 }

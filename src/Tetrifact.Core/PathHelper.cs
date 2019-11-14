@@ -47,17 +47,17 @@ namespace Tetrifact.Core
 
         public static string ResolveFinalFileBinPath(ITetriSettings settings, string project, string package, string filePath) 
         {
-            return Path.Combine(settings.ProjectsPath, project, "shards", package, filePath, "bin");
+            return Path.Combine(settings.ProjectsPath, project, Constants.ShardsFragment, package, filePath, "bin");
         }
 
         public static string ResolveFinalFilePathPath(ITetriSettings settings, string project, string package, string filePath)
         {
-            return Path.Combine(settings.ProjectsPath, project, "shards", package, filePath, "patch");
+            return Path.Combine(settings.ProjectsPath, project, Constants.ShardsFragment, package, filePath, "patch");
         }
 
         public static string ResolveShardRoot(ITetriSettings settings, string project)
         {
-            return Path.Combine(settings.ProjectsPath, project, "shards");
+            return Path.Combine(settings.ProjectsPath, project, Constants.ShardsFragment);
         }
 
         /// <summary>

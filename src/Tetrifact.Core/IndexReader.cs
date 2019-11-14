@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using BsDiff;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Tetrifact.Core
@@ -81,18 +83,45 @@ namespace Tetrifact.Core
         public GetFileResponse GetFile(string project, string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-            string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
-            string directFilePath = Path.Combine(projectPath, Constants.RepositoryFragment, fileIdentifier.Path, fileIdentifier.Hash, "bin");
 
-            if (!File.Exists(directFilePath))
-                throw new Tetrifact.Core.FileNotFoundException(directFilePath);
+            string binPath = RehydrateOrResolve(project, fileIdentifier.Package, fileIdentifier.Path);
 
-            return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
+            if (string.IsNullOrEmpty(binPath)) 
+                throw new Tetrifact.Core.FileNotFoundException(fileIdentifier.Path);
+            else
+                return new GetFileResponse(new FileStream(binPath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
-        private void Internal_GetFile(string project, string package, string filePath) 
-        { 
+        private string RehydrateOrResolve(string project, string package, string filePath) 
+        {
+            string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
+            string rehydratePatchPath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "patch");
+            string rehydrateBinarySourcePath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "bin");
+            string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, project, package, filePath, "bin");
 
+            // if both null, file doesn't exist, this will happen in first call
+            if (rehydratePatchPath == null && rehydrateBinarySourcePath == null)
+                return null;
+
+            if (File.Exists(rehydrateBinarySourcePath))
+                return rehydrateBinarySourcePath;
+
+            // file has already been rehydrated by a previous process and is ready to serve
+            if (File.Exists(rehydrateOutputPath)) 
+                return rehydrateOutputPath;
+
+            // check if this package was added to a predecessor, if so, recurse down through all children
+            string predecessorPackage = this.GetPredecessor(project, package);
+            if (!string.IsNullOrEmpty(predecessorPackage))
+                rehydrateBinarySourcePath = RehydrateOrResolve(project, predecessorPackage, filePath);
+
+            using (FileStream rehydrationFileStream = new FileStream(rehydrateOutputPath, FileMode.Create, FileAccess.Write))
+            using (FileStream rehydrateSourceStream = new FileStream(rehydrateBinarySourcePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                BinaryPatchUtility.Apply(rehydrateSourceStream, () => { return new FileStream(rehydratePatchPath, FileMode.Open, FileAccess.Read, FileShare.Read); }, rehydrationFileStream);
+            }
+
+            return rehydrateOutputPath;
         }
 
         /// <summary>
@@ -220,6 +249,39 @@ namespace Tetrifact.Core
                 return null;
 
             return File.ReadAllText(files.First());
+        }
+
+        private static string GetPackageFromFileName(string filename) 
+        {
+            Regex r = new Regex("/(.*?)_(.*)/");
+            Match match = r.Match(filename);
+            if (match.Groups.Count != 2)
+                return null;
+
+            return match.Groups[1].Value;
+        }
+
+        public string GetPredecessor(string project, string package) 
+        {
+            string headPath = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
+            List<string> files = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
+
+            
+            for (int i = 0 ; i < files.Count; i ++ ) 
+            {
+                // find this package's head update
+                string filePackage = GetPackageFromFileName(files[i]);
+                if (filePackage != package)
+                    continue;
+
+                // reached end of files
+                if (i == files.Count - 1)
+                    continue;
+
+                return GetPackageFromFileName(files[i + 1]);
+            }
+
+            return null;
         }
 
         private bool DoesPackageExist(string project, string packageId)

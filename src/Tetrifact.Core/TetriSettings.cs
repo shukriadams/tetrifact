@@ -23,6 +23,8 @@ namespace Tetrifact.Core
 
         public string ArchivePath { get; set; }
 
+        public string TempBinaries { get; set; }
+
         public int ArchiveAvailablePollInterval { get; set; }
 
         public int ArchiveWaitTimeout { get; set; }
@@ -68,6 +70,7 @@ namespace Tetrifact.Core
             this.ProjectsPath = Environment.GetEnvironmentVariable("PROJECTS_PATH");
             this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
+            this.TempBinaries = Environment.GetEnvironmentVariable("TEMP_BINARIES");
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
@@ -88,6 +91,9 @@ namespace Tetrifact.Core
 
             if (string.IsNullOrEmpty(ArchivePath))
                 ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
+
+            if (string.IsNullOrEmpty(TempBinaries))
+                TempBinaries = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp_binaries");
         }
 
         /// <summary>

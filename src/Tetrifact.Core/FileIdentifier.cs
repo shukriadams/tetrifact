@@ -7,7 +7,7 @@ namespace Tetrifact.Core
     {
         public string Path { get; set; }
 
-        public string Hash { get; set; }
+        public string Package { get; set; }
 
         public static string Cloak(string path, string hash)
         {
@@ -26,7 +26,7 @@ namespace Tetrifact.Core
             return new FileIdentifier
             {
                 Path = matches[0].Groups[1].Value,
-                Hash = matches[0].Groups[2].Value
+                Package = matches[0].Groups[2].Value
             };
         }
     }
