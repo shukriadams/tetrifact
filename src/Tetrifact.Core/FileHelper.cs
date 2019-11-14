@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Tetrifact.Core
 {
@@ -23,6 +24,35 @@ namespace Tetrifact.Core
 
             return stats; 
         }
+
+        /// <summary>
+        /// Moves all files and folders in source dir to target dir. Creates target dir if not exists.
+        /// </summary>
+        /// <param name="sourceSirectory"></param>
+        /// <param name="targetDirectory"></param>
+        public static void MoveDirectoryContents(string sourceDirectory, string targetDirectory) 
+        {
+            if (!Directory.Exists(targetDirectory))
+                Directory.CreateDirectory(targetDirectory);
+
+            foreach (string file in Directory.GetFiles(sourceDirectory))
+                File.Move(file, Path.Join(targetDirectory, Path.GetFileName(file)));
+            
+            foreach (string subDirectory in Directory.GetDirectories(sourceDirectory))
+                MoveDirectoryContents(subDirectory, Path.Join(targetDirectory, Path.GetFileName(subDirectory)));
+
+        }
+
+        public static string GetPackageFromFileName(string filename)
+        {
+            Regex r = new Regex("(.*?)_(.*)");
+            Match match = r.Match(filename);
+            if (match.Groups.Count != 3)
+                return null;
+
+            return match.Groups[2].Value;
+        }
+
     }
 }
 

@@ -9,9 +9,9 @@ namespace Tetrifact.Core
 
         public string Package { get; set; }
 
-        public static string Cloak(string path, string hash)
+        public static string Cloak(string package, string path)
         {
-            return Obfuscator.Cloak($"{path}::{hash}");
+            return Obfuscator.Cloak($"{package}::{path}");
         }
 
         public static FileIdentifier Decloak(string cloakedId)
@@ -25,8 +25,8 @@ namespace Tetrifact.Core
 
             return new FileIdentifier
             {
-                Path = matches[0].Groups[1].Value,
-                Package = matches[0].Groups[2].Value
+                Package = matches[0].Groups[1].Value,
+                Path = matches[0].Groups[2].Value
             };
         }
     }

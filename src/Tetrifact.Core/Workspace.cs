@@ -134,22 +134,6 @@ namespace Tetrifact.Core
             if (string.IsNullOrEmpty(hash))
                 throw new ArgumentException("Hash value is required");
 
-            string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, _project);
-            string targetPath = Path.Combine(reposPath, filePath, hash, "bin");
-            string targetDirectory = Path.GetDirectoryName(targetPath);
-            string packagesDirectory = Path.Join(targetDirectory, "packages");
-
-            // create necessary directories in repository to contain file
-            if (!Directory.Exists(targetDirectory))
-            {
-                Directory.CreateDirectory(targetDirectory);
-                Directory.CreateDirectory(packagesDirectory);
-            }
-            else if (!Directory.Exists(packagesDirectory)) 
-            {
-                Directory.CreateDirectory(packagesDirectory);
-            }
-
             bool onDisk = false;
 
             string head = _indexReader.GetHead(_project);
@@ -189,7 +173,7 @@ namespace Tetrifact.Core
                 */
             }
 
-            string pathAndHash = FileIdentifier.Cloak(filePath, hash);
+            string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
             this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
 
             FileInfo fileInfo = new FileInfo(incomingFilePath);
@@ -211,7 +195,7 @@ namespace Tetrifact.Core
             string stagingRoot = Path.Combine(this.WorkspacePath, Constants.StagingFragment);
             string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
             
-            Directory.Move(stagingRoot, shardRoot);
+            FileHelper.MoveDirectoryContents(stagingRoot, Path.Combine(shardRoot, package));
         }
 
         public void UpdateHead(string project, string package, string diffAgainstPackage) 

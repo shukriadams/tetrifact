@@ -101,8 +101,8 @@ namespace Tetrifact.Tests.PackageCreate
             string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
             List<string> headFiles = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
             Assert.Equal(2, headFiles.Count);
-            Assert.Equal("my package2", File.ReadAllText(headFiles[0]));
-            Assert.Equal("my package1", File.ReadAllText(headFiles[1]));
+            Assert.Equal("my package2", FileHelper.GetPackageFromFileName(Path.GetFileName(headFiles[0])));
+            Assert.Equal("my package1", FileHelper.GetPackageFromFileName(Path.GetFileName(headFiles[1])));
         }
 
         /// <summary>

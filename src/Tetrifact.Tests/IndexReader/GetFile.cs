@@ -12,14 +12,14 @@ namespace Tetrifact.Tests.IndexReader
             base.InitProject();
 
             // create a file and write to repository using path convention of path/to/file/bin
-            string hash = "somehash";
             string path = "some/path/filename.file";
             string content = "file content";
-            string reposPath = PathHelper.GetExpectedRepositoryPath(base.Settings, "some-project");
-            string rootPath =  Path.Combine(reposPath, path, hash);
+            string package = "some-package";
+            string shardRoot = PathHelper.ResolveShardRoot(base.Settings, "some-project");
+            string rootPath =  Path.Combine(shardRoot, package, path);
             Directory.CreateDirectory(rootPath);
             File.WriteAllText(Path.Combine(rootPath, "bin"), content);
-            string fileIdentifier = FileIdentifier.Cloak(path, hash);
+            string fileIdentifier = FileIdentifier.Cloak(package, path);
 
             GetFileResponse response = IndexReader.GetFile("some-project", fileIdentifier);
             using (StreamReader reader = new StreamReader(response.Content))
@@ -48,7 +48,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistentFileFromNonExistentProject()
         {
-            string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
+            string fileIdentifier = FileIdentifier.Cloak("nonexistent-package", "nonexistent/path");
             ProjectNotFoundException ex = Assert.Throws<ProjectNotFoundException>(() => this.IndexReader.GetFile("some-project", fileIdentifier));
         }
 
@@ -58,9 +58,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistentFile()
         {
-            string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
-            Core.Workspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
-            workspace.Initialize("some-project");
+            this.InitProject();
+            string fileIdentifier = FileIdentifier.Cloak("nonexistent/package", "nonexistent-path");
             Tetrifact.Core.FileNotFoundException ex = Assert.Throws<Tetrifact.Core.FileNotFoundException>(() => this.IndexReader.GetFile("some-project", fileIdentifier));
         }
 

@@ -8,9 +8,9 @@ namespace Tetrifact.Tests
         [Fact]
         public void HappyPath()
         {
-            FileIdentifier identifier = FileIdentifier.Decloak(Obfuscator.Cloak("myPath::myHash"));
-            Assert.Equal("myPath", identifier.Path);
-            Assert.Equal("myHash", identifier.Package);
+            FileIdentifier identifier = FileIdentifier.Decloak(Obfuscator.Cloak("mypackage::mypath"));
+            Assert.Equal("mypackage", identifier.Package);
+            Assert.Equal("mypath", identifier.Path);
         }
 
         [Fact]

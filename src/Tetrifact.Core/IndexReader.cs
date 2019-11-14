@@ -99,8 +99,8 @@ namespace Tetrifact.Core
             string rehydrateBinarySourcePath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "bin");
             string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, project, package, filePath, "bin");
 
-            // if both null, file doesn't exist, this will happen in first call
-            if (rehydratePatchPath == null && rehydrateBinarySourcePath == null)
+            // if neither patch nor bin exist, file doesn't exist, this will happen in first call
+            if (!File.Exists(rehydratePatchPath) && !File.Exists(rehydrateBinarySourcePath))
                 return null;
 
             if (File.Exists(rehydrateBinarySourcePath))
@@ -248,18 +248,9 @@ namespace Tetrifact.Core
             if (!files.Any())
                 return null;
 
-            return File.ReadAllText(files.First());
+            return FileHelper.GetPackageFromFileName(Path.GetFileNameWithoutExtension(files.First()));
         }
 
-        private static string GetPackageFromFileName(string filename) 
-        {
-            Regex r = new Regex("/(.*?)_(.*)/");
-            Match match = r.Match(filename);
-            if (match.Groups.Count != 2)
-                return null;
-
-            return match.Groups[1].Value;
-        }
 
         public string GetPredecessor(string project, string package) 
         {
@@ -270,7 +261,7 @@ namespace Tetrifact.Core
             for (int i = 0 ; i < files.Count; i ++ ) 
             {
                 // find this package's head update
-                string filePackage = GetPackageFromFileName(files[i]);
+                string filePackage = FileHelper.GetPackageFromFileName(files[i]);
                 if (filePackage != package)
                     continue;
 
@@ -278,7 +269,7 @@ namespace Tetrifact.Core
                 if (i == files.Count - 1)
                     continue;
 
-                return GetPackageFromFileName(files[i + 1]);
+                return FileHelper.GetPackageFromFileName(files[i + 1]);
             }
 
             return null;
