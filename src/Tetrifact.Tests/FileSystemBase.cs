@@ -16,10 +16,24 @@ namespace Tetrifact.Tests
         protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
 
+        /// <summary>
+        /// Defines a test package with a single file.
+        /// </summary>
         protected class TestPackage
         {
+            /// <summary>
+            /// Binary content of the single file in test package
+            /// </summary>
             public byte[] Content;
+
+            /// <summary>
+            /// Path of the single file in test package.
+            /// </summary>
             public string Path;
+
+            /// <summary>
+            /// Name of the package
+            /// </summary>
             public string Name;
         }
 
@@ -73,7 +87,7 @@ namespace Tetrifact.Tests
             TestPackage testPackage = new TestPackage
             {
                 Content = Encoding.ASCII.GetBytes("some content"),
-                Path = $"path/to/{packageName}",
+                Path = $"path\\to\\{packageName}",
                 Name = packageName
             };
 
@@ -81,8 +95,8 @@ namespace Tetrifact.Tests
             IWorkspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
             workspace.Initialize("some-project");
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.StageFile(testPackage.Path, "somehash", testPackage.Name);
-            workspace.Finalize("some-project", testPackage.Name, "somehash2");
+            workspace.StageAllFiles(testPackage.Name);
+            workspace.Finalize("some-project", testPackage.Name);
 
             return testPackage;
         }

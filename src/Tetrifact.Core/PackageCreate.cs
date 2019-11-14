@@ -37,7 +37,6 @@ namespace Tetrifact.Core
         public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
-            StringBuilder hashes = new StringBuilder();
 
             try
             {
@@ -75,30 +74,16 @@ namespace Tetrifact.Core
                 else
                     foreach (IFormFile formFile in newPackage.Files)
                         _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
-
-                // get all files which were uploaded, sort alphabetically for combined hashing
-                string[] files = _workspace.GetIncomingFileNames().ToArray();
-                Array.Sort(files, (x, y) => String.Compare(x, y));
                 
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
 
-                foreach (string filePath in files)
-                {
-                    // get hash of incoming file
-                    string fileHash = _workspace.GetIncomingFileHash(filePath);
-
-                    hashes.Append(HashService.FromString(filePath));
-                    hashes.Append(fileHash);
-
-                    // todo : this would be a good place to confirm that existingPackageId is actually valid
-                    _workspace.StageFile(filePath, fileHash, newPackage.Id);
-                }
+                _workspace.StageAllFiles(newPackage.Id);
 
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // we calculate package hash from a sum of all child hashes
-                _workspace.Finalize(newPackage.Project, newPackage.Id, HashService.FromString(hashes.ToString()));
+                _workspace.Finalize(newPackage.Project, newPackage.Id);
 
                 _workspace.UpdateHead(newPackage.Project, newPackage.Id, newPackage.BranchFrom);
 

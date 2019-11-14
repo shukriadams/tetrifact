@@ -42,18 +42,17 @@ namespace Tetrifact.Core
         IEnumerable<string> GetIncomingFileNames();
 
         /// <summary>
-        /// Moves a file from incoming to staging folder, or writes a diff patch to staging folder if a previous version of file exists.  
+        /// Moves all files from incoming to staging folder, or writes a diff patch to staging folder if a previous version of file exists.  
         /// </summary>
-        /// <param name="fileInIncoming"></param>
-        /// <param name="hash"></param>
         /// <param name="packageId"></param>
-        void StageFile(string fileInIncoming, string hash, string packageId);
+        void StageAllFiles(string packageId);
 
         /// <summary>
         /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file.
         /// </summary>
-        /// <param name="combinedHash"></param>
-        void Finalize(string project, string package, string combinedHash);
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        void Finalize(string project, string package);
 
         /// <summary>
         /// Updates the head of project, if necessary.

@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -9,6 +10,8 @@ namespace Tetrifact.Tests
     public class TestingWorkspace : IWorkspace
     {
         private static Manifest _manifest = new Manifest();
+
+        private StringBuilder _hashes = new StringBuilder();
 
         public static Dictionary<string, byte[]> Incoming = new Dictionary<string, byte[]>();
 
@@ -77,18 +80,25 @@ namespace Tetrifact.Tests
             return Incoming.Select(r => r.Key);
         }
 
-        public void StageFile(string fileInIncoming, string hash, string packageId)
+        public void StageAllFiles(string packageId)
         {
-            // move file to public folder
-            Repository.Add(fileInIncoming, Incoming[fileInIncoming]);
-            Incoming.Remove(fileInIncoming);
-            this.Manifest.Files.Add(new ManifestItem { Path = fileInIncoming, Hash = hash });
+            foreach (var item in Incoming) 
+            {
+                _hashes.Append(HashService.FromString(item.Key));
+                _hashes.Append(HashService.FromString(Encoding.Default.GetString(item.Value)));
+
+                // move file to public folder
+                Repository.Add(item.Key, item.Value);
+                this.Manifest.Files.Add(new ManifestItem { Path = item.Key, Hash = "some-hash" });
+            }
+
+            Incoming.Clear();
         }
 
-        public void Finalize(string project, string packageId, string combinedHash)
+        public void Finalize(string project, string packageId)
         {
             // calculate package hash from child hashes
-            this.Manifest.Hash = combinedHash;
+            this.Manifest.Hash = HashService.FromString(_hashes.ToString());
         }
 
         public void UpdateHead(string project, string package, string diffAgainstPackage) 

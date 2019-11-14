@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using BsDiff;
+using System.Text;
 
 namespace Tetrifact.Core
 {
@@ -20,6 +21,8 @@ namespace Tetrifact.Core
         private readonly IIndexReader _indexReader;
 
         private string _project;
+
+        private StringBuilder _hashes = new StringBuilder();
 
         #endregion
 
@@ -129,63 +132,69 @@ namespace Tetrifact.Core
             }
         }
 
-        public void StageFile(string filePath, string hash, string packageId)
+        public void StageAllFiles(string packageId)
         {
-            if (string.IsNullOrEmpty(hash))
-                throw new ArgumentException("Hash value is required");
+            
+            // get all files which were uploaded, sort alphabetically for combined hashing
+            string[] files = this.GetIncomingFileNames().ToArray();
+            Array.Sort(files, (x, y) => String.Compare(x, y));
 
-            bool onDisk = false;
-
-            string head = _indexReader.GetHead(_project);
-            string incomingFilePath = Path.Join(this.WorkspacePath, "incoming", filePath);
-            string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, filePath); // this is a directory path, but for the literal file path name
-
-            if (!Directory.Exists(stagingBasePath))
-                Directory.CreateDirectory(stagingBasePath);
-
-            // if no head, or head doesn't contain the same file path, write incoming as raw bin
-            string sourceBinPath = PathHelper.ResolveFinalFileBinPath(_settings, _project, packageId, filePath);
-            bool writeRaw = string.IsNullOrEmpty(head) || !File.Exists(sourceBinPath);
-
-            if (writeRaw)
+            foreach (string filePath in files)
             {
-                File.Copy(incomingFilePath,
-                    Path.Combine(stagingBasePath, "bin"));
-            }
-            else
-            {
-                // create patch against head version of file
-                byte[] sourceVersionBinary = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
-                byte[] incomingVersionBinary = File.ReadAllBytes(incomingFilePath);
-                using (FileStream patchOutStream = new FileStream(Path.Combine(stagingBasePath, "patch"), FileMode.Create, FileAccess.Write))
+                // get hash of incoming file
+                string fileHash = this.GetIncomingFileHash(filePath);
+
+                _hashes.Append(HashService.FromString(filePath));
+                _hashes.Append(fileHash);
+
+
+                if (string.IsNullOrEmpty(fileHash))
+                    throw new ArgumentException("Hash value is required");
+
+                bool onDisk = false;
+
+                string head = _indexReader.GetHead(_project);
+                string incomingFilePath = Path.Join(this.WorkspacePath, "incoming", filePath);
+                string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, filePath); // this is a directory path, but for the literal file path name
+
+                if (!Directory.Exists(stagingBasePath))
+                    Directory.CreateDirectory(stagingBasePath);
+
+                // if no head, or head doesn't contain the same file path, write incoming as raw bin
+                string sourceBinPath = PathHelper.ResolveFinalFileBinPath(_settings, _project, packageId, filePath);
+                bool writeRaw = string.IsNullOrEmpty(head) || !File.Exists(sourceBinPath);
+
+                if (writeRaw)
                 {
-                    BinaryPatchUtility.Create(sourceVersionBinary, incomingVersionBinary, patchOutStream);
+                    File.Copy(incomingFilePath,
+                        Path.Combine(stagingBasePath, "bin"));
+                }
+                else
+                {
+                    // create patch against head version of file
+                    byte[] sourceVersionBinary = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
+                    byte[] incomingVersionBinary = File.ReadAllBytes(incomingFilePath);
+                    using (FileStream patchOutStream = new FileStream(Path.Combine(stagingBasePath, "patch"), FileMode.Create, FileAccess.Write))
+                    {
+                        BinaryPatchUtility.Create(sourceVersionBinary, incomingVersionBinary, patchOutStream);
+                    }
                 }
 
-                /*
-                REFERENCE CODE FOR APPLYING PATCH, USE, DONT JUST DELETE
-                string finalfinalpath = Path.Combine(Path.GetDirectoryName(Path.Combine(this.WorkspacePath, "incoming", filePath)), "FINAL");
-                using (FileStream theFinalResult = new FileStream(finalfinalpath, FileMode.Create, FileAccess.Write))
-                using (FileStream thehead = new FileStream(headFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    BinaryPatchUtility.Apply(thehead, () => { return new FileStream(patchPath, FileMode.Open, FileAccess.Read, FileShare.Read); }, theFinalResult);
-                }
-                */
+                string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
+                this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = fileHash, Id = pathAndHash });
+
+                FileInfo fileInfo = new FileInfo(incomingFilePath);
+                this.Manifest.Size += fileInfo.Length;
+                if (onDisk)
+                    this.Manifest.SizeOnDisk += fileInfo.Length;
             }
 
-            string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
-            this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
-
-            FileInfo fileInfo = new FileInfo(incomingFilePath);
-            this.Manifest.Size += fileInfo.Length;
-            if (onDisk)
-                this.Manifest.SizeOnDisk += fileInfo.Length;
         }
 
-        public void Finalize(string project, string package, string combinedHash)
+        public void Finalize(string project, string package)
         {
             // calculate package hash from child hashes
-            this.Manifest.Hash = combinedHash;
+            this.Manifest.Hash = HashService.FromString(_hashes.ToString());
             string targetFolder = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package);
             Directory.CreateDirectory(targetFolder);
             File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
