@@ -40,8 +40,7 @@ namespace Tetrifact.Core
 
             // write tag to fs
             string targetFolder = Path.Combine(PathHelper.GetExpectedTagsPath(_settings, project), Obfuscator.Cloak(tag));
-            if (!Directory.Exists(targetFolder))
-                Directory.CreateDirectory(targetFolder);
+            FileHelper.EnsureDirectoryExists(targetFolder);
 
             
             string targetPath = Path.Combine(targetFolder, packageId);

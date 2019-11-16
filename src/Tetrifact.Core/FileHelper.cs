@@ -32,8 +32,7 @@ namespace Tetrifact.Core
         /// <param name="targetDirectory"></param>
         public static void MoveDirectoryContents(string sourceDirectory, string targetDirectory) 
         {
-            if (!Directory.Exists(targetDirectory))
-                Directory.CreateDirectory(targetDirectory);
+            FileHelper.EnsureDirectoryExists(targetDirectory);
 
             foreach (string file in Directory.GetFiles(sourceDirectory))
                 File.Move(file, Path.Join(targetDirectory, Path.GetFileName(file)));
@@ -53,6 +52,26 @@ namespace Tetrifact.Core
             return match.Groups[2].Value;
         }
 
+        /// <summary>
+        /// Creates the directory structure for the given file path if that structure does not exist.
+        /// </summary>
+        /// <param name="filepath"></param>
+        public static void EnsureFileDirectoryExists(string filepath) 
+        {
+            string dirPath = Path.GetDirectoryName(filepath);
+            if (!Directory.Exists(dirPath))
+                Directory.CreateDirectory(dirPath);
+        }
+
+        /// <summary>
+        /// Creates the specified directory path if it doesn't exist.
+        /// </summary>
+        /// <param name="dirPath"></param>
+        public static void EnsureDirectoryExists(string dirPath)
+        {
+            if (!Directory.Exists(dirPath))
+                Directory.CreateDirectory(dirPath);
+        }
     }
 }
 

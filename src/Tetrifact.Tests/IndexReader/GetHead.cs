@@ -7,43 +7,33 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetHead : FileSystemBase
+    public class GetHead : PackageCreatorBase
     {
-        protected IPackageCreate PackageCreate;
 
-        public GetHead()
-        {
-            PackageCreate = new Core.PackageCreate(
-                IndexReader,
-                new TestLogger<IPackageCreate>(),
-                new Core.Workspace(this.IndexReader, Settings, new TestLogger<IWorkspace>()));
-        }
-
+        /// <summary>
+        /// Confirms that head is updated correctly over a series of package uploads
+        /// </summary>
         [Fact]
-        public void Basic()
+        public void Sequence()
         {
             this.InitProject();
 
-            Stream fileStream = StreamsHelper.StreamFromString("content");
-
-            // create first package
-            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            for (int i = 0; i < 10; i++) 
             {
-                Id = "my package1",
-                Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
-            }).Success);
+                Stream fileStream = StreamsHelper.StreamFromString($"content-{i}");
 
-            // create second package
-            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
-            {
-                Id = "my package2",
-                Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
-            }).Success);
+                // create package
+                Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+                {
+                    Id = $"my package{i}",
+                    Project = "some-project",
+                    Files = new List<IFormFile>() { new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file") }
+                }).Success);
 
-            Assert.Equal("my package2", IndexReader.GetHead("some-project"));
+                // confirm head is now at this package
+                Assert.Equal($"my package{i}", IndexReader.GetHead("some-project"));
+            }
+
         }
-
     }
 }

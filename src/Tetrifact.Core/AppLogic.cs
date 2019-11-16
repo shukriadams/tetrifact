@@ -13,8 +13,7 @@ namespace Tetrifact.Core
 
         public void Start() 
         {
-            if (!Directory.Exists(_settings.ArchivePath))
-                Directory.CreateDirectory(_settings.ArchivePath);
+            FileHelper.EnsureDirectoryExists(_settings.ArchivePath);
 
             // force wipe the temp folder when app starts
             try {
@@ -27,12 +26,8 @@ namespace Tetrifact.Core
                 // if temp is folder is locked, ignore deleting it
             }
 
-            if (!Directory.Exists(_settings.TempPath))
-                Directory.CreateDirectory(_settings.TempPath);
-
-            if (!Directory.Exists(_settings.TempBinaries))
-                Directory.CreateDirectory(_settings.TempBinaries);
-
+            FileHelper.EnsureDirectoryExists(_settings.TempPath);
+            FileHelper.EnsureDirectoryExists(_settings.TempBinaries);
         }
     }
 }

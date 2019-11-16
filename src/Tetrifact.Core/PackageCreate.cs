@@ -77,7 +77,7 @@ namespace Tetrifact.Core
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
 
-                _workspace.StageAllFiles(newPackage.Id);
+                _workspace.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
 
                 _workspace.Manifest.Description = newPackage.Description;
 

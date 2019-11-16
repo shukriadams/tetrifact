@@ -81,7 +81,7 @@ namespace Tetrifact.Tests
             return Incoming.Select(r => r.Key);
         }
 
-        public void StageAllFiles(string packageId)
+        public void StageAllFiles(string packageId, string diffAgainstPackage)
         {
             foreach (var item in Incoming) 
             {

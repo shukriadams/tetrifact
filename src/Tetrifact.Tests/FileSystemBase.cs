@@ -52,6 +52,7 @@ namespace Tetrifact.Tests
             {
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),
+                TempBinaries = Path.Combine(testFolder, "temp_binaries"),
                 ArchivePath = Path.Combine(testFolder, "archives")
             };
 
@@ -95,7 +96,7 @@ namespace Tetrifact.Tests
             IWorkspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
             workspace.Initialize("some-project");
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.StageAllFiles(testPackage.Name);
+            workspace.StageAllFiles(testPackage.Name, null);
             workspace.Finalize("some-project", testPackage.Name, null);
 
             return testPackage;

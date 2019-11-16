@@ -115,6 +115,11 @@ namespace Tetrifact.Tests
             return Test_Indexes;
         }
 
+        public string RehydrateOrResolve(string project, string package, string filePath)
+        {
+            return null;
+        }
+
         #endregion
     }
 }

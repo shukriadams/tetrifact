@@ -6,6 +6,9 @@ namespace Tetrifact.Tests.IndexReader
 {
     public class GetFile : FileSystemBase
     {
+        /// <summary>
+        /// Retrieves a file which is directly written to the path files are read from.
+        /// </summary>
         [Fact]
         public void Basic()
         {
@@ -27,6 +30,15 @@ namespace Tetrifact.Tests.IndexReader
                 string retrievedContent = reader.ReadToEnd();
                 Assert.Equal(content, retrievedContent);
             }
+        }
+
+        /// <summary>
+        /// Retrieves a file as it changes over several packages. This tests both the package create and package 
+        /// </summary>
+        [Fact]
+        public void GetsChangesAcrossPackages()
+        { 
+
         }
 
         /// <summary>

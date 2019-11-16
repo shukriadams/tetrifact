@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Tetrifact.Core
@@ -92,33 +91,38 @@ namespace Tetrifact.Core
                 return new GetFileResponse(new FileStream(binPath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
-        private string RehydrateOrResolve(string project, string package, string filePath) 
+        public string RehydrateOrResolve(string project, string package, string filePath) 
         {
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
-            string rehydratePatchPath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "patch");
-            string rehydrateBinarySourcePath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "bin");
+            string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "patch");
+            string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "bin");
             string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, project, package, filePath, "bin");
 
             // if neither patch nor bin exist, file doesn't exist, this will happen in first call
-            if (!File.Exists(rehydratePatchPath) && !File.Exists(rehydrateBinarySourcePath))
+            if (!File.Exists(patchPath) && !File.Exists(binaryPath))
                 return null;
 
-            if (File.Exists(rehydrateBinarySourcePath))
-                return rehydrateBinarySourcePath;
+            // if the binary path already exists, we can use that directly
+            if (File.Exists(binaryPath))
+                return binaryPath;
 
             // file has already been rehydrated by a previous process and is ready to serve
-            if (File.Exists(rehydrateOutputPath)) 
+            if (File.Exists(rehydrateOutputPath))
                 return rehydrateOutputPath;
 
             // check if this package was added to a predecessor, if so, recurse down through all children
-            string predecessorPackage = this.GetPredecessor(project, package);
-            if (!string.IsNullOrEmpty(predecessorPackage))
-                rehydrateBinarySourcePath = RehydrateOrResolve(project, predecessorPackage, filePath);
+            Manifest manifest = this.GetManifest(project, package);
+            if (string.IsNullOrEmpty(manifest.Predecessor))
+                throw new Exception($"manifest for package {package} does not have an expected predecessor value");
+
+            binaryPath = RehydrateOrResolve(project, manifest.Predecessor, filePath);
+
+            FileHelper.EnsureFileDirectoryExists(rehydrateOutputPath);
 
             using (FileStream rehydrationFileStream = new FileStream(rehydrateOutputPath, FileMode.Create, FileAccess.Write))
-            using (FileStream rehydrateSourceStream = new FileStream(rehydrateBinarySourcePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (FileStream rehydrateSourceStream = new FileStream(binaryPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                BinaryPatchUtility.Apply(rehydrateSourceStream, () => { return new FileStream(rehydratePatchPath, FileMode.Open, FileAccess.Read, FileShare.Read); }, rehydrationFileStream);
+                BinaryPatchUtility.Apply(rehydrateSourceStream, () => { return new FileStream(patchPath, FileMode.Open, FileAccess.Read, FileShare.Read); }, rehydrationFileStream);
             }
 
             return rehydrateOutputPath;
@@ -249,30 +253,6 @@ namespace Tetrifact.Core
                 return null;
 
             return FileHelper.GetPackageFromFileName(Path.GetFileNameWithoutExtension(files.First()));
-        }
-
-
-        public string GetPredecessor(string project, string package) 
-        {
-            string headPath = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
-            List<string> files = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
-
-            
-            for (int i = 0 ; i < files.Count; i ++ ) 
-            {
-                // find this package's head update
-                string filePackage = FileHelper.GetPackageFromFileName(files[i]);
-                if (filePackage != package)
-                    continue;
-
-                // reached end of files
-                if (i == files.Count - 1)
-                    continue;
-
-                return FileHelper.GetPackageFromFileName(files[i + 1]);
-            }
-
-            return null;
         }
 
         private bool DoesPackageExist(string project, string packageId)

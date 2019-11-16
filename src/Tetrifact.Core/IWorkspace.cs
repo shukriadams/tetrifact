@@ -45,7 +45,7 @@ namespace Tetrifact.Core
         /// Moves all files from incoming to staging folder, or writes a diff patch to staging folder if a previous version of file exists.  
         /// </summary>
         /// <param name="packageId"></param>
-        void StageAllFiles(string packageId);
+        void StageAllFiles(string packageId, string diffAgainstPackage);
 
         /// <summary>
         /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file. also updated head.

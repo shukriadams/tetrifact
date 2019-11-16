@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageCreate
 {
-    public class Create : Base
+    public class Create : PackageCreatorBase
     {
         [Fact]
         public void CreateBasic()
@@ -70,7 +70,7 @@ namespace Tetrifact.Tests.PackageCreate
         }
 
         /// <summary>
-        /// confirms that head is updated when a new package is pushed
+        /// 
         /// </summary>
         [Fact]
         public void CreateSequential()
@@ -85,7 +85,7 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "my package1",
                 Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream1, 0, fileStream1.Length, "Files", $"folder/file")) }
+                Files = new List<IFormFile>() { (new FormFile(fileStream1, 0, fileStream1.Length, "Files", "folder/file")) }
             }).Success);
 
             // create second package
@@ -93,7 +93,7 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "my package2",
                 Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream2, 0, fileStream2.Length, "Files", $"folder/file")) }
+                Files = new List<IFormFile>() { (new FormFile(fileStream2, 0, fileStream2.Length, "Files", "folder/file")) }
             }).Success);
 
 
@@ -106,7 +106,7 @@ namespace Tetrifact.Tests.PackageCreate
         }
 
         /// <summary>
-        /// confirms that head is updated when a new package is pushed
+        /// 
         /// </summary>
         [Fact]
         public void CreateBranched()
@@ -120,7 +120,7 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "my package1",
                 Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
+                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
             }).Success);
 
             // create second package
@@ -129,7 +129,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Id = "my package2",
                 Project = "some-project",
                 BranchFrom = "my package1",
-                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file")) }
+                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
             }).Success);
 
 

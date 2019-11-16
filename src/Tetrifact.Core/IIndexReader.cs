@@ -101,5 +101,14 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <returns></returns>
         string GetHead(string project);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        string RehydrateOrResolve(string project, string package, string filePath);
     }
 }

@@ -24,6 +24,11 @@ namespace Tetrifact.Core
         /// </summary>
         public long Size { get; set; }
 
+        /// <summary>
+        /// Optional - string id of package this package depends on.
+        /// </summary>
+        public string Predecessor { get; set; }
+
         #endregion
 
         #region CTORS
