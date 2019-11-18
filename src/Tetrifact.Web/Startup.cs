@@ -44,6 +44,7 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
             services.AddTransient<IAppLogic, AppLogic>();
+            services.AddTransient<IIndexReader, IndexReader>();
 
             // register filterws
             services.AddScoped<ReadLevel>();

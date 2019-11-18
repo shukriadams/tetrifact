@@ -110,5 +110,11 @@ namespace Tetrifact.Core
         /// <param name="filePath"></param>
         /// <returns></returns>
         string RehydrateOrResolve(string project, string package, string filePath);
+
+        /// <summary>
+        /// Gets a list of all projects currently created on server.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetProjects();
     }
 }

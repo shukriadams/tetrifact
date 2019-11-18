@@ -9,17 +9,17 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly ITetriSettings _settings;
-        private readonly IIndexReader _indexService;
+        private readonly IIndexReader _indexReader;
         private readonly IPackageList _packageList;
 
         #endregion
 
         #region CTORS
 
-        public HomeController(ITetriSettings settings, IIndexReader indexService, IPackageList packageList)
+        public HomeController(ITetriSettings settings, IIndexReader indexReader, IPackageList packageList)
         {
             _settings = settings;
-            _indexService = indexService;
+            _indexReader = indexReader;
             _packageList = packageList;
         }
 
@@ -28,12 +28,14 @@ namespace Tetrifact.Web
         #region METHODS
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("{project}")]
+        [Route("")]
         public IActionResult Index(string project)
         {
-            ViewData["packages"] = _packageList.Get(project, 0, _settings.ListPageSize);
-            ViewData["tags"] = _packageList.GetPopularTags(project, _settings.IndexTagListLength);
-            return View();
+            return View(new ContentSummaryModel(
+                _packageList.GetPopularTags(project, _settings.IndexTagListLength),
+                _packageList.Get(project, 0, _settings.ListPageSize),
+                _indexReader.GetProjects(),
+                project));
         }
 
 
@@ -50,11 +52,11 @@ namespace Tetrifact.Web
         public IActionResult Package(string project, string packageId)
         {
             ViewData["packageId"] = packageId;
-            Manifest manifest = _indexService.GetManifest(project, packageId);
+            Manifest manifest = _indexReader.GetManifest(project, packageId);
             if (manifest == null)
                 return View("Error404");
 
-            ViewData["manifest"] = _indexService.GetManifest(project, packageId);
+            ViewData["manifest"] = _indexReader.GetManifest(project, packageId);
             return View();
         }
 

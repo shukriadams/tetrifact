@@ -255,6 +255,12 @@ namespace Tetrifact.Core
             return FileHelper.GetPackageFromFileName(Path.GetFileNameWithoutExtension(files.First()));
         }
 
+        public IEnumerable<string> GetProjects() 
+        {
+            string[] directories = Directory.GetDirectories(_settings.ProjectsPath);
+            return directories.Select(r => Path.GetFileName(r));
+        }
+
         private bool DoesPackageExist(string project, string packageId)
         {
             Manifest manifest = this.GetManifest(project, packageId);

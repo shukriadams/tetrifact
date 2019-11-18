@@ -26,6 +26,8 @@ namespace Tetrifact.Tests
 
         public string Test_Head { get; set; }
 
+        public IEnumerable<string> Test_Projects { get; set; }
+
         #endregion
 
         #region METHODS
@@ -118,6 +120,11 @@ namespace Tetrifact.Tests
         public string RehydrateOrResolve(string project, string package, string filePath)
         {
             return null;
+        }
+
+        public IEnumerable<string> GetProjects()
+        {
+            return this.Test_Projects;
         }
 
         #endregion

@@ -1,19 +1,18 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
+@model  Tetrifact.Web.ContentSummaryModel;
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
-    IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
 }
 
 <div class="layout-section">
 
     <h2>Recent Packages</h2>
 
-    @if (packages.Any())
+    @if (Model.Packages.Any())
     {
         <ul class="list">
-            @foreach (Package package in packages)
+            @foreach (Package package in Model.Packages)
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize())</div>
@@ -33,10 +32,10 @@
 
     <h2>Frequently Used Tags</h2>
 
-    @if (tags.Any())
+    @if (Model.Tags.Any())
     {
         <ul>
-            @foreach (string tag in tags)
+            @foreach (string tag in Model.Tags)
             {
                 <li class="listItem">
                     <a href="/packagesWithTag/@tag">@tag</a>

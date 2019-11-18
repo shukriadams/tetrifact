@@ -9,10 +9,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using System;
 using System.IO.Compression;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Tetrifact.Tests.Controllers
 {
-    public class Home : TestBase
+    public class Home : FileSystemBase
     {
         private readonly Tetrifact.Web.HomeController _controller;
 
@@ -29,7 +30,12 @@ namespace Tetrifact.Tests.Controllers
         [Fact]
         public void Touch()
         {
-            _controller.Index("some-project");
+            base.InitProject();
+            var result = _controller.Index("some-project");
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<ContentSummaryModel>(viewResult.ViewData.Model);
+            Assert.Equal("some-project", model.CurrentProject);
         }
         
     }

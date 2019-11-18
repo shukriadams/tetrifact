@@ -46,6 +46,9 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> GetPopularTags(string project, int count)
         {
+            if (string.IsNullOrEmpty(project))
+                return new List<string>();
+
             IList<Package> packageData = null;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
@@ -82,6 +85,9 @@ namespace Tetrifact.Core
 
         public IEnumerable<Package> Get(string project, int pageIndex, int pageSize)
         {
+            if (string.IsNullOrEmpty(project))
+                return new List<Package>();
+
             IList<Package> packageData;
             
             

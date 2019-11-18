@@ -9,9 +9,8 @@ namespace Tetrifact.Tests
     /// <summary>
     /// Base class for any test type which requires concrete file system structures.
     /// </summary>
-    public abstract class FileSystemBase
+    public abstract class FileSystemBase : TestBase
     {
-        protected ITetriSettings Settings;
         protected TestLogger<IIndexReader> Logger;
         protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
