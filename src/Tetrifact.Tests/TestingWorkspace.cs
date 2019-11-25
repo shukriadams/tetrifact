@@ -4,6 +4,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Tetrifact.Core;
+using SharpCompress.Common;
+using SharpCompress.Readers;
+using SharpCompress.Readers.Tar;
 
 namespace Tetrifact.Tests
 {
@@ -53,7 +56,7 @@ namespace Tetrifact.Tests
             }
         }
 
-        public void AddIncomingArchive(Stream file)
+        public void AddZipContent(Stream file)
         {
             using (ZipArchive archive = new ZipArchive(file))
             {
@@ -72,6 +75,39 @@ namespace Tetrifact.Tests
                         }
                     }
 
+                }
+            }
+        }
+
+        public void AddTarContent(Stream file)
+        {
+            using (IReader reader = TarReader.Open(file))
+            {
+                while (reader.MoveToNextEntry())
+                {
+                    IEntry entry = reader.Entry;
+                    if (reader.Entry.IsDirectory)
+                        continue;
+
+                    using (EntryStream entryStream = reader.OpenEntryStream())
+                    {
+                        string targetFile = Path.Join(this.WorkspacePath, "incoming", reader.Entry.Key);
+                        string targetDirectory = Path.GetDirectoryName(targetFile);
+                        if (!Directory.Exists(targetDirectory))
+                            Directory.CreateDirectory(targetDirectory);
+
+                        // if .Name is empty it's a directory
+                        if (!reader.Entry.IsDirectory)
+                            using (var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write))
+                            {
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    entryStream.CopyTo(ms);
+                                    byte[] unzippedArray = ms.ToArray();
+                                    Incoming.Add(reader.Entry.Key, ms.ToArray());
+                                }
+                            }
+                    }
                 }
             }
         }

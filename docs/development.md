@@ -56,12 +56,17 @@ To start the server run the following from the same folder as the build artefact
 
 ## Test
 
+To run tests natively from the command line (requires dotnetcore sdk)  run
+
+    cd /src
+    dotnet test /p:AltCover=true
+
 To run tests in a container (requires bash && Docker)
 
     cd /tests
     sh ./test.sh
 
-This is mostly intended for running tests on CI systems like Travis. To run tests natively from the command line (requires dotnetcore sdk)  run
+This is mostly intended for running tests on CI systems like Travis.
 
     cd /src
     dotnet test /p:AltCover=true

@@ -34,7 +34,31 @@ namespace Tetrifact.Web
             return View(new ContentSummaryModel(_indexReader.GetProjects()));
         }
 
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("projects/{project}")]
+        public IActionResult Project(string project)
+        {
+            return View(new ProjectSummaryModel(
+                _packageList.GetPopularTags(project, _settings.IndexTagListLength),
+                _packageList.Get(project, 0, _settings.ListPageSize),
+                project));
+        }
 
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("upload")]
+        public IActionResult UploadPackage()
+        {
+            return View();
+        }
+
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("addProject")]
+        public IActionResult AddProject()
+        {
+            return View();
+
+        }
+        
         [ServiceFilter(typeof(ReadLevel))]
         [Route("api")]
         public IActionResult Api()

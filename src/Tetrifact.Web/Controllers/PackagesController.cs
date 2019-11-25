@@ -25,6 +25,7 @@ namespace Tetrifact.Web
         private readonly IPackageCreate _packageService;
         private readonly IPackageList _packageList;
         private readonly ITetriSettings _settings;
+        private readonly ITagsService _tagService;
 
         #endregion
 
@@ -38,18 +39,21 @@ namespace Tetrifact.Web
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, ITagsService tagService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
             _indexService = indexService;
             _settings = settings;
+            _tagService = tagService;
             _log = log;
         }
 
         #endregion
 
         #region METHODS
+
+
 
         /// <summary>
         /// Gets a page of packages
@@ -69,7 +73,6 @@ namespace Tetrifact.Web
                 return new JsonResult(_indexService.GetPackageIds(project, pageIndex, pageSize));
             }
         }
-
 
         /// <summary>
         /// Gets latest package with the given tag.
@@ -149,7 +152,7 @@ namespace Tetrifact.Web
         /// <param name="post"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpPost("{id}")]
+        [HttpPost("{project}/{id}")]
         public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
             try

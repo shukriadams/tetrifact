@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace Tetrifact.Core
 {
@@ -68,8 +69,23 @@ namespace Tetrifact.Core
                 _workspace.Initialize(newPackage.Project);
 
                 // if archive, unzip
-                if (newPackage.IsArchive)
-                    _workspace.AddIncomingArchive(newPackage.Files.First().OpenReadStream());
+                if (newPackage.IsArchive) {
+                    IFormFile incomingArchive = newPackage.Files.First();
+                    Stream archiveFile = incomingArchive.OpenReadStream();
+                    string extension = Path.GetExtension(incomingArchive.FileName).Replace(".", string.Empty).ToLower();
+
+                    // if archive, ensure correct file format 
+                    extension = string.IsNullOrEmpty(extension) ? newPackage.Format : extension;
+                    if (string.IsNullOrEmpty(extension))
+                        return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
+
+                    if (extension == "zip")
+                        _workspace.AddZipContent(archiveFile);
+                    else if (extension == "gz")
+                        _workspace.AddTarContent(archiveFile);
+                    else
+                        return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
+                }
                 else
                     foreach (IFormFile formFile in newPackage.Files)
                         _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
@@ -90,7 +106,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, string.Empty);
+                _log.LogError(ex, "Unexpected error");
                 Console.WriteLine($"Unexpected error : {ex}");
                 return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }

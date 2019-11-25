@@ -1,0 +1,70 @@
+﻿@using Tetrifact.Core;
+@using Humanizer;
+
+@{
+    ViewData["Title"] = "Create project";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <form id="addProject">
+
+        <p>
+            Create a project
+        </p>
+
+        <div class="layout-row">
+            <div class="layout-label">
+                Name
+            </div>
+            <div class="layout-value">
+                <input class="projectName" type="text">
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+
+            </div>
+            <div class="layout-value">
+                <input type="button" class="submit button" value="Create" />
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    (async function () {
+
+        let form = document.querySelector('form[id=addProject]'),
+            submit = form.querySelector('.submit'),
+            projectName = document.querySelector('.projectName');
+
+        submit.addEventListener('click', async function () {
+            const formData = new FormData(form),
+                project = projectName.value;
+
+            if (!project)
+                return alert('Project name is required.');
+
+            try {
+                const response = await fetch(`/v1/projects/${project}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    window.location = `/projects/${project}`;
+                } else {
+                    console.log(response);
+                }
+
+            } catch (err) {
+                console.log(err);
+                alert('Error:', err);
+            }
+        }, false);
+
+    })()
+</script>

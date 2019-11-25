@@ -1,0 +1,110 @@
+﻿@using Tetrifact.Core;
+@using Humanizer;
+
+@{
+    ViewData["Title"] = "Upload package archive";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <form id="archiveUpload"
+          enctype="multipart/form-data">
+
+        <p>
+            Manually create a package from an uploaded zip or tar.gz archive.
+        </p>
+
+        <div class="layout-row">
+            <div class="layout-label">
+                Archive
+            </div>
+            <div class="layout-value">
+                <input placeholder="Archive" name="Files" type="file" />
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+                Project Name
+            </div>
+            <div class="layout-value">
+                <input class="projectName" type="text">
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+                Package Name
+            </div>
+            <div class="layout-value">
+                <input class="packageName" type="text">
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+
+            </div>
+            <div class="layout-value">
+                <input type="button" class="submit button" value="Upload" />
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    (async function () {
+
+        let filesSelector = document.querySelector('[name=Files]'),
+            form = document.querySelector('form[id=archiveUpload]'),
+            submit = form.querySelector('.submit'),
+            packageName = document.querySelector('.packageName'),
+            projectName = document.querySelector('.projectName');
+
+        filesSelector.addEventListener('change', function(){
+            // If a package name hasn't been entered, auto-fills the package name using the file selected, based on file name.
+            if (filesSelector.files.length && !packageName.value.length) {
+                let name = filesSelector.files[0].name;
+                let matches = filesSelector.files[0].name.match(/(.*)[.](.*)/);
+                if (matches.length === 3) {
+                    name = matches[1];
+                }
+
+                packageName.value = name;
+            }
+        }, false);
+
+        submit.addEventListener('click', async function () {
+            const formData = new FormData(form),
+                package = packageName.value,
+                project = projectName.value,
+                files = filesSelector.files;
+
+            if (!files.length)
+                return alert('Please select an archive to upload.');
+
+            if (!project)
+                return alert('Project is required.');
+
+
+            if (!package)
+                return alert('Package name is required.');
+
+            try {
+                const response = await fetch(`/v1/packages/${project}/${package}?isArchive=true`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    window.location = `/package/${project}/${package}`;
+                } else {
+                    console.log(response);
+                }
+            } catch (err) {
+                alert('Error:', err);
+            }
+        }, false);
+
+    })()
+</script>

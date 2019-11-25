@@ -1,14 +1,13 @@
 using System.IO;
 using System.IO.Compression;
-using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.Workspace
 {
-    public class AddArchiveContent : Base
+    public class AddZipContent : Base
     {
         [Fact]
-        public void Add()
+        public void AddContent()
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -22,7 +21,7 @@ namespace Tetrifact.Tests.Workspace
                     }
                 }
 
-                base.Workspace.AddIncomingArchive(memoryStream);
+                base.Workspace.AddZipContent(memoryStream);
                 string filePath = Path.Combine(base.Workspace.WorkspacePath, "incoming", "path", "file.txt");
                 string readContent = File.ReadAllText(filePath);
                 Assert.Equal("content", readContent);

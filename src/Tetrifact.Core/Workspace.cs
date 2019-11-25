@@ -7,6 +7,9 @@ using System.IO.Compression;
 using System.Linq;
 using BsDiff;
 using System.Text;
+using SharpCompress.Common;
+using SharpCompress.Readers;
+using SharpCompress.Readers.Tar;
 
 namespace Tetrifact.Core
 {
@@ -61,7 +64,6 @@ namespace Tetrifact.Core
                     break;
             }
 
-
             // create all directories needed for a functional workspace
             Directory.CreateDirectory(this.WorkspacePath);
             // incoming is where uploaded files first land. If upload is an archive, this is where archive is unpacked to
@@ -69,23 +71,6 @@ namespace Tetrifact.Core
 
             // staying is the next place files are moved to. Staging will contain either the raw file, or a patch of the file vs the version from a previous version 
             Directory.CreateDirectory(Path.Join(this.WorkspacePath, Constants.StagingFragment));
-
-            // ensure that project prerequisite folders have been created. This could was orphaned from IndexReader and ended up here,
-            // but it should ideally move into a more generic place.
-            string projectsRoot = Path.Combine(_settings.ProjectsPath, project);
-            FileHelper.EnsureDirectoryExists(projectsRoot);
-
-            string packagesPath = Path.Combine(projectsRoot, Constants.PackagesFragment);
-            FileHelper.EnsureDirectoryExists(packagesPath);
-
-            string repositoryPath = Path.Combine(projectsRoot, Constants.RepositoryFragment);
-            FileHelper.EnsureDirectoryExists(repositoryPath);
-
-            string tagsPath = Path.Combine(projectsRoot, Constants.TagsFragment);
-            FileHelper.EnsureDirectoryExists(tagsPath);
-
-            string headPath = Path.Combine(projectsRoot, Constants.HeadFragment);
-            FileHelper.EnsureDirectoryExists(headPath);
         }
 
         public bool AddIncomingFile(Stream formFile, string relativePath)
@@ -100,29 +85,6 @@ namespace Tetrifact.Core
             {
                 formFile.CopyTo(stream);
                 return true;
-            }
-        }
-
-        public void AddIncomingArchive(Stream file)
-        {
-            using (var archive = new ZipArchive(file))
-            {
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    if (entry != null)
-                    {
-                        using (var unzippedEntryStream = entry.Open())
-                        {
-                            string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
-                            string targetDirectory = Path.GetDirectoryName(targetFile);
-                            FileHelper.EnsureDirectoryExists(targetDirectory);
-
-                            // if .Name is empty it's a directory
-                            if (!string.IsNullOrEmpty(entry.Name))
-                                entry.ExtractToFile(targetFile);
-                        }
-                    }
-                }
             }
         }
 
@@ -182,7 +144,6 @@ namespace Tetrifact.Core
                 if (patchFileInfo != null)
                     this.Manifest.SizeOnDisk += patchFileInfo.Length;
             }
-
         }
 
         public void Finalize(string project, string package, string diffAgainstPackage)
@@ -229,6 +190,57 @@ namespace Tetrifact.Core
             IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
             string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
+        }
+
+        public void AddTarContent(Stream file) 
+        {
+            using (IReader reader = TarReader.Open(file))
+            {
+                while (reader.MoveToNextEntry())
+                {
+                    IEntry entry = reader.Entry;
+                    if (reader.Entry.IsDirectory)
+                        continue;
+
+                    using (EntryStream entryStream = reader.OpenEntryStream())
+                    {
+                        string targetFile = Path.Join(this.WorkspacePath, "incoming", reader.Entry.Key);
+                        string targetDirectory = Path.GetDirectoryName(targetFile);
+                        if (!Directory.Exists(targetDirectory))
+                            Directory.CreateDirectory(targetDirectory);
+
+                        // if .Name is empty it's a directory
+                        if (!reader.Entry.IsDirectory)
+                            using (var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write))
+                            {
+                                entryStream.CopyTo(fileStream);
+                            }
+                    }
+                }
+            }
+        }
+
+        public void AddZipContent(Stream file)
+        {
+            using (var archive = new ZipArchive(file))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    if (entry != null)
+                    {
+                        using (Stream unzippedEntryStream = entry.Open())
+                        {
+                            string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
+                            string targetDirectory = Path.GetDirectoryName(targetFile);
+                            FileHelper.EnsureDirectoryExists(targetDirectory);
+
+                            // if .Name is empty it's a directory
+                            if (!string.IsNullOrEmpty(entry.Name))
+                                entry.ExtractToFile(targetFile);
+                        }
+                    }
+                }
+            }
         }
 
         public string GetIncomingFileHash(string relativePath)

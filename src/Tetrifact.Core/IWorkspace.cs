@@ -29,11 +29,9 @@ namespace Tetrifact.Core
         /// <param name="file"></param>
         bool AddIncomingFile(Stream file, string relativePath);
 
-        /// <summary>
-        /// Adds the contents of an archive to the package's incoming folder. Must be a valid archive stream. Stream can be sourced from a POSTed IFormfile, or a generic data stream.
-        /// </summary>
-        /// <param name="file"></param>
-        void AddIncomingArchive(Stream file);
+        void AddZipContent(Stream file);
+
+        void AddTarContent(Stream file);
 
         /// <summary>
         /// Returns a list of all file names in incoming folder.
