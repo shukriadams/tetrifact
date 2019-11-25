@@ -26,6 +26,7 @@ namespace Tetrifact.Core
                 // if temp is folder is locked, ignore deleting it
             }
 
+            FileHelper.EnsureDirectoryExists(_settings.ProjectsPath);
             FileHelper.EnsureDirectoryExists(_settings.TempPath);
             FileHelper.EnsureDirectoryExists(_settings.TempBinaries);
         }

@@ -1,0 +1,52 @@
+﻿@using Tetrifact.Core;
+@using Humanizer;
+@model Tetrifact.Web.ProjectSummaryModel;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="layout-section">
+
+    <h2>Recent Packages</h2>
+
+    @if (Model.Packages.Any())
+    {
+        <ul class="list">
+            @foreach (Package package in Model.Packages)
+            {
+                <li class="listItem">
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize())</div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <text>
+            No packages have been added yet.
+        </text>
+    }
+</div>
+
+<div class="layout-section">
+
+    <h2>Frequently Used Tags</h2>
+
+    @if (Model.Tags.Any())
+    {
+        <ul>
+            @foreach (string tag in Model.Tags)
+            {
+                <li class="listItem">
+                    <a href="/packagesWithTag/@tag">@tag</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <text>
+            No tags have been added yet.
+        </text>
+    }
+</div>

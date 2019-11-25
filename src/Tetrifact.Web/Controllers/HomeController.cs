@@ -29,13 +29,9 @@ namespace Tetrifact.Web
 
         [ServiceFilter(typeof(ReadLevel))]
         [Route("")]
-        public IActionResult Index(string project)
+        public IActionResult Index()
         {
-            return View(new ContentSummaryModel(
-                _packageList.GetPopularTags(project, _settings.IndexTagListLength),
-                _packageList.Get(project, 0, _settings.ListPageSize),
-                _indexReader.GetProjects(),
-                project));
+            return View(new ContentSummaryModel(_indexReader.GetProjects()));
         }
 
 
