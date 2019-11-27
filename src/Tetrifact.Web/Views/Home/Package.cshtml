@@ -1,15 +1,12 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
-
+@model Tetrifact.Web.PackageModel;
 @{
-    string packageId = ViewData["packageId"] as string;
-    Manifest manifest = ViewData["manifest"] as Manifest;
-
-    ViewData["Title"] = $"Package : {packageId}";
+    ViewData["Title"] = $"Package : {Model.PackageId}";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="hidden" class="packageId" value="@packageId" />
+<input type="hidden" class="packageId" value="@Model.PackageId" />
 
 <div class="layout-section layout-table">
 
@@ -17,7 +14,17 @@
         <div class="layout-label">
         </div>
         <div class="layout-value">
-            <a class="button" href="/v1/archives/@packageId">&#10515; Download</a>
+            <a class="button" href="/v1/archives/@Model.PackageId">&#10515; Download</a>
+        </div>
+    </div>
+
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Project
+        </div>
+        <div class="layout-value">
+            <a href="/projects/@Model.Project">@Model.Project</a>
         </div>
     </div>
 
@@ -26,7 +33,7 @@
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc.ToLocalTime().ToString("g") (@manifest.CreatedUtc.ToLocalTime().Humanize())
+            @Model.Manifest.CreatedUtc.ToLocalTime().ToString("g") (@Model.Manifest.CreatedUtc.ToLocalTime().Humanize())
         </div>
     </div>
 
@@ -35,7 +42,7 @@
             File count
         </div>
         <div class="layout-value">
-            @manifest.Files.Count
+            @Model.Manifest.Files.Count
         </div>
     </div>
 
@@ -44,7 +51,7 @@
             Size
         </div>
         <div class="layout-value">
-            @String.Format("{0:n0}", manifest.Size) bytes
+            @String.Format("{0:n0}", Model.Manifest.Size) bytes
         </div>
     </div>
 
@@ -53,7 +60,7 @@
             Size on disk
         </div>
         <div class="layout-value">
-            @String.Format("{0:n0}", manifest.SizeOnDisk) bytes
+            @String.Format("{0:n0}", Model.Manifest.SizeOnDisk) bytes
         </div>
     </div>
 
@@ -62,7 +69,7 @@
             Hash
         </div>
         <div class="layout-value">
-            @manifest.Hash
+            @Model.Manifest.Hash
         </div>
     </div>
 
@@ -71,7 +78,7 @@
             Info
         </div>
         <div class="layout-value">
-            <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
+            <a href="/v1/manifests/@Model.PackageId">Manifest</a>
         </div>
     </div>
 
@@ -94,10 +101,10 @@
         <button class="button addTag">Add</button>
 
         <div>
-            @if (manifest.Tags.Any())
+            @if (Model.Manifest.Tags.Any())
             {
                 <ul>
-                    @foreach (string tag in manifest.Tags)
+                    @foreach (string tag in Model.Manifest.Tags)
                     {
                         <li class="listItem">
                             <a class="package-removeTag" data-tag="@tag" href="javascript:void(null)">
@@ -121,10 +128,10 @@
 <div class="layout-section">
     <div>
         <h2>Files</h2>
-        @if (manifest.Files.Any())
+        @if (Model.Manifest.Files.Any())
         {
             <div>
-                @foreach (ManifestItem file in manifest.Files)
+                @foreach (ManifestItem file in Model.Manifest.Files)
                 {
                     <div class="listItem">
                         <a class="listItem-icon package-download" href="/v1/files/@file.Id">&#10515;</a>

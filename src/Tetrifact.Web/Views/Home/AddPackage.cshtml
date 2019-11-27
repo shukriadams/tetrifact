@@ -1,15 +1,12 @@
-﻿@using Tetrifact.Core;
-@using Humanizer;
-
+﻿@model Tetrifact.Web.AddPackageModel;
 @{
     ViewData["Title"] = "Upload package archive";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div>
-    <form id="archiveUpload"
-          enctype="multipart/form-data">
-
+    <form id="archiveUpload" enctype="multipart/form-data">
+        <input class="projectName" value="@Model.Project" type="hidden" />
         <p>
             Manually create a package from an uploaded zip or tar.gz archive.
         </p>
@@ -20,15 +17,6 @@
             </div>
             <div class="layout-value">
                 <input placeholder="Archive" name="Files" type="file" />
-            </div>
-        </div>
-
-        <div class="layout-row">
-            <div class="layout-label">
-                Project Name
-            </div>
-            <div class="layout-value">
-                <input class="projectName" type="text">
             </div>
         </div>
 
@@ -62,7 +50,7 @@
             packageName = document.querySelector('.packageName'),
             projectName = document.querySelector('.projectName');
 
-        filesSelector.addEventListener('change', function(){
+        filesSelector.addEventListener('change', function () {
             // If a package name hasn't been entered, auto-fills the package name using the file selected, based on file name.
             if (filesSelector.files.length && !packageName.value.length) {
                 let name = filesSelector.files[0].name;
@@ -83,10 +71,6 @@
 
             if (!files.length)
                 return alert('Please select an archive to upload.');
-
-            if (!project)
-                return alert('Project is required.');
-
 
             if (!package)
                 return alert('Package name is required.');

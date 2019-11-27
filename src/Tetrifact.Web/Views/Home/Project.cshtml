@@ -1,13 +1,12 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
-@model Tetrifact.Web.ProjectSummaryModel;
+@model Tetrifact.Web.ProjectModel;
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = $"Project : {@Model.Project}"; 
 }
 
 <div class="layout-section">
-
-    <h1>Project : @Model.CurrentProject</h1>
 
     <h2>Recent Packages</h2>
 
@@ -17,7 +16,7 @@
             @foreach (Package package in Model.Packages)
             {
                 <li class="listItem">
-                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize())</div>
+                    <a href="/package/@Model.Project/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize())</div>
                 </li>
             }
         </ul>
@@ -28,6 +27,9 @@
             No packages have been added yet.
         </text>
     }
+    <div>
+        <a class="button" href="/addPackage/@Model.Project">Add package</a>
+    </div>
 </div>
 
 <div class="layout-section">

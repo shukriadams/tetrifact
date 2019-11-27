@@ -38,17 +38,17 @@ namespace Tetrifact.Web
         [Route("projects/{project}")]
         public IActionResult Project(string project)
         {
-            return View(new ProjectSummaryModel(
+            return View(new ProjectModel(
                 _packageList.GetPopularTags(project, _settings.IndexTagListLength),
                 _packageList.Get(project, 0, _settings.ListPageSize),
                 project));
         }
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("upload")]
-        public IActionResult UploadPackage()
+        [Route("addPackage/{project}")]
+        public IActionResult AddPackage(string project)
         {
-            return View();
+            return View(new AddPackageModel { Project = project });
         }
 
         [ServiceFilter(typeof(ReadLevel))]
@@ -71,13 +71,11 @@ namespace Tetrifact.Web
         [Route("package/{project}/{packageId}")]
         public IActionResult Package(string project, string packageId)
         {
-            ViewData["packageId"] = packageId;
             Manifest manifest = _indexReader.GetManifest(project, packageId);
             if (manifest == null)
                 return View("Error404");
 
-            ViewData["manifest"] = _indexReader.GetManifest(project, packageId);
-            return View();
+            return View(new PackageModel(project, packageId, manifest));
         }
 
 

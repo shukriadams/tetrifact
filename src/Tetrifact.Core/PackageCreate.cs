@@ -37,7 +37,7 @@ namespace Tetrifact.Core
         public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
-
+            string[] allowedFormats = new string[] { "zip", "tar.gz" };
             try
             {
                 // validate the contents of "newPackage" object
@@ -55,8 +55,15 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
+                // determine archive format from file extension
+                if (newPackage.IsArchive) { 
+                    newPackage.Format = Path.GetExtension(newPackage.Files[0].FileName);
+                    if (newPackage.Format.StartsWith("."))
+                        newPackage.Format = newPackage.Format.Substring(1);
+                }
+
                 // if archive, ensure correct file format 
-                if (newPackage.IsArchive && newPackage.Format != "zip")
+                if (newPackage.IsArchive && !allowedFormats.Contains(newPackage.Format))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
                 // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
