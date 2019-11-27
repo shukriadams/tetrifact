@@ -1,5 +1,6 @@
 ﻿function removePackage() {
-    let packageId = document.querySelector('.packageId').value
+    let packageId = document.querySelector('.packageId').value,
+        project = document.querySelector('.project').value;
 
     if (!window.fetch)
         return alert('This browser does not support AJAX calls, plese upgrade to a modern browser.');
@@ -7,7 +8,7 @@
     if (!confirm('Are you sure you want to delete this package? Deleting cannot be undone.'))
         return;
     
-    fetch("/v1/packages/" + packageId, { method: "DELETE" })
+    fetch(`/v1/packages/${project}/${packageId}`, { method: 'DELETE' })
         .then(function (response) {
             if (response.status === 200)
                 return window.location = '/';
@@ -27,7 +28,7 @@ async function addTag() {
         return;
     }
 
-    fetch(`/v1/tags/${encodeURIComponent(tag)}/${packageId}`, { method: "POST" })
+    fetch(`/v1/tags/${encodeURIComponent(tag)}/${project}/${packageId}`, { method: 'POST' })
         .then(function () {
             window.location.reload(true);
         });
@@ -41,7 +42,7 @@ async function removeTag(e) {
     if (!confirm(`Are you sure you want to remove the tag "${tag}"?`))
         return;
 
-    fetch(`/v1/tags/${encodeURIComponent(tag)}/${packageId}`, { method: "DELETE" })
+    fetch(`/v1/tags/${encodeURIComponent(tag)}/${project}/${packageId}`, { method: 'DELETE' })
         .then(function () {
             window.location.reload(true);
         });

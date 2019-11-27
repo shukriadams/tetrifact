@@ -199,12 +199,12 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpDelete("{project}/{packageId}")]
+        [HttpDelete("{project}/{package}")]
         public ActionResult DeletePackage(string project, string package)
         {
             try
             {
-                _indexService.DeletePackage(project, package);
+                _indexService.MarkPackageForDelete(project, package);
                 _packageList.Clear();
                 return Ok();
             }

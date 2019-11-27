@@ -192,7 +192,7 @@ namespace Tetrifact.Core
             return 2;
         }
 
-        public void DeletePackage(string project, string packageId)
+        public void MarkPackageForDelete(string project, string packageId)
         {
             string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);

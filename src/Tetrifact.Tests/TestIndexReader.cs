@@ -87,7 +87,7 @@ namespace Tetrifact.Tests
             return 0;
         }
 
-        public void DeletePackage(string project, string packageId)
+        public void MarkPackageForDelete(string project, string packageId)
         {
             // do nothing
         }
