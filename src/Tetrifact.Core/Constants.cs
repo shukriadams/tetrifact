@@ -15,5 +15,7 @@
         public static readonly string StagingFragment = "staging";
 
         public static readonly string ShardsFragment = "shards";
+
+        public static readonly string TransactionsFragment = "transactions";
     }
 }

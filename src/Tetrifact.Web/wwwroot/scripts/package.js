@@ -20,8 +20,9 @@
 }
 
 async function addTag() {
-    let packageId = document.querySelector('.packageId').value
-    let tag = document.querySelector('.newTag').value;
+    let packageId = document.querySelector('.packageId').value,
+        project = document.querySelector('.project').value,
+        tag = document.querySelector('.newTag').value;
 
     if (!tag) {
         alert('Tag is required.');
@@ -36,8 +37,9 @@ async function addTag() {
 
 
 async function removeTag(e) {
-    let tag = e.target.getAttributeNode('data-tag').value;
-    let packageId = document.querySelector('.packageId').value
+    let tag = e.target.getAttributeNode('data-tag').value,
+        project = document.querySelector('.project').value,
+        packageId = document.querySelector('.packageId').value;
 
     if (!confirm(`Are you sure you want to remove the tag "${tag}"?`))
         return;

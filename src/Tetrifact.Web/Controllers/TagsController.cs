@@ -80,8 +80,8 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpPost("{project}/{tag}/{packageId}")]
-        public ActionResult AddTag(string project, string tag, string packageId)
+        [HttpPost("{tag}/{project}/{packageId}")]
+        public ActionResult AddTag(string tag, string project, string packageId)
         {
             try
             {
@@ -104,8 +104,8 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpDelete("{project}/{tag}/{packageId}")]
-        public ActionResult RemoveTag(string project, string tag, string packageId)
+        [HttpDelete("{tag}/{project}/{packageId}")]
+        public ActionResult RemoveTag(string tag, string project, string packageId)
         {
             try
             {

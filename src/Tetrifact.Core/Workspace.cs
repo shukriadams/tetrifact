@@ -66,6 +66,7 @@ namespace Tetrifact.Core
 
             // create all directories needed for a functional workspace
             Directory.CreateDirectory(this.WorkspacePath);
+            
             // incoming is where uploaded files first land. If upload is an archive, this is where archive is unpacked to
             Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
 
@@ -158,19 +159,15 @@ namespace Tetrifact.Core
 
             string targetFolder = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package);
             Directory.CreateDirectory(targetFolder);
-            File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
+            string manifestPath = Path.Join(targetFolder, "manifest.json");
+            File.WriteAllText(manifestPath, JsonConvert.SerializeObject(this.Manifest));
 
             // Move the staging directory to the "shards" folder, once this is done the package is live and visible and cannot be auto rolled back.
             // This is how we "do atomic" in Tetrifact.
             string stagingRoot = Path.Combine(this.WorkspacePath, Constants.StagingFragment);
             string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
-            
-            FileHelper.MoveDirectoryContents(stagingRoot, Path.Combine(shardRoot, package));
-
-
-            // UPDATE HEAD : if this package is diff'ed against current head, it can never become head
-            if (!string.IsNullOrEmpty(diffAgainstPackage))
-                return;
+            string finalRoot = Path.Combine(shardRoot, package);
+            FileHelper.MoveDirectoryContents(stagingRoot, finalRoot);
 
             // if no head data exists, this package automatically becomes the head
             string headFolder = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
@@ -181,8 +178,23 @@ namespace Tetrifact.Core
                 return;
             }
 
+            // create transaction folder
+            long ticks = DateTime.UtcNow.Ticks;
+            string tempTransactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"~{ticks}");
+            string transactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"{ticks}");
+            Directory.CreateDirectory(tempTransactionFolder);
+            
+            // manifest pointer
+            File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_manifest"), manifestPath);
+
+            // shard pointer
+            File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_shard"), finalRoot);
+
             // if reach here, package should be treated as next head
             File.WriteAllText(thisHead, string.Empty);
+
+            // flip transaction live
+            Directory.Move(tempTransactionFolder, transactionFolder);
         }
 
         public IEnumerable<string> GetIncomingFileNames()
