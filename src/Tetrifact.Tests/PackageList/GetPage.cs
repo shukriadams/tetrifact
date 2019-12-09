@@ -11,13 +11,13 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Basic()
         {
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2003"));
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2002"));
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2001"));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2003"));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2002"));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2001"));
 
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
+            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
+            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
+            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
 
             Assert.Equal("package2001", this.PackageList.GetPage("some-project", 0, 1).Page.First().Id);
             Assert.Equal("package2002", this.PackageList.GetPage("some-project", 1, 1).Page.First().Id);

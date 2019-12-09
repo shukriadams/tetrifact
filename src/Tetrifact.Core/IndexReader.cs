@@ -39,42 +39,80 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public DirectoryInfo GetActiveTransactionInfo(string project) 
+        {
+            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment)).GetDirectories().Where(r => !r.Name.StartsWith("~")).OrderByDescending(d => d.LastWriteTimeUtc).FirstOrDefault();
+        }
+
+        private IEnumerable<string> GetManifestPointers(string project) 
+        {
+            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
+            if (latestTransactionInfo == null)
+                return new string[]{ };
+
+            return Directory.GetFiles(latestTransactionInfo.FullName, "*_manifest").Select(r => Path.GetFileName(r));
+        }
+
+        public IEnumerable<string> GetManifestPaths(string project) 
+        {
+            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
+            if (latestTransactionInfo == null)
+                return new string[] { };
+
+            IEnumerable<string> pointers = Directory.GetFiles(latestTransactionInfo.FullName, "*_manifest");
+
+            List<string> manifests = new List<string>();
+            foreach (string pointer in pointers) 
+                manifests.Add(File.ReadAllText(pointer));
+
+            return manifests;
+        }
+
         public IEnumerable<string> GetAllPackageIds(string project)
         {
-            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
-            IEnumerable<string> rawList = Directory.GetDirectories(packagesPath);
-            return rawList.Select(r => Path.GetRelativePath(packagesPath, r));
+            IEnumerable<string> rawList = this.GetManifestPointers(project);
+
+            // clip "_manifest" from end
+            return rawList.Select(r => StringHelper.ClipFromEnd(Path.GetFileName(r), 9));
         }
 
         public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
         {
-            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
-            IEnumerable<string> rawList = Directory.GetDirectories(packagesPath);
-            return rawList.Select(r => Path.GetRelativePath(packagesPath, r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
+            IEnumerable<string> rawList = this.GetAllPackageIds(project);
+            return rawList.OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string project, string id)
         {
-            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
-            string packagePath = Path.Join(packagesPath, id);
-            return Directory.Exists(packagePath);
+            IEnumerable<string> rawList = this.GetAllPackageIds(project);
+            return rawList.Contains(id);
         }
 
         public Manifest GetManifest(string project, string packageId)
         {
-            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
-            string filePath = Path.Join(packagesPath, packageId, "manifest.json");
-            if (!File.Exists(filePath))
+            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
+            if (latestTransactionInfo == null)
+                return null;
+
+            string manifestPointerPath = Path.Combine(latestTransactionInfo.FullName, $"{packageId}_manifest");
+            if (!File.Exists(manifestPointerPath))
+                throw new PackageNotFoundException(packageId);
+
+            string manifestRealPath = Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
+
+
+            string packagesPath = PathHelper.GetExpectedManifestsPath(_settings, project);
+            if (!File.Exists(manifestRealPath))
                 return null;
 
             try
             {
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(filePath));
+                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestRealPath));
                 return manifest;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {filePath}");
+                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {manifestRealPath}");
                 return null;
             }
         }
@@ -94,8 +132,10 @@ namespace Tetrifact.Core
         public string RehydrateOrResolve(string project, string package, string filePath) 
         {
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
-            string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "patch");
-            string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, package, filePath, "bin");
+            string shardGuid = PathHelper.GetLatestShardPath(this, project, package);
+
+            string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "patch");
+            string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "bin");
             string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, project, package, filePath, "bin");
 
             // if neither patch nor bin exist, file doesn't exist, this will happen in first call
@@ -115,6 +155,7 @@ namespace Tetrifact.Core
             if (string.IsNullOrEmpty(manifest.Predecessor))
                 throw new Exception($"manifest for package {package} does not have an expected predecessor value");
 
+            // recurse - this ensures that the entire stack of files requireq for patching out is processed
             binaryPath = RehydrateOrResolve(project, manifest.Predecessor, filePath);
 
             FileHelper.EnsureFileDirectoryExists(rehydrateOutputPath);
@@ -194,7 +235,12 @@ namespace Tetrifact.Core
 
         public void MarkPackageForDelete(string project, string packageId)
         {
-            string packagesPath = PathHelper.GetExpectedPackagesPath(_settings, project);
+            Transaction transaction = new Transaction(_settings, this, project);
+            transaction.RemoveManifestPointer(packageId);
+            transaction.RemoveShardPointer(packageId);
+            transaction.Commit();
+            /*
+            string packagesPath = PathHelper.GetExpectedManifestsPath(_settings, project);
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
 
             Manifest manifest = this.GetManifest(project, packageId);
@@ -233,6 +279,7 @@ namespace Tetrifact.Core
                     }
                 }
             }
+            */
         }
 
         public string GetPackageArchivePath(string project, string packageId)
@@ -247,12 +294,15 @@ namespace Tetrifact.Core
 
         public string GetHead(string project) 
         {
-            string headPath = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
-            List<string> files = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
-            if (!files.Any())
+            DirectoryInfo activeTransaction = this.GetActiveTransactionInfo(project);
+            if (activeTransaction == null)
                 return null;
 
-            return FileHelper.GetPackageFromFileName(Path.GetFileNameWithoutExtension(files.First()));
+            string headPath = Path.Combine(activeTransaction.FullName, "head");
+            if (!File.Exists(headPath))
+                return null;
+
+            return File.ReadAllText(headPath);
         }
 
         public IEnumerable<string> GetProjects() 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using Tetrifact.Core;
 
@@ -17,7 +16,7 @@ namespace Tetrifact.Tests.PackageList
         {
             _memoryCache = MemoryCacheHelper.GetInstance();
             this.PackageListLogger = new TestLogger<IPackageList>();
-            this.PackageList = new Core.PackageList(_memoryCache, Settings, this.PackageListLogger);
+            this.PackageList = new Core.PackageList(_memoryCache, IndexReader, Settings, this.PackageListLogger);
         }
 
         public void Dispose()

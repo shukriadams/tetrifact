@@ -9,6 +9,22 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IIndexReader
     {
+
+        /// <summary>
+        /// Gets the directory info for the folder containing the latest and therefore current transaction. Returns null if no
+        /// transactions are committed yet.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        DirectoryInfo GetActiveTransactionInfo(string project);
+
+        /// <summary>
+        /// Gets a list of all manifest pointers in a project. These are the pointer files - they must be loaded to get all manifests
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        IEnumerable<string> GetManifestPaths(string project);
+
         /// <summary>
         /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
         /// </summary>

@@ -17,12 +17,15 @@ namespace Tetrifact.Core
 
         private readonly IPackageList _packageList;
 
+        private readonly IIndexReader _indexReader;
+
         #endregion
 
         #region CTORS
 
-        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IPackageList packageList)
+        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IIndexReader indexReader, IPackageList packageList)
         {
+            _indexReader = indexReader;
             _settings = settings;
             _logger = logger;
             _packageList = packageList;
@@ -34,29 +37,27 @@ namespace Tetrifact.Core
 
         public void AddTag(string project, string packageId, string tag)
         {
-            string manifestPath = this.GetManifestPath(project, packageId);
-            if (!File.Exists(manifestPath))
+            // get current manifest
+            Manifest manifest = _indexReader.GetManifest(project, packageId);
+
+            if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
-            // write tag to fs
-            string targetFolder = Path.Combine(PathHelper.GetExpectedTagsPath(_settings, project), Obfuscator.Cloak(tag));
-            FileHelper.EnsureDirectoryExists(targetFolder);
+            // create new transaction
 
-            
-            string targetPath = Path.Combine(targetFolder, packageId);
-            if (!File.Exists(targetPath))
-                File.WriteAllText(targetPath, string.Empty);
-                
+            if (manifest.Tags.Contains(tag))
+                return;
 
-            // WARNING - NO FILE LOCK HERE!!
-            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
-            if (!manifest.Tags.Contains(tag))
-            {
-                manifest.Tags.Add(tag);
-                File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-            }
+            Transaction transaction = new Transaction(_settings, _indexReader, project);
+
+            manifest.Tags.Add(tag);
+            string fileName = $"{Guid.NewGuid()}_{packageId}";
+            File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+            transaction.AddManifestPointer(packageId, fileName);
+
 
             // flush in-memory tags
+            transaction.Commit();
             _packageList.Clear();
 
             /*
@@ -81,6 +82,30 @@ namespace Tetrifact.Core
 
         public void RemoveTag(string project, string packageId, string tag)
         {
+            // get current manifest
+            Manifest manifest = _indexReader.GetManifest(project, packageId);
+
+            if (manifest == null)
+                throw new PackageNotFoundException(packageId);
+
+            // create new transaction
+
+            if (!manifest.Tags.Contains(tag))
+                return;
+
+            Transaction transaction = new Transaction(_settings, _indexReader, project);
+
+            manifest.Tags.Remove(tag);
+            string fileName = $"{Guid.NewGuid()}_{packageId}";
+            File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+            transaction.AddManifestPointer(packageId, fileName);
+
+
+            // flush in-memory tags
+            transaction.Commit();
+            _packageList.Clear();
+
+            /*
             string manifestPath = this.GetManifestPath(project, packageId);
             if (!File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
@@ -99,7 +124,7 @@ namespace Tetrifact.Core
 
             // flush in-memory tags
             _packageList.Clear();
-
+            */
             /*
             using (FileStream fileStream = new FileStream(manifestPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
             {
@@ -164,7 +189,7 @@ namespace Tetrifact.Core
 
         private string GetManifestPath(string project, string package) 
         {
-            return Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package, "manifest.json");
+            return Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, package, "manifest.json");
         }
 
         #endregion

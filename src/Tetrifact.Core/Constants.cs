@@ -4,13 +4,11 @@
     {
         public static readonly string ProjectsFragment = "projects";
 
-        public static readonly string PackagesFragment = "packages";
+        public static readonly string ManifestsFragment = "manifests";
 
         public static readonly string RepositoryFragment = "repository";
 
         public static readonly string TagsFragment = "tags";
-
-        public static readonly string HeadFragment = "head";
 
         public static readonly string StagingFragment = "staging";
 

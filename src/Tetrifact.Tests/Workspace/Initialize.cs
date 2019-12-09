@@ -11,11 +11,10 @@ namespace Tetrifact.Tests.Workspace
         {
             string project = "some-project";
             base.Workspace.Initialize(project);
-            Assert.True(Directory.Exists(PathHelper.GetExpectedPackagesPath(base.Settings, project)));
+            Assert.True(Directory.Exists(PathHelper.GetExpectedManifestsPath(base.Settings, project)));
             Assert.True(Directory.Exists(PathHelper.GetExpectedProjectPath(base.Settings, project)));
             Assert.True(Directory.Exists(PathHelper.GetExpectedRepositoryPath(base.Settings, project)));
             Assert.True(Directory.Exists(PathHelper.GetExpectedTagsPath(base.Settings, project)));
-            Assert.True(Directory.Exists(PathHelper.GetExpectedHeadDirectoryPath(base.Settings, project)));
         }
     }
 }

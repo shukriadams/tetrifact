@@ -25,7 +25,7 @@ namespace Tetrifact.Core
 
                 Directory.CreateDirectory(projectsRoot);
 
-                string packagesPath = Path.Combine(projectsRoot, Constants.PackagesFragment);
+                string packagesPath = Path.Combine(projectsRoot, Constants.ManifestsFragment);
                 Directory.CreateDirectory(packagesPath);
 
                 string transactionsPath = Path.Combine(projectsRoot, Constants.TransactionsFragment);
@@ -36,9 +36,6 @@ namespace Tetrifact.Core
 
                 string tagsPath = Path.Combine(projectsRoot, Constants.TagsFragment);
                 Directory.CreateDirectory(tagsPath);
-
-                string headPath = Path.Combine(projectsRoot, Constants.HeadFragment);
-                Directory.CreateDirectory(headPath);
 
                 return new ProjectCreateResult { Success = true };
 

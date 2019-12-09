@@ -60,10 +60,7 @@ namespace Tetrifact.Tests.PackageCreate
             }
 
             // ensure that head has been updated - there should be only one head file, and it should contain project id
-            string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
-            string[] headFiles = Directory.GetFiles(headPath);
-            Assert.Single(headFiles);
-            Assert.Equal(File.ReadAllText(headFiles[0]), packageId);
+            Assert.Equal(IndexReader.GetHead("some-project"), packageId);
 
             // ensure that workspace has been cleaned up
             Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
@@ -98,11 +95,7 @@ namespace Tetrifact.Tests.PackageCreate
 
 
             // ensure that head has been updated - there should be two head files, the latest being the last package pushed
-            string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
-            List<string> headFiles = Directory.GetFiles(headPath).OrderByDescending(r => r).ToList();
-            Assert.Equal(2, headFiles.Count);
-            Assert.Equal("my package2", FileHelper.GetPackageFromFileName(Path.GetFileName(headFiles[0])));
-            Assert.Equal("my package1", FileHelper.GetPackageFromFileName(Path.GetFileName(headFiles[1])));
+            Assert.Equal("my package", IndexReader.GetHead("some-project"));
         }
 
         /// <summary>
@@ -132,12 +125,8 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
             }).Success);
 
-
             // ensure that head has not been updated, as second upload branches from first, and is there not eligable to be head
-            string headPath = PathHelper.GetExpectedHeadDirectoryPath(base.Settings, "some-project");
-            string[] headFiles = Directory.GetFiles(headPath);
-            Assert.Single(headFiles);
-            Assert.Equal("my package1", File.ReadAllText(headFiles[0]));
+            Assert.Equal("my package1", IndexReader.GetHead("some-project"));
         }
 
         /// <summary>

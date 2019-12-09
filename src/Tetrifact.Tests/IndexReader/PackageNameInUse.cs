@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         public void InUse()
         {
             string packageName = Guid.NewGuid().ToString();
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, packageName));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, packageName));
 
             Assert.True(this.IndexReader.PackageNameInUse("some-project", packageName));
         }

@@ -15,7 +15,7 @@ namespace Tetrifact.Tests.IndexReader
 
             this.IndexReader.MarkPackageForDelete("some-project", testPackage.Name);
 
-            Assert.False(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "manifest.json" )));
+            Assert.False(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "manifest.json" )));
         }
     
         // [Fact] disabled because this fails on travis

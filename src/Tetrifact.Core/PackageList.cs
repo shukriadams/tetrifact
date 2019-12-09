@@ -24,15 +24,18 @@ namespace Tetrifact.Core
 
         private readonly string _cacheKey = "_packageCache";
 
+        private readonly IIndexReader _indexReader;
+
         #endregion
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ILogger<IPackageList> logger)
+        public PackageList(IMemoryCache memoryCache, IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;
             _logger = logger;
+            _indexReader = indexReader;
         }
 
         #endregion
@@ -136,19 +139,17 @@ namespace Tetrifact.Core
         private IList<Package> GeneratePackageData(string project)
         {
             IList<Package> packageData = new List<Package>();
-            string packagePath = PathHelper.GetExpectedPackagesPath(_settings, project);
-            DirectoryInfo dirInfo = new DirectoryInfo(packagePath);
-            IEnumerable<string> packageDirectories = dirInfo.EnumerateDirectories().Select(d => d.FullName);
+            IEnumerable<string> manifestPaths = _indexReader.GetManifestPaths(project);
 
-            foreach (string packageDirectory in packageDirectories)
+            foreach (string manifestPath in manifestPaths)
             {
                 try
                 {
-                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(packageDirectory, "manifest.json")));
+                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, manifestPath)));
                     packageData.Add(new Package
                     {
                         CreatedUtc = manifest.CreatedUtc,
-                        Id = Path.GetFileName(packageDirectory),
+                        Id = manifest.Id,
                         Description = manifest.Description,
                         Hash = manifest.Hash,
                         Tags = manifest.Tags
@@ -156,7 +157,7 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {packageDirectory}");
+                    _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {manifestPath}");
                 }
             }
 

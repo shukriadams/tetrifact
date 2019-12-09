@@ -1,25 +1,18 @@
 using Tetrifact.Web;
-using System.Collections.Generic;
 using Xunit;
 using Ninject;
-using Tetrifact.Core;
 using System.Linq;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using System;
-using System.IO.Compression;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Tetrifact.Tests.Controllers
 {
     public class Home : FileSystemBase
     {
-        private readonly Tetrifact.Web.HomeController _controller;
+        private readonly HomeController _controller;
 
         public Home()
         {
-            _controller = this.Kernel.Get<Tetrifact.Web.HomeController>();
+            _controller = this.Kernel.Get<HomeController>();
 
             TestingWorkspace.Reset();
         }
@@ -31,11 +24,11 @@ namespace Tetrifact.Tests.Controllers
         public void Touch()
         {
             base.InitProject();
-            var result = _controller.Index("some-project");
+            var result = _controller.Index();
 
             var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<ContentSummaryModel>(viewResult.ViewData.Model);
-            Assert.Equal("some-project", model.CurrentProject);
+            ContentSummaryModel model = Assert.IsAssignableFrom<ContentSummaryModel>(viewResult.ViewData.Model);
+            Assert.Equal(2, model.Projects.Count());
         }
         
     }

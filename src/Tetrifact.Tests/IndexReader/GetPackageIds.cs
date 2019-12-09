@@ -13,9 +13,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package1"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package3"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package3"));
 
             IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 0, 1);
             Assert.Single(packages);
@@ -28,7 +28,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void SoftOverrun()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package1"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
 
             // deliberately overshoot number of available packages
             IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 2, 10); 

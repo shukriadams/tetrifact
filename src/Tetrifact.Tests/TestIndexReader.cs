@@ -127,6 +127,16 @@ namespace Tetrifact.Tests
             return this.Test_Projects;
         }
 
+        public DirectoryInfo GetActiveTransactionInfo(string project)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<string> GetManifestPaths(string project)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 }

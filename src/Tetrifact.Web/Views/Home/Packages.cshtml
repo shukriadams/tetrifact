@@ -19,7 +19,7 @@
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
-                    <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+                    <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize())</div>
                     <ul class="tags">
                         @foreach (string tag in package.Tags)
                         {

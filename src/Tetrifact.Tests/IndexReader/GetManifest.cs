@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         public void Get()
         {
             // create package
-            string packagePath = Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "somepackage");
+            string packagePath = Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "somepackage");
             Directory.CreateDirectory(packagePath);
 
             // create manifest
@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidManifet()
         {
-            string packagefolder = Path.Combine(Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "someinvalidpackage");
+            string packagefolder = Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "someinvalidpackage");
             Directory.CreateDirectory(packagefolder);
             File.WriteAllText(Path.Combine(packagefolder, "manifest.json"), "invalid json!");
             Manifest testManifest = this.IndexReader.GetManifest("some-project", "someinvalidpackage");

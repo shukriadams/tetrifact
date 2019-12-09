@@ -154,47 +154,43 @@ namespace Tetrifact.Core
                 predecessor = _indexReader.GetHead(_project);
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
+            this.Manifest.Id = package;
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
             this.Manifest.Predecessor = predecessor;
 
-            string targetFolder = Path.Combine(_settings.ProjectsPath, project, Constants.PackagesFragment, package);
-            Directory.CreateDirectory(targetFolder);
-            string manifestPath = Path.Join(targetFolder, "manifest.json");
+            string packageTransactionName = $"{Guid.NewGuid()}__{package}";
+            string manifestPath = Path.Join(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment), packageTransactionName);
             File.WriteAllText(manifestPath, JsonConvert.SerializeObject(this.Manifest));
 
             // Move the staging directory to the "shards" folder, once this is done the package is live and visible and cannot be auto rolled back.
             // This is how we "do atomic" in Tetrifact.
             string stagingRoot = Path.Combine(this.WorkspacePath, Constants.StagingFragment);
             string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
-            string finalRoot = Path.Combine(shardRoot, package);
+            string finalRoot = Path.Combine(shardRoot, packageTransactionName);
             FileHelper.MoveDirectoryContents(stagingRoot, finalRoot);
 
-            // if no head data exists, this package automatically becomes the head
-            string headFolder = PathHelper.GetExpectedHeadDirectoryPath(_settings, project);
-            string thisHead = Path.Combine(headFolder, $"{DateTime.UtcNow.Ticks}_{package}");
-            if (!Directory.GetFiles(headFolder).Any())
-            {
-                File.WriteAllText(thisHead, package);
-                return;
-            }
-
             // create transaction folder
-            long ticks = DateTime.UtcNow.Ticks;
-            string tempTransactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"~{ticks}");
-            string transactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"{ticks}");
-            Directory.CreateDirectory(tempTransactionFolder);
-            
+
+            //long ticks = DateTime.UtcNow.Ticks;
+            //string tempTransactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"~{ticks}");
+            //string transactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"{ticks}");
+            //Directory.CreateDirectory(tempTransactionFolder);
+            Transaction transaction = new Transaction(_settings, _indexReader, project);
             // manifest pointer
-            File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_manifest"), manifestPath);
+            transaction.AddManifestPointer(package, packageTransactionName);
+            //File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_manifest"), packageTransactionName);
 
             // shard pointer
-            File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_shard"), finalRoot);
+            transaction.AddShardPointer(package, packageTransactionName);
+            //File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_shard"), packageTransactionName);
 
             // if reach here, package should be treated as next head
-            File.WriteAllText(thisHead, string.Empty);
+            if (string.IsNullOrEmpty(diffAgainstPackage))
+                transaction.SetHead(package);
 
             // flip transaction live
-            Directory.Move(tempTransactionFolder, transactionFolder);
+            //Directory.Move(tempTransactionFolder, transactionFolder);
+            transaction.Commit();
         }
 
         public IEnumerable<string> GetIncomingFileNames()
@@ -276,3 +272,4 @@ namespace Tetrifact.Core
         #endregion
     }
 }
+    

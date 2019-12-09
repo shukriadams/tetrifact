@@ -11,9 +11,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void ListAll()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package1"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package2"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.PackagesFragment, "package3"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2"));
+            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package3"));
 
             IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 0, 10);
             Assert.Equal(3, packages.Count());
