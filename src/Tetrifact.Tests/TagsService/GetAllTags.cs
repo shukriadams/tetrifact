@@ -1,5 +1,4 @@
 using Xunit;
-using Tetrifact.Core;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +16,7 @@ namespace Tetrifact.Tests.TagsService
             string tag2 = "mytag2";
             base.TagsService.AddTag("some-project", package2.Name, tag2);
 
-            IEnumerable<string> tags = base.TagsService.GetAllTags("some-project");
+            IEnumerable<string> tags = base.PackageList.GetAllTags("some-project");
 
             Assert.Equal(2, tags.Count());
             Assert.Contains(tag1, tags);

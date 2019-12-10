@@ -14,7 +14,10 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly ITagsService _tagsService;
+
         private readonly ILogger<TagsController> _log;
+        
+        private readonly IPackageList _packageList;
 
         #endregion
 
@@ -25,8 +28,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tagsService"></param>
         /// <param name="log"></param>
-        public TagsController(ITagsService tagsService, ILogger<TagsController> log)
+        public TagsController(ITagsService tagsService, IPackageList packageList, ILogger<TagsController> log)
         {
+            _packageList = packageList;
             _tagsService = tagsService;
             _log = log;
         }
@@ -41,7 +45,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                return _tagsService.GetAllTags(project).ToArray();
+                return _packageList.GetAllTags(project).ToArray();
             }
             catch (PackageNotFoundException)
             {
@@ -63,7 +67,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                return _tagsService.GetPackagesWithTag(project, tag).ToArray();
+                return _packageList.GetPackagesWithTag(project, tag).ToArray();
             }
             catch (PackageNotFoundException)
             {

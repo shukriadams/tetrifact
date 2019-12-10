@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.TagsService
             TestPackage package2 = this.CreatePackage("package2");
             base.TagsService.AddTag("some-project", package2.Name, tag);
 
-            IEnumerable<string> packageIds = base.TagsService.GetPackagesWithTag("some-project", tag);
+            IEnumerable<string> packageIds = base.PackageList.GetPackagesWithTag("some-project", tag);
 
             Assert.Equal(2, packageIds.Count());
             Assert.Contains("package1", packageIds);

@@ -42,6 +42,24 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public IEnumerable<string> GetAllTags(string project) 
+        {
+            IList<Package> packageData = null;
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
+                packageData = this.GeneratePackageData(project);
+
+            return packageData.Select(r => r.Tags.ToList()).SelectMany(r => r).Distinct();
+        }
+
+        public IEnumerable<string> GetPackagesWithTag(string project, string tag) 
+        {
+            IList<Package> packageData = null;
+            if (!_cache.TryGetValue(_cacheKey, out packageData))
+                packageData = this.GeneratePackageData(project);
+
+            return packageData.Where(r => r.Tags.Contains(tag)).Select(r => r.Id);
+        }
+
         public void Clear()
         {
             _cache.Remove("_packageCache");
@@ -55,9 +73,7 @@ namespace Tetrifact.Core
             IList<Package> packageData = null;
 
             if (!_cache.TryGetValue(_cacheKey, out packageData))
-            {
                 packageData = this.GeneratePackageData(project);
-            }
 
             Dictionary<string, int> tags = new Dictionary<string, int>();
             foreach (Package package in packageData)

@@ -8,6 +8,22 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IPackageList
     {
+
+        /// <summary>
+        /// Gets a list of all tags in the given project
+        /// </summary>
+        /// <param name="project">Project name to read tags from</param>
+        /// <returns>List of all tags in project</returns>
+        IEnumerable<string> GetAllTags(string project);
+
+        /// <summary>
+        /// Gets a list of packages with the given tag.
+        /// </summary>
+        /// <param name="project">Project name to read tags from</param> 
+        /// <param name="tag"></param>
+        /// <returns>List of package ids containing the given tag</returns>
+        IEnumerable<string> GetPackagesWithTag(string project, string tag);
+
         void Clear();
 
         /// <summary>
