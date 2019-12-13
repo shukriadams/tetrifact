@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -33,61 +34,87 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public void AddTag(string project, string packageId, string tag)
+        public async Task AddTag(string project, string packageId, string tag)
         {
-            // get current manifest
-            Manifest manifest = _indexReader.GetManifest(project, packageId);
+            LockRequest lockRequest = new LockRequest();
 
-            if (manifest == null)
-                throw new PackageNotFoundException(packageId);
+            try 
+            {
+                await lockRequest.Get();
 
-            // create new transaction
+                // get current manifest
+                Manifest manifest = _indexReader.GetManifest(project, packageId);
 
-            if (manifest.Tags.Contains(tag))
+
+                if (manifest == null)
+                    throw new PackageNotFoundException(packageId);
+
+                // create new transaction
+
+                if (manifest.Tags.Contains(tag))
+                    return;
+
+                Transaction transaction = new Transaction(_settings, _indexReader, project);
+
+                manifest.Tags.Add(tag);
+                string fileName = $"{Guid.NewGuid()}_{packageId}";
+                File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+                transaction.AddManifestPointer(packageId, fileName);
+
+
+                // flush in-memory tags
+                transaction.Commit();
+                _packageList.Clear();
+
                 return;
 
-            Transaction transaction = new Transaction(_settings, _indexReader, project);
-
-            manifest.Tags.Add(tag);
-            string fileName = $"{Guid.NewGuid()}_{packageId}";
-            File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
-            transaction.AddManifestPointer(packageId, fileName);
-
-
-            // flush in-memory tags
-            transaction.Commit();
-            _packageList.Clear();
+            } finally {
+                LinkLock.Instance.Release();
+            }
 
         }
 
-        public void RemoveTag(string project, string packageId, string tag)
+        public async Task RemoveTag(string project, string packageId, string tag)
         {
-            // get current manifest
-            Manifest manifest = _indexReader.GetManifest(project, packageId);
+            LockRequest lockRequest = new LockRequest();
 
-            if (manifest == null)
-                throw new PackageNotFoundException(packageId);
+            try
+            {
+                await lockRequest.Get();
 
-            // create new transaction
+                // get current manifest
+                Manifest manifest = _indexReader.GetManifest(project, packageId);
 
-            if (!manifest.Tags.Contains(tag))
+                if (manifest == null)
+                    throw new PackageNotFoundException(packageId);
+
+                // create new transaction
+
+                if (!manifest.Tags.Contains(tag))
+                    return;
+
+                Transaction transaction = new Transaction(_settings, _indexReader, project);
+
+                manifest.Tags.Remove(tag);
+                string fileName = $"{Guid.NewGuid()}_{packageId}";
+                File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+                transaction.AddManifestPointer(packageId, fileName);
+
+
+                // flush in-memory tags
+                transaction.Commit();
+                _packageList.Clear();
+
                 return;
 
-            Transaction transaction = new Transaction(_settings, _indexReader, project);
+            }
+            finally 
+            {
+                LinkLock.Instance.Release();
+            }
 
-            manifest.Tags.Remove(tag);
-            string fileName = $"{Guid.NewGuid()}_{packageId}";
-            File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
-            transaction.AddManifestPointer(packageId, fileName);
-
-
-            // flush in-memory tags
-            transaction.Commit();
-            _packageList.Clear();
-
-            
         }
-       
+
 
         #endregion
     }

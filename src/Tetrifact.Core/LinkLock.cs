@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Tetrifact.Core
 {
@@ -44,21 +45,28 @@ namespace Tetrifact.Core
             return _isLocked;
         }
 
-        public void Lock(string packageId)
+        public async void Get()
         {
-            lock (_syncRoot)
+            while (true)
             {
-                _packageIds.Add(packageId, true);
-                _isLocked = true;
+                if (_isLocked) { 
+                    Thread.Sleep(100);
+                    continue;
+                } else {
+                    lock (_syncRoot)
+                    {
+                        _isLocked = true;
+                    }
+                    break;
+                }
             }
         }
 
-        public void Unlock(string packageId)
+        public void Release()
         {
             lock (_syncRoot)
             {
-                _packageIds.Remove(packageId);
-                _isLocked = _packageIds.Any();
+                _isLocked = false;
             }
         }
 

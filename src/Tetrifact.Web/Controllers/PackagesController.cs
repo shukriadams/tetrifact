@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Web
 {
@@ -153,7 +154,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{project}/{id}")]
-        public ActionResult AddPackage([FromForm]PackageCreateArguments post)
+        public async Task<ActionResult> AddPackage([FromForm]PackageCreateArguments post)
         {
             try
             {
@@ -162,7 +163,7 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = _packageService.CreatePackage(post);
+                PackageCreateResult result = await _packageService.CreatePackage(post);
                 if (result.Success)
                 {
                     _packageList.Clear();

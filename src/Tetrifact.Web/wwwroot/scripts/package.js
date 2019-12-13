@@ -22,6 +22,7 @@
 async function addTag() {
     let packageId = document.querySelector('.packageId').value,
         project = document.querySelector('.project').value,
+        button = document.querySelector('.addTag'),
         tag = document.querySelector('.newTag').value;
 
     if (!tag) {
@@ -29,9 +30,11 @@ async function addTag() {
         return;
     }
 
+    button.classList.add('button--disabled');
+
     fetch(`/v1/tags/${encodeURIComponent(tag)}/${project}/${packageId}`, { method: 'POST' })
         .then(function () {
-            window.location.reload(true);
+           window.location.reload(true);
         });
 }
 
@@ -43,6 +46,8 @@ async function removeTag(e) {
 
     if (!confirm(`Are you sure you want to remove the tag "${tag}"?`))
         return;
+
+    e.target.classList.add('package-removeTag--disabled');
 
     fetch(`/v1/tags/${encodeURIComponent(tag)}/${project}/${packageId}`, { method: 'DELETE' })
         .then(function () {

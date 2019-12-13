@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.PackageCreate
     public class Create : PackageCreatorBase
     {
         [Fact]
-        public void CreateBasic()
+        public async void CreateBasic()
         {
             this.InitProject();
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = files
             };
 
-            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreatePackage(package);
 
             Assert.True(result.Success);
             Assert.Null(result.PublicError);
@@ -70,7 +70,7 @@ namespace Tetrifact.Tests.PackageCreate
         /// 
         /// </summary>
         [Fact]
-        public void CreateSequential()
+        public async void CreateSequential()
         {
             this.InitProject();
 
@@ -78,20 +78,25 @@ namespace Tetrifact.Tests.PackageCreate
             Stream fileStream2 = StreamsHelper.StreamFromString("contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwerty");
 
             // create first package
-            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            PackageCreateResult result = await PackageCreate.CreatePackage(new PackageCreateArguments
             {
                 Id = "my package1",
                 Project = "some-project",
                 Files = new List<IFormFile>() { (new FormFile(fileStream1, 0, fileStream1.Length, "Files", "folder/file")) }
-            }).Success);
+            });
+
+            Assert.True(result.Success);
+
 
             // create second package
-            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            result = await PackageCreate.CreatePackage(new PackageCreateArguments
             {
                 Id = "my package2",
                 Project = "some-project",
                 Files = new List<IFormFile>() { (new FormFile(fileStream2, 0, fileStream2.Length, "Files", "folder/file")) }
-            }).Success);
+            });
+
+            Assert.True(result.Success);
 
 
             // ensure that head has been updated - there should be two head files, the latest being the last package pushed
@@ -102,28 +107,33 @@ namespace Tetrifact.Tests.PackageCreate
         /// 
         /// </summary>
         [Fact]
-        public void CreateBranched()
+        public async void CreateBranched()
         {
             this.InitProject();
 
             Stream fileStream = StreamsHelper.StreamFromString("content");
 
             // create first package
-            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            PackageCreateResult result = await PackageCreate.CreatePackage(new PackageCreateArguments
             {
                 Id = "my package1",
                 Project = "some-project",
                 Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
-            }).Success);
+            });
 
-            // create second package
-            Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+            Assert.True(result.Success);
+
+
+            result = await PackageCreate.CreatePackage(new PackageCreateArguments
             {
                 Id = "my package2",
                 Project = "some-project",
                 BranchFrom = "my package1",
                 Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
-            }).Success);
+            });
+
+            // create second package
+            Assert.True(result.Success);
 
             // ensure that head has not been updated, as second upload branches from first, and is there not eligable to be head
             Assert.Equal("my package1", IndexReader.GetHead("some-project"));
@@ -134,19 +144,19 @@ namespace Tetrifact.Tests.PackageCreate
         /// The first check to fail should be file empty check.
         /// </summary>        
         [Fact]
-        public void CreateWithNoArguments(){
+        public async void CreateWithNoArguments(){
             this.InitProject();
 
             // empty argument list
             PackageCreateArguments args = new PackageCreateArguments();
 
-            PackageCreateResult result = PackageCreate.CreatePackage(args);
+            PackageCreateResult result = await PackageCreate.CreatePackage(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Files collection is empty.", result.PublicError);
         }
 
         [Fact]
-        public void CreateWithEmptyFiles(){
+        public async void CreateWithEmptyFiles(){
 
             PackageCreateArguments args = new PackageCreateArguments
             {
@@ -154,25 +164,25 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<IFormFile>()
             };
 
-            PackageCreateResult result = PackageCreate.CreatePackage(args);
+            PackageCreateResult result = await PackageCreate.CreatePackage(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Files collection is empty.", result.PublicError);
         }        
 
         [Fact]
-        public void CreateWithNoName(){
+        public async void CreateWithNoName(){
             PackageCreateArguments args = new PackageCreateArguments();
             Stream fileStream = StreamsHelper.StreamFromString("some text");
             args.Files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"));
 
 
-            PackageCreateResult result = PackageCreate.CreatePackage(args);
+            PackageCreateResult result = await PackageCreate.CreatePackage(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Id is required.", result.PublicError);
         }   
 
         [Fact]
-        public void CreateDuplicatePackage()
+        public async void CreateDuplicatePackage()
         {
             this.InitProject();
 
@@ -186,17 +196,17 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<IFormFile>() {new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")}
             };
 
-            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreatePackage(package);
             Assert.True(result.Success);
 
             // attempt to create package with same name
-            result = PackageCreate.CreatePackage(package);
+            result = await PackageCreate.CreatePackage(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.PackageExists, result.ErrorType);
         }
 
         [Fact]
-        public void CreateArchiveWithTooManyFiles()
+        public async void CreateArchiveWithTooManyFiles()
         {
             this.InitProject();
 
@@ -214,13 +224,13 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreatePackage(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }
 
         [Fact]
-        public void CreateInvalidArchiveFormat()
+        public async void CreateInvalidArchiveFormat()
         {
             this.InitProject();
 
@@ -238,7 +248,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreatePackage(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidArchiveFormat, result.ErrorType);
         }

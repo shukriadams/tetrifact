@@ -1,4 +1,6 @@
-﻿namespace Tetrifact.Core
+﻿using System.Threading.Tasks;
+
+namespace Tetrifact.Core
 {
     /// <summary>
     /// Defines a type that creates a package.
@@ -11,6 +13,6 @@
         /// <param name="project"></param>
         /// <param name="package"></param>
         /// <returns></returns>
-        PackageCreateResult CreatePackage(PackageCreateArguments package);
+        Task<PackageCreateResult> CreatePackage(PackageCreateArguments package);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Tetrifact.Core;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Tetrifact.Web
 {
@@ -101,9 +102,8 @@ namespace Tetrifact.Web
         {
             try
             {
-                ViewData["tag"] = tag;
-                ViewData["packages"] = _packageList.GetWithTag(project, tag, 0, _settings.ListPageSize);
-                return View();
+                IEnumerable<Package> packages = _packageList.GetWithTag(project, tag, 0, _settings.ListPageSize);
+                return View(new PackagesWithTagModel(project, tag, packages));
             }
             catch (TagNotFoundException)
             {

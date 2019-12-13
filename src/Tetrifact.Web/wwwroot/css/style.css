@@ -47,6 +47,11 @@ ol, ul {
     padding: 10px 20px;
 }
 
+.button.button--disabled {
+    pointer-events: none;
+    background-color: gray;
+}
+
 input[type=text] {
     height: 35px;
     padding: 6px;
@@ -121,11 +126,21 @@ main {
     border-bottom: solid 1px #e6e6e6;
 }
 
+/******************************************************************************
+ add package
+ *****************************************************************************/
+.addPackage-contactingServer {
+    display:none;
+}
+
+.addPackage-contactingServer.addPackage-contactingServer--show {
+    display: block;
+}
 
 /******************************************************************************
- *footer
+ footer
  *****************************************************************************/
-.pager {
+    .pager {
     padding: 0 0 8px 0;
 }
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Tetrifact.Core;
 
@@ -85,12 +86,12 @@ namespace Tetrifact.Web
 
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{tag}/{project}/{packageId}")]
-        public ActionResult AddTag(string tag, string project, string packageId)
+        public async Task<ActionResult> AddTag(string tag, string project, string packageId)
         {
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                _tagsService.AddTag(project, packageId, tag);
+                await _tagsService.AddTag(project, packageId, tag);
                 return Ok($"Tag {tag} was added to package {packageId}");
             }
             catch (PackageNotFoundException)
@@ -109,12 +110,12 @@ namespace Tetrifact.Web
 
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{tag}/{project}/{packageId}")]
-        public ActionResult RemoveTag(string tag, string project, string packageId)
+        public async Task<ActionResult> RemoveTag(string tag, string project, string packageId)
         {
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                _tagsService.RemoveTag(project, packageId, tag);
+                await _tagsService.RemoveTag(project, packageId, tag);
                 return Ok($"Tag {tag} was removed from package {packageId}");
             }
             catch (PackageNotFoundException)

@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.Controllers
         }
 
         [Fact]
-        public void AddPackageAsFiles()
+        public async void AddPackageAsFiles()
         {
 
             string file1Content = "file 1 content";
@@ -61,7 +61,7 @@ namespace Tetrifact.Tests.Controllers
                 }
             };
 
-            PackageCreateResult result = _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = await _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
             Assert.Empty(TestingWorkspace.Incoming);
@@ -69,7 +69,7 @@ namespace Tetrifact.Tests.Controllers
         }
 
         [Fact]
-        public void AddPackageAsArchive()
+        public async void AddPackageAsArchive()
         {
             Dictionary<string, string> files = new Dictionary<string, string>();
             string file1Content = "file 1 content";
@@ -110,7 +110,7 @@ namespace Tetrifact.Tests.Controllers
                 }
             };
 
-            PackageCreateResult result = _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = await _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
             Assert.Empty(TestingWorkspace.Incoming);
@@ -118,7 +118,7 @@ namespace Tetrifact.Tests.Controllers
         }
 
         [Fact]
-        public void EnsureSingleFileWhenAddArchive()
+        public async void EnsureSingleFileWhenAddArchive()
         {
             Stream file = StreamsHelper.StreamFromString("some content");
 
@@ -133,7 +133,7 @@ namespace Tetrifact.Tests.Controllers
                 }
             };
 
-            PackageCreateResult result = _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = await _packageService.CreatePackage(postArgs);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }

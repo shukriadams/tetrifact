@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -34,12 +35,17 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
+        public async Task<PackageCreateResult> CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
             string[] allowedFormats = new string[] { "zip", "tar.gz" };
+            LockRequest lockRequest = new LockRequest();
+
             try
             {
+                // wait until current write process is free
+                await lockRequest.Get();
+
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
@@ -97,9 +103,6 @@ namespace Tetrifact.Core
                     foreach (IFormFile formFile in newPackage.Files)
                         _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
                 
-                // prevent deletes of empty repository folders this package might need to write to
-                LinkLock.Instance.Lock(newPackage.Id);
-
                 _workspace.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
 
                 _workspace.Manifest.Description = newPackage.Description;
@@ -119,8 +122,7 @@ namespace Tetrifact.Core
             }
             finally
             {
-                if (!string.IsNullOrEmpty(newPackage.Id))
-                    LinkLock.Instance.Unlock(newPackage.Id);
+                LinkLock.Instance.Release();
             }
         }
 

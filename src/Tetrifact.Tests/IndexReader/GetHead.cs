@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.IndexReader
         /// Confirms that head is updated correctly over a series of package uploads
         /// </summary>
         [Fact]
-        public void Sequence()
+        public async void Sequence()
         {
             this.InitProject();
 
@@ -23,12 +23,14 @@ namespace Tetrifact.Tests.IndexReader
                 Stream fileStream = StreamsHelper.StreamFromString($"content-{i}");
 
                 // create package
-                Assert.True(PackageCreate.CreatePackage(new PackageCreateArguments
+                PackageCreateResult result = await PackageCreate.CreatePackage(new PackageCreateArguments
                 {
                     Id = $"my package{i}",
                     Project = "some-project",
                     Files = new List<IFormFile>() { new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder/file") }
-                }).Success);
+                });
+
+                Assert.True(result.Success);
 
                 // confirm head is now at this package
                 Assert.Equal($"my package{i}", IndexReader.GetHead("some-project"));

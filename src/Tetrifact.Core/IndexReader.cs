@@ -233,12 +233,22 @@ namespace Tetrifact.Core
             return 2;
         }
 
-        public void MarkPackageForDelete(string project, string packageId)
+        public async void MarkPackageForDelete(string project, string packageId)
         {
-            Transaction transaction = new Transaction(_settings, this, project);
-            transaction.RemoveManifestPointer(packageId);
-            transaction.RemoveShardPointer(packageId);
-            transaction.Commit();
+            LockRequest lockRequest = new LockRequest();
+            try
+            {
+                await lockRequest.Get();
+
+                Transaction transaction = new Transaction(_settings, this, project);
+                transaction.RemoveManifestPointer(packageId);
+                transaction.RemoveShardPointer(packageId);
+                transaction.Commit();
+            }
+            finally {
+                LinkLock.Instance.Release();
+            }
+            
             /*
             string packagesPath = PathHelper.GetExpectedManifestsPath(_settings, project);
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);

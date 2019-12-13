@@ -1,20 +1,19 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
+@model Tetrifact.Web.PackagesWithTagModel;
 @{
-    string tag = ViewData["tag"] as string;
-    ViewData["Title"] = $"Packages tagged with \"{tag}\"";
+    ViewData["Title"] = $"Packages tagged with \"{Model.Tag}\"";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
 }
 
 <div>
-    @if (packages.Any())
+    @if (Model.Packages.Any())
     {
         <ul>
-            @foreach (Package package in packages)
+            @foreach (Package package in Model.Packages)
             {
                 <li class="listItem">
-                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+                    <a href="/package/@Model.Project/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
                 </li>
             }
         </ul>
