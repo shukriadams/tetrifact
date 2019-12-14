@@ -42,7 +42,7 @@ namespace Tetrifact.Web
         /// <param name="id"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{fileId}")]
+        [HttpGet("{project}/{fileId}")]
         public ActionResult GetItem(string project, string fileId)
         {
             try

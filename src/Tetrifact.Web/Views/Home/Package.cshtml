@@ -131,18 +131,19 @@
         <h2>Files</h2>
         @if (Model.Manifest.Files.Any())
         {
-            <div>
-                @foreach (ManifestItem file in Model.Manifest.Files)
+            <ul>
+                @for (int i = 0; i < Model.Manifest.Files.Count; i++)
                 {
-                    <div class="listItem">
-                        <a class="listItem-icon package-download" href="/v1/files/@file.Id">&#10515;</a>
-                        <div class="listItem-text">
-                            @file.Path
-                        </div>
-                    </div>
-                }
-            </div>
+                    ManifestItem file = Model.Manifest.Files[i];
 
+                <li class="listItem">
+                    <a class="listItem-icon package-download" href="/v1/files/@Model.Project/@file.Id">&#10515;</a>
+                    <div class="listItem-text">
+                        @(i + 1) - @file.Path
+                    </div>
+                </li>
+                }
+            </ul>
         }
         else
         {
