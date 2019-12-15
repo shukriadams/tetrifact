@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
@@ -36,92 +35,113 @@ namespace Tetrifact.Core
 
         public void Clean(string project)
         {
-            // get a list of existing packages at time of calling. It is vital that new packages not be created
-            // while clean running, they will be cleaned up as they are not on this list
-            IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds(project);
-            this.LockPasses = 0;
-            string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, project);
-            this.Clean_Internal(reposPath, existingPackageIds, false);
-        }
+            TransactionHelper transactionHelper = new TransactionHelper(_indexReader, _settings);
+            ProjectView projectView = transactionHelper.GetProjectView(project);
 
-        /// <summary>
-        /// Recursing method behind Clean() logic.
-        /// </summary>
-        /// <param name="currentDirectory"></param>
-        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentFolderPackages)
-        {
-            // todo : add max sleep time to prevent permalock
-            // wait if linklock is active, something more important is busy. 
-            while (LinkLock.Instance.IsLocked())
+            List<string> filesToDelete = new List<string>();
+            List<string> directoriesToDelete = new List<string>();
+
+            // find all transaction not in history view
+            string[] allTransactions = Directory.GetDirectories(PathHelper.ResolveTransactionRoot(_settings, project));
+            foreach (string existingTransaction in allTransactions)
             {
-                this.LockPasses ++;
-                Thread.Sleep(_settings.LinkLockWaitTime);
-            }
-
-            string[] files = Directory.GetFiles(currentDirectory);
-            string[] directories = Directory.GetDirectories(currentDirectory);
-
-            // if no children at all, delete current node
-            if (!files.Any() && !directories.Any() && Directory.Exists(currentDirectory))
-                Directory.Delete(currentDirectory);
-
-            if (isCurrentFolderPackages)
-            {
-                if (files.Any())
+                if (Path.GetFileName(existingTransaction).StartsWith("~"))
                 {
-                    foreach (string file in files)
+                    directoriesToDelete.Add(existingTransaction);
+                    continue;
+                }
+
+                if (!projectView.Transactions.Contains(Path.GetFileName(existingTransaction)))
+                {
+                    try
                     {
-                        if (!existingPackageIds.Contains(Path.GetFileName(file)))
-                        {
-                            try
-                            {
-                                File.Delete(file);
-                            }
-                            catch (IOException ex)
-                            {
-                                Console.WriteLine(ex);
-                                _logger.LogError($"Unexpected error deleting file ${file} ", ex);
-                            }
-                        }
+                        string targetPath = PathHelper.GetHidePath(existingTransaction);
+                        Directory.Move(existingTransaction, targetPath);
+                        directoriesToDelete.Add(targetPath);
+                    }
+                    catch (IOException)
+                    {
+                        // ignore, content is in use, we'll delete on next clean
                     }
                 }
-                else
+            }
+
+
+            // find all shards not in history view
+            string[] allShards = Directory.GetDirectories(PathHelper.ResolveShardRoot(_settings, project));
+            foreach (string existingShard in allShards)
+            {
+                if (Path.GetFileName(existingShard).StartsWith("~"))
                 {
-                    // if this is a package folder with no packages, it is safe to delete it and it's parent bin file
-                    string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
-                    if (File.Exists(binFilePath))
-                        File.Delete(binFilePath);
+                    directoriesToDelete.Add(existingShard);
+                    continue;
+                }
 
-                    if (Directory.Exists(currentDirectory))
-                        Directory.Delete(currentDirectory);
-
-                    return;
+                if (!projectView.Shards.Contains(Path.GetFileName(existingShard)))
+                {
+                    try
+                    {
+                        string targetPath = PathHelper.GetHidePath(existingShard);
+                        Directory.Move(existingShard, targetPath);
+                        directoriesToDelete.Add(targetPath);
+                    }
+                    catch (IOException)
+                    {
+                        // ignore, content is in use, we'll delete on next clean
+                    }
                 }
             }
 
-            bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");
-            if (binFilePresent && !directories.Any())
-            {
-                // bin file is orphaned (no package, no package folders)
-                string filePath = Path.Join(currentDirectory, "bin");
 
+            // find all manifests not in history view
+            string[] allManifests = Directory.GetFiles(PathHelper.ResolveManifestsRoot(_settings, project));
+            foreach (string existingManifest in allManifests)
+            {
+                if (Path.GetFileName(existingManifest).StartsWith("~"))
+                {
+                    filesToDelete.Add(existingManifest);
+                    continue;
+                }
+
+                if (!projectView.Manifests.Contains(Path.GetFileName(existingManifest)))
+                {
+                    try
+                    {
+                        string targetPath = PathHelper.GetHidePath(existingManifest);
+                        File.Move(existingManifest, targetPath);
+                        filesToDelete.Add(targetPath);
+                    }
+                    catch (IOException)
+                    {
+                        // ignore, content is in use, we'll delete on next clean
+                    }
+                }
+            }
+
+
+            foreach (string item in directoriesToDelete)
+            {
                 try
                 {
-                    File.Delete(filePath);
+                    Directory.Delete(item, true);
                 }
-                catch (IOException ex)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
-                    _logger.LogError($"Failed to delete file ${filePath} ", ex);
+                    _logger.LogError($"Unexpected error trying to delete {item}", ex);
                 }
-
-                return;
             }
 
-            foreach (string childDirectory in directories)
+
+            foreach (string item in filesToDelete)
             {
-                bool isPackageFolder = Path.GetFileName(childDirectory) == "packages" && binFilePresent;
-                Clean_Internal(childDirectory, existingPackageIds, isPackageFolder);
+                try
+                {
+                    File.Delete(item);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Unexpected error trying to delete {item}", ex);
+                }
             }
         }
 

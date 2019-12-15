@@ -41,7 +41,16 @@ namespace Tetrifact.Core
 
         public DirectoryInfo GetActiveTransactionInfo(string project) 
         {
-            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment)).GetDirectories().Where(r => !r.Name.StartsWith("~")).OrderByDescending(d => d.LastWriteTimeUtc).FirstOrDefault();
+            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment))
+                .GetDirectories().Where(r => !r.Name.StartsWith("~")).OrderByDescending(d => d.LastWriteTimeUtc)
+                .FirstOrDefault();
+        }
+
+        public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
+        {
+            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment))
+                .GetDirectories().Where(r => !r.Name.StartsWith("~")).OrderByDescending(d => d.LastWriteTimeUtc)
+                .Take(count);
         }
 
         private IEnumerable<string> GetManifestPointers(string project) 

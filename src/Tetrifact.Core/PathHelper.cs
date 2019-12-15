@@ -31,15 +31,6 @@ namespace Tetrifact.Core
             return projectPath;
         }
 
-        public static string GetExpectedRepositoryPath(ITetriSettings settings, string project)
-        {
-            string reposPath = Path.Combine(settings.ProjectsPath, project, Constants.RepositoryFragment);
-            if (!Directory.Exists(reposPath))
-                throw new MissingProjectStructure(project);
-
-            return reposPath;
-        }
-
         public static string GetExpectedManifestsPath(ITetriSettings settings, string project)
         {
             string manifestsPath = Path.Combine(settings.ProjectsPath, project, Constants.ManifestsFragment);
@@ -71,6 +62,29 @@ namespace Tetrifact.Core
         public static string ResolveShardRoot(ITetriSettings settings, string project)
         {
             return Path.Combine(settings.ProjectsPath, project, Constants.ShardsFragment);
+        }
+
+        public static string ResolveTransactionRoot(ITetriSettings settings, string project)
+        {
+            return Path.Combine(settings.ProjectsPath, project, Constants.TransactionsFragment);
+        }
+
+        public static string ResolveManifestsRoot(ITetriSettings settings, string project)
+        {
+            return Path.Combine(settings.ProjectsPath, project, Constants.ManifestsFragment);
+        }
+
+        /// <summary>
+        /// Converts a file or folder name to "hidden" format (~led)
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string GetHidePath(string path)
+        {
+            return Path.Combine(
+                Path.GetDirectoryName(path),
+                $"~{Path.GetFileName(path)}"
+                );
         }
     }
 }

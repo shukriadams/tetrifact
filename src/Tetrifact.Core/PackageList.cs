@@ -22,7 +22,7 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageList> _logger;
 
-        private readonly string _cacheKey = "_packageCache";
+        
 
         private readonly IIndexReader _indexReader;
 
@@ -42,10 +42,15 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        private static string GetCacheKey(string project) 
+        {
+            return $"${project}_packageCache";
+        }
+
         public IEnumerable<string> GetAllTags(string project) 
         {
             IList<Package> packageData = null;
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
                 packageData = this.GeneratePackageData(project);
 
             return packageData.Select(r => r.Tags.ToList()).SelectMany(r => r).Distinct();
@@ -54,7 +59,7 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetPackagesWithTag(string project, string tag) 
         {
             IList<Package> packageData = null;
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
                 packageData = this.GeneratePackageData(project);
 
             return packageData.Where(r => r.Tags.Contains(tag)).Select(r => r.Id);
@@ -72,7 +77,7 @@ namespace Tetrifact.Core
 
             IList<Package> packageData = null;
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
                 packageData = this.GeneratePackageData(project);
 
             Dictionary<string, int> tags = new Dictionary<string, int>();
@@ -94,7 +99,7 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData = null;
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
             {
                 packageData = this.GeneratePackageData(project);
             }
@@ -110,7 +115,7 @@ namespace Tetrifact.Core
             IList<Package> packageData;
             
             
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
             {
                 packageData = this.GeneratePackageData(project);
             }
@@ -123,7 +128,7 @@ namespace Tetrifact.Core
             IList<Package> packageData;
 
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
             {
                 packageData = this.GeneratePackageData(project);
             }
@@ -135,7 +140,7 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData;
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(GetCacheKey(project), out packageData))
             {
                 packageData = this.GeneratePackageData(project);
             }
@@ -183,7 +188,7 @@ namespace Tetrifact.Core
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
 
-            _cache.Set(_cacheKey, packageData);
+            _cache.Set(GetCacheKey(project), packageData);
 
             return packageData;
         }

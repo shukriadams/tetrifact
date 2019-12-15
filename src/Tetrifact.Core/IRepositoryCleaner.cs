@@ -6,8 +6,7 @@ namespace Tetrifact.Core
     public interface IRepositoryCleaner
     {
         /// <summary>
-        /// Cleans dead files out from repository folder. When a package is deleted, it's contents in the repositiry folder stay behind. 
-        /// Cleaning them out must be run seperately.
+        /// Cleans dead files out from project folder. Dead files are manifests, shards and older transactions.
         /// </summary>
         void Clean(string project);
     }

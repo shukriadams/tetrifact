@@ -47,6 +47,8 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> AccessTokens { get; set; }
 
+        public int TransactionHistoryDepth { get; set; }
+
         #endregion
 
         #region CTORS
@@ -65,35 +67,40 @@ namespace Tetrifact.Core
             this.PagesPerPageGroup = 20;
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
+            this.TransactionHistoryDepth = 2;
+            this.ProjectsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
+            this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+            this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
+            this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
+            this.TempBinaries = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp_binaries");
 
-            // get settings from env variables
-            this.ProjectsPath = Environment.GetEnvironmentVariable("PROJECTS_PATH");
-            this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
-            this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
-            this.TempBinaries = Environment.GetEnvironmentVariable("TEMP_BINARIES");
+            // try to get settings from env variables
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
+            this.TransactionHistoryDepth = this.GetSetting("TRANSACTION_HISTORY_DEPTH", this.TransactionHistoryDepth);
+            this.ProjectsPath = this.GetSetting("PROJECTS_PATH", this.ProjectsPath);
+            this.LogPath = this.GetSetting("LOG_PATH", this.LogPath);
+            this.TempPath = this.GetSetting("TEMP_PATH", this.TempPath);
+            this.ArchivePath = this.GetSetting("ARCHIVE_PATH", this.ArchivePath);
+            this.TempBinaries = this.GetSetting("TEMP_BINARIES", this.TempBinaries);
 
+            // special case - access tokens can be passed in as a comma-separated string, need to split to array here
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
+        }
 
-            // fall back to defaults
-            if (string.IsNullOrEmpty(this.ProjectsPath))
-                this.ProjectsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
-
-            if (string.IsNullOrEmpty(this.LogPath))
-                this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
-
-            if (string.IsNullOrEmpty(TempPath))
-                TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
-
-            if (string.IsNullOrEmpty(ArchivePath))
-                ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
-
-            if (string.IsNullOrEmpty(TempBinaries))
-                TempBinaries = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp_binaries");
+        /// <summary>
+        /// Gets a string value from environment variable if that value exists. Else returns default value.
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private string GetSetting(string settingsName, string defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            return settingsRawVariable == null ? defaultValue : settingsRawVariable;
         }
 
         /// <summary>

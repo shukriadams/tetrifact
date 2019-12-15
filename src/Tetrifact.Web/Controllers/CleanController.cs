@@ -35,7 +35,7 @@ namespace Tetrifact.Web
         #region METHODS
 
         [ServiceFilter(typeof(WriteLevel))]
-        [HttpGet("")]
+        [HttpGet("{project}")]
         public ActionResult Clean(string project)
         {
             _repositoryCleaner.Clean(project);

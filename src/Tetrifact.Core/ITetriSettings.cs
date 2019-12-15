@@ -87,5 +87,10 @@ namespace Tetrifact.Core
         /// Collection of tokens which provide write access to 
         /// </summary>
         IEnumerable<string> AccessTokens { get; set; }
+
+        /// <summary>
+        /// The number of transacation states to preserve.
+        /// </summary>
+        int TransactionHistoryDepth { get; set; }
     }
 }
