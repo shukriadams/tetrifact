@@ -59,9 +59,9 @@ namespace Tetrifact.Web
                 if (result.Success)
                 {
                     return Ok($"Success - project \"{project.Project}\" created.");
-                }
+                } 
 
-                return Responses.UnexpectedError();
+                return Responses.UnexpectedError(result.PublicError);
             }
             catch (Exception ex)
             {

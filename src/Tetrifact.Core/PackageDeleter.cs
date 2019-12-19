@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,30 +25,30 @@ namespace Tetrifact.Core
             _logger = logger;
         }
 
-        public async Task Delete(string project, string packageId)
+        public async Task Delete(string project, string package)
         {
             LockRequest lockRequest = new LockRequest();
-            
+
             try
             {
                 await lockRequest.Get();
 
-                Manifest packageToDeleteManifest = _indexReader.GetManifest(project, packageId);
+                Manifest packageToDeleteManifest = _indexReader.GetManifest(project, package);
                 if (packageToDeleteManifest == null)
-                    throw new PackageNotFoundException(packageId);
+                    throw new PackageNotFoundException(package);
 
                 Transaction transaction = new Transaction(_settings, _indexReader, project);
-                transaction.RemoveManifestPointer(packageId);
-                transaction.RemoveShardPointer(packageId);
+                transaction.RemoveManifestPointer(package);
+                transaction.RemoveShardPointer(package);
 
                 // find dependencies, there should be only one
                 DirectoryInfo currentTransaction = _indexReader.GetActiveTransactionInfo(project);
-                IEnumerable<string> depedencies = currentTransaction.GetFiles().Where(r => r.Name.StartsWith($"dep_{packageId}_")).Select(r => r.FullName);
+                IEnumerable<string> depedencies = currentTransaction.GetFiles().Where(r => r.Name.StartsWith($"dep_{package}_")).Select(r => r.FullName);
 
                 // reconstitute 
                 foreach (string dependencyFile in depedencies)
                 {
-                    string dependencyPackage = Path.GetFileName(dependencyFile.Replace($"dep_{packageId}_", string.Empty));
+                    string dependencyPackage = Path.GetFileName(dependencyFile.Replace($"dep_{package}_", string.Empty));
                     IWorkspace workspace = new Workspace(_indexReader, _settings, _workspaceLogger);
                     workspace.Initialize(project);
 
@@ -62,12 +61,17 @@ namespace Tetrifact.Core
                             workspace.AddIncomingFile(sourceFile, file.Path);
                         }
                     }
+
                     workspace.StageAllFiles(dependencyPackage, packageToDeleteManifest.DependsOn);
                     workspace.Commit(project, dependencyPackage, packageToDeleteManifest.DependsOn, transaction);
                 }
 
                 // merge patches into next package
                 transaction.Commit();
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError($"Unexpected error deleting package {package} {ex}");
             }
             finally
             {

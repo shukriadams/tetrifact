@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Tetrifact.Core
 {
@@ -19,6 +20,11 @@ namespace Tetrifact.Core
         {
             try
             {
+                Regex rex = new Regex("/^[a-zA-Z0-9_-]*$/");
+                Match match = rex.Match(name);
+                if (!match.Success)
+                    return new ProjectCreateResult { Success = false, PublicError = "Invalid chars." }; // don't bother with better message, user bypassed clientside checks
+
                 string projectsRoot = Path.Combine(_settings.ProjectsPath, name);
                 if (Directory.Exists(projectsRoot))
                     return new ProjectCreateResult { Success = false, PublicError = "Project already exists" };

@@ -17,7 +17,7 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 100,
+                    code = 303,
                     Message = $"A package with id {packageId} already exists."
                 }
             });
@@ -25,12 +25,22 @@ namespace Tetrifact.Web
 
         public static BadRequestObjectResult UnexpectedError()
         {
+            return UnexpectedError(null);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="publicError">Optional message which may be exposed</param>
+        /// <returns></returns>
+        public static BadRequestObjectResult UnexpectedError(string publicError)
+        {
             return new BadRequestObjectResult(new
             {
                 error = new
                 {
-                    code = 101,
-                    Message = "An internal server occurred. You didn't do anything wrong."
+                    code = 400.01,
+                    Message = $"An internal server occurred. You didn't do anything wrong. {publicError}"  
                 }
             });
         }
@@ -45,7 +55,7 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 102,
+                    code = 400.02,
                     Message = "Invalid package content. A package flagged as archive must contain a single zip file."
                 }
             });
@@ -62,7 +72,7 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 103,
+                    code = 400.03,
                     Message = $"The package format {format} is not valid. Valid values are : zip" 
                 }
             });
@@ -80,7 +90,7 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 104,
+                    code = 400.04,
                     Message = $"The package upload failed. Please check log enry {logId} for more information."
                 }
             });
@@ -96,7 +106,7 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 105,
+                    code = 400.05,
                     Message = "The file id you gave is not valid. File ids should be obtained from manifests."
                 }
             });
@@ -113,7 +123,7 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 106,
+                    code = 400.06,
                     Message = error
                 }
             });
@@ -130,8 +140,20 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    code = 107,
+                    code = 400.07,
                     Message = error
+                }
+            });
+        }
+
+        public static BadRequestObjectResult InvalidCharacters(string message)
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 400.08,
+                    Message = message
                 }
             });
         }
