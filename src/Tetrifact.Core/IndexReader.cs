@@ -32,7 +32,6 @@ namespace Tetrifact.Core
         {
             _settings = settings;
             _logger = logger;
-            
         }
 
         #endregion
@@ -42,14 +41,14 @@ namespace Tetrifact.Core
         public DirectoryInfo GetActiveTransactionInfo(string project) 
         {
             return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment))
-                .GetDirectories().Where(r => !r.Name.StartsWith("~")).OrderByDescending(d => d.LastWriteTimeUtc)
+                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.LastWriteTimeUtc)
                 .FirstOrDefault();
         }
 
         public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
         {
             return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment))
-                .GetDirectories().Where(r => !r.Name.StartsWith("~")).OrderByDescending(d => d.LastWriteTimeUtc)
+                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.LastWriteTimeUtc)
                 .Take(count);
         }
 
@@ -109,8 +108,6 @@ namespace Tetrifact.Core
 
             string manifestRealPath = Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
 
-
-            string packagesPath = PathHelper.GetExpectedManifestsPath(_settings, project);
             if (!File.Exists(manifestRealPath))
                 return null;
 
@@ -130,7 +127,7 @@ namespace Tetrifact.Core
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
 
-            string binPath = RehydrateOrResolve(project, fileIdentifier.Package, fileIdentifier.Path);
+            string binPath = RehydrateOrResolveFile(project, fileIdentifier.Package, fileIdentifier.Path);
 
             if (string.IsNullOrEmpty(binPath)) 
                 throw new Tetrifact.Core.FileNotFoundException(fileIdentifier.Path);
@@ -138,7 +135,7 @@ namespace Tetrifact.Core
                 return new GetFileResponse(new FileStream(binPath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
-        public string RehydrateOrResolve(string project, string package, string filePath) 
+        public string RehydrateOrResolveFile(string project, string package, string filePath) 
         {
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
             string shardGuid = PathHelper.GetLatestShardPath(this, project, package);
@@ -161,11 +158,11 @@ namespace Tetrifact.Core
 
             // check if this package was added to a predecessor, if so, recurse down through all children
             Manifest manifest = this.GetManifest(project, package);
-            if (string.IsNullOrEmpty(manifest.Predecessor))
+            if (string.IsNullOrEmpty(manifest.DependsOn))
                 throw new Exception($"manifest for package {package} does not have an expected predecessor value");
 
             // recurse - this ensures that the entire stack of files requireq for patching out is processed
-            binaryPath = RehydrateOrResolve(project, manifest.Predecessor, filePath);
+            binaryPath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
 
             FileHelper.EnsureFileDirectoryExists(rehydrateOutputPath);
 
@@ -242,64 +239,7 @@ namespace Tetrifact.Core
             return 2;
         }
 
-        public async void MarkPackageForDelete(string project, string packageId)
-        {
-            LockRequest lockRequest = new LockRequest();
-            try
-            {
-                await lockRequest.Get();
 
-                Transaction transaction = new Transaction(_settings, this, project);
-                transaction.RemoveManifestPointer(packageId);
-                transaction.RemoveShardPointer(packageId);
-                transaction.Commit();
-            }
-            finally {
-                LinkLock.Instance.Release();
-            }
-            
-            /*
-            string packagesPath = PathHelper.GetExpectedManifestsPath(_settings, project);
-            string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
-
-            Manifest manifest = this.GetManifest(project, packageId);
-            if (manifest == null)
-                throw new PackageNotFoundException(packageId);
-
-            // delete repo entries for this package, the binary will be removed by a cleanup job
-            string reposPath = PathHelper.GetExpectedRepositoryPath(_settings, project);
-            foreach (ManifestItem item in manifest.Files)
-            {
-                string targetPath = Path.Combine(reposPath, item.Path, item.Hash, "packages", packageId);
-                if (File.Exists(targetPath))
-                    File.Delete(targetPath);
-            }
-
-            // delete package folder
-            string packageFolder = Path.Combine(packagesPath, packageId);
-            if (Directory.Exists(packageFolder))
-                Directory.Delete(packageFolder, true);
-
-            // delete tag links for package
-            string tagsPath = Path.Combine(projectPath, Constants.TagsFragment);
-            if (Directory.Exists(tagsPath)) 
-            {
-                string[] tagFiles = Directory.GetFiles(tagsPath, packageId, SearchOption.AllDirectories);
-                foreach (string tagFile in tagFiles)
-                {
-                    try
-                    {
-                        File.Delete(tagFile);
-                    }
-                    catch (IOException ex)
-                    {
-                        // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                        _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
-                    }
-                }
-            }
-            */
-        }
 
         public string GetPackageArchivePath(string project, string packageId)
         {

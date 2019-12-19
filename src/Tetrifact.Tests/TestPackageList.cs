@@ -28,7 +28,7 @@ namespace Tetrifact.Tests
         /// <summary>
         /// For testing purposes, does nothing.
         /// </summary>
-        public void Clear()
+        public void Clear(string project)
         {
 
         }

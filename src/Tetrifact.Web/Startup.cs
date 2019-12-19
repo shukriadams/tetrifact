@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -46,6 +43,7 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageList, PackageList>();
             services.AddTransient<IAppLogic, AppLogic>();
             services.AddTransient<IIndexReader, IndexReader>();
+            services.AddTransient<IPackageDeleter, PackageDeleter>();
 
             // register filterws
             services.AddScoped<ReadLevel>();

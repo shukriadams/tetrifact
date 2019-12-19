@@ -13,8 +13,6 @@ namespace Tetrifact.Tests.Workspace
             base.Workspace.Initialize(project);
             Assert.True(Directory.Exists(PathHelper.GetExpectedManifestsPath(base.Settings, project)));
             Assert.True(Directory.Exists(PathHelper.GetExpectedProjectPath(base.Settings, project)));
-            Assert.True(Directory.Exists(PathHelper.GetExpectedRepositoryPath(base.Settings, project)));
-            Assert.True(Directory.Exists(PathHelper.GetExpectedTagsPath(base.Settings, project)));
         }
     }
 }

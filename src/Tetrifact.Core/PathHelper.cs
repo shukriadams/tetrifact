@@ -4,6 +4,8 @@ namespace Tetrifact.Core
 {
     public static class PathHelper
     {
+        public static string DeleteFlag = "---";
+
         public static string GetLatestShardPath(IndexReader indexReader, string project, string package) 
         {
             DirectoryInfo currentTransactionInfo = indexReader.GetActiveTransactionInfo(project);
@@ -40,15 +42,6 @@ namespace Tetrifact.Core
             return manifestsPath;
         }
 
-        public static string GetExpectedTagsPath(ITetriSettings settings, string project)
-        {
-            string tagsPath = Path.Combine(settings.ProjectsPath, project, Constants.TagsFragment);
-            if (!Directory.Exists(tagsPath))
-                throw new ProjectNotFoundException(project);
-
-            return tagsPath;
-        }
-
         public static string ResolveFinalFileBinPath(ITetriSettings settings, string project, string package, string filePath) 
         {
             return Path.Combine(settings.ProjectsPath, project, Constants.ShardsFragment, package, filePath, "bin");
@@ -75,15 +68,15 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Converts a file or folder name to "hidden" format (~led)
+        /// Converts a file or folder name to "deleting" format 
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static string GetHidePath(string path)
+        public static string GetDeletingPath(string path)
         {
             return Path.Combine(
                 Path.GetDirectoryName(path),
-                $"~{Path.GetFileName(path)}"
+                $"{PathHelper.DeleteFlag}{Path.GetFileName(path)}"
                 );
         }
     }

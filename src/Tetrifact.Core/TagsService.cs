@@ -64,7 +64,7 @@ namespace Tetrifact.Core
 
                 // flush in-memory tags
                 transaction.Commit();
-                _packageList.Clear();
+                _packageList.Clear(project);
 
                 return;
 
@@ -103,7 +103,7 @@ namespace Tetrifact.Core
 
                 // flush in-memory tags
                 transaction.Commit();
-                _packageList.Clear();
+                _packageList.Clear(project);
 
                 return;
 

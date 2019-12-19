@@ -65,9 +65,9 @@ namespace Tetrifact.Core
             return packageData.Where(r => r.Tags.Contains(tag)).Select(r => r.Id);
         }
 
-        public void Clear()
+        public void Clear(string project)
         {
-            _cache.Remove("_packageCache");
+            _cache.Remove(GetCacheKey(project));
         }
 
         public IEnumerable<string> GetPopularTags(string project, int count)

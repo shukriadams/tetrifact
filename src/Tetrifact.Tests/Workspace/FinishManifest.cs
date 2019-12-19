@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.Workspace
         {
             string project = "some-project";
             string package = "somepackage";
-            this.Workspace.Finalize(project, package, null);
+            this.Workspace.Commit(project, package, null);
 
             Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(this.Settings.ProjectsPath, project, Constants.ManifestsFragment, package, "manifest.json")));
             Assert.Equal(manifest.Hash, HashService.FromString(string.Empty)); // hash should be empty because no files were added to manifest

@@ -108,7 +108,7 @@ namespace Tetrifact.Core
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // we calculate package hash from a sum of all child hashes
-                _workspace.Finalize(newPackage.Project, newPackage.Id, newPackage.BranchFrom);
+                _workspace.Commit(newPackage.Project, newPackage.Id, newPackage.BranchFrom, null);
 
                 _workspace.Dispose();
 

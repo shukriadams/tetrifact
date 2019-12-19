@@ -43,9 +43,24 @@ namespace Tetrifact.Core
 
             // find all transaction not in history view
             string[] allTransactions = Directory.GetDirectories(PathHelper.ResolveTransactionRoot(_settings, project));
+            TimeSpan transactionTimeout = new TimeSpan(24, 0, 0);
+
             foreach (string existingTransaction in allTransactions)
             {
-                if (Path.GetFileName(existingTransaction).StartsWith("~"))
+                // handle uncommitted transactions
+                if (Path.GetFileName(existingTransaction).StartsWith("~")) 
+                {
+                    // if transaction has timed out, add to delete list, else ignore it
+                    DirectoryInfo dirInfo = new DirectoryInfo(existingTransaction);
+                    if (DateTime.UtcNow - dirInfo.CreationTimeUtc > transactionTimeout)
+                        directoriesToDelete.Add(existingTransaction);
+
+                    continue;
+                }
+                
+                // if transactiotn has already been flagged for delete, the previous clean run attempted 
+                // and failed to delete it. Add to delete list to try again.
+                if (Path.GetFileName(existingTransaction).StartsWith(PathHelper.DeleteFlag))
                 {
                     directoriesToDelete.Add(existingTransaction);
                     continue;
@@ -55,7 +70,7 @@ namespace Tetrifact.Core
                 {
                     try
                     {
-                        string targetPath = PathHelper.GetHidePath(existingTransaction);
+                        string targetPath = PathHelper.GetDeletingPath(existingTransaction);
                         Directory.Move(existingTransaction, targetPath);
                         directoriesToDelete.Add(targetPath);
                     }
@@ -71,7 +86,7 @@ namespace Tetrifact.Core
             string[] allShards = Directory.GetDirectories(PathHelper.ResolveShardRoot(_settings, project));
             foreach (string existingShard in allShards)
             {
-                if (Path.GetFileName(existingShard).StartsWith("~"))
+                if (Path.GetFileName(existingShard).StartsWith(PathHelper.DeleteFlag))
                 {
                     directoriesToDelete.Add(existingShard);
                     continue;
@@ -81,7 +96,7 @@ namespace Tetrifact.Core
                 {
                     try
                     {
-                        string targetPath = PathHelper.GetHidePath(existingShard);
+                        string targetPath = PathHelper.GetDeletingPath(existingShard);
                         Directory.Move(existingShard, targetPath);
                         directoriesToDelete.Add(targetPath);
                     }
@@ -97,7 +112,7 @@ namespace Tetrifact.Core
             string[] allManifests = Directory.GetFiles(PathHelper.ResolveManifestsRoot(_settings, project));
             foreach (string existingManifest in allManifests)
             {
-                if (Path.GetFileName(existingManifest).StartsWith("~"))
+                if (Path.GetFileName(existingManifest).StartsWith(PathHelper.DeleteFlag))
                 {
                     filesToDelete.Add(existingManifest);
                     continue;
@@ -107,7 +122,7 @@ namespace Tetrifact.Core
                 {
                     try
                     {
-                        string targetPath = PathHelper.GetHidePath(existingManifest);
+                        string targetPath = PathHelper.GetDeletingPath(existingManifest);
                         File.Move(existingManifest, targetPath);
                         filesToDelete.Add(targetPath);
                     }

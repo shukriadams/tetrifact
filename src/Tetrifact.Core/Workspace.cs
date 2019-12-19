@@ -91,7 +91,6 @@ namespace Tetrifact.Core
 
         public void StageAllFiles(string packageId, string diffAgainstPackage)
         {
-            
             // get all files which were uploaded, sort alphabetically for combined hashing
             string[] files = this.GetIncomingFileNames().ToArray();
             Array.Sort(files, (x, y) => String.Compare(x, y));
@@ -113,28 +112,33 @@ namespace Tetrifact.Core
 
                 FileInfo patchFileInfo = null;
                 Manifest headManifest = string.IsNullOrEmpty(diffAgainstPackage) ? null : _indexReader.GetManifest(_project, diffAgainstPackage);
+                
 
                 // if no head, or head doesn't contain the same file path, write incoming as raw bin
                 if (headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any())
                 {
-                    File.Copy(incomingFilePath,
-                        Path.Combine(stagingBasePath, "bin"));
+                    string writePath = Path.Combine(stagingBasePath, "bin");
+                    File.Copy(incomingFilePath, writePath);
+
+                    patchFileInfo = new FileInfo(writePath);
                 }
                 else
                 {
                     // create patch against head version of file
-                    string sourceBinPath = _indexReader.RehydrateOrResolve(_project, diffAgainstPackage, filePath);
+                    string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, diffAgainstPackage, filePath);
                     byte[] sourceVersionBinary = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
                     byte[] incomingVersionBinary = File.ReadAllBytes(incomingFilePath);
                     string patchFilePath = Path.Combine(stagingBasePath, "patch");
                     
-                    using (FileStream patchOutStream = new FileStream(patchFilePath, FileMode.Create, FileAccess.Write))
+                    using(FileStream patchOutStream = new FileStream(patchFilePath, FileMode.Create, FileAccess.Write))
                     {
                         BinaryPatchUtility.Create(sourceVersionBinary, incomingVersionBinary, patchOutStream);
                     }
 
                     patchFileInfo = new FileInfo(patchFilePath);
                 }
+                
+                this.Manifest.DependsOn = diffAgainstPackage;
 
                 string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
                 this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = fileHash, Id = pathAndHash });
@@ -147,50 +151,48 @@ namespace Tetrifact.Core
             }
         }
 
-        public void Finalize(string project, string package, string diffAgainstPackage)
+        public void Commit(string project, string package, string diffAgainstPackage, Transaction transaction)
         {
-            string predecessor = diffAgainstPackage;
-            if (string.IsNullOrEmpty(predecessor))
-                predecessor = _indexReader.GetHead(_project);
+            string dependsOn = diffAgainstPackage;
+            if (string.IsNullOrEmpty(dependsOn))
+                dependsOn = _indexReader.GetHead(_project);
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
             this.Manifest.Id = package;
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
-            this.Manifest.Predecessor = predecessor;
+            this.Manifest.DependsOn = dependsOn;
 
-            string packageTransactionName = $"{Guid.NewGuid()}__{package}";
-            string manifestPath = Path.Join(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment), packageTransactionName);
+            string packageNoCollideName = $"{Guid.NewGuid()}__{package}";
+            string manifestPath = Path.Join(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment), packageNoCollideName);
             File.WriteAllText(manifestPath, JsonConvert.SerializeObject(this.Manifest));
 
-            // Move the staging directory to the "shards" folder, once this is done the package is live and visible and cannot be auto rolled back.
-            // This is how we "do atomic" in Tetrifact.
+            // Move the staging directory to the "shards" folder
             string stagingRoot = Path.Combine(this.WorkspacePath, Constants.StagingFragment);
             string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
-            string finalRoot = Path.Combine(shardRoot, packageTransactionName);
+            string finalRoot = Path.Combine(shardRoot, packageNoCollideName);
             FileHelper.MoveDirectoryContents(stagingRoot, finalRoot);
 
-            // create transaction folder
+            // we want to commit the transaction locally if it wasn't passed in. If passed in, committing must be done by code
+            // that passed transaction in
+            bool commitTransaction = transaction == null;
 
-            //long ticks = DateTime.UtcNow.Ticks;
-            //string tempTransactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"~{ticks}");
-            //string transactionFolder = Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment, $"{ticks}");
-            //Directory.CreateDirectory(tempTransactionFolder);
-            Transaction transaction = new Transaction(_settings, _indexReader, project);
-            // manifest pointer
-            transaction.AddManifestPointer(package, packageTransactionName);
-            //File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_manifest"), packageTransactionName);
+            if (transaction == null) 
+                transaction = new Transaction(_settings, _indexReader, project);
+
+            transaction.AddManifestPointer(package, packageNoCollideName);
 
             // shard pointer
-            transaction.AddShardPointer(package, packageTransactionName);
-            //File.WriteAllText(Path.Combine(tempTransactionFolder, $"{package}_shard"), packageTransactionName);
+            transaction.AddShardPointer(package, packageNoCollideName);
 
-            // if reach here, package should be treated as next head
+            if (!string.IsNullOrEmpty(dependsOn))
+                transaction.AddDependecy(dependsOn, package, !string.IsNullOrEmpty(diffAgainstPackage));
+
             if (string.IsNullOrEmpty(diffAgainstPackage))
                 transaction.SetHead(package);
 
             // flip transaction live
-            //Directory.Move(tempTransactionFolder, transactionFolder);
-            transaction.Commit();
+            if (commitTransaction)
+                transaction.Commit();
         }
 
         public IEnumerable<string> GetIncomingFileNames()

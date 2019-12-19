@@ -31,9 +31,6 @@ namespace Tetrifact.Core
                 string transactionsPath = Path.Combine(projectsRoot, Constants.TransactionsFragment);
                 Directory.CreateDirectory(transactionsPath);
 
-                string tagsPath = Path.Combine(projectsRoot, Constants.TagsFragment);
-                Directory.CreateDirectory(tagsPath);
-
                 return new ProjectCreateResult { Success = true };
 
             }

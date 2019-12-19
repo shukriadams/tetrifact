@@ -24,7 +24,11 @@ namespace Tetrifact.Core
         /// <returns>List of package ids containing the given tag</returns>
         IEnumerable<string> GetPackagesWithTag(string project, string tag);
 
-        void Clear();
+        /// <summary>
+        /// Flushes cached list, forcing reload.
+        /// </summary>
+        /// <param name="project"></param>
+        void Clear(string project);
 
         /// <summary>
         /// Gets a list of size count of the most popular tags

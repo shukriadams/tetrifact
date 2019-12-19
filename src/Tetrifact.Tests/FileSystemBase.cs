@@ -96,7 +96,7 @@ namespace Tetrifact.Tests
             workspace.Initialize("some-project");
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.StageAllFiles(testPackage.Name, null);
-            workspace.Finalize("some-project", testPackage.Name, null);
+            workspace.Commit("some-project", testPackage.Name, null, null);
 
             return testPackage;
         }

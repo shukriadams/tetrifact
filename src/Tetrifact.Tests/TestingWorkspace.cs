@@ -132,7 +132,7 @@ namespace Tetrifact.Tests
             Incoming.Clear();
         }
 
-        public void Finalize(string project, string packageId, string diffAgainstPackage)
+        public void Commit(string project, string packageId, string diffAgainstPackage, Transaction transaction)
         {
             // calculate package hash from child hashes
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());

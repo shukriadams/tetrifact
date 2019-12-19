@@ -27,7 +27,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Optional - string id of package this package depends on.
         /// </summary>
-        public string Predecessor { get; set; }
+        public string DependsOn { get; set; }
 
         #endregion
 

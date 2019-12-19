@@ -27,6 +27,7 @@ namespace Tetrifact.Web
         private readonly IPackageList _packageList;
         private readonly ITetriSettings _settings;
         private readonly ITagsService _tagService;
+        private readonly IPackageDeleter _packageDeleter;
 
         #endregion
 
@@ -40,8 +41,9 @@ namespace Tetrifact.Web
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, ITagsService tagService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageDeleter packageDeleter, ITagsService tagService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
         {
+            _packageDeleter = packageDeleter;
             _packageList = packageList;
             _packageService = packageService;
             _indexService = indexService;
@@ -166,7 +168,7 @@ namespace Tetrifact.Web
                 PackageCreateResult result = await _packageService.CreatePackage(post);
                 if (result.Success)
                 {
-                    _packageList.Clear();
+                    _packageList.Clear(post.Project);
                     return Ok($"Success - package \"{post.Id}\" created.");
                 }
 
@@ -201,12 +203,12 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{project}/{package}")]
-        public ActionResult DeletePackage(string project, string package)
+        public async Task<ActionResult> DeletePackage(string project, string package)
         {
             try
             {
-                _indexService.MarkPackageForDelete(project, package);
-                _packageList.Clear();
+                await _packageDeleter.Delete(project, package);
+                _packageList.Clear(project);
                 return Ok();
             }
             catch (PackageNotFoundException)

@@ -50,7 +50,9 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="project"></param>
         /// <param name="package"></param>
-        void Finalize(string project, string package, string diffAgainstPackage);
+        /// <param name="diffAgainstPackage"></param>
+        /// <param name="transaction">Option transaction to commit workspace result to.</param>
+        void Commit(string project, string package, string diffAgainstPackage, Transaction transaction);
 
         /// <summary>
         /// Gets the hash of an incoming file. On filesystems, this is done by reading the file directly and hashing it.
