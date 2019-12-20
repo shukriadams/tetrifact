@@ -40,14 +40,14 @@ namespace Tetrifact.Core
 
         public DirectoryInfo GetActiveTransactionInfo(string project) 
         {
-            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment))
+            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
                 .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.LastWriteTimeUtc)
                 .FirstOrDefault();
         }
 
         public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
         {
-            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, project, Constants.TransactionsFragment))
+            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
                 .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.LastWriteTimeUtc)
                 .Take(count);
         }
@@ -239,8 +239,6 @@ namespace Tetrifact.Core
             return 2;
         }
 
-
-
         public string GetPackageArchivePath(string project, string packageId)
         {
             return Path.Combine(_settings.ArchivePath, string.Format($"{project}_{packageId}.zip"));
@@ -267,7 +265,7 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetProjects() 
         {
             string[] directories = Directory.GetDirectories(_settings.ProjectsPath);
-            return directories.Select(r => Path.GetFileName(r));
+            return directories.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
         }
 
         private bool DoesPackageExist(string project, string packageId)

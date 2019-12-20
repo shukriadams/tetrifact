@@ -2,6 +2,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
+using System.Web;
 
 namespace Tetrifact.Web
 {
@@ -49,16 +50,17 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{project}")]
-        public ActionResult AddProject([FromForm]ProjectCreateArguments project)
+        public ActionResult AddProject([FromForm]ProjectCreateArguments args)
         {
             try
             {
-                ProjectCreateResult result = _projectService.Create(project.Project);
+                args.Project = HttpUtility.UrlDecode(args.Project);
+                ProjectCreateResult result = _projectService.Create(args.Project);
 
                 // todo : add more granular error handling here
                 if (result.Success)
                 {
-                    return Ok($"Success - project \"{project.Project}\" created.");
+                    return Ok($"Success - project \"{args.Project}\" created.");
                 } 
 
                 return Responses.UnexpectedError(result.PublicError);

@@ -1,7 +1,4 @@
-﻿@using Tetrifact.Core;
-@using Humanizer;
-
-@{
+﻿@{
     ViewData["Title"] = "Create project";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -37,55 +34,4 @@
     </form>
 </div>
 
-<script>
-    (async function () {
-
-        let form = document.querySelector('form[id=addProject]'),
-            submit = form.querySelector('.submit'),
-            permittedCharactersMask = new RegExp(/^[a-zA-Z0-9_-]*$/, 'g'),
-            projectName = document.querySelector('.projectName');
-
-        // validates input, warns on error
-        function isInputValid() {
-            let match = projectName.value.match(permittedCharactersMask);
-            if (!match) {
-                alert(`${projectName.value} is not a valid project name - only alphanumerics, underscores and dashes are permitted`);
-                return false;
-            }
-            return true;
-        }
-
-        projectName.addEventListener('change', function () {
-            isInputValid();
-        });
-
-        submit.addEventListener('click', async function () {
-            const formData = new FormData(form),
-                project = projectName.value;
-
-            if (!project)
-                return alert('Project name is required.');
-
-            if (!isInputValid())
-                return;
-
-            try {
-                const response = await fetch(`/v1/projects/${project}`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    window.location = `/projects/${project}`;
-                } else {
-                    console.log(response);
-                }
-
-            } catch (err) {
-                console.log(err);
-                alert('Error:', err);
-            }
-        }, false);
-
-    })()
-</script>
+<script src="~/scripts/addProject.js"></script>
