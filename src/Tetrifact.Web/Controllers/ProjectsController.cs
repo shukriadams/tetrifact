@@ -50,17 +50,17 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{project}")]
-        public ActionResult AddProject([FromForm]ProjectCreateArguments args)
+        public ActionResult AddProject([FromForm]ProjectCreateArguments post)
         {
             try
             {
-                args.Project = HttpUtility.UrlDecode(args.Project);
-                ProjectCreateResult result = _projectService.Create(args.Project);
+                post.Project = HttpUtility.UrlDecode(post.Project);
+                ProjectCreateResult result = _projectService.Create(post.Project);
 
                 // todo : add more granular error handling here
                 if (result.Success)
                 {
-                    return Ok($"Success - project \"{args.Project}\" created.");
+                    return Ok($"Success - project \"{post.Project}\" created.");
                 } 
 
                 return Responses.UnexpectedError(result.PublicError);

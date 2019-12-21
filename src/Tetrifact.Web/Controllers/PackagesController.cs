@@ -3,6 +3,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Tetrifact.Web
 {
@@ -160,6 +161,9 @@ namespace Tetrifact.Web
         {
             try
             {
+                post.Project = HttpUtility.UrlDecode(post.Project);
+                post.Id = HttpUtility.UrlDecode(post.Id);
+
                 // check if there is space available
                 DiskUseStats useStats = FileHelper.GetDiskUseSats();
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)

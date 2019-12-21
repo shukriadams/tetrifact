@@ -59,7 +59,7 @@ namespace Tetrifact.Core
             // here, but if we cannot generate a true GUID we have bigger problems.
             while (true)
             {
-                this.WorkspacePath = Path.Join(_settings.TempPath, Guid.NewGuid().ToString());
+                this.WorkspacePath = Path.Combine(_settings.TempPath, Guid.NewGuid().ToString());
                 if (!Directory.Exists(this.WorkspacePath))
                     break;
             }
@@ -68,10 +68,10 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(this.WorkspacePath);
             
             // incoming is where uploaded files first land. If upload is an archive, this is where archive is unpacked to
-            Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
+            Directory.CreateDirectory(Path.Combine(this.WorkspacePath, "incoming"));
 
             // staying is the next place files are moved to. Staging will contain either the raw file, or a patch of the file vs the version from a previous version 
-            Directory.CreateDirectory(Path.Join(this.WorkspacePath, Constants.StagingFragment));
+            Directory.CreateDirectory(Path.Combine(this.WorkspacePath, Constants.StagingFragment));
         }
 
         public bool AddIncomingFile(Stream formFile, string relativePath)
@@ -79,7 +79,7 @@ namespace Tetrifact.Core
             if (formFile.Length == 0)
                 return false;
             
-            string targetPath = Path.Join(this.WorkspacePath, "incoming", relativePath);
+            string targetPath = Path.Combine(this.WorkspacePath, "incoming", relativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
 
             using (var stream = new FileStream(targetPath, FileMode.Create))
@@ -105,7 +105,7 @@ namespace Tetrifact.Core
                 if (string.IsNullOrEmpty(diffAgainstPackage))
                     diffAgainstPackage = _indexReader.GetHead(_project);
 
-                string incomingFilePath = Path.Join(this.WorkspacePath, "incoming", filePath);
+                string incomingFilePath = Path.Combine(this.WorkspacePath, "incoming", filePath);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, filePath); // this is a directory path, but for the literal file path name
 
                 FileHelper.EnsureDirectoryExists(stagingBasePath);
@@ -162,8 +162,8 @@ namespace Tetrifact.Core
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
             this.Manifest.DependsOn = dependsOn;
 
-            string packageNoCollideName = $"{Guid.NewGuid()}__{package}";
-            string manifestPath = Path.Join(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment), packageNoCollideName);
+            string packageNoCollideName = $"{Guid.NewGuid()}__{Obfuscator.Cloak(package)}";
+            string manifestPath = Path.Combine(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment), packageNoCollideName);
             File.WriteAllText(manifestPath, JsonConvert.SerializeObject(this.Manifest));
 
             // Move the staging directory to the "shards" folder
@@ -198,7 +198,7 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetIncomingFileNames()
         {
             IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
-            string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
+            string relativeRoot = Path.Combine(this.WorkspacePath, "incoming");
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
         }
 
@@ -214,7 +214,7 @@ namespace Tetrifact.Core
 
                     using (EntryStream entryStream = reader.OpenEntryStream())
                     {
-                        string targetFile = Path.Join(this.WorkspacePath, "incoming", reader.Entry.Key);
+                        string targetFile = Path.Combine(this.WorkspacePath, "incoming", reader.Entry.Key);
                         string targetDirectory = Path.GetDirectoryName(targetFile);
                         if (!Directory.Exists(targetDirectory))
                             Directory.CreateDirectory(targetDirectory);
@@ -240,7 +240,7 @@ namespace Tetrifact.Core
                     {
                         using (Stream unzippedEntryStream = entry.Open())
                         {
-                            string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
+                            string targetFile = Path.Combine(this.WorkspacePath, "incoming", entry.FullName);
                             string targetDirectory = Path.GetDirectoryName(targetFile);
                             FileHelper.EnsureDirectoryExists(targetDirectory);
 
@@ -255,7 +255,7 @@ namespace Tetrifact.Core
 
         public string GetIncomingFileHash(string relativePath)
         {
-            return HashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
+            return HashService.FromFile(Path.Combine(this.WorkspacePath, "incoming", relativePath));
         }
 
         public void Dispose()

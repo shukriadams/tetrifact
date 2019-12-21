@@ -22,8 +22,8 @@
 
     submit.addEventListener('click', async function () {
         const formData = new FormData(form),
-            package = packageName.value,
-            project = projectName.value,
+            package = encodeURIComponent(packageName.value),
+            project = encodeURIComponent(projectName.value),
             files = filesSelector.files;
 
         if (!files.length)

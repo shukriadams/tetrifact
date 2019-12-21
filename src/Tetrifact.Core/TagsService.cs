@@ -58,7 +58,7 @@ namespace Tetrifact.Core
 
                 manifest.Tags.Add(tag);
                 string fileName = $"{Guid.NewGuid()}_{packageId}";
-                File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+                File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
                 transaction.AddManifestPointer(packageId, fileName);
 
 
@@ -97,7 +97,7 @@ namespace Tetrifact.Core
 
                 manifest.Tags.Remove(tag);
                 string fileName = $"{Guid.NewGuid()}_{packageId}";
-                File.WriteAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+                File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
                 transaction.AddManifestPointer(packageId, fileName);
 
 

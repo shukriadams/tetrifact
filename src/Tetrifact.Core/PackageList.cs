@@ -166,7 +166,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, manifestPath)));
+                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath)));
                     packageData.Add(new Package
                     {
                         CreatedUtc = manifest.CreatedUtc,

@@ -102,11 +102,11 @@ namespace Tetrifact.Core
             if (latestTransactionInfo == null)
                 return null;
 
-            string manifestPointerPath = Path.Combine(latestTransactionInfo.FullName, $"{packageId}_manifest");
+            string manifestPointerPath = Path.Combine(latestTransactionInfo.FullName, $"{Obfuscator.Cloak(packageId)}_manifest");
             if (!File.Exists(manifestPointerPath))
                 throw new PackageNotFoundException(packageId);
 
-            string manifestRealPath = Path.Combine(_settings.ProjectsPath, project, Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
+            string manifestRealPath = Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
 
             if (!File.Exists(manifestRealPath))
                 return null;
@@ -142,7 +142,7 @@ namespace Tetrifact.Core
 
             string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "patch");
             string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "bin");
-            string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, project, package, filePath, "bin");
+            string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");
 
             // if neither patch nor bin exist, file doesn't exist, this will happen in first call
             if (!File.Exists(patchPath) && !File.Exists(binaryPath))
@@ -241,12 +241,12 @@ namespace Tetrifact.Core
 
         public string GetPackageArchivePath(string project, string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, string.Format($"{project}_{packageId}.zip"));
+            return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));
         }
 
         public string GetPackageArchiveTempPath(string project, string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, string.Format($"{project}_{packageId}.zip.tmp"));
+            return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip.tmp"));
         }
 
         public string GetHead(string project) 

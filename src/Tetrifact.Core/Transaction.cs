@@ -15,8 +15,8 @@ namespace Tetrifact.Core
             _indexReader = indexReader;
 
             long ticks = DateTime.UtcNow.Ticks;
-            _tempTransactionFolder = Path.Combine(settings.ProjectsPath, project, Constants.TransactionsFragment, $"~{ticks}");
-            _finalTransactionFolder = Path.Combine(settings.ProjectsPath, project, Constants.TransactionsFragment, $"{ticks}");
+            _tempTransactionFolder = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"~{ticks}");
+            _finalTransactionFolder = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"{ticks}");
             Directory.CreateDirectory(_tempTransactionFolder);
 
             // find current transaction and copy all files over 
@@ -33,18 +33,18 @@ namespace Tetrifact.Core
 
         public void AddManifestPointer(string package, string targetName) 
         {
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{package}_manifest"), targetName);
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_manifest"), targetName);
         }
 
         public void AddShardPointer(string package, string targetName) 
         {
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{package}_shard"), targetName);
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_shard"), targetName);
         }
 
         public void AddDependecy(string parent, string child, bool isExplicity)
         {
             string explicitSwitch = isExplicity ? "_!" : string.Empty;
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"dep_{parent}_{child}{explicitSwitch}"), string.Empty);
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(parent)}_{Obfuscator.Cloak(child)}{explicitSwitch}"), string.Empty);
         }
 
         public void Remove(string package) 
@@ -59,21 +59,21 @@ namespace Tetrifact.Core
 
         public void RemoveManifestPointer(string package)
         {
-            string path = Path.Combine(_tempTransactionFolder, $"{package}_manifest");
+            string path = Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_manifest");
             if (File.Exists(path))
                 File.Delete(path);
         }
 
         public void RemoveShardPointer(string package)
         {
-            string path = Path.Combine(_tempTransactionFolder, $"{package}_shard");
+            string path = Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_shard");
             if (File.Exists(path))
                 File.Delete(path);
         }
 
         public void RemoveDependency(string parent, string child)
         {
-            string path = Path.Combine(_tempTransactionFolder, $"dep_{parent}_{child}");
+            string path = Path.Combine(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(parent)}_{Obfuscator.Cloak(child)}");
             if (File.Exists(path))
                 File.Delete(path);
         }

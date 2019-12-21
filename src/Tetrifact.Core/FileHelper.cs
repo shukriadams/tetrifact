@@ -35,10 +35,10 @@ namespace Tetrifact.Core
             FileHelper.EnsureDirectoryExists(targetDirectory);
 
             foreach (string file in Directory.GetFiles(sourceDirectory))
-                File.Move(file, Path.Join(targetDirectory, Path.GetFileName(file)));
+                File.Move(file, Path.Combine(targetDirectory, Path.GetFileName(file)));
             
             foreach (string subDirectory in Directory.GetDirectories(sourceDirectory))
-                MoveDirectoryContents(subDirectory, Path.Join(targetDirectory, Path.GetFileName(subDirectory)));
+                MoveDirectoryContents(subDirectory, Path.Combine(targetDirectory, Path.GetFileName(subDirectory)));
 
         }
 

@@ -68,11 +68,11 @@ namespace Tetrifact.Core
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
-            this.ProjectsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
+            this.ProjectsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
-            this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
-            this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
-            this.TempBinaries = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp_binaries");
+            this.TempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
+            this.ArchivePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
+            this.TempBinaries = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "temp_binaries");
 
             // try to get settings from env variables
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
