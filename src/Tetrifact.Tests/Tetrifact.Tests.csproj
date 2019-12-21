@@ -9,6 +9,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="IndexReader\**" />
+    <Compile Remove="PackageCreate\**" />
+    <Compile Remove="PackageDeleteLocks\**" />
+    <Compile Remove="PackageList\**" />
+    <Compile Remove="Projects\**" />
+    <Compile Remove="TagsService\**" />
+    <EmbeddedResource Remove="IndexReader\**" />
+    <EmbeddedResource Remove="PackageCreate\**" />
+    <EmbeddedResource Remove="PackageDeleteLocks\**" />
+    <EmbeddedResource Remove="PackageList\**" />
+    <EmbeddedResource Remove="Projects\**" />
+    <EmbeddedResource Remove="TagsService\**" />
+    <None Remove="IndexReader\**" />
+    <None Remove="PackageCreate\**" />
+    <None Remove="PackageDeleteLocks\**" />
+    <None Remove="PackageList\**" />
+    <None Remove="Projects\**" />
+    <None Remove="TagsService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AltCover" Version="5.3.675" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
@@ -27,6 +48,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Tetrifact.Core\Tetrifact.Core.csproj" />
     <ProjectReference Include="..\Tetrifact.Web\Tetrifact.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PackageCreate\" />
   </ItemGroup>
 
 </Project>

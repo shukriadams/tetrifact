@@ -41,14 +41,14 @@ namespace Tetrifact.Core
         public DirectoryInfo GetActiveTransactionInfo(string project) 
         {
             return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
-                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.LastWriteTimeUtc)
+                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.CreationTimeUtc)
                 .FirstOrDefault();
         }
 
         public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
         {
             return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
-                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.LastWriteTimeUtc)
+                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.CreationTimeUtc)
                 .Take(count);
         }
 
@@ -121,6 +121,19 @@ namespace Tetrifact.Core
                 _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {manifestRealPath}");
                 return null;
             }
+        }
+
+        public string GetItemPathOnDisk(string project, string package, string path) 
+        {
+            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
+            if (latestTransactionInfo == null)
+                return null;
+
+            string shardPointer = Path.Combine(latestTransactionInfo.FullName, $"{Obfuscator.Cloak(package)}_shard");
+            if (!File.Exists(shardPointer))
+                return null;
+
+            return Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment, File.ReadAllText(shardPointer), path);
         }
 
         public GetFileResponse GetFile(string project, string id)

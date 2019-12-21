@@ -16,9 +16,9 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageCreate> _packageCreateLogger;
 
-        public PackageDeleter(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageDeleter> logger, ILogger<IPackageCreate> workspaceLogger) 
+        public PackageDeleter(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageDeleter> logger, ILogger<IPackageCreate> packageCreateLogger) 
         {
-            _packageCreateLogger = workspaceLogger;
+            _packageCreateLogger = packageCreateLogger;
             _indexReader = indexReader;
             _settings = settings;
             _logger = logger;

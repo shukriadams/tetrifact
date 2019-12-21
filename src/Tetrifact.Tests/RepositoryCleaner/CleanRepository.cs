@@ -1,47 +1,43 @@
 ﻿using System.IO;
 using Xunit;
 using Tetrifact.Core;
+using System.Threading;
+using System;
 
-namespace Tetrifact.Tests.repositoryCleaner
+namespace Tetrifact.Tests.RepositoryCleaner
 {
     public class CleanRepository : FileSystemBase
     {
         private readonly IRepositoryCleaner _respositoryCleaner;
 
-        private string CreateRepoContent()
-        {
-            string hash = "somehash";
-            string path = "some/path/filename.file";
-            string content = "file content";
-            string projectPath = PathHelper.GetExpectedProjectPath(base.Settings, "some-project");
-            string rootPath = Path.Combine(projectPath, path, hash);
-            Directory.CreateDirectory(rootPath);
-            string filePath = Path.Combine(rootPath, "bin");
-            File.WriteAllText(filePath, content);
-
-            return filePath;
-        }
-
         public CleanRepository()
         {
-            _respositoryCleaner = new RepositoryCleaner(this.IndexReader, this.Settings, new TestLogger<IRepositoryCleaner>());
+            _respositoryCleaner = new Core.Cleaner(this.IndexReader, this.Settings, new TestLogger<IRepositoryCleaner>());
         }
 
+        /// <summary>
+        /// Transaction folders must be cleaned out
+        /// </summary>
         [Fact]
-        public void BasicClean()
+        public void TransactionClean()
         {
-            this.InitProject();
+            // create some transaction folders
+            string projectPath = PathHelper.GetExpectedProjectPath(base.Settings, "some-project");
+            string transaction1 = Path.Combine(projectPath, Constants.TransactionsFragment, DateTime.Now.Ticks.ToString());
+            Directory.CreateDirectory(transaction1);
 
-            // create a file and write to repository using path convention of path/to/file/bin. File is 
-            // not linked to any package
-            string contentPath = CreateRepoContent();
+            Thread.Sleep(100); // wait to ensure fo
+            string transaction2 = Path.Combine(projectPath, Constants.TransactionsFragment, DateTime.Now.Ticks.ToString());
+            Directory.CreateDirectory(transaction2);
 
-            // ensure file exists
-            Assert.True(File.Exists(contentPath));
-
-            // assert file is gone after cleaning repo
+            // force transaction preservation depth to preserve 1, then clean
+            base.Settings.TransactionHistoryDepth = 1;
             _respositoryCleaner.Clean("some-project");
-            Assert.False(File.Exists(contentPath));
+            Thread.Sleep(100); // need to wait to give the 2nd transaction time to separate
+
+            // only the latest transaction should exist
+            Assert.False(Directory.Exists(transaction1));
+            Assert.True(Directory.Exists(transaction2));
         }
     }
 }

@@ -2,13 +2,14 @@
 using Tetrifact.Core;
 using Xunit;
 
-namespace Tetrifact.Tests.Workspace
+namespace Tetrifact.Tests.PackageCreate
 {
-    public class AddIncomingFile : Base
+    public class CreateFromSingle : PackageCreatorBase
     {
         [Fact]
         public void Add()
         {
+            
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
             this.Workspace.AddFile(file, "test/file.txt");

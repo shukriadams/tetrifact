@@ -5,6 +5,9 @@ using Tetrifact.Web;
 
 namespace Tetrifact.Tests
 {
+    /// <summary>
+    /// IOC binding needs to be done here - in Tetrifact.Web we use ASP.Net's IOC system, but for testing we rely on Ninject.
+    /// </summary>
     public class Bindings : NinjectModule
     {
         public override void Load()
@@ -15,16 +18,17 @@ namespace Tetrifact.Tests
             Bind<ILogger<ITetriSettings>>().To<TestLogger<ITetriSettings>>();
             Bind<IIndexReader>().To<TestIndexReader>();
             Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
-            Bind<IWorkspace>().To<TestingWorkspace>();
             Bind<IPackageList>().To<TestPackageList>();
             Bind<IAppLogic>().To<AppLogic>();
 
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreate>().To<Core.PackageCreate>();
+            Bind<IPackageDeleter>().To<Core.PackageDeleter>();
             Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();
             Bind<ILogger<ArchivesController>>().To<TestLogger<ArchivesController>>();
             Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
+            Bind<ILogger<IPackageDeleter>>().To<TestLogger<IPackageDeleter>>();
         }
     }
 }

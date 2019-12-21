@@ -5,24 +5,48 @@ using Tetrifact.Core;
 namespace Tetrifact.Tests
 {
     /// <summary>
-    /// Shim of PackageList for testing purposes, for testing integrations with IPackageList.
+    /// Shims PackageList for testing purposes, for testing integrations with IPackageList.
     /// Instead of reading packages from filesystem, returns whatever is placed in internal static collections. 
     /// These should be primed by unit tests.
     /// </summary>
     public class TestPackageList : IPackageList
     {
-        public static IList<Package> Packages = new List<Package>();
-        public static IList<string> PopularTags = new List<string>();
-        public static IList<string> AllTags = new List<string>();
-        public static IList<string> PackagesWithTag = new List<string>();
-        public static Package LatestPackage;
+        #region FIELDS
 
-        public static void Reset()
+        /// <summary>
+        /// Use to retrieve current instance
+        /// </summary>
+        public static TestPackageList Instance;
+
+        public IList<Package> Packages = new List<Package>();
+
+        public IList<string> PopularTags = new List<string>();
+
+        public IList<string> AllTags = new List<string>();
+
+        public IList<string> PackagesWithTag = new List<string>();
+
+        public Package LatestPackage;
+
+        #endregion
+
+        #region CTORS
+
+        public TestPackageList() 
         {
-            Packages = new List<Package>();
-            PopularTags = new List<string>();
-            AllTags = new List<string>();
-            PackagesWithTag = new List<string>();
+            Instance = this;
+        }
+
+        #endregion
+
+        #region METHODS
+
+        public void Reset()
+        {
+            this.Packages = new List<Package>();
+            this.PopularTags = new List<string>();
+            this.AllTags = new List<string>();
+            this.PackagesWithTag = new List<string>();
         }
 
         /// <summary>
@@ -74,5 +98,7 @@ namespace Tetrifact.Tests
         {
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
         }
+
+        #endregion
     }
 }

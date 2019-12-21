@@ -5,10 +5,15 @@ using System.Text;
 namespace Tetrifact.Core
 {
     /// <summary>
-    /// SHA256 hashing
+    /// Hashes various input date into SHA256.
     /// </summary>
     public class HashService
     {
+        /// <summary>
+        /// Internal method for hexing
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         private static string ToHex(byte[] bytes)
         {
             StringBuilder s = new StringBuilder();
@@ -18,11 +23,6 @@ namespace Tetrifact.Core
             return s.ToString();
         }
 
-        /// <summary>
-        /// Generates a SHA256 hash of the file at the given path.
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
         public static string FromFile(string filePath)
         {
             using (FileStream fs = File.OpenRead(filePath))
@@ -33,11 +33,6 @@ namespace Tetrifact.Core
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public static string FromByteArray(byte[] data)
         {
             MemoryStream stream = new MemoryStream(data);
@@ -48,11 +43,6 @@ namespace Tetrifact.Core
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
         public static string FromString(string str)
         {
             Stream stream = StreamsHelper.StreamFromString(str);

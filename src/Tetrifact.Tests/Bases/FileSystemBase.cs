@@ -1,0 +1,104 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using Tetrifact.Core;
+
+namespace Tetrifact.Tests
+{
+    /// <summary>
+    /// Base for any test type which requires access to the filesystem.
+    /// </summary>
+    public abstract class FileSystemBase : TestBase
+    {
+        #region FIELDS
+
+        protected TestLogger<IIndexReader> Logger;
+        protected TestLogger<IPackageDeleter> DeleterLogger;
+        protected TestLogger<IPackageCreate> PackageCreateLogger;
+        protected TestLogger<IProjectService> ProjectServiceLogger;
+
+        protected IIndexReader IndexReader;
+        protected IPackageDeleter PackageDeleter;
+
+        #endregion
+
+        #region CTORS
+
+        public FileSystemBase()
+        {
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().FullName);
+            if (Directory.Exists(testFolder))
+                Directory.Delete(testFolder, true);
+
+            Directory.CreateDirectory(testFolder);
+
+            Thread.Sleep(200);// race condition fix
+
+
+            Settings = new TetriSettings(new TestLogger<TetriSettings>())
+            {
+                ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
+                TempPath = Path.Combine(testFolder, "temp"),
+                TempBinaries = Path.Combine(testFolder, "temp_binaries"),
+                ArchivePath = Path.Combine(testFolder, "archives")
+            };
+
+            AppLogic appLogic = new AppLogic(Settings);
+            appLogic.Start();
+
+            Logger = new TestLogger<IIndexReader>();
+            DeleterLogger = new TestLogger<IPackageDeleter>();
+            ProjectServiceLogger = new TestLogger<IProjectService>();
+            this.IndexReader = new Core.IndexReader(Settings, Logger);
+            this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, PackageCreateLogger);
+
+            ProjectService projectService = new ProjectService(Settings, ProjectServiceLogger);
+            projectService.Create("some-project");
+        }
+
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// Generates a valid package, returns its unique id.
+        /// </summary>
+        /// <returns></returns>
+        protected DummyPackage CreatePackage()
+        {
+            return this.CreatePackage("somepackage");
+        }
+
+        /// <summary>
+        /// Generates a package with a specific name.
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <returns></returns>
+        protected DummyPackage CreatePackage(string packageName)
+        {
+            // create package, files folder and item location in one
+            DummyPackage testPackage = new DummyPackage(
+                packageName, 
+                new List<DummyFormFile>() { 
+                    new DummyFormFile { Content = "some content", Path=  $"path\\to\\{packageName}" } 
+                } 
+            );
+
+            this.PackageCreateLogger = new TestLogger<IPackageCreate>();
+            
+            IPackageCreate packageCreator = new Core.PackageCreate(this.IndexReader, this.PackageCreateLogger, this.Settings);
+            
+            packageCreator.CreateWithValidation(new PackageCreateArguments {
+                Files = FormFileHelper.Multiple(testPackage.Files),
+                Id = testPackage.Name,
+                Project = "some-project"
+            });
+
+            return testPackage;
+        }
+
+        #endregion
+
+    }
+}

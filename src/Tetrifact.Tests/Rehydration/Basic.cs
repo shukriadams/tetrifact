@@ -15,7 +15,6 @@ namespace Tetrifact.Tests.Rehydration
         [Fact]
         public void Basic() 
         {
-            this.InitProject();
             string contentBase = "some content";
             string content = "";
             int steps = 5;
@@ -38,7 +37,7 @@ namespace Tetrifact.Tests.Rehydration
             for (int i = 0; i < steps; i++)
             {
                 expectedContent = expectedContent + contentBase;
-                GetFileResponse response = IndexReader.GetFile("some-project", FileIdentifier.Cloak($"my package{i}", "folder/file" ));
+                GetFileResponse response = IndexReader.GetFile("some-project", Core.FileIdentifier.Cloak($"my package{i}", "folder/file" ));
                 using (StreamReader reader = new StreamReader(response.Content))
                 {
                     string retrievedContent = reader.ReadToEnd();
@@ -46,11 +45,11 @@ namespace Tetrifact.Tests.Rehydration
                 }
             }
 
-            Assert.True(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ShardsFragment, "my package0", "folder/file", "bin")));
-            Assert.True(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ShardsFragment, "my package1", "folder/file", "patch")));
-            Assert.True(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ShardsFragment, "my package2", "folder/file", "patch")));
-            Assert.True(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ShardsFragment, "my package3", "folder/file", "patch")));
-            Assert.True(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ShardsFragment, "my package4", "folder/file", "patch")));
+            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package0", "folder/file/bin")));
+            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package1", "folder/file/patch")));
+            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package2", "folder/file/patch")));
+            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package3", "folder/file/patch")));
+            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package4", "folder/file/patch")));
         }
     }
 }

@@ -8,13 +8,18 @@ namespace Tetrifact.Tests
     {
         #region FIELDS 
 
+        /// <summary>
+        /// Use to retrieve current instance of shim.
+        /// </summary>
+        public static TestIndexReader Instance;
+
         private readonly Dictionary<string, string> _matchingHashPackage = new Dictionary<string, string>();
 
         #endregion
 
         #region PROPERTIES
 
-        public static IEnumerable<string> Test_Indexes { get; set; }
+        public IEnumerable<string> Test_Indexes { get; set; }
 
         public bool Test_PackageIdExists { get; set; }
 
@@ -27,6 +32,15 @@ namespace Tetrifact.Tests
         public string Test_Head { get; set; }
 
         public IEnumerable<string> Test_Projects { get; set; }
+
+        #endregion
+
+        #region CTORS
+
+        public TestIndexReader() 
+        {
+            Instance = this;
+        }
 
         #endregion
 
@@ -140,6 +154,11 @@ namespace Tetrifact.Tests
         public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
         {
             throw new System.NotImplementedException();
+        }
+
+        public string GetItemPathOnDisk(string project, string package, string path) 
+        {
+            return null;
         }
 
         #endregion

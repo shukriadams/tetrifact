@@ -6,13 +6,14 @@ namespace Tetrifact.Tests.AppStart
     public class Initialize : FileSystemBase
     {
         /// <summary>
-        /// Confirms that Initialize() worked - this was called in the CTOR of Base.
+        /// App creates high-level folder structure on start.
         /// </summary>
         [Fact]
         public void InitializeTest()
         {
+            // no need for for setup, FileSystemBase calls AppLogic.Start, all we need to do is confirm folders were created
+            Assert.True(Directory.Exists(this.Settings.ProjectsPath));
             Assert.True(Directory.Exists(this.Settings.TempPath));
-            Assert.True(Directory.Exists(this.Settings.ArchivePath));
             Assert.True(Directory.Exists(this.Settings.TempBinaries));
         }
     }

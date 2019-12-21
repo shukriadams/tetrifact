@@ -7,9 +7,9 @@ namespace Tetrifact.Core
     public class ProjectService : IProjectService
     {
         ITetriSettings _settings;
-        ILogger<ProjectService> _logger;
+        ILogger<IProjectService> _logger;
 
-        public ProjectService(ITetriSettings settings, ILogger<ProjectService> logger) 
+        public ProjectService(ITetriSettings settings, ILogger<IProjectService> logger) 
         {
             _settings = settings;
             _logger = logger;
@@ -25,11 +25,9 @@ namespace Tetrifact.Core
 
                 Directory.CreateDirectory(projectsRoot);
 
-                string packagesPath = Path.Combine(projectsRoot, Constants.ManifestsFragment);
-                Directory.CreateDirectory(packagesPath);
-
-                string transactionsPath = Path.Combine(projectsRoot, Constants.TransactionsFragment);
-                Directory.CreateDirectory(transactionsPath);
+                Directory.CreateDirectory(Path.Combine(projectsRoot, Constants.ManifestsFragment));
+                Directory.CreateDirectory(Path.Combine(projectsRoot, Constants.TransactionsFragment));
+                Directory.CreateDirectory(Path.Combine(projectsRoot, Constants.ShardsFragment));
 
                 return new ProjectCreateResult { Success = true };
 

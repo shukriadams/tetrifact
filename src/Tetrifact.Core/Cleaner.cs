@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
 {
-    public class RepositoryCleaner : IRepositoryCleaner
+    public class Cleaner : IRepositoryCleaner
     {
         #region FIELDS
 
@@ -22,7 +22,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleaner(IIndexReader indexReader, ITetriSettings settings, ILogger<IRepositoryCleaner> logger)
+        public Cleaner(IIndexReader indexReader, ITetriSettings settings, ILogger<IRepositoryCleaner> logger)
         {
             _settings = settings;
             _logger = logger;

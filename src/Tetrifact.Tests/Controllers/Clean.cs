@@ -1,14 +1,5 @@
-using Tetrifact.Web;
-using System.Collections.Generic;
 using Xunit;
 using Ninject;
-using Tetrifact.Core;
-using System.Linq;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using System;
-using System.IO.Compression;
 
 namespace Tetrifact.Tests.Controllers
 {
@@ -19,8 +10,6 @@ namespace Tetrifact.Tests.Controllers
         public Clean()
         {
             _controller = this.Kernel.Get<Tetrifact.Web.CleanController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>

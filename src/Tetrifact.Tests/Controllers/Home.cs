@@ -3,6 +3,7 @@ using Xunit;
 using Ninject;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Tetrifact.Tests.Controllers
 {
@@ -13,23 +14,27 @@ namespace Tetrifact.Tests.Controllers
         public Home()
         {
             _controller = this.Kernel.Get<HomeController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>
-        /// Confirms that the controller initialized and can be called.
+        /// Index returns a valid render model
         /// </summary>
         [Fact]
-        public void Touch()
+        public void Index()
         {
-            base.InitProject();
-            var result = _controller.Index();
+            // set fake projects
+            TestIndexReader.Instance.Test_Projects = new List<string>() { "1", "2" };
 
-            var viewResult = Assert.IsType<ViewResult>(result);
+            // "render"
+            IActionResult result = _controller.Index();
+
+            // test
+            ViewResult viewResult = Assert.IsType<ViewResult>(result);
             ContentSummaryModel model = Assert.IsAssignableFrom<ContentSummaryModel>(viewResult.ViewData.Model);
             Assert.Equal(2, model.Projects.Count());
+            Assert.Contains("1", model.Projects);
+            Assert.Contains("2", model.Projects);
         }
-        
+
     }
 }

@@ -134,5 +134,14 @@ namespace Tetrifact.Core
         /// </summary>
         /// <returns></returns>
         IEnumerable<string> GetProjects();
+
+        /// <summary>
+        /// Gets the absolute path of an item if it exists.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        string GetItemPathOnDisk(string project, string package, string path);
     }
 }

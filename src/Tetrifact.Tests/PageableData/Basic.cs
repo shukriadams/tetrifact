@@ -3,10 +3,10 @@ using Xunit;
 
 namespace Tetrifact.Tests
 {
-    public class PageableDataTests
+    public class Basic
     {
         /// <summary>
-        /// Coverage compliance tests, ensures that modulus condition in PageableData ctor is reached.
+        /// Coverage compliance. Ensures modulus condition in PageableData ctor is reached by adding odd number of page items.
         /// </summary>
         [Fact]
         public void Modulus()
