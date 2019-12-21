@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http.Internal;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Tetrifact.Core;
 using Xunit;
 
@@ -33,7 +32,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = files
             };
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(package);
 
             Assert.True(result.Success);
             Assert.Null(result.PublicError);
@@ -78,7 +77,7 @@ namespace Tetrifact.Tests.PackageCreate
             Stream fileStream2 = StreamsHelper.StreamFromString("contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwerty");
 
             // create first package
-            PackageCreateResult result = await PackageCreate.CreatePackage(new PackageCreateArguments
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(new PackageCreateArguments
             {
                 Id = "my package1",
                 Project = "some-project",
@@ -89,7 +88,7 @@ namespace Tetrifact.Tests.PackageCreate
 
 
             // create second package
-            result = await PackageCreate.CreatePackage(new PackageCreateArguments
+            result = await PackageCreate.CreateWithValidation(new PackageCreateArguments
             {
                 Id = "my package2",
                 Project = "some-project",
@@ -114,7 +113,7 @@ namespace Tetrifact.Tests.PackageCreate
             Stream fileStream = StreamsHelper.StreamFromString("content");
 
             // create first package
-            PackageCreateResult result = await PackageCreate.CreatePackage(new PackageCreateArguments
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(new PackageCreateArguments
             {
                 Id = "my package1",
                 Project = "some-project",
@@ -124,7 +123,7 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.True(result.Success);
 
 
-            result = await PackageCreate.CreatePackage(new PackageCreateArguments
+            result = await PackageCreate.CreateWithValidation(new PackageCreateArguments
             {
                 Id = "my package2",
                 Project = "some-project",
@@ -150,7 +149,7 @@ namespace Tetrifact.Tests.PackageCreate
             // empty argument list
             PackageCreateArguments args = new PackageCreateArguments();
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(args);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Files collection is empty.", result.PublicError);
         }
@@ -164,7 +163,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<IFormFile>()
             };
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(args);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Files collection is empty.", result.PublicError);
         }        
@@ -176,7 +175,7 @@ namespace Tetrifact.Tests.PackageCreate
             args.Files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"));
 
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(args);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Id is required.", result.PublicError);
         }   
@@ -196,11 +195,11 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<IFormFile>() {new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")}
             };
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(package);
             Assert.True(result.Success);
 
             // attempt to create package with same name
-            result = await PackageCreate.CreatePackage(package);
+            result = await PackageCreate.CreateWithValidation(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.PackageExists, result.ErrorType);
         }
@@ -224,7 +223,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }
@@ -247,7 +246,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = await PackageCreate.CreatePackage(package);
+            PackageCreateResult result = await PackageCreate.CreateWithValidation(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidArchiveFormat, result.ErrorType);
         }

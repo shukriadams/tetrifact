@@ -3,7 +3,7 @@
 namespace Tetrifact.Tests
 {
     /// <summary>
-    /// Base type for tests which require package creation logic through the formal API.
+    /// Base type for tests which require package creation logic using the production API.
     /// </summary>
     public abstract class PackageCreatorBase : FileSystemBase
     {

@@ -9,9 +9,9 @@ namespace Tetrifact.DevUtils
         public override void Load()
         {
             Bind<IPackageCreate>().To<PackageCreate>();
+            Bind<IPackageDeleter>().To<PackageDeleter>();
             Bind<IIndexReader>().To<IndexReader>();
             Bind<ITetriSettings>().To<TetriSettings>();
-            Bind<IWorkspace>().To<Workspace>();
             Bind<ILogger<ITetriSettings>>().To<FileLogger<ITetriSettings>>();
             Bind<ILogger<IPackageCreate>>().To<FileLogger<IPackageCreate>>();
             Bind<ILogger<IIndexReader>>().To<FileLogger<IIndexReader>>();

@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using Xunit;
 
-namespace Tetrifact.Tests.Workspace
+namespace Tetrifact.Tests.PackageCreate
 {
-    public class AddZipContent : Base
+    public class AddZipContent : PackageCreatorBase
     {
         [Fact]
         public void AddContent()
@@ -21,7 +23,8 @@ namespace Tetrifact.Tests.Workspace
                     }
                 }
 
-                base.Workspace.AddArchive(memoryStream, Core.ArchiveTypes.zip);
+                base.PackageCreate.CreateWithValidation(new Core.PackageCreateArguments());
+
                 string filePath = Path.Combine(base.Workspace.WorkspacePath, "incoming", "path", "file.txt");
                 string readContent = File.ReadAllText(filePath);
                 Assert.Equal("content", readContent);

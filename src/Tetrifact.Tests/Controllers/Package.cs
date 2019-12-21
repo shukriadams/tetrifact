@@ -61,7 +61,7 @@ namespace Tetrifact.Tests.Controllers
                 }
             };
 
-            PackageCreateResult result = await _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = await _packageService.CreateWithValidation(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
             Assert.Empty(TestingWorkspace.Incoming);
@@ -109,7 +109,7 @@ namespace Tetrifact.Tests.Controllers
                 }
             };
 
-            PackageCreateResult result = await _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = await _packageService.CreateWithValidation(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
             Assert.Empty(TestingWorkspace.Incoming);
@@ -132,7 +132,7 @@ namespace Tetrifact.Tests.Controllers
                 }
             };
 
-            PackageCreateResult result = await _packageService.CreatePackage(postArgs);
+            PackageCreateResult result = await _packageService.CreateWithValidation(postArgs);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }

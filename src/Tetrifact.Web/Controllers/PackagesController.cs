@@ -57,8 +57,6 @@ namespace Tetrifact.Web
 
         #region METHODS
 
-
-
         /// <summary>
         /// Gets a page of packages
         /// Gets an array of all package ids 
@@ -169,7 +167,7 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = await _packageService.CreatePackage(post);
+                PackageCreateResult result = await _packageService.CreateWithValidation(post);
                 if (result.Success)
                 {
                     _packageList.Clear(post.Project);

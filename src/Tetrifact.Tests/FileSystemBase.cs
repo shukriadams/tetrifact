@@ -12,7 +12,6 @@ namespace Tetrifact.Tests
     public abstract class FileSystemBase : TestBase
     {
         protected TestLogger<IIndexReader> Logger;
-        protected TestLogger<IWorkspace> WorkspaceLogger;
         protected TestLogger<IPackageDeleter> DeleterLogger;
         protected IIndexReader IndexReader;
         protected IPackageDeleter PackageDeleter;

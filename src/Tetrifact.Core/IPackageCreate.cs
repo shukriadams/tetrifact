@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -21,6 +22,15 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="package"></param>
         /// <returns></returns>
-        Task<PackageCreateResult> CreatePackage(PackageCreateArguments package);
+        Task<PackageCreateResult> CreateWithValidation(PackageCreateArguments package);
+
+        /// <summary>
+        /// Creates a package from an existing package. This must always be done against a reference package, and is intended for package deleting.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        /// <param name="referencePackage"></param>
+        /// <param name="transaction"></param>
+        void CreateFromExisting(string project, string package, string referencePackage, Transaction transaction);
     }
 }

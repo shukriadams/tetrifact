@@ -15,11 +15,11 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageDeleter> _logger;
 
-        private readonly ILogger<IWorkspace> _workspaceLogger;
+        private readonly ILogger<IPackageCreate> _packageCreateLogger;
 
-        public PackageDeleter(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageDeleter> logger, ILogger<IWorkspace> workspaceLogger) 
+        public PackageDeleter(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageDeleter> logger, ILogger<IPackageCreate> workspaceLogger) 
         {
-            _workspaceLogger = workspaceLogger;
+            _packageCreateLogger = workspaceLogger;
             _indexReader = indexReader;
             _settings = settings;
             _logger = logger;
@@ -49,21 +49,8 @@ namespace Tetrifact.Core
                 foreach (string dependencyFile in depedencies)
                 {
                     string dependencyPackage = Path.GetFileName(dependencyFile.Replace($"dep_{package}_", string.Empty));
-                    IWorkspace workspace = new Workspace(_indexReader, _settings, _workspaceLogger);
-                    workspace.Initialize(project);
-
-                    // rehydrate entire package to temp location
-                    Manifest manifest = _indexReader.GetManifest(project, dependencyPackage);
-                    foreach (ManifestItem file in manifest.Files)
-                    {
-                        using (Stream sourceFile = _indexReader.GetFile(project, file.Id).Content)
-                        {
-                            workspace.AddFile(sourceFile, file.Path);
-                        }
-                    }
-
-                    workspace.StageAllFiles(dependencyPackage, packageToDeleteManifest.DependsOn);
-                    workspace.Commit(project, dependencyPackage, packageToDeleteManifest.DependsOn, transaction);
+                    IPackageCreate packageCreate = new PackageCreate(_indexReader, _packageCreateLogger, _settings);
+                    packageCreate.CreateFromExisting(project, dependencyPackage, packageToDeleteManifest.DependsOn, transaction);
                 }
 
                 // merge patches into next package

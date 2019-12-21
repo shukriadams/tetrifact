@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.IndexReader
                 Stream fileStream = StreamsHelper.StreamFromString($"content-{i}");
 
                 // create package
-                PackageCreateResult result = await PackageCreate.CreatePackage(new PackageCreateArguments
+                PackageCreateResult result = await PackageCreate.CreateWithValidation(new PackageCreateArguments
                 {
                     Id = $"my package{i}",
                     Project = "some-project",

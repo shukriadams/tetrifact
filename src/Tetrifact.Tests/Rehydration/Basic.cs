@@ -25,7 +25,7 @@ namespace Tetrifact.Tests.Rehydration
                 content = content + contentBase;
                 Stream fileStream = StreamsHelper.StreamFromString(content);
 
-                PackageCreate.CreatePackage(new PackageCreateArguments
+                PackageCreate.CreateWithValidation(new PackageCreateArguments
                 {
                     Id = $"my package{i}",
                     Project = "some-project",
