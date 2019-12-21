@@ -13,7 +13,9 @@ namespace Tetrifact.Tests
     {
         protected TestLogger<IIndexReader> Logger;
         protected TestLogger<IWorkspace> WorkspaceLogger;
+        protected TestLogger<IPackageDeleter> DeleterLogger;
         protected IIndexReader IndexReader;
+        protected IPackageDeleter PackageDeleter;
 
         /// <summary>
         /// Defines a test package with a single file.
@@ -59,7 +61,9 @@ namespace Tetrifact.Tests
             appLogic.Start();
 
             Logger = new TestLogger<IIndexReader>();
+            DeleterLogger = new TestLogger<IPackageDeleter>();
             this.IndexReader = new Core.IndexReader(Settings, Logger);
+            this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, WorkspaceLogger);
         }
 
         /// <summary>

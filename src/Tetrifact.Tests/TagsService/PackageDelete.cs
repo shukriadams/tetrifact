@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.TagsService
             TestPackage package = this.CreatePackage();
             string tag = "mytag";
             base.TagsService.AddTag("some-project", package.Name, tag);
-            base.IndexReader.MarkPackageForDelete("some-project", package.Name);
+            base.PackageDeleter.Delete("some-project", package.Name);
 
             IEnumerable<Package> packages = base.PackageList.GetWithTag("some-project", tag, 0, 10);
             Assert.Empty(packages);

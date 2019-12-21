@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using Tetrifact.Core;
 using Xunit;
@@ -13,7 +12,7 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestPackage testPackage = base.CreatePackage();
 
-            this.IndexReader.MarkPackageForDelete("some-project", testPackage.Name);
+            this.PackageDeleter.Delete("some-project", testPackage.Name);
 
             Assert.False(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "manifest.json" )));
         }
@@ -36,7 +35,7 @@ namespace Tetrifact.Tests.IndexReader
                 // force write something to stream to ensure it locks
                 fs.Write(Encoding.ASCII.GetBytes("random"));
 
-                this.IndexReader.MarkPackageForDelete("some-project", testPackage.Name);
+                this.PackageDeleter.Delete("some-project", testPackage.Name);
 
                 Assert.Single(base.Logger.LogEntries);
                 Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
@@ -44,18 +43,18 @@ namespace Tetrifact.Tests.IndexReader
         }
 
         [Fact]
-        public void InvalidProject()
+        public async void InvalidProject()
         {
-            ProjectNotFoundException ex = Assert.Throws<ProjectNotFoundException>(() => this.IndexReader.MarkPackageForDelete("some-project", "invalidId"));
+            ProjectNotFoundException ex = await Assert.ThrowsAsync<ProjectNotFoundException>(async () => await this.PackageDeleter.Delete("some-project", "invalidId"));
             Assert.Equal("some-project", ex.Project);
         }
 
         [Fact]
-        public void InvalidPackage()
+        public async void InvalidPackage()
         {
             this.InitProject();
             string packageId = "invalidId";
-            PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(()=> this.IndexReader.MarkPackageForDelete("some-project", packageId));
+            PackageNotFoundException ex = await Assert.ThrowsAsync<PackageNotFoundException>(async ()=> await this.PackageDeleter.Delete("some-project", packageId));
             Assert.Equal(ex.PackageId, packageId);
         }
 

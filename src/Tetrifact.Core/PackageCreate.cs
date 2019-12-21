@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
@@ -37,7 +36,6 @@ namespace Tetrifact.Core
         /// <param name="manifest"></param>
         public async Task<PackageCreateResult> CreatePackage(PackageCreateArguments newPackage)
         {
-            List<string> transactionLog = new List<string>();
             string[] allowedFormats = new string[] { "zip", "tar.gz" };
             LockRequest lockRequest = new LockRequest();
 
@@ -75,9 +73,6 @@ namespace Tetrifact.Core
                 // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
                 if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetManifest(newPackage.Project, newPackage.BranchFrom) == null) 
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
-
-                // write attachments to work folder 
-                long size = newPackage.Files.Sum(f => f.Length);
 
                 _workspace.Initialize(newPackage.Project);
 

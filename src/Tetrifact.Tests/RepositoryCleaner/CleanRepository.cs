@@ -13,8 +13,8 @@ namespace Tetrifact.Tests.repositoryCleaner
             string hash = "somehash";
             string path = "some/path/filename.file";
             string content = "file content";
-            string reposPath = PathHelper.GetExpectedRepositoryPath(base.Settings, "some-project");
-            string rootPath = Path.Combine(reposPath, path, hash);
+            string projectPath = PathHelper.GetExpectedProjectPath(base.Settings, "some-project");
+            string rootPath = Path.Combine(projectPath, path, hash);
             Directory.CreateDirectory(rootPath);
             string filePath = Path.Combine(rootPath, "bin");
             File.WriteAllText(filePath, content);
@@ -43,28 +43,5 @@ namespace Tetrifact.Tests.repositoryCleaner
             _respositoryCleaner.Clean("some-project");
             Assert.False(File.Exists(contentPath));
         }
-
-        /*
-        [Fact]
-        public void LinkLocked()
-        {
-            TestPackage package = base.CreatePackage();
-            Core.LinkLock.Instance.Lock(package.Name);
-            Settings.LinkLockWaitTime = 1; // millisecond
-            int ticks = 0;
-
-
-            Task.Run(() =>
-            {
-                _respositoryCleaner.Clean();
-            });
-            
-            while(ticks < 10){
-                ticks ++;    
-                Thread.Sleep(10);
-            }
-            Core.LinkLock.Instance.Lock(package.Name);            
-        }
-        */
     }
 }
