@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -34,17 +33,14 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public async Task AddTag(string project, string packageId, string tag)
+        public void AddTag(string project, string packageId, string tag)
         {
-            LockRequest lockRequest = new LockRequest();
-
             try 
             {
-                await lockRequest.Get();
+                LinkLock.Instance.WaitUntilClear();
 
                 // get current manifest
                 Manifest manifest = _indexReader.GetManifest(project, packageId);
-
 
                 if (manifest == null)
                     throw new PackageNotFoundException(packageId);
@@ -69,18 +65,16 @@ namespace Tetrifact.Core
                 return;
 
             } finally {
-                LinkLock.Instance.Release();
+                LinkLock.Instance.Clear();
             }
 
         }
 
-        public async Task RemoveTag(string project, string packageId, string tag)
+        public void RemoveTag(string project, string packageId, string tag)
         {
-            LockRequest lockRequest = new LockRequest();
-
             try
             {
-                await lockRequest.Get();
+                LinkLock.Instance.WaitUntilClear();
 
                 // get current manifest
                 Manifest manifest = _indexReader.GetManifest(project, packageId);
@@ -110,7 +104,7 @@ namespace Tetrifact.Core
             }
             finally 
             {
-                LinkLock.Instance.Release();
+                LinkLock.Instance.Clear();
             }
 
         }

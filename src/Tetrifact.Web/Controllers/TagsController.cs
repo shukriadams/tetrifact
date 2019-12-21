@@ -86,12 +86,12 @@ namespace Tetrifact.Web
 
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{tag}/{project}/{packageId}")]
-        public async Task<ActionResult> AddTag(string tag, string project, string packageId)
+        public ActionResult AddTag(string tag, string project, string packageId)
         {
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                await _tagsService.AddTag(project, packageId, tag);
+                _tagsService.AddTag(project, packageId, tag);
                 return Ok($"Tag {tag} was added to package {packageId}");
             }
             catch (PackageNotFoundException)
@@ -110,12 +110,12 @@ namespace Tetrifact.Web
 
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{tag}/{project}/{packageId}")]
-        public async Task<ActionResult> RemoveTag(string tag, string project, string packageId)
+        public ActionResult RemoveTag(string tag, string project, string packageId)
         {
             try
             {
                 tag = HttpUtility.UrlDecode(tag);
-                await _tagsService.RemoveTag(project, packageId, tag);
+                _tagsService.RemoveTag(project, packageId, tag);
                 return Ok($"Tag {tag} was removed from package {packageId}");
             }
             catch (PackageNotFoundException)

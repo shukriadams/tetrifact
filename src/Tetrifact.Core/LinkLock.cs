@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Tetrifact.Core
@@ -45,7 +44,7 @@ namespace Tetrifact.Core
             return _isLocked;
         }
 
-        public async void Get()
+        public void WaitUntilClear()
         {
             while (true)
             {
@@ -62,7 +61,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public void Release()
+        public void Clear()
         {
             lock (_syncRoot)
             {

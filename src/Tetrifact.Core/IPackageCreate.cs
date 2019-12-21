@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Tetrifact.Core
+﻿namespace Tetrifact.Core
 {
     /// <summary>
     /// Defines a type that creates a package. Packages are created in three distinct ways:
@@ -22,7 +19,7 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="package"></param>
         /// <returns></returns>
-        Task<PackageCreateResult> CreateWithValidation(PackageCreateArguments package);
+        PackageCreateResult CreateWithValidation(PackageCreateArguments package);
 
         /// <summary>
         /// Creates a package from an existing package. This must always be done against a reference package, and is intended for package deleting.

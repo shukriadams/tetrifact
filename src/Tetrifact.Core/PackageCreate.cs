@@ -56,14 +56,12 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public async Task<PackageCreateResult> CreateWithValidation(PackageCreateArguments newPackage)
+        public PackageCreateResult CreateWithValidation(PackageCreateArguments newPackage)
         {
-            LockRequest lockRequest = new LockRequest();
-
             try
             {
                 // wait until current write process is free
-                await lockRequest.Get();
+                LinkLock.Instance.WaitUntilClear();
 
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
@@ -128,7 +126,7 @@ namespace Tetrifact.Core
             }
             finally
             {
-                LinkLock.Instance.Release();
+                LinkLock.Instance.Clear();
                 this.Dispose();
             }
         }

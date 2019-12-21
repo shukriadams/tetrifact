@@ -12,7 +12,7 @@ namespace Tetrifact.Core
 
             Task.Factory.StartNew(delegate()
             {
-                LinkLock.Instance.Get();
+                LinkLock.Instance.WaitUntilClear();
                 _done.TrySetResult(null);
             });
 

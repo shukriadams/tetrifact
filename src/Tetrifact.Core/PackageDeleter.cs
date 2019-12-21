@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -25,13 +24,11 @@ namespace Tetrifact.Core
             _logger = logger;
         }
 
-        public async Task Delete(string project, string package)
+        public void Delete(string project, string package)
         {
-            LockRequest lockRequest = new LockRequest();
-
             try
             {
-                await lockRequest.Get();
+                LinkLock.Instance.WaitUntilClear();
 
                 Manifest packageToDeleteManifest = _indexReader.GetManifest(project, package);
                 if (packageToDeleteManifest == null)
@@ -62,7 +59,7 @@ namespace Tetrifact.Core
             }
             finally
             {
-                LinkLock.Instance.Release();
+                LinkLock.Instance.Clear();
             }
         }
     }

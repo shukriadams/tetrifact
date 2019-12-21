@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Tetrifact.Core
+﻿namespace Tetrifact.Core
 {
     /// <summary>
     /// Defines a type for interacting with package tags.
@@ -13,7 +11,7 @@ namespace Tetrifact.Core
         /// <param name="project">Project name of the package to add tag to</param>
         /// <param name="package">Package identifier to add tag to</param>
         /// <param name="tag">Tag text to add</param>
-        Task AddTag(string project, string package, string tag);
+        void AddTag(string project, string package, string tag);
 
         /// <summary>
         /// Removes a tag from a package
@@ -21,6 +19,6 @@ namespace Tetrifact.Core
         /// <param name="project">Project name of the package to remove tag from</param>
         /// <param name="package">Package identifier remove tag from</param>
         /// <param name="tag">Tag text to remove</param>
-        Task RemoveTag(string project, string package, string tag);
+        void RemoveTag(string project, string package, string tag);
     }
 }

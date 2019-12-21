@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Tetrifact.Core
+﻿namespace Tetrifact.Core
 {
     public interface IPackageDeleter
     {
@@ -11,6 +9,6 @@ namespace Tetrifact.Core
         /// 3 - Find all dead-end packages linked to this one, and mark their manifests for deleting as well.
         /// </summary>
         /// <param name="package"></param>
-        Task Delete(string project, string package);
+        void Delete(string project, string package);
     }
 }

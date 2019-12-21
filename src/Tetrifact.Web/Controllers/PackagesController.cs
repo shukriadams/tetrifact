@@ -155,7 +155,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{project}/{id}")]
-        public async Task<ActionResult> AddPackage([FromForm]PackageCreateArguments post)
+        public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = await _packageService.CreateWithValidation(post);
+                PackageCreateResult result = _packageService.CreateWithValidation(post);
                 if (result.Success)
                 {
                     _packageList.Clear(post.Project);
@@ -205,11 +205,11 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{project}/{package}")]
-        public async Task<ActionResult> DeletePackage(string project, string package)
+        public ActionResult DeletePackage(string project, string package)
         {
             try
             {
-                await _packageDeleter.Delete(project, package);
+                _packageDeleter.Delete(project, package);
                 _packageList.Clear(project);
                 return Ok();
             }
