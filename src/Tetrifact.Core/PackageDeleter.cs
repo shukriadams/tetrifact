@@ -28,7 +28,7 @@ namespace Tetrifact.Core
         {
             try
             {
-                LinkLock.Instance.WaitUntilClear();
+                WriteLock.Instance.WaitUntilClear(project);
 
                 Manifest packageToDeleteManifest = _indexReader.GetManifest(project, package);
                 if (packageToDeleteManifest == null)
@@ -59,7 +59,7 @@ namespace Tetrifact.Core
             }
             finally
             {
-                LinkLock.Instance.Clear();
+                WriteLock.Instance.Clear(project);
             }
         }
     }

@@ -37,7 +37,7 @@ namespace Tetrifact.Core
         {
             try 
             {
-                LinkLock.Instance.WaitUntilClear();
+                WriteLock.Instance.WaitUntilClear(project);
 
                 // get current manifest
                 Manifest manifest = _indexReader.GetManifest(project, packageId);
@@ -65,7 +65,7 @@ namespace Tetrifact.Core
                 return;
 
             } finally {
-                LinkLock.Instance.Clear();
+                WriteLock.Instance.Clear(project);
             }
 
         }
@@ -74,7 +74,7 @@ namespace Tetrifact.Core
         {
             try
             {
-                LinkLock.Instance.WaitUntilClear();
+                WriteLock.Instance.WaitUntilClear(project);
 
                 // get current manifest
                 Manifest manifest = _indexReader.GetManifest(project, packageId);
@@ -104,7 +104,7 @@ namespace Tetrifact.Core
             }
             finally 
             {
-                LinkLock.Instance.Clear();
+                WriteLock.Instance.Clear(project);
             }
 
         }

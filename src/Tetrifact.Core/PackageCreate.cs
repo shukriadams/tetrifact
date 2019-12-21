@@ -61,7 +61,7 @@ namespace Tetrifact.Core
             try
             {
                 // wait until current write process is free
-                LinkLock.Instance.WaitUntilClear();
+                WriteLock.Instance.WaitUntilClear(newPackage.Project);
 
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
@@ -126,7 +126,7 @@ namespace Tetrifact.Core
             }
             finally
             {
-                LinkLock.Instance.Clear();
+                WriteLock.Instance.Clear(newPackage.Project);
                 this.Dispose();
             }
         }
