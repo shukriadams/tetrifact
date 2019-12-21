@@ -10,9 +10,9 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Get()
         {
-            this.Workspace.AddIncomingFile(StreamsHelper.StreamFromString("content"), "path1/file1.txt");
-            this.Workspace.AddIncomingFile(StreamsHelper.StreamFromString("content"), "path2/to/file2.txt");
-            this.Workspace.AddIncomingFile(StreamsHelper.StreamFromString("content"), "file3.txt");
+            this.Workspace.AddFile(StreamsHelper.StreamFromString("content"), "path1/file1.txt");
+            this.Workspace.AddFile(StreamsHelper.StreamFromString("content"), "path2/to/file2.txt");
+            this.Workspace.AddFile(StreamsHelper.StreamFromString("content"), "file3.txt");
 
             string[] files = this.Workspace.GetIncomingFileNames().ToArray();
             Assert.Contains(Path.Join("path1", "file1.txt"), files);

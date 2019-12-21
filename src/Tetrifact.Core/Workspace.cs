@@ -74,7 +74,7 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(Path.Combine(this.WorkspacePath, Constants.StagingFragment));
         }
 
-        public bool AddIncomingFile(Stream formFile, string relativePath)
+        public bool AddFile(Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
                 return false;
@@ -202,55 +202,55 @@ namespace Tetrifact.Core
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
         }
 
-        public void AddTarContent(Stream file) 
-        {
-            using (IReader reader = TarReader.Open(file))
-            {
-                while (reader.MoveToNextEntry())
+        public void AddArchive(Stream file, ArchiveTypes type) 
+        { 
+            if (type == ArchiveTypes.zip)
+                using (var archive = new ZipArchive(file))
                 {
-                    IEntry entry = reader.Entry;
-                    if (reader.Entry.IsDirectory)
-                        continue;
-
-                    using (EntryStream entryStream = reader.OpenEntryStream())
+                    foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        string targetFile = Path.Combine(this.WorkspacePath, "incoming", reader.Entry.Key);
-                        string targetDirectory = Path.GetDirectoryName(targetFile);
-                        if (!Directory.Exists(targetDirectory))
-                            Directory.CreateDirectory(targetDirectory);
-
-                        // if .Name is empty it's a directory
-                        if (!reader.Entry.IsDirectory)
-                            using (var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write))
-                            {
-                                entryStream.CopyTo(fileStream);
-                            }
-                    }
-                }
-            }
-        }
-
-        public void AddZipContent(Stream file)
-        {
-            using (var archive = new ZipArchive(file))
-            {
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    if (entry != null)
-                    {
-                        using (Stream unzippedEntryStream = entry.Open())
+                        if (entry != null)
                         {
-                            string targetFile = Path.Combine(this.WorkspacePath, "incoming", entry.FullName);
-                            string targetDirectory = Path.GetDirectoryName(targetFile);
-                            FileHelper.EnsureDirectoryExists(targetDirectory);
+                            using (Stream unzippedEntryStream = entry.Open())
+                            {
+                                string targetFile = Path.Combine(this.WorkspacePath, "incoming", entry.FullName);
+                                string targetDirectory = Path.GetDirectoryName(targetFile);
+                                FileHelper.EnsureDirectoryExists(targetDirectory);
 
-                            // if .Name is empty it's a directory
-                            if (!string.IsNullOrEmpty(entry.Name))
-                                entry.ExtractToFile(targetFile);
+                                // if .Name is empty it's a directory
+                                if (!string.IsNullOrEmpty(entry.Name))
+                                    entry.ExtractToFile(targetFile);
+                            }
                         }
                     }
                 }
-            }
+
+
+            if (type == ArchiveTypes.gz)
+                using (IReader reader = TarReader.Open(file))
+                {
+                    while (reader.MoveToNextEntry())
+                    {
+                        IEntry entry = reader.Entry;
+                        if (reader.Entry.IsDirectory)
+                            continue;
+
+                        using (EntryStream entryStream = reader.OpenEntryStream())
+                        {
+                            string targetFile = Path.Combine(this.WorkspacePath, "incoming", reader.Entry.Key);
+                            string targetDirectory = Path.GetDirectoryName(targetFile);
+                            if (!Directory.Exists(targetDirectory))
+                                Directory.CreateDirectory(targetDirectory);
+
+                            // if .Name is empty it's a directory
+                            if (!reader.Entry.IsDirectory)
+                                using (var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write))
+                                {
+                                    entryStream.CopyTo(fileStream);
+                                }
+                        }
+                    }
+                }
         }
 
         public string GetIncomingFileHash(string relativePath)

@@ -66,14 +66,14 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static BadRequestObjectResult InvalidArchiveFormatError(string format)
+        public static BadRequestObjectResult InvalidArchiveFormatError()
         {
             return new BadRequestObjectResult(new
             {
                 error = new
                 {
                     code = 400.03,
-                    Message = $"The package format {format} is not valid. Valid values are : zip" 
+                    Message = $"Archive type is not valid." 
                 }
             });
         }

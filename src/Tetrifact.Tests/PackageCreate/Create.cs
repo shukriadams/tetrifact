@@ -242,7 +242,6 @@ namespace Tetrifact.Tests.PackageCreate
                 Id = packageId,
                 Project = "some-project",
                 IsArchive = true,
-                Format = "123",
                 Files = new List<IFormFile>() {
                     new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
                 }

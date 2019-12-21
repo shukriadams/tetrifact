@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.Workspace
         {
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
-            this.Workspace.AddIncomingFile(file, "test/file.txt");
+            this.Workspace.AddFile(file, "test/file.txt");
 
             string testContent = File.ReadAllText(Path.Join(this.Workspace.WorkspacePath, "incoming/test/file.txt"));
             Assert.Equal(testContent, content);

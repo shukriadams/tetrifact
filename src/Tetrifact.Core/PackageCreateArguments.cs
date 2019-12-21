@@ -40,11 +40,6 @@ namespace Tetrifact.Core
         [FromQuery] public bool IsArchive { get; set; }
 
         /// <summary>
-        /// Format of uploaded archive. Default is tar. Allowed values : "zip" and "gz".
-        /// </summary>
-        [FromQuery] public string Format { get; set; }
-
-        /// <summary>
         /// Optional description for package
         /// </summary>
         [FromQuery] public string Description { get; set; }
@@ -59,7 +54,6 @@ namespace Tetrifact.Core
         public PackageCreateArguments()
         {
             this.Files = new List<IFormFile>();
-            this.Format = string.Empty;
         }
 
         #endregion

@@ -58,7 +58,7 @@ namespace Tetrifact.Core
                     {
                         using (Stream sourceFile = _indexReader.GetFile(project, file.Id).Content)
                         {
-                            workspace.AddIncomingFile(sourceFile, file.Path);
+                            workspace.AddFile(sourceFile, file.Path);
                         }
                     }
 

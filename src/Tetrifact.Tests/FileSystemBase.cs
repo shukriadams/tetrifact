@@ -98,7 +98,7 @@ namespace Tetrifact.Tests
             this.WorkspaceLogger = new TestLogger<IWorkspace>();
             IWorkspace workspace = new Core.Workspace(this.IndexReader, this.Settings, this.WorkspaceLogger);
             workspace.Initialize("some-project");
-            workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
+            workspace.AddFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.StageAllFiles(testPackage.Name, null);
             workspace.Commit("some-project", testPackage.Name, null, null);
 

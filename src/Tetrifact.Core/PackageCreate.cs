@@ -59,17 +59,6 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
-                // determine archive format from file extension
-                if (newPackage.IsArchive) { 
-                    newPackage.Format = Path.GetExtension(newPackage.Files[0].FileName);
-                    if (newPackage.Format.StartsWith("."))
-                        newPackage.Format = newPackage.Format.Substring(1);
-                }
-
-                // if archive, ensure correct file format 
-                if (newPackage.IsArchive && !allowedFormats.Contains(newPackage.Format))
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
-
                 // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
                 if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetManifest(newPackage.Project, newPackage.BranchFrom) == null) 
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
@@ -80,23 +69,24 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive) {
                     IFormFile incomingArchive = newPackage.Files.First();
                     Stream archiveFile = incomingArchive.OpenReadStream();
-                    string extension = Path.GetExtension(incomingArchive.FileName).Replace(".", string.Empty).ToLower();
+                    
+                    // get extension from archive file
+                    string extensionRaw = Path.GetExtension(incomingArchive.FileName).Replace(".", string.Empty).ToLower();
 
                     // if archive, ensure correct file format 
-                    extension = string.IsNullOrEmpty(extension) ? newPackage.Format : extension;
-                    if (string.IsNullOrEmpty(extension))
+                    if (string.IsNullOrEmpty(extensionRaw))
                         return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
 
-                    if (extension == "zip")
-                        _workspace.AddZipContent(archiveFile);
-                    else if (extension == "gz")
-                        _workspace.AddTarContent(archiveFile);
-                    else
+                    object archiveTypeTest = null;
+                    if (!Enum.TryParse(typeof(ArchiveTypes), extensionRaw, out archiveTypeTest))
                         return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
+                    ArchiveTypes archiveType = (ArchiveTypes)archiveTypeTest;
+
+                    _workspace.AddArchive(archiveFile, archiveType);
                 }
                 else
                     foreach (IFormFile formFile in newPackage.Files)
-                        _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
+                        _workspace.AddFile(formFile.OpenReadStream(), formFile.FileName);
                 
                 _workspace.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
 

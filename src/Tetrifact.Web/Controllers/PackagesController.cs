@@ -177,7 +177,7 @@ namespace Tetrifact.Web
                 }
 
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
-                    return Responses.InvalidArchiveFormatError(post.Format);
+                    return Responses.InvalidArchiveFormatError();
 
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidFileCount)
                     return Responses.InvalidArchiveContent();

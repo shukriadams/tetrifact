@@ -102,7 +102,6 @@ namespace Tetrifact.Tests.Controllers
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
-                Format = "zip",
                 IsArchive = true,
                 Files = new IFormFile[]
                 {

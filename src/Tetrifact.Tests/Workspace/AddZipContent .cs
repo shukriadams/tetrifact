@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.Workspace
                     }
                 }
 
-                base.Workspace.AddZipContent(memoryStream);
+                base.Workspace.AddArchive(memoryStream, Core.ArchiveTypes.zip);
                 string filePath = Path.Combine(base.Workspace.WorkspacePath, "incoming", "path", "file.txt");
                 string readContent = File.ReadAllText(filePath);
                 Assert.Equal("content", readContent);
