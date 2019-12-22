@@ -38,6 +38,11 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public bool ProjectExists(string project) 
+        {
+            return Directory.Exists(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project)));
+        }
+
         public DirectoryInfo GetActiveTransactionInfo(string project) 
         {
             return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
@@ -80,8 +85,8 @@ namespace Tetrifact.Core
         {
             IEnumerable<string> rawList = this.GetManifestPointers(project);
 
-            // clip "_manifest" from end
-            return rawList.Select(r => StringHelper.ClipFromEnd(Path.GetFileName(r), 9));
+            // remove "_manifest" and decloak, as we want to get package ids from file names
+            return rawList.Select(r => Obfuscator.Decloak(Path.GetFileName(r).Replace("_manifest", string.Empty)));
         }
 
         public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
@@ -114,6 +119,7 @@ namespace Tetrifact.Core
             try
             {
                 Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestRealPath));
+                manifest.PathOnDisk = manifestRealPath;
                 return manifest;
             }
             catch (Exception ex)
@@ -152,6 +158,8 @@ namespace Tetrifact.Core
         {
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
             string shardGuid = PathHelper.GetLatestShardPath(this, project, package);
+            if (string.IsNullOrEmpty(shardGuid))
+                throw new PackageNotFoundException(package);
 
             string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "patch");
             string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "bin");

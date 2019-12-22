@@ -8,13 +8,13 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Basic(){
-            TestPackage package1 = this.CreatePackage("package1");
+            DummyPackage package1 = this.CreatePackage("package1");
             string tag1 = "mytag1";
-            base.TagsService.AddTag("some-project", package1.Name, tag1);
+            base.TagsService.AddTag("some-project", package1.Id, tag1);
 
-            TestPackage package2 = this.CreatePackage("package2");
+            DummyPackage package2 = this.CreatePackage("package2");
             string tag2 = "mytag2";
-            base.TagsService.AddTag("some-project", package2.Name, tag2);
+            base.TagsService.AddTag("some-project", package2.Id, tag2);
 
             IEnumerable<string> tags = base.PackageList.GetAllTags("some-project");
 

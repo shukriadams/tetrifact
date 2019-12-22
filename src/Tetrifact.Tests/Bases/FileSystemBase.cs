@@ -20,7 +20,7 @@ namespace Tetrifact.Tests
 
         protected IIndexReader IndexReader;
         protected IPackageDeleter PackageDeleter;
-
+        protected IProjectService ProjectService;
         #endregion
 
         #region CTORS
@@ -53,8 +53,8 @@ namespace Tetrifact.Tests
             this.IndexReader = new Core.IndexReader(Settings, Logger);
             this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, PackageCreateLogger);
 
-            ProjectService projectService = new ProjectService(Settings, ProjectServiceLogger);
-            projectService.Create("some-project");
+            ProjectService = new Core.ProjectService(Settings, ProjectServiceLogger);
+            ProjectService.Create("some-project");
         }
 
         #endregion
@@ -91,7 +91,7 @@ namespace Tetrifact.Tests
             
             packageCreator.CreateWithValidation(new PackageCreateArguments {
                 Files = FormFileHelper.Multiple(testPackage.Files),
-                Id = testPackage.Name,
+                Id = testPackage.Id,
                 Project = "some-project"
             });
 

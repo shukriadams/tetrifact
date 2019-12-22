@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.PackageList
@@ -12,13 +9,13 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Basic()
         {
-            // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2003"));
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2002"));
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2001"));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag1" } }));
+            this.CreatePackage("package2001");
+            this.CreatePackage("package2002");
+            this.CreatePackage("package2003");
+
+            this.TagService.AddTag("some-project", "package2001", "tag1");
+            this.TagService.AddTag("some-project", "package2002", "tag2");
+            this.TagService.AddTag("some-project", "package2003", "tag2");
 
 
             IEnumerable<string> tags = this.PackageList.GetPopularTags("some-project", 3);

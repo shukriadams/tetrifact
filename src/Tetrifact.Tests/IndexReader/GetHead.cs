@@ -14,16 +14,14 @@ namespace Tetrifact.Tests.IndexReader
         /// Confirms that head is updated correctly over a series of package uploads
         /// </summary>
         [Fact]
-        public async void Sequence()
+        public void Sequence()
         {
-            this.InitProject();
-
             for (int i = 0; i < 10; i++) 
             {
                 Stream fileStream = StreamsHelper.StreamFromString($"content-{i}");
 
                 // create package
-                PackageCreateResult result = await PackageCreate.CreateWithValidation(new PackageCreateArguments
+                PackageCreateResult result = PackageCreate.CreateWithValidation(new PackageCreateArguments
                 {
                     Id = $"my package{i}",
                     Project = "some-project",

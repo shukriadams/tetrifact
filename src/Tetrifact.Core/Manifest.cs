@@ -29,6 +29,11 @@ namespace Tetrifact.Core
         /// </summary>
         public string DependsOn { get; set; }
 
+        /// <summary>
+        /// Path on disk for this manifest file. This path will change if the manifest is changed.
+        /// </summary>
+        public string PathOnDisk { get; set; }
+
         #endregion
 
         #region CTORS

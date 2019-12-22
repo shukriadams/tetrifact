@@ -8,6 +8,11 @@ namespace Tetrifact.Tests.PackageList
     {
         protected IPackageList PackageList { get; private set; }
 
+        /// <summary>
+        /// Several package list tests require tag operations
+        /// </summary>
+        protected ITagsService TagService { get; private set; }
+
         protected TestLogger<IPackageList> PackageListLogger { get; private set; }
 
         private readonly IMemoryCache _memoryCache;
@@ -17,6 +22,8 @@ namespace Tetrifact.Tests.PackageList
             _memoryCache = MemoryCacheHelper.GetInstance();
             this.PackageListLogger = new TestLogger<IPackageList>();
             this.PackageList = new Core.PackageList(_memoryCache, IndexReader, Settings, this.PackageListLogger);
+            this.TagService = new Core.TagsService(this.Settings, new TestLogger<ITagsService>(), this.IndexReader, this.PackageList);
+
         }
 
         public void Dispose()

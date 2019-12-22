@@ -8,10 +8,10 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Basic(){
-            TestPackage package = this.CreatePackage();
+            DummyPackage package = this.CreatePackage();
             string tag = "mytag";
-            base.TagsService.AddTag("some-project", package.Name, tag);
-            base.TagsService.RemoveTag("some-project", package.Name, tag);
+            base.TagsService.AddTag("some-project", package.Id, tag);
+            base.TagsService.RemoveTag("some-project", package.Id, tag);
 
             IEnumerable<Package> packages = base.PackageList.GetWithTag("some-project", tag, 0, 10);
             Assert.Empty(packages);

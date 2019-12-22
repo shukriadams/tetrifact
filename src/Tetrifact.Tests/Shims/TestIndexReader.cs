@@ -161,6 +161,11 @@ namespace Tetrifact.Tests
             return null;
         }
 
+        public bool ProjectExists(string project)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 }

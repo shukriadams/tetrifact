@@ -1,25 +1,28 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Tetrifact.Core;
+﻿using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
     public class GetLatestWithTag : Base
     {
+        /// <summary>
+        /// GetLatestWithTag returns the last package with a given tag. 
+        /// </summary>
         [Fact]
         public void BasicList()
         {
-            // list works by reading manifest json files on system. Create two manifests. All we need are dates on them.
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2002"));
-            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2001"));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string>{ "tag" }, CreatedUtc = DateTime.Parse("2002/1/1") }));
-            File.WriteAllText(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag" }, CreatedUtc = DateTime.Parse("2001/1/1") }));
+            this.CreatePackage("package2002");
+            this.CreatePackage("package2003");
 
+            // tag a package, GetLatestWithTag should return it
+            this.TagService.AddTag("some-project", "package2002", "tag");
             Package package = this.PackageList.GetLatestWithTag("some-project", "tag");
             Assert.Equal("package2002", package.Id);
+
+            // tag another package, GetLatestWithTag should return that instead of the previos package
+            this.TagService.AddTag("some-project", "package2003", "tag");
+            package = this.PackageList.GetLatestWithTag("some-project", "tag");
+            Assert.Equal("package2003", package.Id);
         }
     }
 }

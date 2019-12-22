@@ -10,9 +10,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void BasicDelete()
         {
-            TestPackage testPackage = base.CreatePackage();
+            DummyPackage testPackage = base.CreatePackage();
 
-            this.PackageDeleter.Delete("some-project", testPackage.Name);
+            this.PackageDeleter.Delete("some-project", testPackage.Id);
 
             Assert.False(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "manifest.json" )));
         }
@@ -20,10 +20,10 @@ namespace Tetrifact.Tests.IndexReader
         // [Fact] disabled because this fails on travis
         public void DeleteWithLockedArchive()
         {
-            TestPackage testPackage = base.CreatePackage();
+            DummyPackage testPackage = base.CreatePackage();
 
             // mock archive
-            string archivePath = base.IndexReader.GetPackageArchivePath("some-project", testPackage.Name);
+            string archivePath = base.IndexReader.GetPackageArchivePath("some-project", testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // force create dummy zip file in archive folder
@@ -35,7 +35,7 @@ namespace Tetrifact.Tests.IndexReader
                 // force write something to stream to ensure it locks
                 fs.Write(Encoding.ASCII.GetBytes("random"));
 
-                this.PackageDeleter.Delete("some-project", testPackage.Name);
+                this.PackageDeleter.Delete("some-project", testPackage.Id);
 
                 Assert.Single(base.Logger.LogEntries);
                 Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
@@ -43,18 +43,18 @@ namespace Tetrifact.Tests.IndexReader
         }
 
         [Fact]
-        public async void InvalidProject()
+        public void InvalidProject()
         {
-            ProjectNotFoundException ex = await Assert.ThrowsAsync<ProjectNotFoundException>(async () => await this.PackageDeleter.Delete("some-project", "invalidId"));
-            Assert.Equal("some-project", ex.Project);
+            string project = "not-a-valid-project-id";
+            ProjectNotFoundException ex = Assert.Throws<ProjectNotFoundException>(() => this.PackageDeleter.Delete(project, "invalidId"));
+            Assert.Equal(project, ex.Project);
         }
 
         [Fact]
-        public async void InvalidPackage()
+        public void InvalidPackage()
         {
-            this.InitProject();
             string packageId = "invalidId";
-            PackageNotFoundException ex = await Assert.ThrowsAsync<PackageNotFoundException>(async ()=> await this.PackageDeleter.Delete("some-project", packageId));
+            PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(()=> this.PackageDeleter.Delete("some-project", packageId));
             Assert.Equal(ex.PackageId, packageId);
         }
 

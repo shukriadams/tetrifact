@@ -143,5 +143,12 @@ namespace Tetrifact.Core
         /// <param name="path"></param>
         /// <returns></returns>
         string GetItemPathOnDisk(string project, string package, string path);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        bool ProjectExists(string project);
     }
 }

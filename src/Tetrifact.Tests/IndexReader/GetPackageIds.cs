@@ -8,14 +8,14 @@ namespace Tetrifact.Tests.IndexReader
     public class GetPackageIds : FileSystemBase
     {
         /// <summary>
-        /// Confirms that methods returns a page of directory basenames from within packages directory, sorted by name
+        /// Returns a page of directory basenames from within packages directory, sorted by name
         /// </summary>
         [Fact]
         public void GetBasic()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package2"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package3"));
+            this.CreatePackage("package2");
+            this.CreatePackage("package1");
+            this.CreatePackage("package3");
 
             IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 0, 1);
             Assert.Single(packages);

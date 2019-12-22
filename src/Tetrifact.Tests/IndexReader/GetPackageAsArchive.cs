@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Tetrifact.Core;
 using Xunit;
 
@@ -11,12 +12,12 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            TestPackage testPackage = base.CreatePackage();
-            using (Stream testContent = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
+            DummyPackage testPackage = base.CreatePackage();
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
                 Assert.Single(items);
-                Assert.Equal(testPackage.Content, items[testPackage.Path]);
+                Assert.Equal(Encoding.ASCII.GetBytes(testPackage.Files[0].Content),  items[testPackage.Files[0].Path]);
             }
         }
 
@@ -32,11 +33,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetExistingArchive()
         {
-            TestPackage testPackage = base.CreatePackage();
-            using (Stream testContent1 = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
+            DummyPackage testPackage = base.CreatePackage();
+            using (Stream testContent1 = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Id))
             {
                 // get again
-                using (Stream testContent2 = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
+                using (Stream testContent2 = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Id))
                 {
                     Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
                     Assert.Single(items);
@@ -50,7 +51,6 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistent()
         {
-            this.InitProject();
             PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(() => {
                 using (Stream zipStream = this.IndexReader.GetPackageAsArchive("some-project", "invalid id"))
                 {
@@ -72,15 +72,15 @@ namespace Tetrifact.Tests.IndexReader
             base.Settings.ArchiveAvailablePollInterval = 0;
 
             // we need a valid package first
-            TestPackage testPackage = base.CreatePackage();
+            DummyPackage testPackage = base.CreatePackage();
 
             // mock a temp archive file, this means actual archive creation will be skipped and
             // therefore never complete.
-            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath("some-project", testPackage.Name);
+            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath("some-project", testPackage.Id);
             File.WriteAllText(tempArchivePath, string.Empty);
 
             Assert.Throws<TimeoutException>(() =>{
-                using (Stream zipStream = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Name))
+                using (Stream zipStream = this.IndexReader.GetPackageAsArchive("some-project", testPackage.Id))
                 {
                     // do nothing, exception expected
                 }

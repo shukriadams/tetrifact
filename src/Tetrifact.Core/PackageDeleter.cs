@@ -29,6 +29,9 @@ namespace Tetrifact.Core
             try
             {
                 WriteLock.Instance.WaitUntilClear(project);
+                
+                if (!_indexReader.ProjectExists(project))
+                    throw new ProjectNotFoundException(project);
 
                 Manifest packageToDeleteManifest = _indexReader.GetManifest(project, package);
                 if (packageToDeleteManifest == null)
@@ -53,10 +56,7 @@ namespace Tetrifact.Core
                 // merge patches into next package
                 transaction.Commit();
             }
-            catch (Exception ex) 
-            {
-                _logger.LogError($"Unexpected error deleting package {package} {ex}");
-            }
+
             finally
             {
                 WriteLock.Instance.Clear(project);

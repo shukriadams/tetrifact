@@ -12,38 +12,37 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistent()
         {
-            this.InitProject();
             Assert.Throws<PackageNotFoundException>(() => this.IndexReader.GetPackageArchiveStatus("some-project", "invalid-id"));
         }
 
         [Fact]
         public void GetDefault()
         {
-            TestPackage testPackage = this.CreatePackage();
-            Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Name));
+            DummyPackage testPackage = this.CreatePackage();
+            Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Id));
         }
 
         [Fact]
         public void GetInProgressStatus()
         {
-            TestPackage testPackage = this.CreatePackage();
+            DummyPackage testPackage = this.CreatePackage();
             
             // mock temp archive
-            File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath("some-project", testPackage.Name), string.Empty);
+            File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath("some-project", testPackage.Id), string.Empty);
 
-            Assert.Equal(1, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Name));
+            Assert.Equal(1, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Id));
         }
 
         [Fact]
         public void GetReadyStatus()
         {
-            TestPackage testPackage = this.CreatePackage();
+            DummyPackage testPackage = this.CreatePackage();
 
             // mock temp archive
 
-            File.WriteAllText(this.IndexReader.GetPackageArchivePath("some-project", testPackage.Name), string.Empty);
+            File.WriteAllText(this.IndexReader.GetPackageArchivePath("some-project", testPackage.Id), string.Empty);
 
-            Assert.Equal(2, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Name));
+            Assert.Equal(2, this.IndexReader.GetPackageArchiveStatus("some-project", testPackage.Id));
         }
     }
 }

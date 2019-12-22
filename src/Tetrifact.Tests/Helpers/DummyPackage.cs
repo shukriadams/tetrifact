@@ -13,7 +13,7 @@ namespace Tetrifact.Tests
         /// <summary>
         /// Name of the package
         /// </summary>
-        public string Name;
+        public string Id;
 
         public DummyPackage() 
         {
@@ -22,9 +22,9 @@ namespace Tetrifact.Tests
 
         public DummyPackage(string name, IEnumerable<DummyFormFile> files)
         {
-            this.Name = name;
+            this.Id = name;
             this.Files = new List<DummyFormFile>();
-            this.Files.Concat(files);
+            this.Files = files.ToList();
         }
     }
 }
