@@ -270,8 +270,11 @@ namespace Tetrifact.Core
 
                 this.Manifest.DependsOn = parentPackage;
 
-                string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
-                this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = fileHash, Id = pathAndHash });
+                this.Manifest.Files.Add(new ManifestItem { 
+                    Path = filePath, 
+                    Hash = fileHash, 
+                    Id = FileIdentifier.Cloak(packageId, filePath) 
+                });
 
                 if (patchFileInfo != null)
                     this.Manifest.SizeOnDisk += patchFileInfo.Length;

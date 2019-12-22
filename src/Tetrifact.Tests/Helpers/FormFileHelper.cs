@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.Internal;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Tetrifact.Core;
 
@@ -46,6 +47,24 @@ namespace Tetrifact.Tests
             }
 
             return files;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
+        public static string GetHash(IEnumerable<DummyFile> files)
+        {
+            StringBuilder hashes = new StringBuilder();
+            files = files.OrderBy(r => r.Path);
+            foreach (DummyFile file in files)
+            {
+                hashes.Append(Core.HashService.FromString(file.Path));
+                hashes.Append(Core.HashService.FromByteArray(file.Data));
+            }
+
+            return Core.HashService.FromString(hashes.ToString());
         }
     }
 }
