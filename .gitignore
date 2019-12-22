@@ -35,3 +35,5 @@ src/bsdiff/obj
 src/bsdiffCore/bin
 src/bsdiffCore/obj
 src/packages
+src/VCDiffCore/bin
+src/VCDiffCore/obj
