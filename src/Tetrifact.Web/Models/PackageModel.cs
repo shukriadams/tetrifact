@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Tetrifact.Core;
+﻿using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {

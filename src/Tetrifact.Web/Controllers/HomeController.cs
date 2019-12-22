@@ -84,15 +84,16 @@ namespace Tetrifact.Web
         [Route("packages/{project}/{page?}")]
         public IActionResult Packages(string project, int page)
         {
-            // user-facing page values start at 1 instead of 0. reset
+            // user-facing page values start at 1 instead of 0, reset to 0 
             if (page != 0)
                 page--;
 
-            Pager pager = new Pager();
             PageableData<Package> packages  = _packageList.GetPage(project, page, _settings.ListPageSize);
-            ViewData["pager"] = pager.Render<Package>(packages, _settings.PagesPerPageGroup, "/packages", "page");
-            ViewData["packages"] = packages;
-            return View();
+
+            Pager pager = new Pager();
+            string pagerString = pager.Render<Package>(packages, _settings.PagesPerPageGroup, "/packages", "page");
+
+            return View(new PackageListModel(project, pagerString, packages));
         }
 
 
