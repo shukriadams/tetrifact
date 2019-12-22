@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\bsdiff\BsDiff.csproj" />
+    <ProjectReference Include="..\BsDiffCore\BsDiffCore.csproj" />
   </ItemGroup>
 
 </Project>

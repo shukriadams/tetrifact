@@ -32,4 +32,6 @@
 /build/travis/.stage
 src/bsdiff/bin
 src/bsdiff/obj
+src/bsdiffCore/bin
+src/bsdiffCore/obj
 src/packages
