@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.IO;
-using System.Threading.Tasks;
 using System.Text;
 using BsDiff;
 using Newtonsoft.Json;
@@ -29,7 +28,7 @@ namespace Tetrifact.Core
 
         private string _project;
 
-        private StringBuilder _hashes = new StringBuilder();
+        private StringBuilder _hashes;
 
         #endregion
 
@@ -160,6 +159,7 @@ namespace Tetrifact.Core
 
         private void Initialize(string project)
         {
+            _hashes = new StringBuilder();
             this.Manifest = new Manifest();
             this._project = project;
 

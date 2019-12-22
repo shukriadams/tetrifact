@@ -59,7 +59,7 @@ namespace Tetrifact.Tests.PackageCreate
         {
             // set up an array of files to use as base
             List<DummyFile> inFiles = new List<DummyFile>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 50; i++)
                 inFiles.Add(new DummyFile
                 {
                     Data = DataHelper.GetRandomData(1, 100),
