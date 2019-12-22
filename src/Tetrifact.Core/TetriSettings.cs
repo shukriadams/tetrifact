@@ -49,6 +49,8 @@ namespace Tetrifact.Core
 
         public int TransactionHistoryDepth { get; set; }
 
+        public DiffMethods DiffMethod { get; set; }
+
         #endregion
 
         #region CTORS
@@ -68,11 +70,13 @@ namespace Tetrifact.Core
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
+            this.DiffMethod = DiffMethods.BsDiff;
             this.ProjectsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
             this.TempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
             this.ArchivePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
             this.TempBinaries = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "temp_binaries");
+
 
             // try to get settings from env variables
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
@@ -89,6 +93,9 @@ namespace Tetrifact.Core
             // special case - access tokens can be passed in as a comma-separated string, need to split to array here
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
+
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DIFF_METHOD")))
+                this.DiffMethod = (DiffMethods)Enum.Parse(typeof(DiffMethods), Environment.GetEnvironmentVariable("DIFF_METHOD").Trim());
         }
 
         /// <summary>
@@ -127,7 +134,6 @@ namespace Tetrifact.Core
         /// <param name="settingsName"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-
         private long GetSetting(string settingsName, long defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);

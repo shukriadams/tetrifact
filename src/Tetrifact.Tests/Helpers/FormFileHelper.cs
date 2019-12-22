@@ -21,16 +21,25 @@ namespace Tetrifact.Tests
             return new List<IFormFile>() { new FormFile(file, 0, file.Length, "Files", path) };
         }
 
+        /// <summary>
+        /// Creates a single-item FormFile collection from a single stream. Use this for archive uploads.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static IList<IFormFile> FromStream(Stream content, string name)
+        {
+            return new List<IFormFile>() { new FormFile(content, 0, content.Length, "Files", name) };
+        }
 
         /// <summary>
         /// Creates a collection of fileform items
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static IList<IFormFile> Multiple(IEnumerable<DummyFormFile> items)
+        public static IList<IFormFile> Multiple(IEnumerable<DummyFile> items)
         {
             IList<IFormFile> files = new List<IFormFile>();
-            foreach (DummyFormFile item in items) 
+            foreach (DummyFile item in items) 
             {
                 Stream file = StreamsHelper.StreamFromBytes(Encoding.ASCII.GetBytes(item.Content));
                 files.Add( new FormFile(file, 0, file.Length, "Files", item.Path) );

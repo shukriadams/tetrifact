@@ -12,6 +12,8 @@ using System.IO.Compression;
 using SharpCompress.Readers;
 using SharpCompress.Readers.Tar;
 using SharpCompress.Common;
+using VCDiff.Encoders;
+using VCDiff.Includes;
 
 namespace Tetrifact.Core
 {
@@ -219,6 +221,8 @@ namespace Tetrifact.Core
                 FileInfo patchFileInfo = null;
                 Manifest headManifest = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetManifest(_project, parentPackage);
 
+                FileInfo fileInfo = new FileInfo(incomingFilePath);
+                this.Manifest.Size += fileInfo.Length;
 
                 // if no head, or head doesn't contain the same file path, write incoming as raw bin
                 if (headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any())
@@ -232,13 +236,33 @@ namespace Tetrifact.Core
                 {
                     // create patch against head version of file
                     string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
-                    byte[] sourceBinaryData = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
-                    byte[] incomingBinaryData = File.ReadAllBytes(incomingFilePath);
                     string patchPath = Path.Combine(stagingBasePath, "patch");
 
-                    using (FileStream patchStream = new FileStream(patchPath, FileMode.Create, FileAccess.Write))
+                    if (_settings.DiffMethod == DiffMethods.BsDiff)
                     {
-                        BinaryPatchUtility.Create(sourceBinaryData, incomingBinaryData, patchStream);
+                        byte[] sourceBinaryData = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
+                        byte[] incomingBinaryData = File.ReadAllBytes(incomingFilePath);
+
+                        using (FileStream patchStream = new FileStream(patchPath, FileMode.Create, FileAccess.Write))
+                        {
+                            BinaryPatchUtility.Create(sourceBinaryData, incomingBinaryData, patchStream);
+                        }
+                    }
+                    else 
+                    {
+                        using (FileStream patchStream = new FileStream(patchPath, FileMode.Create, FileAccess.Write))
+                        using (FileStream dict = new FileStream(sourceBinPath, FileMode.Open, FileAccess.Read))
+                        using (FileStream target = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
+                        {
+                            VCCoder coder = new VCCoder(dict, target, patchStream);
+                            VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
+                            if (result != VCDiffResult.SUCCESS)
+                            {
+                                Console.WriteLine(result);
+                                throw new Exception($"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.");
+                            }
+                        }
+
                     }
 
                     patchFileInfo = new FileInfo(patchPath);
@@ -248,9 +272,6 @@ namespace Tetrifact.Core
 
                 string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
                 this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = fileHash, Id = pathAndHash });
-
-                FileInfo fileInfo = new FileInfo(incomingFilePath);
-                this.Manifest.Size += fileInfo.Length;
 
                 if (patchFileInfo != null)
                     this.Manifest.SizeOnDisk += patchFileInfo.Length;

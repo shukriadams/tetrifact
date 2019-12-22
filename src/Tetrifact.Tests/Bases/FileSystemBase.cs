@@ -20,7 +20,9 @@ namespace Tetrifact.Tests
 
         protected IIndexReader IndexReader;
         protected IPackageDeleter PackageDeleter;
+        protected IPackageCreate PackageCreate;
         protected IProjectService ProjectService;
+
         #endregion
 
         #region CTORS
@@ -47,11 +49,14 @@ namespace Tetrifact.Tests
             AppLogic appLogic = new AppLogic(Settings);
             appLogic.Start();
 
-            Logger = new TestLogger<IIndexReader>();
-            DeleterLogger = new TestLogger<IPackageDeleter>();
-            ProjectServiceLogger = new TestLogger<IProjectService>();
+            this.Logger = new TestLogger<IIndexReader>();
+            this.DeleterLogger = new TestLogger<IPackageDeleter>();
+            this.ProjectServiceLogger = new TestLogger<IProjectService>();
             this.IndexReader = new Core.IndexReader(Settings, Logger);
             this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, PackageCreateLogger);
+            this.PackageCreateLogger = new TestLogger<IPackageCreate>();
+            this.PackageCreate = new Core.PackageCreate(this.IndexReader, this.PackageCreateLogger, this.Settings);
+
 
             ProjectService = new Core.ProjectService(Settings, ProjectServiceLogger);
             ProjectService.Create("some-project");
@@ -80,16 +85,12 @@ namespace Tetrifact.Tests
             // create package, files folder and item location in one
             DummyPackage testPackage = new DummyPackage(
                 packageName, 
-                new List<DummyFormFile>() { 
-                    new DummyFormFile { Content = "some content", Path=  $"path\\to\\{packageName}" } 
+                new List<DummyFile>() { 
+                    new DummyFile { Content = "some content", Path=  $"path\\to\\{packageName}" } 
                 } 
             );
-
-            this.PackageCreateLogger = new TestLogger<IPackageCreate>();
             
-            IPackageCreate packageCreator = new Core.PackageCreate(this.IndexReader, this.PackageCreateLogger, this.Settings);
-            
-            packageCreator.CreateWithValidation(new PackageCreateArguments {
+            this.PackageCreate.CreateWithValidation(new PackageCreateArguments {
                 Files = FormFileHelper.Multiple(testPackage.Files),
                 Id = testPackage.Id,
                 Project = "some-project"

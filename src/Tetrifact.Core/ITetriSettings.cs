@@ -92,5 +92,10 @@ namespace Tetrifact.Core
         /// The number of transacation states to preserve.
         /// </summary>
         int TransactionHistoryDepth { get; set; }
+
+        /// <summary>
+        /// Diffing algorithm for binary comparison. Cannot be changed once data is created, as this will render existing data unreadable.
+        /// </summary>
+        DiffMethods DiffMethod { get; set; }
     }
 }

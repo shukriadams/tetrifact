@@ -12,8 +12,6 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateBasic()
         {
-            this.InitProject();
-
             List<IFormFile> files = new List<IFormFile>();
             string fileContent = "some file content";
             int filesToAdd = 10;
@@ -66,40 +64,33 @@ namespace Tetrifact.Tests.PackageCreate
         }
 
         /// <summary>
-        /// 
+        /// Head changes to the latest package added
         /// </summary>
         [Fact]
-        public void CreateSequential()
+        public void HeadUpdate()
         {
-            this.InitProject();
+            string fileStream1 = "contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent";
+            string fileStream2 = "contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwerty";
 
-            Stream fileStream1 = StreamsHelper.StreamFromString("contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent");
-            Stream fileStream2 = StreamsHelper.StreamFromString("contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwertycontentcontentcontentcontentqwertyqwertyqwertyqwertyqwertyqwerty");
-
-            // create first package
-            PackageCreateResult result = PackageCreate.CreateWithValidation(new PackageCreateArguments
+            // create first package, it should be head
+            PackageCreate.CreateWithValidation(new PackageCreateArguments
             {
                 Id = "my package1",
                 Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream1, 0, fileStream1.Length, "Files", "folder/file")) }
+                Files = FormFileHelper.Single(fileStream1, "folder/file")
             });
 
-            Assert.True(result.Success);
+            Assert.Equal("my package1", IndexReader.GetHead("some-project"));
 
-
-            // create second package
-            result = PackageCreate.CreateWithValidation(new PackageCreateArguments
+            // create second package, it should now be head
+            PackageCreate.CreateWithValidation(new PackageCreateArguments
             {
                 Id = "my package2",
                 Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream2, 0, fileStream2.Length, "Files", "folder/file")) }
+                Files = FormFileHelper.Single(fileStream2, "folder/file")
             });
 
-            Assert.True(result.Success);
-
-
-            // ensure that head has been updated - there should be two head files, the latest being the last package pushed
-            Assert.Equal("my package", IndexReader.GetHead("some-project"));
+            Assert.Equal("my package2", IndexReader.GetHead("some-project"));
         }
 
         /// <summary>
@@ -108,8 +99,6 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateBranched()
         {
-            this.InitProject();
-
             Stream fileStream = StreamsHelper.StreamFromString("content");
 
             // create first package
@@ -143,8 +132,8 @@ namespace Tetrifact.Tests.PackageCreate
         /// The first check to fail should be file empty check.
         /// </summary>        
         [Fact]
-        public void CreateWithNoArguments(){
-            this.InitProject();
+        public void CreateWithNoArguments()
+        {
 
             // empty argument list
             PackageCreateArguments args = new PackageCreateArguments();
@@ -183,8 +172,6 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDuplicatePackage()
         {
-            this.InitProject();
-
             string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
@@ -207,8 +194,6 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateArchiveWithTooManyFiles()
         {
-            this.InitProject();
-
             string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
@@ -231,8 +216,6 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateInvalidArchiveFormat()
         {
-            this.InitProject();
-
             string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 

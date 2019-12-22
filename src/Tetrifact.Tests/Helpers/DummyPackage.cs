@@ -8,7 +8,7 @@ namespace Tetrifact.Tests
     /// </summary>
     public class DummyPackage
     {
-        public IList<DummyFormFile> Files { get; private set; }
+        public IList<DummyFile> Files { get; private set; }
 
         /// <summary>
         /// Name of the package
@@ -17,13 +17,13 @@ namespace Tetrifact.Tests
 
         public DummyPackage() 
         {
-            this.Files = new List<DummyFormFile>();
+            this.Files = new List<DummyFile>();
         }
 
-        public DummyPackage(string name, IEnumerable<DummyFormFile> files)
+        public DummyPackage(string name, IEnumerable<DummyFile> files)
         {
             this.Id = name;
-            this.Files = new List<DummyFormFile>();
+            this.Files = new List<DummyFile>();
             this.Files = files.ToList();
         }
     }

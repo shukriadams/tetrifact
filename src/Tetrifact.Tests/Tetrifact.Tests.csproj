@@ -18,6 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="PackageCreate\AddTarContent.cs" />
+    <Compile Include="PackageCreate\Cleanup.cs" />
+    <Compile Include="PackageCreate\Create.cs" />
+    <Compile Include="PackageCreate\CreateWithValidation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AltCover" Version="5.3.675" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
@@ -36,10 +43,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Tetrifact.Core\Tetrifact.Core.csproj" />
     <ProjectReference Include="..\Tetrifact.Web\Tetrifact.Web.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="PackageCreate\" />
   </ItemGroup>
 
 </Project>
