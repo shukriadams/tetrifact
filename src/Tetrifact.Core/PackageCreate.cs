@@ -195,7 +195,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private void StageAllFiles(string packageId, string diffAgainstPackage)
+        private void StageAllFiles(string packageId, string parentPackage)
         {
             // get all files which were uploaded, sort alphabetically for combined hashing
             string[] files = this.GetIncomingFileNames().ToArray();
@@ -208,8 +208,8 @@ namespace Tetrifact.Core
                 _hashes.Append(HashService.FromString(filePath));
                 _hashes.Append(fileHash);
 
-                if (string.IsNullOrEmpty(diffAgainstPackage))
-                    diffAgainstPackage = _indexReader.GetHead(_project);
+                if (string.IsNullOrEmpty(parentPackage))
+                    parentPackage = _indexReader.GetHead(_project);
 
                 string incomingFilePath = Path.Combine(this.WorkspacePath, "incoming", filePath);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, filePath); // this is a directory path, but for the literal file path name
@@ -217,34 +217,34 @@ namespace Tetrifact.Core
                 FileHelper.EnsureDirectoryExists(stagingBasePath);
 
                 FileInfo patchFileInfo = null;
-                Manifest headManifest = string.IsNullOrEmpty(diffAgainstPackage) ? null : _indexReader.GetManifest(_project, diffAgainstPackage);
+                Manifest headManifest = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetManifest(_project, parentPackage);
 
 
                 // if no head, or head doesn't contain the same file path, write incoming as raw bin
                 if (headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any())
                 {
                     string writePath = Path.Combine(stagingBasePath, "bin");
-                    File.Copy(incomingFilePath, writePath);
+                    File.Move(incomingFilePath, writePath);
 
                     patchFileInfo = new FileInfo(writePath);
                 }
                 else
                 {
                     // create patch against head version of file
-                    string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, diffAgainstPackage, filePath);
-                    byte[] sourceVersionBinary = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
-                    byte[] incomingVersionBinary = File.ReadAllBytes(incomingFilePath);
-                    string patchFilePath = Path.Combine(stagingBasePath, "patch");
+                    string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
+                    byte[] sourceBinaryData = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
+                    byte[] incomingBinaryData = File.ReadAllBytes(incomingFilePath);
+                    string patchPath = Path.Combine(stagingBasePath, "patch");
 
-                    using (FileStream patchOutStream = new FileStream(patchFilePath, FileMode.Create, FileAccess.Write))
+                    using (FileStream patchStream = new FileStream(patchPath, FileMode.Create, FileAccess.Write))
                     {
-                        BinaryPatchUtility.Create(sourceVersionBinary, incomingVersionBinary, patchOutStream);
+                        BinaryPatchUtility.Create(sourceBinaryData, incomingBinaryData, patchStream);
                     }
 
-                    patchFileInfo = new FileInfo(patchFilePath);
+                    patchFileInfo = new FileInfo(patchPath);
                 }
 
-                this.Manifest.DependsOn = diffAgainstPackage;
+                this.Manifest.DependsOn = parentPackage;
 
                 string pathAndHash = FileIdentifier.Cloak(packageId, filePath);
                 this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = fileHash, Id = pathAndHash });
