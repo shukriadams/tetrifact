@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -29,16 +27,9 @@ namespace Tetrifact.Tests
 
         public FileSystemBase()
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().FullName);
-            if (Directory.Exists(testFolder))
-                Directory.Delete(testFolder, true);
+            string testFolder = TestSetupHelper.SetupDirectories(this);
 
-            Directory.CreateDirectory(testFolder);
-
-            Thread.Sleep(200);// race condition fix
-
-
-            Settings = new TetriSettings(new TestLogger<TetriSettings>())
+            Settings = new TetriSettings()
             {
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),
@@ -56,10 +47,8 @@ namespace Tetrifact.Tests
             this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, PackageCreateLogger);
             this.PackageCreateLogger = new TestLogger<IPackageCreate>();
             this.PackageCreate = new Core.PackageCreate(this.IndexReader, this.PackageCreateLogger, this.Settings);
-
-
-            ProjectService = new Core.ProjectService(Settings, ProjectServiceLogger);
-            ProjectService.Create("some-project");
+            this.ProjectService = new Core.ProjectService(Settings, ProjectServiceLogger);
+            this.ProjectService.Create("some-project");
         }
 
         #endregion

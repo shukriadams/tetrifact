@@ -7,12 +7,6 @@ namespace Tetrifact.Core
 {
     public class TetriSettings : ITetriSettings
     {
-        #region FIELDS
-
-        private readonly ILogger<ITetriSettings> _log;
-
-        #endregion
-
         #region PROPERTIES
 
         public string ProjectsPath { get; set; }
@@ -55,10 +49,8 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TetriSettings(ILogger<ITetriSettings> log)
+        public TetriSettings()
         {
-            _log = log;
-
             // defaults
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
@@ -70,7 +62,7 @@ namespace Tetrifact.Core
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
-            this.DiffMethod = DiffMethods.BsDiff;
+            this.DiffMethod = DiffMethods.VcDiff;
             this.ProjectsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
             this.TempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
@@ -123,7 +115,7 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             if (!int.TryParse(settingsRawVariable, out defaultValue))
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                throw new Exception($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
 
             return defaultValue;
         }
@@ -141,7 +133,7 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             if (!long.TryParse(settingsRawVariable, out defaultValue))
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                throw new Exception($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
 
             return defaultValue;
         }
@@ -166,7 +158,7 @@ namespace Tetrifact.Core
             }
             catch
             {
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is invalid, it must match one of {string.Join(",", Enum.GetNames(typeof(TEnum)))}.");
+                throw new Exception($"Environment variable for {settingsName} ({settingsRawVariable}) is invalid, it must match one of {string.Join(",", Enum.GetNames(typeof(TEnum)))}.");
             }
 
             return defaultValue;

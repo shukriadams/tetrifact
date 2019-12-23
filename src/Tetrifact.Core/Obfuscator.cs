@@ -9,11 +9,21 @@ namespace Tetrifact.Core
     /// </summary>
     public static class Obfuscator
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string Cloak(string input)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string Decloak(string input)
         {
             try
@@ -25,7 +35,6 @@ namespace Tetrifact.Core
                 throw new InvalidFileIdentifierException(input);
             }
         }
-
 
     }
 }

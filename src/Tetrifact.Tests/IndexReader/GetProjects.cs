@@ -19,14 +19,10 @@ namespace Tetrifact.Tests.IndexReader
         public GetProjects() 
         {
             // we need a folder to work in
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().FullName);
-            if (Directory.Exists(testFolder))
-                Directory.Delete(testFolder, true);
-
-            Directory.CreateDirectory(testFolder);
+            string testFolder = TestSetupHelper.SetupDirectories(this);
 
             // bind settings to that folder
-            Settings = new TetriSettings(new TestLogger<TetriSettings>())
+            Settings = new TetriSettings()
             {
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),

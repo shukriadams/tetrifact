@@ -11,8 +11,6 @@ namespace Tetrifact.Core
 
         private readonly ITetriSettings _settings;
 
-        private readonly ILogger<ITagsService> _logger;
-
         private readonly IPackageList _packageList;
 
         private readonly IIndexReader _indexReader;
@@ -21,11 +19,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IIndexReader indexReader, IPackageList packageList)
+        public TagsService(ITetriSettings settings, IIndexReader indexReader, IPackageList packageList)
         {
             _indexReader = indexReader;
             _settings = settings;
-            _logger = logger;
             _packageList = packageList;
         }
 
@@ -67,7 +64,6 @@ namespace Tetrifact.Core
             } finally {
                 WriteLock.Instance.Clear(project);
             }
-
         }
 
         public void RemoveTag(string project, string packageId, string tag)
@@ -94,21 +90,17 @@ namespace Tetrifact.Core
                 File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
                 transaction.AddManifestPointer(packageId, fileName);
 
-
                 // flush in-memory tags
                 transaction.Commit();
                 _packageList.Clear(project);
 
                 return;
-
             }
             finally 
             {
                 WriteLock.Instance.Clear(project);
             }
-
         }
-
 
         #endregion
     }
