@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using Tetrifact.Core;
+using Tetrifact.Dev;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader

@@ -1,4 +1,4 @@
-﻿namespace Tetrifact.Tests
+﻿namespace Tetrifact.Dev
 {
     /// <summary>
     /// Data type corresponding to a file. Used to create dummy projects.

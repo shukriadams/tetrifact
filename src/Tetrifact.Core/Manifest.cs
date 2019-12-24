@@ -34,6 +34,18 @@ namespace Tetrifact.Core
         /// </summary>
         public string PathOnDisk { get; set; }
 
+        /// <summary>
+        /// Retrieves percentage saved with diff patching.
+        /// </summary>
+        public int Compressed 
+        {
+            get 
+            {
+                decimal p = (decimal)this.SizeOnDisk / (decimal)this.Size;
+                return (int)System.Math.Round((decimal)(p * 100), 0);
+            }
+        }
+
         #endregion
 
         #region CTORS

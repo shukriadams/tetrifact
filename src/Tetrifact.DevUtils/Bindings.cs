@@ -1,6 +1,7 @@
 ﻿using Ninject.Modules;
 using Tetrifact.Core;
 using Microsoft.Extensions.Logging;
+using Tetrifact.Dev;
 
 namespace Tetrifact.DevUtils
 {

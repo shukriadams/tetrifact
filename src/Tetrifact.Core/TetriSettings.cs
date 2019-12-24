@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -62,7 +61,7 @@ namespace Tetrifact.Core
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
-            this.DiffMethod = DiffMethods.VcDiff;
+            this.DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
             this.ProjectsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
             this.TempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");

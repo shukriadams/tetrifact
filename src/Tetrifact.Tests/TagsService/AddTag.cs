@@ -2,6 +2,7 @@ using Xunit;
 using Tetrifact.Core;
 using System.Collections.Generic;
 using System.Linq;
+using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.TagsService
 {

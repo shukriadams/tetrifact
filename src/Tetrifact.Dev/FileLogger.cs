@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Tetrifact.DevUtils
+namespace Tetrifact.Dev
 {
     /// <summary>
-    /// Implements a logger that writes each log entry to a unique file. This is for testing / dev only!
+    /// Writes each log entry to a unique file.
     /// </summary>
     public class FileLogger<T> : ILogger<T>
     {

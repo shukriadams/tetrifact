@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using Tetrifact.Core;
 
-namespace Tetrifact.Tests
+namespace Tetrifact.Dev
 {
     public class FormFileHelper
     {

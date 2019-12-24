@@ -258,8 +258,9 @@ namespace Tetrifact.Core
                             VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
                             if (result != VCDiffResult.SUCCESS)
                             {
-                                Console.WriteLine(result);
-                                throw new Exception($"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.");
+                                string error = $"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.";
+                                Console.WriteLine(error);
+                                throw new Exception(error);
                             }
                         }
 

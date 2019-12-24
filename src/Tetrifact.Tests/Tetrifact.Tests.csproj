@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tetrifact.Core\Tetrifact.Core.csproj" />
+    <ProjectReference Include="..\Tetrifact.Dev\Tetrifact.Dev.csproj" />
     <ProjectReference Include="..\Tetrifact.Web\Tetrifact.Web.csproj" />
   </ItemGroup>
 

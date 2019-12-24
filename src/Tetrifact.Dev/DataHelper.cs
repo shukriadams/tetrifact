@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tetrifact.Tests
+namespace Tetrifact.Dev
 {
     public class DataHelper
     {

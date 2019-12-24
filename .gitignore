@@ -30,10 +30,10 @@
 /src/Tetrifact.Tests/coverage.xml
 /src/Tetrifact.Tests/coverage
 /build/travis/.stage
-src/bsdiff/bin
-src/bsdiff/obj
 src/bsdiffCore/bin
 src/bsdiffCore/obj
 src/packages
 src/VCDiffCore/bin
 src/VCDiffCore/obj
+src/Tetrifact.Dev/bin
+src/Tetrifact.Dev/obj

@@ -2,9 +2,8 @@
 using System.IO;
 using System.IO.Compression;
 using Tetrifact.Core;
-using Tetrifact.Dev;
 
-namespace Tetrifact.Tests
+namespace Tetrifact.Dev
 {
     public class ArchiveHelper
     {

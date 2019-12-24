@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Tetrifact.Tests
+namespace Tetrifact.Dev
 {
     /// <summary>
     /// Holds data for a test package

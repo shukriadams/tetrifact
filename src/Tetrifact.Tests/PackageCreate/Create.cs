@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
 using Xunit;
+using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.PackageCreate
 {

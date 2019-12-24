@@ -17,12 +17,15 @@ namespace Tetrifact.Tests
             Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
             Bind<IPackageList>().To<TestPackageList>();
             Bind<IAppLogic>().To<AppLogic>();
+            Bind<IProjectService>().To<Core.ProjectService>();
 
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreate>().To<Core.PackageCreate>();
             Bind<IPackageDeleter>().To<Core.PackageDeleter>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
             Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
+            Bind<ILogger<IProjectService>>().To<TestLogger<IProjectService>>();
+            Bind<ILogger<ProjectsController>>().To<TestLogger<ProjectsController>>();
             Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();
             Bind<ILogger<ArchivesController>>().To<TestLogger<ArchivesController>>();
             Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
