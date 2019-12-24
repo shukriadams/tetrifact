@@ -41,6 +41,9 @@ namespace Tetrifact.Core
         {
             get 
             {
+                if (this.SizeOnDisk == 0 || this.Size == 0)
+                    return 0;
+
                 decimal p = (decimal)this.SizeOnDisk / (decimal)this.Size;
                 return (int)System.Math.Round((decimal)(p * 100), 0);
             }

@@ -218,58 +218,69 @@ namespace Tetrifact.Core
 
                 FileHelper.EnsureDirectoryExists(stagingBasePath);
 
-                FileInfo patchFileInfo = null;
                 Manifest headManifest = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetManifest(_project, parentPackage);
 
                 FileInfo fileInfo = new FileInfo(incomingFilePath);
                 this.Manifest.Size += fileInfo.Length;
 
-                // if no head, or head doesn't contain the same file path, write incoming as raw bin
+                string writePath = null;
+
+                // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
                 if (headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any())
                 {
-                    string writePath = Path.Combine(stagingBasePath, "bin");
+                    writePath = Path.Combine(stagingBasePath, "bin");
                     File.Move(incomingFilePath, writePath);
-
-                    patchFileInfo = new FileInfo(writePath);
                 }
                 else
                 {
                     // create patch against head version of file
                     string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
-                    string patchPath = Path.Combine(stagingBasePath, "patch");
+                    writePath = Path.Combine(stagingBasePath, "patch");
 
                     if (_settings.DiffMethod == DiffMethods.BsDiff)
                     {
                         byte[] sourceBinaryData = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
                         byte[] incomingBinaryData = File.ReadAllBytes(incomingFilePath);
 
-                        using (FileStream patchStream = new FileStream(patchPath, FileMode.Create, FileAccess.Write))
+                        using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
                         {
                             BinaryPatchUtility.Create(sourceBinaryData, incomingBinaryData, patchStream);
                         }
                     }
                     else 
                     {
-                        using (FileStream patchStream = new FileStream(patchPath, FileMode.Create, FileAccess.Write))
-                        using (FileStream dict = new FileStream(sourceBinPath, FileMode.Open, FileAccess.Read))
-                        using (FileStream target = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
+                        if (new FileInfo(sourceBinPath).Length == 0)
                         {
-                            VCCoder coder = new VCCoder(dict, target, patchStream);
-                            VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
-                            if (result != VCDiffResult.SUCCESS)
+                            // cannot patch against an upstream file that is empty. If this happens, write the entire incoming file as a "bin" type
+                            writePath = Path.Combine(stagingBasePath, "bin");
+                            File.Move(incomingFilePath, writePath);
+                        }
+                        else 
+                        {
+                            // write to patchPath, using incomingFilePath diffed against sourceBinPath
+                            using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
+                            using (FileStream sourceStream = new FileStream(sourceBinPath, FileMode.Open, FileAccess.Read))
+                            using (FileStream incomingStream = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
                             {
-                                string error = $"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.";
-                                Console.WriteLine(error);
-                                throw new Exception(error);
+                                // if incoming stream is empty, leave the patch empty
+                                if (incomingStream.Length >= 0) 
+                                {
+                                    VCCoder coder = new VCCoder(sourceStream, incomingStream, patchStream);
+                                    VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
+                                    if (result != VCDiffResult.SUCCESS)
+                                    {
+                                        string error = $"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.";
+                                        Console.WriteLine(error);
+                                        throw new Exception(error);
+                                    }
+                                }
                             }
                         }
-
                     }
-
-                    patchFileInfo = new FileInfo(patchPath);
                 }
 
                 this.Manifest.DependsOn = parentPackage;
+                this.Manifest.SizeOnDisk += new FileInfo(writePath).Length;
 
                 this.Manifest.Files.Add(new ManifestItem { 
                     Path = filePath, 
@@ -277,16 +288,20 @@ namespace Tetrifact.Core
                     Id = FileIdentifier.Cloak(packageId, filePath) 
                 });
 
-                if (patchFileInfo != null)
-                    this.Manifest.SizeOnDisk += patchFileInfo.Length;
             }
         }
 
         private void Finalize(string project, string package, string diffAgainstPackage, Transaction transaction)
         {
             string dependsOn = diffAgainstPackage;
-            if (string.IsNullOrEmpty(dependsOn))
+            if (string.IsNullOrEmpty(dependsOn)) 
+            {
                 dependsOn = _indexReader.GetHead(_project);
+                // package cannot depend on itself, this will happen when deleting the last package, force null
+                if (dependsOn == package)
+                    dependsOn = null;
+            }
+                
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
             this.Manifest.Id = package;

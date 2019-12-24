@@ -26,9 +26,22 @@ namespace Tetrifact.Core
                     file.CopyTo(Path.Combine(_tempTransactionFolder, file.Name));
         }
 
+        /// <summary>
+        /// Sets head. If package is null or empty, removes head.
+        /// </summary>
+        /// <param name="package"></param>
         public void SetHead(string package) 
         {
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, "head"), package);
+            string path = Path.Combine(_tempTransactionFolder, "head");
+            if (string.IsNullOrEmpty(package))
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            else 
+            {
+                File.WriteAllText(path, package);
+            }
         }
 
         public void AddManifestPointer(string package, string targetName) 
@@ -52,7 +65,11 @@ namespace Tetrifact.Core
             this.RemoveManifestPointer(package);
             this.RemoveShardPointer(package);
 
-            IEnumerable<string> dependencyLinks = Directory.GetFiles(_tempTransactionFolder, $"dep_*_{package}*");
+            IEnumerable<string> dependencyLinks = Directory.GetFiles(_tempTransactionFolder, $"dep_*_{Obfuscator.Cloak(package)}*");
+            foreach (string dependencyLink in dependencyLinks)
+                File.Delete(dependencyLink);
+
+            dependencyLinks = Directory.GetFiles(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(package)}_*");
             foreach (string dependencyLink in dependencyLinks)
                 File.Delete(dependencyLink);
         }

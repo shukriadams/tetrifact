@@ -204,25 +204,29 @@ namespace Tetrifact.Core
                 using (FileStream dict = new FileStream(binaryPath, FileMode.Open, FileAccess.Read))
                 using (FileStream target = new FileStream(patchPath, FileMode.Open, FileAccess.Read))
                 {
-                    VCDecoder decoder = new VCDecoder(dict, target, output);
-
-                    //You must call decoder.Start() first. The header of the delta file must be available before calling decoder.Start()
-
-                    VCDiffResult result = decoder.Start();
-
-                    if (result != VCDiffResult.SUCCESS)
+                    // if patch is empty, write an empty output file
+                    if (patchPath.Length > 0) 
                     {
-                        //error abort
-                        throw new Exception($"vcdiff abort error in file {filePath}");
-                    }
+                        VCDecoder decoder = new VCDecoder(dict, target, output);
 
-                    long bytesWritten = 0;
-                    result = decoder.Decode(out bytesWritten);
+                        //You must call decoder.Start() first. The header of the delta file must be available before calling decoder.Start()
 
-                    if (result != VCDiffResult.SUCCESS)
-                    {
-                        //error decoding
-                        throw new Exception($"vcdiff decode error in file {filePath}");
+                        VCDiffResult result = decoder.Start();
+
+                        if (result != VCDiffResult.SUCCESS)
+                        {
+                            //error abort
+                            throw new Exception($"vcdiff abort error in file {filePath}");
+                        }
+
+                        long bytesWritten = 0;
+                        result = decoder.Decode(out bytesWritten);
+
+                        if (result != VCDiffResult.SUCCESS)
+                        {
+                            //error decoding
+                            throw new Exception($"vcdiff decode error in file {filePath}");
+                        }
                     }
                 }
             }
