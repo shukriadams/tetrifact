@@ -86,18 +86,6 @@ namespace Tetrifact.Core
         void PurgeOldArchives();
 
         /// <summary>
-        /// Returns a status code the given archive. Requesting status for a given archive will also start
-        /// generating that archive.
-        /// 0 : Archive creation started.
-        /// 1 : Archive is being created.
-        /// 2 : Archive is available for download.
-        /// 
-        /// throw a PackageNotFoundException if the package does not exist or is marked for delete
-        /// </summary>
-        /// <returns></returns>
-        int GetPackageArchiveStatus(string project, string package);
-
-        /// <summary>
         /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
         /// final public package name when archive generation is done. Therefore, the existence of the temp file 
         /// is used as an indicator that archive creation is still in progress (or failed while in progress).

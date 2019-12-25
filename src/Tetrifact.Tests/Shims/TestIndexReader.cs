@@ -96,11 +96,6 @@ namespace Tetrifact.Tests
             return $"{packageId}.zip";
         }
 
-        public int GetPackageArchiveStatus(string project, string packageId)
-        {
-            return 0;
-        }
-
         public void MarkPackageForDelete(string project, string packageId)
         {
             // do nothing

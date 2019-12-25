@@ -63,36 +63,6 @@ namespace Tetrifact.Web
             }
         }
 
-        /// <summary>
-        /// Returns a status code the given archive.
-        /// 0 : Archive does not exist and has not been queued for creation.
-        /// 1 : Archive is being created.
-        /// 2 : Archive is available for download.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{packageId}/status")]
-        public ActionResult<int> GetArchiveStatus(string project, string packageId)
-        {
-            try
-            {
-                _indexService.PurgeOldArchives();
-
-                return _indexService.GetPackageArchiveStatus(project, packageId);
-            }
-            catch (PackageNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Unexpected error");
-                Console.WriteLine(ex);
-                return Responses.UnexpectedError();
-            }
-        }
-
         #endregion
     }
 }

@@ -280,24 +280,6 @@ namespace Tetrifact.Core
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public int GetPackageArchiveStatus(string project, string packageId)
-        {
-            if (!this.DoesPackageExist(project, packageId))
-                throw new PackageNotFoundException(packageId);
-
-            string archivePath = this.GetPackageArchivePath(project, packageId);
-            string temptPath = this.GetPackageArchiveTempPath(project, packageId);
-
-            // archive doesn't exist and isn't being created
-            if (!File.Exists(archivePath) && !File.Exists(temptPath))
-                return 0;
-
-            if (File.Exists(temptPath))
-                return 1;
-
-            return 2;
-        }
-
         public string GetPackageArchivePath(string project, string packageId)
         {
             return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));
