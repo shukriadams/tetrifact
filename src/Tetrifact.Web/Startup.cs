@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -58,7 +58,7 @@ namespace Tetrifact.Web
                 });
 
             services.AddMemoryCache();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
 
@@ -67,7 +67,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings, IAppLogic appLogic)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings, IAppLogic appLogic)
         {
             // register custom error pages
             if (env.IsDevelopment())
