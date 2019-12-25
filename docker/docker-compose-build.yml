@@ -1,6 +1,6 @@
 version: "2"
 services:
   tetribuild:
-    image: shukriadams/tetrifact-build:0.0.1
+    image: shukriadams/tetrifact-build:0.0.4
     container_name: tetrifactbuild
     restart: unless-stopped

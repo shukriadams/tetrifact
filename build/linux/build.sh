@@ -17,6 +17,6 @@ cd ./clone/src &&
 dotnet restore &&
 dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release &&
 
-tar -czvf ./../../out/Tetrifact.$TAG.tar.gz -C ./Tetrifact.Web/bin/Release/netcoreapp2.2/publish .
+tar -czvf ./../../out/Tetrifact.$TAG.tar.gz -C ./Tetrifact.Web/bin/Release/netcoreapp3.1/publish .
 
 cd -

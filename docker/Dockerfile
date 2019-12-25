@@ -1,12 +1,12 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 RUN apt-get update \
     && apt-get install -y wget \
-    && wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb \
+    && wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb \
     && sh -c 'dpkg -i packages-microsoft-prod.deb' \
     && apt-get install apt-transport-https -y \
     && apt-get update \
-    && apt-get install aspnetcore-runtime-2.2 -y \
+    && apt-get install aspnetcore-runtime-3.1 -y \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \

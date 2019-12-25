@@ -37,3 +37,4 @@ src/VCDiffCore/bin
 src/VCDiffCore/obj
 src/Tetrifact.Dev/bin
 src/Tetrifact.Dev/obj
+vagrant/ubuntu-bionic-18.04-cloudimg-console.log

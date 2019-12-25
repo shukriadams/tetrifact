@@ -21,7 +21,7 @@ echo $TAG > ./Tetrifact.Web/currentVersion.txt &&
 
 dotnet restore &&
 dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release &&
-cd ./Tetrifact.Web/bin/Release/netcoreapp2.2 &&
+cd ./Tetrifact.Web/bin/Release/netcoreapp3.1 &&
 zip -r ./Tetrifact.$TAG.zip ./publish/*
 
 curl -X POST \
