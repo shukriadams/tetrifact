@@ -49,10 +49,12 @@ namespace Tetrifact.Web
             services.AddScoped<WriteLevel>();
 
             // prettify JSON output
-            services.AddMvc()
+            services.AddMvc(
+                    option => option.EnableEndpointRouting = false
+                )
                 .AddJsonOptions(options =>
                 {
-                    options.SerializerSettings.Formatting = Formatting.Indented;
+                    options.JsonSerializerOptions.WriteIndented = true;
                 });
 
             services.AddMemoryCache();
