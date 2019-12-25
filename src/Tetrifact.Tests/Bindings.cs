@@ -14,9 +14,9 @@ namespace Tetrifact.Tests
         {
             Bind<ITetriSettings>().To<TetriSettings>();
             Bind<IIndexReader>().To<TestIndexReader>();
-            Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
+            Bind<ICleaner>().To<TestRepositoryCleaner>();
             Bind<IPackageList>().To<TestPackageList>();
-            Bind<IAppLogic>().To<AppLogic>();
+            Bind<IApplicationLogic>().To<AppLogic>();
             Bind<IProjectService>().To<Core.ProjectService>();
 
             Bind<ITagsService>().To<Core.TagsService>();

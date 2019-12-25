@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Core
 {
-    public class AppLogic : IAppLogic
+    public class AppLogic : IApplicationLogic
     {
         private readonly ITetriSettings _settings;
 

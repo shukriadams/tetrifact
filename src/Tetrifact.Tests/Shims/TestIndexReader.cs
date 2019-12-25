@@ -96,11 +96,6 @@ namespace Tetrifact.Tests
             return $"{packageId}.zip";
         }
 
-        public void MarkPackageForDelete(string project, string packageId)
-        {
-            // do nothing
-        }
-
         public void CleanRepository()
         {
             // do nothing

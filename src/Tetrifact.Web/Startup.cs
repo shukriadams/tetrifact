@@ -35,12 +35,12 @@ namespace Tetrifact.Web
 
             // register type injections here
             services.AddTransient<ITetriSettings, TetriSettings>();
-            services.AddTransient<IRepositoryCleaner, Cleaner>();
+            services.AddTransient<ICleaner, Cleaner>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IProjectService, ProjectService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
-            services.AddTransient<IAppLogic, AppLogic>();
+            services.AddTransient<IApplicationLogic, AppLogic>();
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IPackageDeleter, PackageDeleter>();
 
@@ -67,7 +67,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings, IAppLogic appLogic)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ITetriSettings settings, IApplicationLogic appLogic)
         {
             // register custom error pages
             if (env.IsDevelopment())

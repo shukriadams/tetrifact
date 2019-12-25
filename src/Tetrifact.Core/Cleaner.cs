@@ -6,23 +6,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
 {
-    public class Cleaner : IRepositoryCleaner
+    public class Cleaner : ICleaner
     {
         #region FIELDS
 
         private readonly ITetriSettings _settings;
 
-        private readonly ILogger<IRepositoryCleaner> _logger;
+        private readonly ILogger<ICleaner> _logger;
 
         private readonly IIndexReader _indexReader;
-
-        public int LockPasses {private set ; get;}
 
         #endregion
 
         #region CTORS
 
-        public Cleaner(IIndexReader indexReader, ITetriSettings settings, ILogger<IRepositoryCleaner> logger)
+        public Cleaner(IIndexReader indexReader, ITetriSettings settings, ILogger<ICleaner> logger)
         {
             _settings = settings;
             _logger = logger;

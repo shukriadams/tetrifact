@@ -2,7 +2,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
-    public class TestRepositoryCleaner : IRepositoryCleaner
+    public class TestRepositoryCleaner : ICleaner
     {
         #region METHODS
 

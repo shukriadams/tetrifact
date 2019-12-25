@@ -8,11 +8,11 @@ namespace Tetrifact.Tests.RepositoryCleaner
 {
     public class CleanRepository : FileSystemBase
     {
-        private readonly IRepositoryCleaner _respositoryCleaner;
+        private readonly ICleaner _respositoryCleaner;
 
         public CleanRepository()
         {
-            _respositoryCleaner = new Core.Cleaner(this.IndexReader, this.Settings, new TestLogger<IRepositoryCleaner>());
+            _respositoryCleaner = new Core.Cleaner(this.IndexReader, this.Settings, new TestLogger<ICleaner>());
         }
 
         /// <summary>
