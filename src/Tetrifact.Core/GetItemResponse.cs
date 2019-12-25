@@ -2,6 +2,9 @@
 
 namespace Tetrifact.Core
 {
+    /// <summary>
+    /// Wraps response when a single file is requested.
+    /// </summary>
     public class GetFileResponse
     {
         public string FileName { get; set; }

@@ -37,11 +37,6 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.NotEmpty(result.PackageHash);
             Assert.Null(result.ErrorType);
 
-            // check that package can be listed
-            IEnumerable<string> packageIds = IndexReader.GetAllPackageIds("some-project");
-            Assert.Contains(packageId, packageIds);
-            Assert.Single(packageIds);
-
             // check that package can be retrieved as manifest
             Manifest manifest = IndexReader.GetManifest("some-project", packageId);
             Assert.NotNull(manifest);

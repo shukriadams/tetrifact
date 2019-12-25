@@ -83,7 +83,7 @@ namespace Tetrifact.Core
             return manifests;
         }
 
-        public IEnumerable<string> GetAllPackageIds(string project)
+        private IEnumerable<string> GetAllPackageIds(string project)
         {
             IEnumerable<string> rawList = this.GetManifestPointers(project);
 
@@ -187,7 +187,7 @@ namespace Tetrifact.Core
             // recurse - this ensures that the entire stack of files requireq for patching out is processed
             binaryPath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
 
-            FileHelper.EnsureFileDirectoryExists(rehydrateOutputPath);
+            FileHelper.EnsureParentDirectoryExists(rehydrateOutputPath);
 
             if (_settings.DiffMethod == DiffMethods.BsDiff)
             {

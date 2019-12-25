@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Tetrifact.Core
 {
@@ -42,21 +41,11 @@ namespace Tetrifact.Core
 
         }
 
-        public static string GetPackageFromFileName(string filename)
-        {
-            Regex r = new Regex("(.*?)_(.*)");
-            Match match = r.Match(filename);
-            if (match.Groups.Count != 3)
-                return null;
-
-            return match.Groups[2].Value;
-        }
-
         /// <summary>
         /// Creates the directory structure for the given file path if that structure does not exist.
         /// </summary>
         /// <param name="filepath"></param>
-        public static void EnsureFileDirectoryExists(string filepath) 
+        public static void EnsureParentDirectoryExists(string filepath) 
         {
             string dirPath = Path.GetDirectoryName(filepath);
             if (!Directory.Exists(dirPath))

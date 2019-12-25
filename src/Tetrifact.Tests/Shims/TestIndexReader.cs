@@ -116,11 +116,6 @@ namespace Tetrifact.Tests
             
         }
 
-        public IEnumerable<string> GetAllPackageIds(string project)
-        {
-            return Test_Indexes;
-        }
-
         public string RehydrateOrResolveFile(string project, string package, string filePath)
         {
             return null;

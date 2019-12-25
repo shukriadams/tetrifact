@@ -22,8 +22,6 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageList> _logger;
 
-        
-
         private readonly IIndexReader _indexReader;
 
         #endregion
