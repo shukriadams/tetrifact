@@ -301,24 +301,14 @@ namespace Tetrifact.Core
                 if (dependsOn == package)
                     dependsOn = null;
             }
-                
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
             this.Manifest.Id = package;
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
             this.Manifest.DependsOn = dependsOn;
 
-            transaction.AddManifest(project, this.Manifest);
-
-            // Move the staging directory to the "shards" folder
-            string packageNoCollideName = $"{Guid.NewGuid()}__{Obfuscator.Cloak(package)}";
-            string stagingRoot = Path.Combine(this.WorkspacePath, Constants.StagingFragment);
-            string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
-            string finalRoot = Path.Combine(shardRoot, packageNoCollideName);
-            FileHelper.MoveDirectoryContents(stagingRoot, finalRoot);
-
-            // shard pointer
-            transaction.AddShardPointer(package, packageNoCollideName);
+            transaction.AddManifest(this.Manifest);
+            transaction.AddShard(package, Path.Combine(this.WorkspacePath, Constants.StagingFragment));
 
             if (!string.IsNullOrEmpty(dependsOn))
                 transaction.AddDependecy(dependsOn, package, !string.IsNullOrEmpty(diffAgainstPackage));

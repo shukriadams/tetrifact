@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
-
-namespace Tetrifact.Core
+﻿namespace Tetrifact.Core
 {
     public class TagsService : ITagsService
     {
@@ -46,7 +42,7 @@ namespace Tetrifact.Core
 
                 manifest.Tags.Add(tag);
 
-                transaction.AddManifest(project, manifest);
+                transaction.AddManifest(manifest);
                 transaction.Commit();
 
                 _packageList.Clear(project);
@@ -79,7 +75,7 @@ namespace Tetrifact.Core
 
 
                 Transaction transaction = new Transaction(_settings, _indexReader, project);
-                transaction.AddManifest(project, manifest);
+                transaction.AddManifest(manifest);
                 transaction.Commit();
 
                 // flush in-memory tags
