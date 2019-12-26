@@ -46,11 +46,9 @@ namespace Tetrifact.Core
 
                 manifest.Tags.Add(tag);
 
-                string fileName = $"{Guid.NewGuid()}_{packageId}";
-                File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
-                transaction.AddManifestPointer(packageId, fileName);
-
+                transaction.AddManifest(project, manifest);
                 transaction.Commit();
+
                 _packageList.Clear(project);
 
                 return;
@@ -77,15 +75,14 @@ namespace Tetrifact.Core
                 if (!manifest.Tags.Contains(tag))
                     return;
 
-                Transaction transaction = new Transaction(_settings, _indexReader, project);
-
                 manifest.Tags.Remove(tag);
-                string fileName = $"{Guid.NewGuid()}_{packageId}";
-                File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
-                transaction.AddManifestPointer(packageId, fileName);
+
+
+                Transaction transaction = new Transaction(_settings, _indexReader, project);
+                transaction.AddManifest(project, manifest);
+                transaction.Commit();
 
                 // flush in-memory tags
-                transaction.Commit();
                 _packageList.Clear(project);
 
                 return;

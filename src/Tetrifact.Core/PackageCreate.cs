@@ -308,17 +308,14 @@ namespace Tetrifact.Core
             this.Manifest.Hash = HashService.FromString(_hashes.ToString());
             this.Manifest.DependsOn = dependsOn;
 
-            string packageNoCollideName = $"{Guid.NewGuid()}__{Obfuscator.Cloak(package)}";
-            string manifestPath = Path.Combine(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment), packageNoCollideName);
-            File.WriteAllText(manifestPath, JsonConvert.SerializeObject(this.Manifest));
+            transaction.AddManifest(project, this.Manifest);
 
             // Move the staging directory to the "shards" folder
+            string packageNoCollideName = $"{Guid.NewGuid()}__{Obfuscator.Cloak(package)}";
             string stagingRoot = Path.Combine(this.WorkspacePath, Constants.StagingFragment);
             string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
             string finalRoot = Path.Combine(shardRoot, packageNoCollideName);
             FileHelper.MoveDirectoryContents(stagingRoot, finalRoot);
-
-            transaction.AddManifestPointer(package, packageNoCollideName);
 
             // shard pointer
             transaction.AddShardPointer(package, packageNoCollideName);

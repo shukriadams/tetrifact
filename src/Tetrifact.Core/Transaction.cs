@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,10 +10,12 @@ namespace Tetrifact.Core
         private readonly string _finalTransactionFolder;
         private readonly string _tempTransactionFolder;
         private readonly IIndexReader _indexReader;
+        private readonly ISettings _settings;
 
         public Transaction(ISettings settings, IIndexReader indexReader, string project) 
         {
             _indexReader = indexReader;
+            _settings = settings;
 
             long ticks = DateTime.UtcNow.Ticks;
             _tempTransactionFolder = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"~{ticks}");
@@ -44,9 +47,16 @@ namespace Tetrifact.Core
             }
         }
 
-        public void AddManifestPointer(string package, string targetName) 
+        public void AddManifest(string project, Manifest manifest) 
         {
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_manifest"), targetName);
+            if (string.IsNullOrEmpty(manifest.Id))
+                throw new Exception("Manifest id not set");
+
+            string fileName = $"{Guid.NewGuid()}_{manifest.Id}";
+            File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+
+            // write pointer, this overwrites existing pointer
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(manifest.Id)}_manifest"), fileName);
         }
 
         public void AddShardPointer(string package, string targetName) 
