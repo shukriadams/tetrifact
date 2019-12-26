@@ -19,8 +19,6 @@ namespace Tetrifact.Tests
 
         #region PROPERTIES
 
-        public IEnumerable<string> Test_Indexes { get; set; }
-
         public bool Test_PackageIdExists { get; set; }
 
         public Manifest Test_Manifest { get; set; }
@@ -30,8 +28,6 @@ namespace Tetrifact.Tests
         public Stream Test_PackageArchive { get; set; }
 
         public string Test_Head { get; set; }
-
-        public IEnumerable<string> Test_Projects { get; set; }
 
         #endregion
 
@@ -45,11 +41,6 @@ namespace Tetrifact.Tests
         #endregion
 
         #region METHODS
-
-        public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
-        {
-            return Test_Indexes;
-        }
 
         public bool PackageNameInUse(string project, string id)
         {
@@ -119,11 +110,6 @@ namespace Tetrifact.Tests
         public string RehydrateOrResolveFile(string project, string package, string filePath)
         {
             return null;
-        }
-
-        public IEnumerable<string> GetProjects()
-        {
-            return this.Test_Projects;
         }
 
         public DirectoryInfo GetActiveTransactionInfo(string project)

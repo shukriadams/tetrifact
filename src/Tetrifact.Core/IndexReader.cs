@@ -91,12 +91,6 @@ namespace Tetrifact.Core
             return rawList.Select(r => Obfuscator.Decloak(Path.GetFileName(r).Replace("_manifest", string.Empty)));
         }
 
-        public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
-        {
-            IEnumerable<string> rawList = this.GetAllPackageIds(project);
-            return rawList.OrderBy(r => r).Skip(pageIndex).Take(pageSize);
-        }
-
         public bool PackageNameInUse(string project, string id)
         {
             IEnumerable<string> rawList = this.GetAllPackageIds(project);
@@ -196,7 +190,6 @@ namespace Tetrifact.Core
                 {
                     BinaryPatchUtility.Apply(rehydrateSourceStream, () => { return new FileStream(patchPath, FileMode.Open, FileAccess.Read, FileShare.Read); }, rehydrationFileStream);
                 }
-
             }
             else 
             {
@@ -301,12 +294,6 @@ namespace Tetrifact.Core
                 return null;
 
             return File.ReadAllText(headPath);
-        }
-
-        public IEnumerable<string> GetProjects() 
-        {
-            string[] directories = Directory.GetDirectories(_settings.ProjectsPath);
-            return directories.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
         }
 
         private bool DoesPackageExist(string project, string packageId)

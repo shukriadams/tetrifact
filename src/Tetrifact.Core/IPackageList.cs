@@ -44,6 +44,12 @@ namespace Tetrifact.Core
         Package GetLatestWithTag(string project, string tag);
 
         /// <summary>
+        /// Gets a list of package ids.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize);
+
+        /// <summary>
         /// Gets a page of packages with the given tag.
         /// </summary>
         /// <param name="tag"></param>
@@ -67,5 +73,11 @@ namespace Tetrifact.Core
         /// <param name="pageSize"></param>
         /// <returns></returns>
         PageableData<Package> GetPage(string project, int pageIndex, int pageSize);
+
+        /// <summary>
+        /// Gets a list of all projects currently created on server.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetProjects();
     }
 }

@@ -28,6 +28,10 @@ namespace Tetrifact.Tests
 
         public Package LatestPackage;
 
+        public IEnumerable<string> Test_Indexes { get; set; }
+
+        public IEnumerable<string> Test_Projects { get; set; }
+
         #endregion
 
         #region CTORS
@@ -97,6 +101,16 @@ namespace Tetrifact.Tests
         public IEnumerable<Package> GetWithTag(string project, string tag, int pageIndex, int pageSize)
         {
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
+        }
+
+        public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
+        {
+            return Test_Indexes;
+        }
+
+        public IEnumerable<string> GetProjects()
+        {
+            return this.Test_Projects;
         }
 
         #endregion

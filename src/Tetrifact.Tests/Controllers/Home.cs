@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.Controllers
         public void Index()
         {
             // set fake projects
-            TestIndexReader.Instance.Test_Projects = new List<string>() { "1", "2" };
+            TestPackageList.Instance.Test_Projects = new List<string>() { "1", "2" };
 
             // "render"
             IActionResult result = _controller.Index();

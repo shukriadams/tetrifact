@@ -34,17 +34,6 @@ namespace Tetrifact.Core
         IEnumerable<string> GetManifestPaths(string project);
 
         /// <summary>
-        /// Gets a list of all packages which can be linked to. A package that cannot be linked to can still be downloaded from 
-        /// through a file link from another package.
-        /// 
-        /// Packages are stored as immediate child folders of the system package folder. Package names are the short names of these folders,
-        /// that is, if the server package folder contains package1 as /path/to/packages/package1, then "package1" would be the name of the
-        /// available package.
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize);
-
-        /// <summary>
         /// Returns true if the package is being used. This doesn't mean the package is available, just that the package folder 
         /// exists.
         /// </summary>
@@ -110,12 +99,6 @@ namespace Tetrifact.Core
         /// <param name="filePath"></param>
         /// <returns></returns>
         string RehydrateOrResolveFile(string project, string package, string filePath);
-
-        /// <summary>
-        /// Gets a list of all projects currently created on server.
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<string> GetProjects();
 
         /// <summary>
         /// Gets the absolute path of an item if it exists.

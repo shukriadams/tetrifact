@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
 using Xunit;
 
-namespace Tetrifact.Tests.IndexReader
+namespace Tetrifact.Tests.PackageList
 {
     public class GetProjects // No base - we need a totally
     {
         ITetriSettings Settings;
-        IIndexReader IndexReader;
+        IPackageList PackageList;
 
         #region CTOR
 
@@ -35,7 +34,8 @@ namespace Tetrifact.Tests.IndexReader
             appLogic.Start();
 
             // we'll be using indexreader for all tests
-            IndexReader = new Core.IndexReader(Settings, new TestLogger<IIndexReader>());
+            IIndexReader indexReader = new Core.IndexReader(Settings, new TestLogger<IIndexReader>() );
+            this.PackageList = new Core.PackageList(MemoryCacheHelper.GetInstance(), indexReader, Settings, new TestLogger<IPackageList>());
         }
 
         #endregion
@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.IndexReader
             string project = "my-project";
             Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project)));
 
-            IEnumerable<string> projects = IndexReader.GetProjects();
+            IEnumerable<string> projects = this.PackageList.GetProjects();
             Assert.Single(projects);
             Assert.Contains(project, projects);
         }
@@ -63,7 +63,7 @@ namespace Tetrifact.Tests.IndexReader
             string project = "* ! : \\ //";
             Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project)));
 
-            IEnumerable<string> projects = IndexReader.GetProjects();
+            IEnumerable<string> projects = this.PackageList.GetProjects();
             Assert.Single(projects);
             Assert.Contains(project, projects);
         }
@@ -74,7 +74,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Empty()
         {
-            IEnumerable<string> projects = IndexReader.GetProjects();
+            IEnumerable<string> projects = PackageList.GetProjects();
             Assert.Empty(projects);
         }
     }

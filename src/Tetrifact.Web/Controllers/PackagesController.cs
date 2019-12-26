@@ -63,8 +63,8 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("")]
-        public JsonResult ListPackages([FromQuery(Name = "project")] string project, [FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        [HttpGet("{project}")]
+        public JsonResult ListPackages(string project, [FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
             if (isFull)
             {
@@ -72,7 +72,7 @@ namespace Tetrifact.Web
             }
             else
             {
-                return new JsonResult(_indexService.GetPackageIds(project, pageIndex, pageSize));
+                return new JsonResult(_packageList.GetPackageIds(project, pageIndex, pageSize));
             }
         }
 

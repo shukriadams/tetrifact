@@ -32,7 +32,7 @@ namespace Tetrifact.Web
         [Route("")]
         public IActionResult Index()
         {
-            return View(new ContentSummaryModel(_indexReader.GetProjects()));
+            return View(new ContentSummaryModel(_packageList.GetProjects()));
         }
 
         [ServiceFilter(typeof(ReadLevel))]

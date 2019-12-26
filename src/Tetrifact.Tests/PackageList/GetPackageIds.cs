@@ -3,9 +3,9 @@ using System.IO;
 using Xunit;
 using Tetrifact.Core;
 
-namespace Tetrifact.Tests.IndexReader
+namespace Tetrifact.Tests.PackageList
 {
-    public class GetPackageIds : FileSystemBase
+    public class GetPackageIds : Base
     {
         /// <summary>
         /// Returns a page of directory basenames from within packages directory, sorted by name
@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.IndexReader
             this.CreatePackage("package1");
             this.CreatePackage("package3");
 
-            IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 0, 1);
+            IEnumerable<string> packages = this.PackageList.GetPackageIds("some-project", 0, 1);
             Assert.Single(packages);
             Assert.Contains("package1", packages);
         }
@@ -31,7 +31,7 @@ namespace Tetrifact.Tests.IndexReader
             Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
 
             // deliberately overshoot number of available packages
-            IEnumerable<string> packages = this.IndexReader.GetPackageIds("some-project", 2, 10); 
+            IEnumerable<string> packages = this.PackageList.GetPackageIds("some-project", 2, 10); 
             Assert.Empty(packages);
         }
     }
