@@ -83,17 +83,12 @@ namespace Tetrifact.Core
             return manifests;
         }
 
-        private IEnumerable<string> GetAllPackageIds(string project)
-        {
-            IEnumerable<string> rawList = this.GetManifestPointers(project);
-
-            // remove "_manifest" and decloak, as we want to get package ids from file names
-            return rawList.Select(r => Obfuscator.Decloak(Path.GetFileName(r).Replace("_manifest", string.Empty)));
-        }
-
         public bool PackageNameInUse(string project, string id)
         {
-            IEnumerable<string> rawList = this.GetAllPackageIds(project);
+            IEnumerable<string> rawList = this.GetManifestPointers(project);
+            // remove "_manifest" and decloak, as we want to get package ids from file names
+            rawList = rawList.Select(r => Obfuscator.Decloak(Path.GetFileName(r).Replace("_manifest", string.Empty)));
+
             return rawList.Contains(id);
         }
 
