@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests
 {
-    public class FileIdentifier
+    public class Decloak
     {
         /// <summary>
         /// Can decloak a cloaked string.

@@ -4,7 +4,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.AppStart
 {
-    public class Cleanup 
+    public class Start // no base class, clean start required
     {
         #region FIELDS
 
@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.AppStart
 
         #region CTORS
 
-        public Cleanup() 
+        public Start() 
         {
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
