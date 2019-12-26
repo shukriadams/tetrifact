@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.IO;
 
@@ -9,7 +8,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly IPackageList _packageList;
 
@@ -19,7 +18,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TagsService(ITetriSettings settings, IIndexReader indexReader, IPackageList packageList)
+        public TagsService(ISettings settings, IIndexReader indexReader, IPackageList packageList)
         {
             _indexReader = indexReader;
             _settings = settings;
@@ -36,13 +35,9 @@ namespace Tetrifact.Core
             {
                 WriteLock.Instance.WaitUntilClear(project);
 
-                // get current manifest
                 Manifest manifest = _indexReader.GetManifest(project, packageId);
-
                 if (manifest == null)
                     throw new PackageNotFoundException(packageId);
-
-                // create new transaction
 
                 if (manifest.Tags.Contains(tag))
                     return;
@@ -50,12 +45,11 @@ namespace Tetrifact.Core
                 Transaction transaction = new Transaction(_settings, _indexReader, project);
 
                 manifest.Tags.Add(tag);
+
                 string fileName = $"{Guid.NewGuid()}_{packageId}";
                 File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
                 transaction.AddManifestPointer(packageId, fileName);
 
-
-                // flush in-memory tags
                 transaction.Commit();
                 _packageList.Clear(project);
 

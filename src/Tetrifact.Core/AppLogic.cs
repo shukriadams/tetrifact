@@ -4,9 +4,9 @@ namespace Tetrifact.Core
 {
     public class AppLogic : IApplicationLogic
     {
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
-        public AppLogic(ITetriSettings settings) 
+        public AppLogic(ISettings settings) 
         {
             _settings = settings;
         }

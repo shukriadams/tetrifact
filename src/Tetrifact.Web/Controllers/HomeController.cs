@@ -9,7 +9,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
         private readonly IIndexReader _indexReader;
         private readonly IPackageList _packageList;
 
@@ -17,7 +17,7 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ITetriSettings settings, IIndexReader indexReader, IPackageList packageList)
+        public HomeController(ISettings settings, IIndexReader indexReader, IPackageList packageList)
         {
             _settings = settings;
             _indexReader = indexReader;

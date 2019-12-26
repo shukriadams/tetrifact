@@ -24,7 +24,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        public static string GetExpectedProjectPath(ITetriSettings settings, string project)
+        public static string GetExpectedProjectPath(ISettings settings, string project)
         {
             string projectPath = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project));
             if (!Directory.Exists(projectPath))
@@ -33,7 +33,7 @@ namespace Tetrifact.Core
             return projectPath;
         }
 
-        public static string GetExpectedManifestsPath(ITetriSettings settings, string project)
+        public static string GetExpectedManifestsPath(ISettings settings, string project)
         {
             string manifestsPath = Path.Combine(settings.ProjectsPath, project, Constants.ManifestsFragment);
             if (!Directory.Exists(manifestsPath))
@@ -42,27 +42,27 @@ namespace Tetrifact.Core
             return manifestsPath;
         }
 
-        public static string ResolveFinalFileBinPath(ITetriSettings settings, string project, string package, string filePath) 
+        public static string ResolveFinalFileBinPath(ISettings settings, string project, string package, string filePath) 
         {
             return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment, Obfuscator.Cloak(package), filePath, "bin");
         }
 
-        public static string ResolveFinalFilePathPath(ITetriSettings settings, string project, string package, string filePath)
+        public static string ResolveFinalFilePathPath(ISettings settings, string project, string package, string filePath)
         {
             return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment, Obfuscator.Cloak(package), filePath, "patch");
         }
 
-        public static string ResolveShardRoot(ITetriSettings settings, string project)
+        public static string ResolveShardRoot(ISettings settings, string project)
         {
             return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment);
         }
 
-        public static string ResolveTransactionRoot(ITetriSettings settings, string project)
+        public static string ResolveTransactionRoot(ISettings settings, string project)
         {
             return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment);
         }
 
-        public static string ResolveManifestsRoot(ITetriSettings settings, string project)
+        public static string ResolveManifestsRoot(ISettings settings, string project)
         {
             return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment);
         }

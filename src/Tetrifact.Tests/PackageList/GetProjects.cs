@@ -7,7 +7,7 @@ namespace Tetrifact.Tests.PackageList
 {
     public class GetProjects // No base - we need a totally
     {
-        ITetriSettings Settings;
+        ISettings Settings;
         IPackageList PackageList;
 
         #region CTOR
@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.PackageList
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
             // bind settings to that folder
-            Settings = new TetriSettings()
+            Settings = new Settings()
             {
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),

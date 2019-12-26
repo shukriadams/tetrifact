@@ -8,9 +8,9 @@ namespace Tetrifact.Core
     {
         private readonly IIndexReader _indexReader;
         
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
-        public TransactionHelper(IIndexReader indexReader, ITetriSettings settings) 
+        public TransactionHelper(IIndexReader indexReader, ISettings settings) 
         {
             _indexReader = indexReader;
             _settings = settings;

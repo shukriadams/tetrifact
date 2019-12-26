@@ -10,7 +10,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<ICleaner> _logger;
 
@@ -20,7 +20,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Cleaner(IIndexReader indexReader, ITetriSettings settings, ILogger<ICleaner> logger)
+        public Cleaner(IIndexReader indexReader, ISettings settings, ILogger<ICleaner> logger)
         {
             _settings = settings;
             _logger = logger;

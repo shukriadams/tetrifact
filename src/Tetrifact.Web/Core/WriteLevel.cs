@@ -7,9 +7,9 @@ namespace Tetrifact.Web
 {
     public class WriteLevel : IActionFilter
     {
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
-        public WriteLevel(ITetriSettings settings)
+        public WriteLevel(ISettings settings)
         {
             _settings = settings;
         }

@@ -25,7 +25,7 @@ namespace Tetrifact.Core
 
         private readonly IMemoryCache _cache;
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IPackageList> _logger;
 
@@ -35,7 +35,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageList> logger)
+        public PackageList(IMemoryCache memoryCache, IIndexReader indexReader, ISettings settings, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;

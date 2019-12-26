@@ -24,7 +24,7 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageCreate> _log;
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private string _project;
 
@@ -42,7 +42,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, ITetriSettings settings)
+        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, ISettings settings)
         {
             _indexReader = indexReader;
             _log = log;

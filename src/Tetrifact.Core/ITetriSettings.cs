@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Core
 {
-    public interface ITetriSettings
+    public interface ISettings
     {
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
         {
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
-            Settings = new TetriSettings()
+            Settings = new Settings()
             {
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),

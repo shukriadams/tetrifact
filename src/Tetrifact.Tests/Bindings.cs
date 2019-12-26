@@ -12,7 +12,7 @@ namespace Tetrifact.Tests
     {
         public override void Load()
         {
-            Bind<ITetriSettings>().To<TetriSettings>();
+            Bind<ISettings>().To<Settings>();
             Bind<IIndexReader>().To<TestIndexReader>();
             Bind<ICleaner>().To<TestRepositoryCleaner>();
             Bind<IPackageList>().To<TestPackageList>();

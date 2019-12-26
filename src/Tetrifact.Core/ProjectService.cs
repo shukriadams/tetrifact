@@ -6,10 +6,10 @@ namespace Tetrifact.Core
 {
     public class ProjectService : IProjectService
     {
-        ITetriSettings _settings;
+        ISettings _settings;
         ILogger<IProjectService> _logger;
 
-        public ProjectService(ITetriSettings settings, ILogger<IProjectService> logger) 
+        public ProjectService(ISettings settings, ILogger<IProjectService> logger) 
         {
             _settings = settings;
             _logger = logger;

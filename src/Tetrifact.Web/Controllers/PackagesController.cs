@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Tetrifact.Web
@@ -26,7 +25,7 @@ namespace Tetrifact.Web
         private readonly ILogger<PackagesController> _log;
         private readonly IPackageCreate _packageService;
         private readonly IPackageList _packageList;
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
         private readonly ITagsService _tagService;
         private readonly IPackageDeleter _packageDeleter;
 
@@ -42,7 +41,7 @@ namespace Tetrifact.Web
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageDeleter packageDeleter, ITagsService tagService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageDeleter packageDeleter, ITagsService tagService, IPackageList packageList, IIndexReader indexService, ISettings settings, ILogger<PackagesController> log)
         {
             _packageDeleter = packageDeleter;
             _packageList = packageList;

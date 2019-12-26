@@ -10,7 +10,7 @@ namespace Tetrifact.Core
         private readonly string _tempTransactionFolder;
         private readonly IIndexReader _indexReader;
 
-        public Transaction(ITetriSettings settings, IIndexReader indexReader, string project) 
+        public Transaction(ISettings settings, IIndexReader indexReader, string project) 
         {
             _indexReader = indexReader;
 

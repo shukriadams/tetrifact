@@ -11,11 +11,11 @@ namespace Tetrifact.DevUtils
 {
     public class DiffMethodComparer
     {
-        ITetriSettings Settings;
+        ISettings Settings;
         IPackageCreate PackageCreate;
         IIndexReader IndexReader;
 
-        public DiffMethodComparer(ITetriSettings settings, IIndexReader indexReader, IPackageCreate packageCreate)
+        public DiffMethodComparer(ISettings settings, IIndexReader indexReader, IPackageCreate packageCreate)
         {
             this.Settings = settings;
             this.IndexReader = indexReader;

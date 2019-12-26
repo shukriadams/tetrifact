@@ -16,7 +16,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IIndexReader> _logger;
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="settings"></param>
         /// <param name="logger"></param>
-        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger) 
+        public IndexReader(ISettings settings, ILogger<IIndexReader> logger) 
         {
             _settings = settings;
             _logger = logger;

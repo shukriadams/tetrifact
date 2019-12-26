@@ -9,13 +9,13 @@ namespace Tetrifact.Core
     {
         private readonly IIndexReader _indexReader;
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IPackageDeleter> _logger;
 
         private readonly ILogger<IPackageCreate> _packageCreateLogger;
 
-        public PackageDeleter(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageDeleter> logger, ILogger<IPackageCreate> packageCreateLogger) 
+        public PackageDeleter(IIndexReader indexReader, ISettings settings, ILogger<IPackageDeleter> logger, ILogger<IPackageCreate> packageCreateLogger) 
         {
             _packageCreateLogger = packageCreateLogger;
             _indexReader = indexReader;

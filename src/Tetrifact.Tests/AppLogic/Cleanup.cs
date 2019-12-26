@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.AppStart
     {
         #region FIELDS
 
-        private ITetriSettings Settings;
+        private ISettings Settings;
 
         #endregion
 
@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.AppStart
         {
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
-            this.Settings = new TetriSettings()
+            this.Settings = new Settings()
             {
                 ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
                 TempPath = Path.Combine(testFolder, "temp"),

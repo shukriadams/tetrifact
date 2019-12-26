@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Tetrifact.Core
 {
-    public class TetriSettings : ITetriSettings
+    public class Settings : ISettings
     {
         #region PROPERTIES
 
@@ -48,7 +48,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TetriSettings()
+        public Settings()
         {
             // defaults
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
