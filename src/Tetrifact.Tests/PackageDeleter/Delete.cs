@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using Tetrifact.Core;
 using Tetrifact.Dev;
@@ -51,7 +52,6 @@ namespace Tetrifact.Tests.PackageDeleter
             // create two packages. delete the second one. the first should be head again.
             Assert.Equal("first", this.IndexReader.GetHead("some-project"));
         }
-
 
         /// <summary>
         /// If deleted package has dependents, head remains unchanged
@@ -138,6 +138,43 @@ namespace Tetrifact.Tests.PackageDeleter
             Assert.Null(this.IndexReader.GetHead("some-project"));
         }
 
+        /// <summary>
+        /// Deleting packages patched against will not affect the content stack.
+        /// </summary>
+        [Fact]
+        public void DeleteConsistencyCheck() 
+        {
+            this.PackageCreate.CreateWithValidation(new PackageCreateArguments
+            {
+                Id = "first",
+                Project = "some-project",
+                Files = FormFileHelper.Single("1", "path/to/file")
+            });
+
+            this.PackageCreate.CreateWithValidation(new PackageCreateArguments
+            {
+                Id = "second",
+                Project = "some-project",
+                Files = FormFileHelper.Single("12", "path/to/file")
+            });
+
+            this.PackageCreate.CreateWithValidation(new PackageCreateArguments
+            {
+                Id = "third",
+                Project = "some-project",
+                Files = FormFileHelper.Single("23", "path/to/file")
+            });
+
+            this.PackageDeleter.Delete("some-project", "first");
+            this.PackageDeleter.Delete("some-project", "second");
+
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive("some-project", "third"))
+            {
+                Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
+                Assert.Single(items);
+                Assert.Equal(Encoding.ASCII.GetBytes("23"), items[items.Keys.First()]);
+            }
+        }
 
         #endregion
     }

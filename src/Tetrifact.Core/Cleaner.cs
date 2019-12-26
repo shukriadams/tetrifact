@@ -34,7 +34,7 @@ namespace Tetrifact.Core
         public void Clean(string project)
         {
             TransactionHelper transactionHelper = new TransactionHelper(_indexReader, _settings);
-            ProjectView projectView = transactionHelper.GetProjectView(project);
+            ProjectCurrentState projectView = transactionHelper.GetProjectView(project);
 
             List<string> filesToDelete = new List<string>();
             List<string> directoriesToDelete = new List<string>();

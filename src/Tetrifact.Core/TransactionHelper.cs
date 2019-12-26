@@ -16,7 +16,7 @@ namespace Tetrifact.Core
             _settings = settings;
         }
 
-        public ProjectView GetProjectView(string project) 
+        public ProjectCurrentState GetProjectView(string project) 
         {
             // get a list of the transacations we want to keep (our history)
             IList<DirectoryInfo> transacationHistoryToKeep = _indexReader.GetLatestTransactionsInfo(project, _settings.TransactionHistoryDepth).ToList();
@@ -42,7 +42,7 @@ namespace Tetrifact.Core
                 }
             }
 
-            return new ProjectView(manifestsInHistory, shortenedTransactionHistory, shardsInHistory);
+            return new ProjectCurrentState(manifestsInHistory, shortenedTransactionHistory, shardsInHistory);
         }
     }
 }
