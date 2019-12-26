@@ -54,6 +54,11 @@ namespace Tetrifact.Core
         int CacheTimeout { get; set; }
 
         /// <summary>
+        /// Time in days redhydrated files will be kept alive after being accessed
+        /// </summary>
+        int RehydratedFilesTimeout { get; set; }
+
+        /// <summary>
         /// Number of packages to list on index page.
         /// </summary>
         int ListPageSize { get; set; }

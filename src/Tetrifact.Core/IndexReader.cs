@@ -223,7 +223,7 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Todo : this is far too simplistic, expand to delete based on available disk space.
+        /// Todo : this is far too simplistic, expand to delete based on available disk space. also, move to Cleaner
         /// </summary>
         public void PurgeOldArchives()
         {
@@ -247,14 +247,14 @@ namespace Tetrifact.Core
 
         public Stream GetPackageAsArchive(string project, string packageId)
         {
-            string archivePath = this.GetPackageArchivePath(project, packageId);
+            string archivePath = this.GetArchivePath(project, packageId);
 
             // create
             if (!File.Exists(archivePath))
                 this.CreateArchive(project, packageId);
 
             // is archive still building?
-            string tempPath = this.GetPackageArchiveTempPath(project, packageId);
+            string tempPath = this.GetTempArchivePath(project, packageId);
             DateTime start = DateTime.Now;
             TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
 
@@ -268,12 +268,12 @@ namespace Tetrifact.Core
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public string GetPackageArchivePath(string project, string packageId)
+        public string GetArchivePath(string project, string packageId)
         {
             return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));
         }
 
-        public string GetPackageArchiveTempPath(string project, string packageId)
+        public string GetTempArchivePath(string project, string packageId)
         {
             return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip.tmp"));
         }
@@ -300,8 +300,7 @@ namespace Tetrifact.Core
         private void CreateArchive(string project, string packageId)
         {
             // store path with .tmp extension while building, this is used to detect if archiving has already started
-            string archivePath = this.GetPackageArchivePath(project, packageId);
-            string archivePathTemp = this.GetPackageArchiveTempPath(project, packageId);
+            string archivePathTemp = this.GetTempArchivePath(project, packageId);
 
             // if temp archive exists, it's already building
             if (File.Exists(archivePathTemp))
@@ -333,6 +332,7 @@ namespace Tetrifact.Core
             }
 
             // flip temp file to final path, it is ready for use only when this happens
+            string archivePath = this.GetArchivePath(project, packageId);
             File.Move(archivePathTemp, archivePath);
         }
 

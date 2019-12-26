@@ -77,12 +77,12 @@ namespace Tetrifact.Tests
             // do nothing
         }
 
-        public string GetPackageArchiveTempPath(string project, string packageId)
+        public string GetTempArchivePath(string project, string packageId)
         {
             return $"{packageId}.zip.tmp";
         }
 
-        public string GetPackageArchivePath(string project, string packageId)
+        public string GetArchivePath(string project, string packageId)
         {
             return $"{packageId}.zip";
         }

@@ -75,14 +75,14 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="package"></param>
         /// <returns></returns>
-        string GetPackageArchiveTempPath(string project, string package);
+        string GetTempArchivePath(string project, string package);
 
         /// <summary>
         /// Gets the path for a package archive.
         /// </summary>
         /// <param name="package"></param>
         /// <returns></returns>
-        string GetPackageArchivePath(string project, string package);
+        string GetArchivePath(string project, string package);
 
         /// <summary>
         /// Gets the id of the package at the head of the given project.

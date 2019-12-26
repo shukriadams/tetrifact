@@ -62,6 +62,16 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(dirPath);
         }
 
+        /// <summary>
+        /// Writes the data to the path. Creates diretory structure if necessary.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        public static void WriteText(string path, object data) 
+        {
+            EnsureParentDirectoryExists(path);
+            File.WriteAllText(path, data.ToString());
+        }
     }
 }
 

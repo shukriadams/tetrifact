@@ -80,7 +80,7 @@ namespace Tetrifact.Tests
                 } 
             );
             
-            this.PackageCreate.CreateWithValidation(new PackageCreateArguments {
+            this.PackageCreate.Create(new PackageCreateArguments {
                 Files = FormFileHelper.Multiple(testPackage.Files),
                 Id = testPackage.Id,
                 Project = "some-project"

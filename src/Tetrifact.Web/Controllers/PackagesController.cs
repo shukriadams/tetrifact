@@ -166,7 +166,7 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = _packageService.CreateWithValidation(post);
+                PackageCreateResult result = _packageService.Create(post);
                 if (result.Success)
                 {
                     _packageList.Clear(post.Project);

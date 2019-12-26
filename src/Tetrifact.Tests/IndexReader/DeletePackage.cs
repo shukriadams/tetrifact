@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.IndexReader
             DummyPackage testPackage = base.CreatePackage();
 
             // mock archive
-            string archivePath = base.IndexReader.GetPackageArchivePath("some-project", testPackage.Id);
+            string archivePath = base.IndexReader.GetArchivePath("some-project", testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // force create dummy zip file in archive folder

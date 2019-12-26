@@ -19,7 +19,7 @@
         /// <param name="project"></param>
         /// <param name="package"></param>
         /// <returns></returns>
-        PackageCreateResult CreateWithValidation(PackageCreateArguments package);
+        PackageCreateResult Create(PackageCreateArguments package);
 
         /// <summary>
         /// Creates a package from an existing package. This must always be done against a reference package, and is intended for package deleting.

@@ -57,7 +57,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageCreateResult CreateWithValidation(PackageCreateArguments newPackage)
+        public PackageCreateResult Create(PackageCreateArguments newPackage)
         {
             try
             {

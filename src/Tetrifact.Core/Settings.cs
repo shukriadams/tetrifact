@@ -44,6 +44,8 @@ namespace Tetrifact.Core
 
         public DiffMethods DiffMethod { get; set; }
 
+        public int RehydratedFilesTimeout { get; set; }
+
         #endregion
 
         #region CTORS
@@ -59,6 +61,7 @@ namespace Tetrifact.Core
             this.IndexTagListLength = 20;
             this.PagesPerPageGroup = 20;
             this.MaxArchives = 10;
+            this.RehydratedFilesTimeout = 10;           // days
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
             this.DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
@@ -80,6 +83,7 @@ namespace Tetrifact.Core
             this.TempPath = this.GetSetting("TEMP_PATH", this.TempPath);
             this.ArchivePath = this.GetSetting("ARCHIVE_PATH", this.ArchivePath);
             this.TempBinaries = this.GetSetting("TEMP_BINARIES", this.TempBinaries);
+            this.RehydratedFilesTimeout = this.GetSetting("REHYDRATED_FILES_TIMEOUT", this.RehydratedFilesTimeout);
 
             // special case - access tokens can be passed in as a comma-separated string, need to split to array here
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 

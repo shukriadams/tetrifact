@@ -131,7 +131,12 @@ namespace Tetrifact.Core
                 }
             }
 
+            // find all outdated rehydrated files
+            IEnumerable<FileInfo> rehydratedFiles = Directory.GetFiles(Path.Combine(_settings.TempBinaries, Obfuscator.Cloak(project)), "bin", SearchOption.AllDirectories).Select(r  => new FileInfo(r));
+            rehydratedFiles = rehydratedFiles.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(_settings.RehydratedFilesTimeout * -1));
+            filesToDelete = filesToDelete.Concat(rehydratedFiles.Select(r => r.FullName)).ToList();
 
+            
             foreach (string item in directoriesToDelete)
             {
                 try

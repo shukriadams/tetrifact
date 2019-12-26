@@ -59,7 +59,7 @@ namespace Tetrifact.Tests.PackageCreate
             for (int i = 0; i < passes; i++) 
             {
                 // create package from files array, zipped up
-                this.PackageCreate.CreateWithValidation(new PackageCreateArguments
+                this.PackageCreate.Create(new PackageCreateArguments
                 {
                     Id = $"AddZipLinked{i}",
                     IsArchive = true,
@@ -123,7 +123,7 @@ namespace Tetrifact.Tests.PackageCreate
                 };
 
                 // create package from files array, zipped up
-                this.PackageCreate.CreateWithValidation(new PackageCreateArguments
+                this.PackageCreate.Create(new PackageCreateArguments
                 {
                     Id = $"EmptyFileHandling{i}",
                     IsArchive = true,
@@ -158,7 +158,7 @@ namespace Tetrifact.Tests.PackageCreate
                 })
             };
 
-            PackageCreateResult result = _packageService.CreateWithValidation(postArgs);
+            PackageCreateResult result = _packageService.Create(postArgs);
             
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);

@@ -57,7 +57,7 @@ namespace Tetrifact.DevUtils
                     sw.Start();
 
                     // create package from files array, zipped up
-                    this.PackageCreate.CreateWithValidation(new PackageCreateArguments
+                    this.PackageCreate.Create(new PackageCreateArguments
                     {
                         Id = packageName,
                         IsArchive = true,
