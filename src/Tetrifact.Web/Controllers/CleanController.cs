@@ -10,7 +10,6 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
         private readonly ICleaner _repositoryCleaner;
 
         #endregion
@@ -24,9 +23,8 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(ICleaner repositoryCleaner, IIndexReader indexService)
+        public CleanController(ICleaner repositoryCleaner)
         {
-            _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;
         }
 
@@ -39,7 +37,6 @@ namespace Tetrifact.Web
         public ActionResult Clean(string project)
         {
             _repositoryCleaner.Clean(project);
-            _indexService.PurgeOldArchives();
             return Ok("Clean complete");
         }
 

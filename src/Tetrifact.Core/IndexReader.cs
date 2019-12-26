@@ -222,29 +222,6 @@ namespace Tetrifact.Core
             return rehydrateOutputPath;
         }
 
-        /// <summary>
-        /// Todo : this is far too simplistic, expand to delete based on available disk space. also, move to Cleaner
-        /// </summary>
-        public void PurgeOldArchives()
-        {
-            DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
-
-            IEnumerable<FileInfo> files = info.GetFiles().OrderByDescending(p => p.CreationTime).Skip(_settings.MaxArchives);
-
-            foreach (FileInfo file in files)
-            {
-                try
-                {
-                    File.Delete(file.FullName);
-                }
-                catch (IOException ex)
-                {
-                    // ignore these, file might be in use, in which case we'll try to delete it next purge
-                    _logger.LogWarning($"Failed to purge archive ${file}, assuming in use. Will attempt delete on next pass. ${ex}");
-                }
-            }
-        }
-
         public Stream GetPackageAsArchive(string project, string packageId)
         {
             string archivePath = this.GetArchivePath(project, packageId);
@@ -268,6 +245,7 @@ namespace Tetrifact.Core
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
+        // todo : make private
         public string GetArchivePath(string project, string packageId)
         {
             return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));

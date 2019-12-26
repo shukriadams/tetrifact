@@ -132,11 +132,20 @@ namespace Tetrifact.Core
             }
 
             // find all outdated rehydrated files
-            IEnumerable<FileInfo> rehydratedFiles = Directory.GetFiles(Path.Combine(_settings.TempBinaries, Obfuscator.Cloak(project)), "bin", SearchOption.AllDirectories).Select(r  => new FileInfo(r));
-            rehydratedFiles = rehydratedFiles.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(_settings.RehydratedFilesTimeout * -1));
-            filesToDelete = filesToDelete.Concat(rehydratedFiles.Select(r => r.FullName)).ToList();
+            string projectTempBinariesRoot = Path.Combine(_settings.TempBinaries, Obfuscator.Cloak(project));
+            if (Directory.Exists(projectTempBinariesRoot)) 
+            {
+                IEnumerable<FileInfo> rehydratedFiles = Directory.GetFiles(projectTempBinariesRoot, "bin", SearchOption.AllDirectories).Select(r => new FileInfo(r));
+                rehydratedFiles = rehydratedFiles.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(_settings.FilePersistTimeout * -1));
+                filesToDelete = filesToDelete.Concat(rehydratedFiles.Select(r => r.FullName)).ToList();
+            }
 
-            
+            // find all outdated archives
+            DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
+            IEnumerable<FileInfo> archives = info.GetFiles();
+            archives = archives.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(_settings.FilePersistTimeout * -1));
+            filesToDelete = filesToDelete.Concat(archives.Select(r => r.FullName)).ToList();
+
             foreach (string item in directoriesToDelete)
             {
                 try
@@ -159,6 +168,29 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     _logger.LogError($"Unexpected error trying to delete {item}", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Todo : this is far too simplistic, expand to delete based on available disk space. also, move to Cleaner
+        /// </summary>
+        public void PurgeOldArchives()
+        {
+            DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
+
+            IEnumerable<FileInfo> files = info.GetFiles().OrderByDescending(p => p.CreationTime).Skip(_settings.MaxArchives);
+
+            foreach (FileInfo file in files)
+            {
+                try
+                {
+                    File.Delete(file.FullName);
+                }
+                catch (IOException ex)
+                {
+                    // ignore these, file might be in use, in which case we'll try to delete it next purge
+                    _logger.LogWarning($"Failed to purge archive ${file}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }

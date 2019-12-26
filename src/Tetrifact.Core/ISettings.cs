@@ -56,7 +56,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Time in days redhydrated files will be kept alive after being accessed
         /// </summary>
-        int RehydratedFilesTimeout { get; set; }
+        int FilePersistTimeout { get; set; }
 
         /// <summary>
         /// Number of packages to list on index page.

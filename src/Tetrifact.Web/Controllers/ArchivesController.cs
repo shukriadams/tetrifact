@@ -12,7 +12,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
+        private readonly IIndexReader _indexReader;
         private readonly ILogger<ArchivesController> _log;
 
         #endregion
@@ -28,7 +28,7 @@ namespace Tetrifact.Web
         /// <param name="log"></param>
         public ArchivesController(IIndexReader indexService, ILogger<ArchivesController> log)
         {
-            _indexService = indexService;
+            _indexReader = indexService;
             _log = log;
         }
 
@@ -47,8 +47,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                _indexService.PurgeOldArchives();
-                Stream archiveStream = _indexService.GetPackageAsArchive(project, package);
+                Stream archiveStream = _indexReader.GetPackageAsArchive(project, package);
                 return File(archiveStream, "application/octet-stream", $"{package}.zip");
             }
             catch (PackageNotFoundException)

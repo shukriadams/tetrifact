@@ -64,15 +64,39 @@ namespace Tetrifact.Tests.Clean
             // get file in package2 to force rehdyration, also dispose to ensure stream is closed
             IndexReader.GetFile("some-project", Core.FileIdentifier.Cloak("my package2", "folder/file")).Content.Dispose();
 
-            // confirm rehydrated file existse
-            string rehydratedPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak("some-project"), Obfuscator.Cloak("my package2"), "folder", "file", "bin"); ;
+            // confirm rehydrated file exists
+            string rehydratedPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak("some-project"), Obfuscator.Cloak("my package2"), "folder", "file", "bin");
             Assert.True(File.Exists(rehydratedPath));
 
             // allow deleting of all rehydrated files
-            Settings.RehydratedFilesTimeout = 0;
+            Settings.FilePersistTimeout = 0;
             _respositoryCleaner.Clean("some-project");
 
             Assert.False(File.Exists(rehydratedPath));
+        }
+
+        [Fact]
+        public void CleanArchives() 
+        {
+            PackageCreate.Create(new PackageCreateArguments
+            {
+                Id = "my package1",
+                Project = "some-project",
+                Files = FormFileHelper.Single("some content", "folder/file")
+            });
+
+            // get package as archive to force build, also dispose to ensure stream is closed
+            IndexReader.GetPackageAsArchive("some-project", "my package1").Dispose();
+
+            // confirm archive exists
+            string archivePath = Path.Combine(Settings.ArchivePath, $"{Obfuscator.Cloak("some-project")}_{Obfuscator.Cloak("my package1")}.zip");
+            Assert.True(File.Exists(archivePath));
+
+            // allow deleting of all archives 
+            Settings.FilePersistTimeout = 0;
+            _respositoryCleaner.Clean("some-project");
+
+            Assert.False(File.Exists(archivePath));
         }
     }
 }

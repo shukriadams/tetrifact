@@ -64,11 +64,6 @@ namespace Tetrifact.Core
         Stream GetPackageAsArchive(string project, string package);
 
         /// <summary>
-        /// Cleans out trash in archives folder.
-        /// </summary>
-        void PurgeOldArchives();
-
-        /// <summary>
         /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
         /// final public package name when archive generation is done. Therefore, the existence of the temp file 
         /// is used as an indicator that archive creation is still in progress (or failed while in progress).
