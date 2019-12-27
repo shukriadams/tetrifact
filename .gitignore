@@ -1,7 +1,7 @@
 /vagrant/.vagrant
 /vagrant/ubuntu-xenial-16.04-cloudimg-console.log
+/vagrant/ubuntu-bionic-18.04-cloudimg-console.log
 /Tests/obj
-/.vs
 /src/Tetrifact.Web/obj
 /src/Tetrifact.Web/bin
 /src/Tetrifact.Web/wwwroot/lib
@@ -30,11 +30,10 @@
 /src/Tetrifact.Tests/coverage.xml
 /src/Tetrifact.Tests/coverage
 /build/travis/.stage
-src/bsdiffCore/bin
-src/bsdiffCore/obj
-src/packages
-src/VCDiffCore/bin
-src/VCDiffCore/obj
-src/Tetrifact.Dev/bin
-src/Tetrifact.Dev/obj
-vagrant/ubuntu-bionic-18.04-cloudimg-console.log
+/src/BsDiffCore/bin
+/src/BsDiffCore/obj
+/src/packages
+/src/VCDiffCore/bin
+/src/VCDiffCore/obj
+/src/Tetrifact.Dev/bin
+/src/Tetrifact.Dev/obj
