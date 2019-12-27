@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Rehydration
 {
-    public class Rehydration : PackageCreatorBase
+    public class Rehydration : FileSystemBase
     {
         /// <summary>
         /// Creates multiple packages with a single file, changing file contents per package. Retrieves the file from each version. Ensures that file is rehydrated from patches.

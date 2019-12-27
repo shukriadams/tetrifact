@@ -10,21 +10,6 @@ namespace Tetrifact.Tests.PackageDeleter
 {
     public class Delete : FileSystemBase
     {
-        #region FIELDS
-
-        private IPackageDeleter PackageDeleter;
-
-        #endregion
-
-        #region CTORS
-
-        public Delete() 
-        {
-            this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, this.Settings, new MemoryLogger<IPackageDeleter>(), new MemoryLogger<IPackageCreate>());
-        }
-
-        #endregion
-
         #region TESTS
 
         /// <summary>

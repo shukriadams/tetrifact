@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageCreate
 {
-    public class Cleanup : PackageCreatorBase
+    public class Cleanup : FileSystemBase
     {
         /// <summary>
         /// Temp folder is cleaned after a package is created

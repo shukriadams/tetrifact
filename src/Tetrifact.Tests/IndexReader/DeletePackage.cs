@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text;
 using Tetrifact.Core;
 using Tetrifact.Dev;
 using Xunit;
@@ -16,31 +15,6 @@ namespace Tetrifact.Tests.IndexReader
             this.PackageDeleter.Delete("some-project", testPackage.Id);
 
             Assert.False(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "manifest.json" )));
-        }
-    
-        // [Fact] disabled because this fails on travis
-        public void DeleteWithLockedArchive()
-        {
-            DummyPackage testPackage = base.CreatePackage();
-
-            // mock archive
-            string archivePath = base.IndexReader.GetArchivePath("some-project", testPackage.Id);
-            File.WriteAllText(archivePath, string.Empty);
-
-            // force create dummy zip file in archive folder
-            File.WriteAllText(archivePath, "dummy content");
-
-            // open stream in write mode to lock it, then attempt to purge archives
-            using (FileStream fs = File.OpenWrite(archivePath))
-            {
-                // force write something to stream to ensure it locks
-                fs.Write(Encoding.ASCII.GetBytes("random"));
-
-                this.PackageDeleter.Delete("some-project", testPackage.Id);
-
-                Assert.Single(base.Logger.LogEntries);
-                Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
-            }
         }
 
         [Fact]

@@ -10,7 +10,9 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        public static WriteLock Instance;
+        public readonly static WriteLock Instance;
+        
+        private readonly HashSet<string> _lockList = new HashSet<string>();
 
         #endregion
 
@@ -25,10 +27,6 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        HashSet<string> _lockList = new HashSet<string>();
-
-        private static readonly object _syncRoot = new object();
-
         public void WaitUntilClear(string project)
         {
             while (true)
@@ -37,7 +35,7 @@ namespace Tetrifact.Core
                     Thread.Sleep(100);
                     continue;
                 } else {
-                    lock (_syncRoot)
+                    lock (_lockList)
                     {
                         _lockList.Add(project);
                     }
@@ -48,7 +46,7 @@ namespace Tetrifact.Core
 
         public void Clear(string project)
         {
-            lock (_syncRoot)
+            lock (_lockList)
             {
                 _lockList.Remove(project);
             }

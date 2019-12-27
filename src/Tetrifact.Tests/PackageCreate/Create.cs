@@ -7,7 +7,7 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.PackageCreate
 {
-    public class Create : PackageCreatorBase
+    public class Create : FileSystemBase
     {
         [Fact]
         public void CreateBasic()
