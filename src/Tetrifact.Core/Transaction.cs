@@ -68,7 +68,28 @@ namespace Tetrifact.Core
                 throw new Exception("Manifest id not set");
 
             string fileName = $"{Guid.NewGuid()}_{manifest.Id}";
-            File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+            try
+            {
+                File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+            }
+            catch (DirectoryNotFoundException ex) 
+            {
+                // this will rarely be reached - if so, try to derive a more helpful exception from missing directory exception
+
+                // test projectPaths
+                if (!Directory.Exists(_settings.ProjectsPath))
+                    throw new SystemCorruptException("Projects folder not found");
+
+                // test project folder
+                if (!Directory.Exists(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project))))
+                    throw new ProjectNotFoundException(_project);
+
+                // test manifests fragment
+                if (!Directory.Exists(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment)))
+                    throw new ProjectCorruptException(_project, "Manifests folder not found");
+
+                throw ex;
+            }
 
             // write pointer, this overwrites existing pointer
             File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(manifest.Id)}_manifest"), fileName);

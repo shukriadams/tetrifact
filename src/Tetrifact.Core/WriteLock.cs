@@ -23,6 +23,14 @@ namespace Tetrifact.Core
             Instance = new WriteLock();
         }
 
+        /// <summary>
+        /// Hide ctor so only static ctor can instantiate.
+        /// </summary>
+        private WriteLock() 
+        {
+
+        }
+
         #endregion
 
         #region METHODS

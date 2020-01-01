@@ -24,7 +24,7 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count);
+        IEnumerable<DirectoryInfo> GetRecentTransactionsInfo(string project, int count);
 
         /// <summary>
         /// Gets a list of all manifest pointers in a project. These are the pointer files - they must be loaded to get all manifests

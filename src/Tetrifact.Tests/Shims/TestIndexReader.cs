@@ -122,7 +122,7 @@ namespace Tetrifact.Tests
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
+        public IEnumerable<DirectoryInfo> GetRecentTransactionsInfo(string project, int count)
         {
             throw new System.NotImplementedException();
         }

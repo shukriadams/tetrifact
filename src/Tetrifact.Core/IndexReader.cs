@@ -52,7 +52,7 @@ namespace Tetrifact.Core
                 .FirstOrDefault();
         }
 
-        public IEnumerable<DirectoryInfo> GetLatestTransactionsInfo(string project, int count)
+        public IEnumerable<DirectoryInfo> GetRecentTransactionsInfo(string project, int count)
         {
             return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
                 .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.Name)
