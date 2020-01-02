@@ -148,10 +148,7 @@ namespace Tetrifact.Core
         public string RehydrateOrResolveFile(string project, string package, string filePath) 
         {
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
-            string shardGuid = PathHelper.GetLatestShardPath(this, project, package);
-            if (string.IsNullOrEmpty(shardGuid))
-                throw new PackageNotFoundException(package);
-
+            string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, package);
             string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "patch");
             string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "bin");
             string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");

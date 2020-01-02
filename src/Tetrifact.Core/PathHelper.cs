@@ -6,15 +6,25 @@ namespace Tetrifact.Core
     {
         public static string DeleteFlag = "---";
 
-        public static string GetLatestShardPath(IndexReader indexReader, string project, string package) 
+        /// <summary>
+        /// Returns absolute path to the latest shard for a given package. 
+        /// 
+        /// Throws PackageNotFoundException if requested package does not exist.
+        /// </summary>
+        /// <param name="indexReader"></param>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        /// <returns></returns>
+        public static string GetLatestShardAbsolutePath(IndexReader indexReader, string project, string package) 
         {
             DirectoryInfo currentTransactionInfo = indexReader.GetActiveTransactionInfo(project);
+            // if no transaction found, the package hasn't been written, so treat as not found
             if (currentTransactionInfo == null)
-                return null;
+                throw new PackageNotFoundException(package);
 
             string pointerPath = Path.Combine(currentTransactionInfo.FullName, $"{Obfuscator.Cloak(package)}_shard");
             if (!File.Exists(pointerPath))
-                return null;
+                throw new PackageNotFoundException(package);
 
             return File.ReadAllText(pointerPath);
         }
@@ -31,25 +41,6 @@ namespace Tetrifact.Core
                 throw new ProjectNotFoundException(project);
 
             return projectPath;
-        }
-
-        public static string GetExpectedManifestsPath(ISettings settings, string project)
-        {
-            string manifestsPath = Path.Combine(settings.ProjectsPath, project, Constants.ManifestsFragment);
-            if (!Directory.Exists(manifestsPath))
-                throw new ProjectNotFoundException(project);
-
-            return manifestsPath;
-        }
-
-        public static string ResolveFinalFileBinPath(ISettings settings, string project, string package, string filePath) 
-        {
-            return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment, Obfuscator.Cloak(package), filePath, "bin");
-        }
-
-        public static string ResolveFinalFilePathPath(ISettings settings, string project, string package, string filePath)
-        {
-            return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment, Obfuscator.Cloak(package), filePath, "patch");
         }
 
         public static string ResolveShardRoot(ISettings settings, string project)
