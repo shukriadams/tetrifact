@@ -39,7 +39,6 @@ if [ "$STATUS" != "200" ]; then
 fi
 
 docker login -u $DOCKER_USER -p $DOCKER_PASS &&
-docker push shukriadams/tetrifact:latest &&
 docker push shukriadams/tetrifact:$TAG && 
 
 cd -
