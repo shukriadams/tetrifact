@@ -48,7 +48,7 @@ namespace Tetrifact.Tests
             this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, PackageCreateLogger);
             this.PackageCreateLogger = new TestLogger<IPackageCreate>();
             this.PackageCreate = new Core.PackageCreate(this.IndexReader, this.PackageCreateLogger, this.Settings);
-            this.ProjectService = new Core.ProjectService(Settings, ProjectServiceLogger);
+            this.ProjectService = new Core.ProjectService(Settings, new Core.PackageList(MemoryCacheHelper.GetInstance(), this.IndexReader, this.Settings, new TestLogger<IPackageList>()), ProjectServiceLogger);
             this.ProjectService.Create("some-project");
         }
 

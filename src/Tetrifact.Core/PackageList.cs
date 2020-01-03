@@ -89,6 +89,11 @@ namespace Tetrifact.Core
             _cache.Remove(GetPackageCacheKey(project));
         }
 
+        public void Clear()
+        {
+            _cache.Remove(GetProjectCacheKey());
+        }
+
         public IEnumerable<string> GetPopularTags(string project, int count)
         {
             if (string.IsNullOrEmpty(project))

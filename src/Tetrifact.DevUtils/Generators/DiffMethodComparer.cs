@@ -14,12 +14,14 @@ namespace Tetrifact.DevUtils
         ISettings Settings;
         IPackageCreate PackageCreate;
         IIndexReader IndexReader;
+        IPackageList PackageList;
 
-        public DiffMethodComparer(ISettings settings, IIndexReader indexReader, IPackageCreate packageCreate)
+        public DiffMethodComparer(ISettings settings, IIndexReader indexReader, IPackageList packageList, IPackageCreate packageCreate)
         {
             this.Settings = settings;
             this.IndexReader = indexReader;
             this.PackageCreate = packageCreate;
+            this.PackageList = packageList;
         }
 
         /// <summary>
@@ -45,7 +47,7 @@ namespace Tetrifact.DevUtils
                 };
 
                 // need project per diffMethod to keep their comparitive diffing separate
-                IProjectService projectService = new Core.ProjectService(Settings, new MemoryLogger<IProjectService>());
+                IProjectService projectService = new Core.ProjectService(Settings, this.PackageList, new MemoryLogger<IProjectService>());
                 string projectName = diffMethod.ToString();
                 projectService.Create(projectName);
 

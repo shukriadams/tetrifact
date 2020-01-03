@@ -24,10 +24,15 @@ namespace Tetrifact.Core
         IEnumerable<string> GetPackagesWithTag(string project, string tag);
 
         /// <summary>
-        /// Flushes cached list, forcing reload.
+        /// Flushes data for a project
         /// </summary>
         /// <param name="project"></param>
         void Clear(string project);
+
+        /// <summary>
+        /// Flushes list of projects
+        /// </summary>
+        public void Clear();
 
         /// <summary>
         /// Gets a list of size count of the most popular tags

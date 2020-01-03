@@ -8,11 +8,13 @@ namespace Tetrifact.Core
     {
         ISettings _settings;
         ILogger<IProjectService> _logger;
+        IPackageList _packageList;
 
-        public ProjectService(ISettings settings, ILogger<IProjectService> logger) 
+        public ProjectService(ISettings settings, IPackageList packageList, ILogger<IProjectService> logger) 
         {
             _settings = settings;
             _logger = logger;
+            _packageList = packageList;
         }
 
         public ProjectCreateResult Create(string name)
@@ -29,6 +31,7 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(Path.Combine(projectsRoot, Constants.TransactionsFragment));
                 Directory.CreateDirectory(Path.Combine(projectsRoot, Constants.ShardsFragment));
 
+                _packageList.Clear();
                 return new ProjectCreateResult { Success = true };
 
             }

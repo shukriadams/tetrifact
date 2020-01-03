@@ -61,6 +61,11 @@ namespace Tetrifact.Tests
 
         }
 
+        public void Clear()
+        {
+
+        }
+
         /// <summary>
         /// Returns a page from Packages. 
         /// </summary>
