@@ -5,7 +5,6 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using BsDiff;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO.Compression;
 using SharpCompress.Readers;
@@ -114,7 +113,7 @@ namespace Tetrifact.Core
 
                 // we calculate package hash from a sum of all child hashes
                 Transaction transaction = new Transaction(_settings, _indexReader, newPackage.Project);
-                this.Finalize(newPackage.Project, newPackage.Id, newPackage.BranchFrom, transaction);
+                this.Finalize(newPackage.Id, newPackage.BranchFrom, transaction);
                 transaction.Commit();
  
                 return new PackageCreateResult { Success = true, PackageHash = this.Manifest.Hash };
@@ -149,7 +148,7 @@ namespace Tetrifact.Core
                 }
 
                 this.StageAllFiles(package, referencePackage);
-                this.Finalize(project, package, referencePackage, transaction);
+                this.Finalize(package, referencePackage, transaction);
             }
             finally 
             {
@@ -224,15 +223,26 @@ namespace Tetrifact.Core
                 this.Manifest.Size += fileInfo.Length;
 
                 string writePath = null;
+                bool useFileAsBin = headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any();
+                bool linkDirect = headManifest != null && headManifest.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
+                ManifestItemTypes itemType = ManifestItemTypes.Bin;
 
                 // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
-                if (headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any())
+                if (useFileAsBin)
                 {
                     writePath = Path.Combine(stagingBasePath, "bin");
                     File.Move(incomingFilePath, writePath);
                 }
-                else
+                else if (linkDirect) 
                 {
+                    writePath = Path.Combine(stagingBasePath, "link");
+                    File.WriteAllText(writePath, string.Empty);
+                    itemType = ManifestItemTypes.Link;
+                }
+                else // create patch
+                {
+                    itemType = ManifestItemTypes.Patch;
+
                     // create patch against head version of file
                     string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
                     writePath = Path.Combine(stagingBasePath, "patch");
@@ -247,7 +257,7 @@ namespace Tetrifact.Core
                             BinaryPatchUtility.Create(sourceBinaryData, incomingBinaryData, patchStream);
                         }
                     }
-                    else 
+                    else
                     {
                         if (new FileInfo(sourceBinPath).Length == 0)
                         {
@@ -255,7 +265,7 @@ namespace Tetrifact.Core
                             writePath = Path.Combine(stagingBasePath, "bin");
                             File.Move(incomingFilePath, writePath);
                         }
-                        else 
+                        else
                         {
                             // write to patchPath, using incomingFilePath diffed against sourceBinPath
                             using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
@@ -263,7 +273,7 @@ namespace Tetrifact.Core
                             using (FileStream incomingStream = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
                             {
                                 // if incoming stream is empty, leave the patch empty
-                                if (incomingStream.Length >= 0) 
+                                if (incomingStream.Length >= 0)
                                 {
                                     VCCoder coder = new VCCoder(sourceStream, incomingStream, patchStream);
                                     VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
@@ -283,6 +293,7 @@ namespace Tetrifact.Core
                 this.Manifest.SizeOnDisk += new FileInfo(writePath).Length;
 
                 this.Manifest.Files.Add(new ManifestItem { 
+                    Type = itemType,
                     Path = filePath, 
                     Hash = fileHash, 
                     Id = FileIdentifier.Cloak(packageId, filePath) 
@@ -291,7 +302,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private void Finalize(string project, string package, string diffAgainstPackage, Transaction transaction)
+        private void Finalize(string package, string diffAgainstPackage, Transaction transaction)
         {
             string dependsOn = diffAgainstPackage;
             if (string.IsNullOrEmpty(dependsOn)) 

@@ -164,6 +164,66 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }
 
+        /// <summary>
+        /// Identical content is linked instead of patched
+        /// </summary>
+        [Fact]
+        public void CreateLinked() 
+        {
+            // create first package
+            _packageService.Create(new PackageCreateArguments
+            {
+                Id = "1",
+                Project = "some-project",
+                Files = FormFileHelper.Multiple(new List<DummyFile>() {
+                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                })
+            });
+
+            // create 2nd package with identical content to first
+            _packageService.Create(new PackageCreateArguments
+            {
+                Id = "2",
+                Project = "some-project",
+                Files = FormFileHelper.Multiple(new List<DummyFile>() {
+                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                })
+            });
+
+            Manifest manifest = IndexReader.GetManifest("some-project", "2");
+            Assert.Equal(ManifestItemTypes.Link, manifest.Files[0].Type);
+        }
+
+        /// <summary>
+        /// Changed content is patched
+        /// </summary>
+        [Fact]
+        public void CreatePatched()
+        {
+            // create first package
+            _packageService.Create(new PackageCreateArguments
+            {
+                Id = "1",
+                Project = "some-project",
+                Files = FormFileHelper.Multiple(new List<DummyFile>() {
+                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                })
+            });
+
+            // create 2nd package with identical content to first
+            _packageService.Create(new PackageCreateArguments
+            {
+                Id = "2",
+                Project = "some-project",
+                Files = FormFileHelper.Multiple(new List<DummyFile>() {
+                    new DummyFile { Content = "some content2", Path = "folder2/file.txt"}
+                })
+            });
+
+            Manifest manifest = IndexReader.GetManifest("some-project", "2");
+            Assert.Equal(ManifestItemTypes.Patch, manifest.Files[0].Type);
+        }
+
         #endregion
     }
 }

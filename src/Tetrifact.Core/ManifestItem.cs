@@ -7,5 +7,7 @@
         public string Hash { get; set; }
 
         public string Id { get; set; }
+
+        public ManifestItemTypes Type { get; set; }
     }
 }

@@ -151,10 +151,11 @@ namespace Tetrifact.Core
             string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, package);
             string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "patch");
             string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "bin");
+            string linkPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "link");
             string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");
 
             // if neither patch nor bin exist, file doesn't exist, this will happen in first call
-            if (!File.Exists(patchPath) && !File.Exists(binaryPath))
+            if (!File.Exists(patchPath) && !File.Exists(binaryPath) && !File.Exists(linkPath))
                 return null;
 
             // if the binary path already exists, we can use that directly
@@ -169,6 +170,10 @@ namespace Tetrifact.Core
             Manifest manifest = this.GetManifest(project, package);
             if (string.IsNullOrEmpty(manifest.DependsOn))
                 throw new Exception($"manifest for package {package} does not have an expected predecessor value");
+
+            // if file is link, return the link path
+            if (File.Exists(linkPath))
+                return this.RehydrateOrResolveFile(project, manifest.Id, filePath);
 
             // recurse - this ensures that the entire stack of files requireq for patching out is processed
             binaryPath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
