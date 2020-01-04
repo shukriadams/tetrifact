@@ -21,8 +21,9 @@ echo $TAG > ./Tetrifact.Web/currentVersion.txt &&
 
 dotnet restore &&
 dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release &&
-cd ./Tetrifact.Web/bin/Release/netcoreapp3.1 &&
-zip -r ./Tetrifact.$TAG.zip ./publish/*
+cd ./Tetrifact.Web/bin/Release/netcoreapp3.1/publish &&
+zip -r ./../Tetrifact.$TAG.zip ./*
+cd ..
 
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
