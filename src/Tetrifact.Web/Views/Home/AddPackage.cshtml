@@ -13,19 +13,29 @@
 
         <div class="layout-row">
             <div class="layout-label">
-                Archive
+                Package Name
             </div>
             <div class="layout-value">
-                <input placeholder="Archive" name="Files" type="file" />
+                <input class="packageName" type="text">
             </div>
         </div>
 
         <div class="layout-row">
             <div class="layout-label">
-                Package Name
+                Source
             </div>
             <div class="layout-value">
-                <input class="packageName" type="text">
+                <div class="layout-cell">
+                    <label for="folderSelector" class="button">Folder</label>
+                    <input placeholder="Archive" id="folderSelector" class="package-fileSelector" type="file" webkitdirectory directory multiple />
+                </div>
+                <div class="layout-cell">
+                    <label for="archiveSelector" class="button">Archive</label>
+                    <input placeholder="Archive" id="archiveSelector" class="package-fileSelector" type="file" />
+                </div>
+                <p class="package-addDescription" data-original="Add either a zip/tar.gz archive, or a folder containing package files.">
+                    
+                </p>
             </div>
         </div>
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Web;
+using System.Linq;
 
 namespace Tetrifact.Web
 {
@@ -142,6 +143,15 @@ namespace Tetrifact.Web
             }
         }
 
+        private static string RemoveFirstDirectoryFromPath(string path)
+        {
+            path = path.Replace("\\", "/");
+            string[] items = path.Split("/");
+            if (items.Length == 1)
+                return path;
+
+            return string.Join("/", items.Skip(1));
+        }
 
         /// <summary>
         /// Handles posting a new package to system. 
@@ -154,7 +164,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{project}/{id}")]
-        public ActionResult AddPackage([FromForm]PackageCreateArguments post)
+        public ActionResult AddPackage([FromForm]PackageCreateFromPost post)
         {
             try
             {
@@ -166,7 +176,15 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = _packageService.Create(post);
+                PackageCreateResult result = _packageService.Create(new PackageCreateArguments
+                {
+                    Description = post.Description,
+                    Files = post.Files.Select(r => new PackageCreateItem { Content = r.OpenReadStream(), FileName = post.RemoveFirstDirectoryFromPath ? RemoveFirstDirectoryFromPath(r.FileName) : r.FileName}).ToList(),
+                    Id = post.Id,
+                    Project = post.Project,
+                    IsArchive = post.IsArchive
+                });
+
                 if (result.Success)
                 {
                     _packageList.Clear(post.Project);

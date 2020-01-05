@@ -45,7 +45,7 @@ namespace Tetrifact.Tests.IndexReader
                 {
                     Id = $"my package{i}",
                     Project = "some-project",
-                    Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
+                    Files = new List<PackageCreateItem>() { (new PackageCreateItem(fileStream, "folder/file")) }
                 });
             }
 

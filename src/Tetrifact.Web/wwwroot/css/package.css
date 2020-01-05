@@ -19,3 +19,7 @@
     top: 4px;
     pointer-events: none;
 }
+
+.package-fileSelector {
+    display: none;
+}

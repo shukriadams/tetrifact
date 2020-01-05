@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.IO;
@@ -86,8 +85,7 @@ namespace Tetrifact.Core
 
                 // if archive, unzip
                 if (newPackage.IsArchive) {
-                    IFormFile incomingArchive = newPackage.Files.First();
-                    Stream archiveFile = incomingArchive.OpenReadStream();
+                    PackageCreateItem incomingArchive = newPackage.Files.First();
                     
                     // get extension from archive file
                     string extensionRaw = Path.GetExtension(incomingArchive.FileName).Replace(".", string.Empty).ToLower();
@@ -101,11 +99,11 @@ namespace Tetrifact.Core
                         return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
                     ArchiveTypes archiveType = (ArchiveTypes)archiveTypeTest;
 
-                    this.AddArchive(archiveFile, archiveType);
+                    this.AddArchive(incomingArchive.Content, archiveType);
                 }
                 else
-                    foreach (IFormFile formFile in newPackage.Files)
-                        this.AddFile(formFile.OpenReadStream(), formFile.FileName);
+                    foreach (PackageCreateItem formFile in newPackage.Files)
+                        this.AddFile(formFile.Content, formFile.FileName);
 
                 this.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
 

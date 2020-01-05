@@ -15,10 +15,10 @@ namespace Tetrifact.Dev
         /// <param name="content"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static IList<IFormFile> Single(string content, string path) 
+        public static IList<PackageCreateItem> Single(string content, string path) 
         {
             Stream file = StreamsHelper.StreamFromBytes(Encoding.ASCII.GetBytes(content));
-            return new List<IFormFile>() { new FormFile(file, 0, file.Length, "Files", path) };
+            return new List<PackageCreateItem>() { new PackageCreateItem(file, path) };
         }
 
         /// <summary>
@@ -26,9 +26,9 @@ namespace Tetrifact.Dev
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        public static IList<IFormFile> FromStream(Stream content, string name)
+        public static IList<PackageCreateItem> FromStream(Stream content, string name)
         {
-            return new List<IFormFile>() { new FormFile(content, 0, content.Length, "Files", name) };
+            return new List<PackageCreateItem>() { new PackageCreateItem(content, name) };
         }
 
         /// <summary>
@@ -36,13 +36,13 @@ namespace Tetrifact.Dev
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static IList<IFormFile> Multiple(IEnumerable<DummyFile> items)
+        public static IList<PackageCreateItem> Multiple(IEnumerable<DummyFile> items)
         {
-            IList<IFormFile> files = new List<IFormFile>();
+            IList<PackageCreateItem> files = new List<PackageCreateItem>();
             foreach (DummyFile item in items) 
             {
                 Stream file = StreamsHelper.StreamFromBytes(Encoding.ASCII.GetBytes(item.Content));
-                files.Add( new FormFile(file, 0, file.Length, "Files", item.Path) );
+                files.Add( new PackageCreateItem(file, item.Path) );
             }
 
             return files;

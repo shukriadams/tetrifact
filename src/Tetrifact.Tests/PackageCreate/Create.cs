@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
 using Xunit;
@@ -12,7 +11,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateBasic()
         {
-            List<IFormFile> files = new List<IFormFile>();
+            List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
             int filesToAdd = 10;
             string packageId = "my package";
@@ -20,7 +19,7 @@ namespace Tetrifact.Tests.PackageCreate
             for (int i = 0; i < filesToAdd; i++)
             {
                 Stream fileStream = StreamsHelper.StreamFromString(fileContent);
-                files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder{i}/file{i}"));
+                files.Add(new PackageCreateItem(fileStream,  $"folder{i}/file{i}"));
             }
 
             PackageCreateArguments package = new PackageCreateArguments
@@ -94,28 +93,23 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateBranched()
         {
-            Stream fileStream = StreamsHelper.StreamFromString("content");
-
             // create first package
-            PackageCreateResult result = PackageCreate.Create(new PackageCreateArguments
+            PackageCreate.Create(new PackageCreateArguments
             {
                 Id = "my package1",
                 Project = "some-project",
-                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
+                Files = FormFileHelper.Single("content", "folder/file") 
             });
 
-            Assert.True(result.Success);
-
-
-            result = PackageCreate.Create(new PackageCreateArguments
+            // create second package
+            PackageCreateResult result = PackageCreate.Create(new PackageCreateArguments
             {
                 Id = "my package2",
                 Project = "some-project",
                 BranchFrom = "my package1",
-                Files = new List<IFormFile>() { (new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")) }
+                Files = FormFileHelper.Single("content", "folder/file")
             });
 
-            // create second package
             Assert.True(result.Success);
 
             // ensure that head has not been updated, as second upload branches from first, and is there not eligable to be head
@@ -129,7 +123,6 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithNoArguments()
         {
-
             // empty argument list
             PackageCreateArguments args = new PackageCreateArguments();
 
@@ -144,7 +137,7 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateArguments args = new PackageCreateArguments
             {
                 // empty files list
-                Files = new List<IFormFile>()
+                Files = new List<PackageCreateItem>()
             };
 
             PackageCreateResult result = PackageCreate.Create(args);
@@ -155,10 +148,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithNoName(){
             PackageCreateArguments args = new PackageCreateArguments();
-            Stream fileStream = StreamsHelper.StreamFromString("some text");
-            args.Files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"));
-
-
+            args.Files = FormFileHelper.Single("somt text", "folder/file");
+            
             PackageCreateResult result = PackageCreate.Create(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Id is required.", result.PublicError);
@@ -167,14 +158,11 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDuplicatePackage()
         {
-            string packageId = "my package";
-            Stream fileStream = StreamsHelper.StreamFromString("some text");
-
             PackageCreateArguments package = new PackageCreateArguments
             {
-                Id = packageId,
+                Id = "my package",
                 Project = "some-project",
-                Files = new List<IFormFile>() {new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")}
+                Files = FormFileHelper.Single("some text", "folder/file") 
             };
 
             PackageCreateResult result = PackageCreate.Create(package);
@@ -189,18 +177,15 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateArchiveWithTooManyFiles()
         {
-            string packageId = "my package";
-            Stream fileStream = StreamsHelper.StreamFromString("some text");
-
             PackageCreateArguments package = new PackageCreateArguments
             {
-                Id = packageId,
+                Id = "my package",
                 IsArchive = true,
                 Project = "some-project",
-                Files = new List<IFormFile>() {
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"), 
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
-                }
+                Files = FormFileHelper.Multiple(new List<DummyFile> { 
+                    new DummyFile("some text", "folder/file"),
+                    new DummyFile("some text", "folder/file")   
+                })
             };
 
             PackageCreateResult result = PackageCreate.Create(package);
@@ -211,17 +196,12 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateInvalidArchiveFormat()
         {
-            string packageId = "my package";
-            Stream fileStream = StreamsHelper.StreamFromString("some text");
-
             PackageCreateArguments package = new PackageCreateArguments
             {
-                Id = packageId,
+                Id = "my package",
                 Project = "some-project",
                 IsArchive = true,
-                Files = new List<IFormFile>() {
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
-                }
+                Files = FormFileHelper.Single("some text", "folder/file")
             };
 
             PackageCreateResult result = PackageCreate.Create(package);

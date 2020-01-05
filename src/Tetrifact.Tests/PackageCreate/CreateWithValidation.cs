@@ -152,9 +152,9 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = Guid.NewGuid().ToString(),
                 IsArchive = true,
-                Files = FormFileHelper.Multiple(new List<DummyFile>() {
-                    new DummyFile { Content = "some content", Path = "folder1/file.txt"},
-                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                Files = FormFileHelper.Multiple(new[] {
+                    new DummyFile ( "some content", "folder1/file.txt" ),
+                    new DummyFile ( "some content", "folder2/file.txt" )
                 })
             };
 
@@ -175,8 +175,8 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "1",
                 Project = "some-project",
-                Files = FormFileHelper.Multiple(new List<DummyFile>() {
-                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                Files = FormFileHelper.Multiple(new [] {
+                    new DummyFile("some content", "folder2/file.txt") 
                 })
             });
 
@@ -185,8 +185,8 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "2",
                 Project = "some-project",
-                Files = FormFileHelper.Multiple(new List<DummyFile>() {
-                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                Files = FormFileHelper.Multiple(new[] {
+                    new DummyFile( "some content", "folder2/file.txt")
                 })
             });
 
@@ -205,8 +205,8 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "1",
                 Project = "some-project",
-                Files = FormFileHelper.Multiple(new List<DummyFile>() {
-                    new DummyFile { Content = "some content", Path = "folder2/file.txt"}
+                Files = FormFileHelper.Multiple(new [] {
+                    new DummyFile ( "some content", "folder2/file.txt" )
                 })
             });
 
@@ -215,8 +215,8 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "2",
                 Project = "some-project",
-                Files = FormFileHelper.Multiple(new List<DummyFile>() {
-                    new DummyFile { Content = "some content2", Path = "folder2/file.txt"}
+                Files = FormFileHelper.Multiple(new [] {
+                    new DummyFile ( "some content2", "folder2/file.txt" )
                 })
             });
 

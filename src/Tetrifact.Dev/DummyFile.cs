@@ -16,5 +16,23 @@
         public byte[] Data { get; set; } 
 
         public string Path { get; set; }
+
+        public DummyFile() 
+        {
+
+        }
+
+        public DummyFile(byte[] data, string path) 
+        {
+            this.Data = data;
+            this.Path = path;
+        }
+
+
+        public DummyFile(string content, string path)
+        {
+            this.Content = content;
+            this.Path = path;
+        }
     }
 }
