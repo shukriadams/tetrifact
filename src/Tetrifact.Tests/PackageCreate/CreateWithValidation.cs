@@ -11,21 +11,6 @@ namespace Tetrifact.Tests.PackageCreate
 {
     public class CreateWithValidation : FileSystemBase
     {
-        #region CTORS
-
-        private readonly IPackageCreate _packageService;
-
-        #endregion
-
-        #region CTORS
-
-        public CreateWithValidation()
-        {
-            _packageService = this.Kernel.Get<IPackageCreate>();
-        }
-
-        #endregion
-
         #region TESTS
 
         [Fact]
@@ -151,6 +136,7 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
+                Project = "some-project",
                 IsArchive = true,
                 Files = FormFileHelper.Multiple(new[] {
                     new DummyFile ( "some content", "folder1/file.txt" ),
@@ -158,7 +144,7 @@ namespace Tetrifact.Tests.PackageCreate
                 })
             };
 
-            PackageCreateResult result = _packageService.Create(postArgs);
+            PackageCreateResult result = this.PackageCreate.Create(postArgs);
             
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
@@ -171,7 +157,7 @@ namespace Tetrifact.Tests.PackageCreate
         public void CreateLinked() 
         {
             // create first package
-            _packageService.Create(new PackageCreateArguments
+            this.PackageCreate.Create(new PackageCreateArguments
             {
                 Id = "1",
                 Project = "some-project",
@@ -181,7 +167,7 @@ namespace Tetrifact.Tests.PackageCreate
             });
 
             // create 2nd package with identical content to first
-            _packageService.Create(new PackageCreateArguments
+            this.PackageCreate.Create(new PackageCreateArguments
             {
                 Id = "2",
                 Project = "some-project",
@@ -201,7 +187,7 @@ namespace Tetrifact.Tests.PackageCreate
         public void CreatePatched()
         {
             // create first package
-            _packageService.Create(new PackageCreateArguments
+            this.PackageCreate.Create(new PackageCreateArguments
             {
                 Id = "1",
                 Project = "some-project",
@@ -211,7 +197,7 @@ namespace Tetrifact.Tests.PackageCreate
             });
 
             // create 2nd package with identical content to first
-            _packageService.Create(new PackageCreateArguments
+            this.PackageCreate.Create(new PackageCreateArguments
             {
                 Id = "2",
                 Project = "some-project",

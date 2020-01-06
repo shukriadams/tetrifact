@@ -22,6 +22,7 @@ namespace Tetrifact.Tests
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreate>().To<Core.PackageCreate>();
             Bind<IPackageDeleter>().To<Core.PackageDeleter>();
+            Bind<ILogger<IIndexReader>>().To<TestLogger<IIndexReader>>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
             Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
             Bind<ILogger<IProjectService>>().To<TestLogger<IProjectService>>();
