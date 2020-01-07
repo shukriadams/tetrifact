@@ -12,6 +12,10 @@ Tetrifact is a server that stores build arfefacts. It was originally written as 
 
 It is implemented in C# for Dotnetcore 2.2, and will run on any system that supports this framework.
 
+VCDiff source : https://github.com/Metric/VCDiff
+
+BSdiff source : https://github.com/LogosBible/bsdiff.net
+
 ## Demo
 
 A Tetrifact instance is running at *https://tetrifact.manafeed.com*. For internet reasons, all write operations from the web interface are disabled on this instance.
