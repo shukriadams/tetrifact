@@ -46,6 +46,17 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static string StreamToString(Stream stream) 
+        {
+            StreamReader reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
+        /// <summary>
         /// Converts item a archive stream to a dictionary, where keys are file paths of items in archive stream.
         /// </summary>
         /// <param name="archiveStream"></param>

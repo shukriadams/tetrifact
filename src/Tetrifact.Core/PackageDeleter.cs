@@ -37,7 +37,7 @@ namespace Tetrifact.Core
                     throw new PackageNotFoundException(package);
 
                 Transaction transaction = new Transaction(_settings, _indexReader, project);
-                transaction.Remove(package);
+                
 
                 string packageObfuscated = Obfuscator.Cloak(package);
 
@@ -58,6 +58,9 @@ namespace Tetrifact.Core
                         packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
                     }
                 }
+
+                // after we've recreated dependents from the content to be deleted, delete the content
+                transaction.Remove(package);
 
                 // merge patches into next package
                 transaction.Commit();

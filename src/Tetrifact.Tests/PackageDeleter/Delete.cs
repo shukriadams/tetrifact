@@ -161,6 +161,40 @@ namespace Tetrifact.Tests.PackageDeleter
             }
         }
 
+        [Fact]
+        public void DeleteLinked() 
+        {
+            // create two packages, the second with linked content
+            this.PackageCreate.Create(new PackageCreateArguments
+            {
+                Id = "first",
+                Project = "some-project",
+                Files = FormFileHelper.Single("some content", "path/to/file")
+            });
+
+            this.PackageCreate.Create(new PackageCreateArguments
+            {
+                Id = "second",
+                Project = "some-project",
+                Files = FormFileHelper.Single("some content", "path/to/file")
+            });
+
+            // delete first to force second to take on the content of first
+            this.PackageDeleter.Delete("some-project", "first");
+
+            // confirm first package has been deleted, this has failed before
+            Assert.False(this.IndexReader.PackageNameInUse("some-project", "first"));
+
+            // confirm content is avaialble in second
+            GetFileResponse fileResponse = this.IndexReader.GetFile("some-project", FileIdentifier.Cloak("second", "path/to/file"));
+            Assert.Equal("some content", StreamsHelper.StreamToString(fileResponse.Content));
+
+            // confirm second is no longer linked but now fully owns content
+            Manifest manifest = this.IndexReader.GetManifest("some-project", "second");
+            Assert.Single(manifest.Files);
+            Assert.Equal(ManifestItemTypes.Bin, manifest.Files[0].Type);
+        }
+
         #endregion
     }
 }

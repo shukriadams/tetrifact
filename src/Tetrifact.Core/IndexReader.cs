@@ -166,14 +166,15 @@ namespace Tetrifact.Core
             if (File.Exists(rehydrateOutputPath))
                 return rehydrateOutputPath;
 
+            // if reached here, file must depend on a previous packakge for its content 
             // check if this package was added to a predecessor, if so, recurse down through all children
             Manifest manifest = this.GetManifest(project, package);
             if (string.IsNullOrEmpty(manifest.DependsOn))
                 throw new Exception($"manifest for package {package} does not have an expected predecessor value");
 
             // if file is link, return the link path
-            if (File.Exists(linkPath))
-                return this.RehydrateOrResolveFile(project, manifest.Id, filePath);
+            if (File.Exists(linkPath)) 
+                return this.RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
 
             // recurse - this ensures that the entire stack of files requireq for patching out is processed
             binaryPath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
