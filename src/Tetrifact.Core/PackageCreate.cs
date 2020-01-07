@@ -207,8 +207,14 @@ namespace Tetrifact.Core
                 _hashes.Append(HashService.FromString(filePath));
                 _hashes.Append(fileHash);
 
-                if (string.IsNullOrEmpty(parentPackage))
+                if (string.IsNullOrEmpty(parentPackage)) 
+                {
                     parentPackage = _indexReader.GetHead(_project);
+                    // when deleting the 2nd last package, we can end up with package linking to itself, block this
+                    if (parentPackage == packageId)
+                        parentPackage = null;
+                }
+                    
 
                 string incomingFilePath = Path.Combine(this.WorkspacePath, "incoming", filePath);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, filePath); // this is a directory path, but for the literal file path name

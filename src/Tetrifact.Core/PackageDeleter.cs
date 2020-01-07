@@ -55,6 +55,7 @@ namespace Tetrifact.Core
                     {
                         string dependantPackage = Obfuscator.Decloak(Path.GetFileName(dependant).Replace($"dep_{packageObfuscated}_", string.Empty));
                         IPackageCreate packageCreate = new PackageCreate(_indexReader, _packageCreateLogger, _settings);
+                        // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
                         packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
                     }
                 }

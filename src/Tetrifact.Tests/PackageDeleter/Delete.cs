@@ -188,6 +188,7 @@ namespace Tetrifact.Tests.PackageDeleter
             // confirm content is avaialble in second
             GetFileResponse fileResponse = this.IndexReader.GetFile("some-project", FileIdentifier.Cloak("second", "path/to/file"));
             Assert.Equal("some content", StreamsHelper.StreamToString(fileResponse.Content));
+            fileResponse.Content.Dispose();
 
             // confirm second is no longer linked but now fully owns content
             Manifest manifest = this.IndexReader.GetManifest("some-project", "second");
