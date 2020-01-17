@@ -1,4 +1,6 @@
-﻿namespace Tetrifact.Core
+﻿using System.Collections.Generic;
+
+namespace Tetrifact.Core
 {
     public class ManifestItem
     {
@@ -8,6 +10,12 @@
 
         public string Id { get; set; }
 
-        public ManifestItemTypes Type { get; set; }
+        public IList<ManifestItemChunk> Chunks { get; private set; }
+
+        public ManifestItem()
+        {
+            this.Chunks = new List<ManifestItemChunk>();
+        }
+
     }
 }

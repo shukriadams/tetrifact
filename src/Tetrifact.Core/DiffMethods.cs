@@ -2,7 +2,6 @@
 {
     public enum DiffMethods
     {
-        BsDiff,
         VcDiff
     }
 }

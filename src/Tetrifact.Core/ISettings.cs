@@ -102,5 +102,10 @@ namespace Tetrifact.Core
         /// Diffing algorithm for binary comparison. Cannot be changed once data is created, as this will render existing data unreadable.
         /// </summary>
         DiffMethods DiffMethod { get; set; }
+
+        /// <summary>
+        /// Size of chunks (in megabytes) to divide large files into. Smaller chunk sizes result in faster process times, but takes up more disk storage space.
+        /// </summary>
+        int FileChunkSize { get; set; }
     }
 }

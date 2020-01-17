@@ -161,6 +161,9 @@ namespace Tetrifact.Tests.PackageDeleter
             }
         }
 
+        /// <summary>
+        /// Dependats of a given package are still viable after that package is deleted.
+        /// </summary>
         [Fact]
         public void DeleteLinked() 
         {
@@ -193,7 +196,7 @@ namespace Tetrifact.Tests.PackageDeleter
             // confirm second is no longer linked but now fully owns content
             Manifest manifest = this.IndexReader.GetManifest("some-project", "second");
             Assert.Single(manifest.Files);
-            Assert.Equal(ManifestItemTypes.Bin, manifest.Files[0].Type);
+            Assert.Equal(ManifestItemTypes.Bin, manifest.Files[0].Chunks[0].Type);
         }
 
         #endregion

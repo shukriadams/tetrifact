@@ -120,19 +120,6 @@ namespace Tetrifact.Core
             }
         }
 
-        public string GetItemPathOnDisk(string project, string package, string path) 
-        {
-            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
-            if (latestTransactionInfo == null)
-                return null;
-
-            string shardPointer = Path.Combine(latestTransactionInfo.FullName, $"{Obfuscator.Cloak(package)}_shard");
-            if (!File.Exists(shardPointer))
-                return null;
-
-            return Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment, File.ReadAllText(shardPointer), path);
-        }
-
         public GetFileResponse GetFile(string project, string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
@@ -149,74 +136,74 @@ namespace Tetrifact.Core
         {
             string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
             string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, package);
-            string patchPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "patch");
-            string binaryPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "bin");
-            string linkPath = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath, "link");
+            string dataPathBase = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath);
             string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");
 
-            // if neither patch nor bin exist, file doesn't exist, this will happen in first call
-            if (!File.Exists(patchPath) && !File.Exists(binaryPath) && !File.Exists(linkPath))
+            Manifest manifest = this.GetManifest(project, package);
+            ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+            // if neither patch nor bin exist, file doesn't exist
+            if (manifestItem == null)
                 return null;
-
-            // if the binary path already exists, we can use that directly
-            if (File.Exists(binaryPath))
-                return binaryPath;
 
             // file has already been rehydrated by a previous process and is ready to serve
             if (File.Exists(rehydrateOutputPath))
                 return rehydrateOutputPath;
 
-            // if reached here, file must depend on a previous packakge for its content 
-            // check if this package was added to a predecessor, if so, recurse down through all children
-            Manifest manifest = this.GetManifest(project, package);
-            if (string.IsNullOrEmpty(manifest.DependsOn))
-                throw new Exception($"manifest for package {package} does not have an expected predecessor value");
-
-            // if file is link, return the link path
-            if (File.Exists(linkPath)) 
-                return this.RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
-
             // recurse - this ensures that the entire stack of files requireq for patching out is processed
-            binaryPath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
+            string binarySourcePath = null;
+            if (!string.IsNullOrEmpty(manifest.DependsOn))
+                binarySourcePath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
 
             FileHelper.EnsureParentDirectoryExists(rehydrateOutputPath);
 
-            if (_settings.DiffMethod == DiffMethods.BsDiff)
+            for (int i = 0; i < manifestItem.Chunks.Count; i ++)
             {
-                using (FileStream rehydrationFileStream = new FileStream(rehydrateOutputPath, FileMode.Create, FileAccess.Write))
-                using (FileStream rehydrateSourceStream = new FileStream(binaryPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                ManifestItemChunk chunk = manifestItem.Chunks[i];
+                if (chunk.Type == ManifestItemTypes.Bin)
                 {
-                    BinaryPatchUtility.Apply(rehydrateSourceStream, () => { return new FileStream(patchPath, FileMode.Open, FileAccess.Read, FileShare.Read); }, rehydrationFileStream);
-                }
-            }
-            else 
-            {
-                using (FileStream output = new FileStream(rehydrateOutputPath, FileMode.Create, FileAccess.Write))
-                using (FileStream dict = new FileStream(binaryPath, FileMode.Open, FileAccess.Read))
-                using (FileStream target = new FileStream(patchPath, FileMode.Open, FileAccess.Read))
-                {
-                    // if patch is empty, write an empty output file
-                    if (patchPath.Length > 0) 
+                    using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
+                    using (FileStream readStream = new FileStream(Path.Combine(dataPathBase, $"data_{i}"), FileMode.Open, FileAccess.Read))
                     {
-                        VCDecoder decoder = new VCDecoder(dict, target, output);
-
-                        //You must call decoder.Start() first. The header of the delta file must be available before calling decoder.Start()
-
-                        VCDiffResult result = decoder.Start();
-
-                        if (result != VCDiffResult.SUCCESS)
+                        StreamsHelper.StreamCopy(readStream, writeStream, readStream.Length);
+                    }
+                }
+                else if (chunk.Type == ManifestItemTypes.Link)
+                {
+                    using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
+                    using (FileStream readStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
+                    {
+                        StreamsHelper.StreamCopy(readStream, writeStream, readStream.Length);
+                    }
+                }
+                else 
+                {
+                    using (FileStream output = new FileStream(rehydrateOutputPath, FileMode.Create, FileAccess.Write))
+                    using (FileStream dict = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
+                    using (FileStream target = new FileStream(Path.Combine(dataPathBase, $"data_{i}"), FileMode.Open, FileAccess.Read))
+                    {
+                        // if patch is empty, write an empty output file
+                        if (target.Length > 0)
                         {
-                            //error abort
-                            throw new Exception($"vcdiff abort error in file {filePath}");
-                        }
+                            VCDecoder decoder = new VCDecoder(dict, target, output);
 
-                        long bytesWritten = 0;
-                        result = decoder.Decode(out bytesWritten);
+                            // You must call decoder.Start() first. The header of the delta file must be available before calling decoder.Start()
 
-                        if (result != VCDiffResult.SUCCESS)
-                        {
-                            //error decoding
-                            throw new Exception($"vcdiff decode error in file {filePath}");
+                            VCDiffResult result = decoder.Start();
+
+                            if (result != VCDiffResult.SUCCESS)
+                            {
+                                //error abort
+                                throw new Exception($"vcdiff abort error in file {filePath}");
+                            }
+
+                            long bytesWritten = 0;
+                            result = decoder.Decode(out bytesWritten);
+
+                            if (result != VCDiffResult.SUCCESS)
+                            {
+                                //error decoding
+                                throw new Exception($"vcdiff decode error in file {filePath}");
+                            }
                         }
                     }
                 }

@@ -45,6 +45,8 @@ namespace Tetrifact.Core
         public DiffMethods DiffMethod { get; set; }
 
         public int FilePersistTimeout { get; set; }
+        
+        public int FileChunkSize { get; set; }
 
         #endregion
 
@@ -61,7 +63,8 @@ namespace Tetrifact.Core
             this.IndexTagListLength = 20;
             this.PagesPerPageGroup = 20;
             this.MaxArchives = 10;
-            this.FilePersistTimeout = 10;           // days
+            this.FilePersistTimeout = 10;               // days
+            this.FileChunkSize = 500;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
             this.DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
@@ -74,6 +77,7 @@ namespace Tetrifact.Core
 
             // try to get settings from env variables
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
+            this.FileChunkSize = this.GetSetting("FILE_CHUNK_SIZE", this.FileChunkSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Xunit;
-using Ninject;
 using Tetrifact.Core;
 using System.Linq;
 using System.IO;
@@ -12,12 +11,6 @@ namespace Tetrifact.Tests.PackageCreate
     public class CreateWithValidation : FileSystemBase
     {
         #region TESTS
-
-        [Fact]
-        public void AddZipStackedBsDiff() 
-        {
-            AddZipStacked(DiffMethods.BsDiff, 3);
-        }
 
         [Fact]
         public void AddZipStackedVcDiff()
@@ -177,7 +170,7 @@ namespace Tetrifact.Tests.PackageCreate
             });
 
             Manifest manifest = IndexReader.GetManifest("some-project", "2");
-            Assert.Equal(ManifestItemTypes.Link, manifest.Files[0].Type);
+            Assert.Equal(ManifestItemTypes.Link, manifest.Files[0].Chunks[0].Type);
         }
 
         /// <summary>
@@ -207,7 +200,7 @@ namespace Tetrifact.Tests.PackageCreate
             });
 
             Manifest manifest = IndexReader.GetManifest("some-project", "2");
-            Assert.Equal(ManifestItemTypes.Patch, manifest.Files[0].Type);
+            Assert.Equal(ManifestItemTypes.Patch, manifest.Files[0].Chunks[0].Type);
         }
 
         #endregion

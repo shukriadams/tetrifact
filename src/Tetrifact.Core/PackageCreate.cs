@@ -200,8 +200,11 @@ namespace Tetrifact.Core
             string[] files = this.GetIncomingFileNames().ToArray();
             Array.Sort(files, (x, y) => String.Compare(x, y));
 
-            foreach (string filePath in files)
+            foreach (string fp in files)
             {
+                // force unix path 
+                string filePath = fp.Replace("\\", "/");
+
                 // get hash of incoming file
                 string fileHash = this.GetIncomingFileHash(filePath);
                 _hashes.Append(HashService.FromString(filePath));
@@ -231,78 +234,93 @@ namespace Tetrifact.Core
                 bool linkDirect = headManifest != null && headManifest.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
                 ManifestItemTypes itemType = ManifestItemTypes.Bin;
 
-                // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
-                if (useFileAsBin)
-                {
-                    writePath = Path.Combine(stagingBasePath, "bin");
-                    File.Move(incomingFilePath, writePath);
-                }
-                else if (linkDirect) 
-                {
-                    writePath = Path.Combine(stagingBasePath, "link");
-                    File.WriteAllText(writePath, string.Empty);
-                    itemType = ManifestItemTypes.Link;
-                }
-                else // create patch
-                {
-                    itemType = ManifestItemTypes.Patch;
+                // count how many chunks file should be divided into
+                long chunkSize = _settings.FileChunkSize * 1000000;
+                int chunks = (int)(fileInfo.Length / chunkSize);
+                if (fileInfo.Length % chunkSize != 0)
+                    chunks++;
 
-                    // create patch against head version of file
-                    string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
-                    writePath = Path.Combine(stagingBasePath, "patch");
+                // there should always at least 1 chunk - if the file is zero length, chunks will be zero, force this to 1
+                if (chunks == 0)
+                    chunks = 1;
 
-                    if (_settings.DiffMethod == DiffMethods.BsDiff)
+                ManifestItem manifestItem = new ManifestItem
+                {
+                    Path = filePath.Replace("\\", "/"),
+                    Hash = fileHash,
+                    Id = FileIdentifier.Cloak(packageId, filePath.Replace("\\", "/"))
+                };
+
+                for (int i = 0; i < chunks; i++) 
+                {
+                    writePath = Path.Combine(stagingBasePath, $"data_{i}");
+
+                    // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
+                    if (useFileAsBin)
                     {
-                        byte[] sourceBinaryData = File.ReadAllBytes(sourceBinPath); // this is going to hurt on large files, but can't be avoided, bsdiff requires entire file in-memory
-                        byte[] incomingBinaryData = File.ReadAllBytes(incomingFilePath);
-
-                        using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
-                        {
-                            BinaryPatchUtility.Create(sourceBinaryData, incomingBinaryData, patchStream);
-                        }
+                        StreamsHelper.FileCopy(incomingFilePath, writePath, chunkSize + (i * chunkSize));
                     }
-                    else
+                    else if (linkDirect)
                     {
+                        itemType = ManifestItemTypes.Link;
+                    }
+                    else // create patch
+                    {
+                        // create patch against head version of file
+                        string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
+
                         if (new FileInfo(sourceBinPath).Length == 0)
                         {
                             // cannot patch against an upstream file that is empty. If this happens, write the entire incoming file as a "bin" type
-                            writePath = Path.Combine(stagingBasePath, "bin");
-                            File.Move(incomingFilePath, writePath);
+                            StreamsHelper.FileCopy(incomingFilePath, writePath, chunkSize + (i * chunkSize));
                         }
                         else
                         {
+                            itemType = ManifestItemTypes.Patch;
+
                             // write to patchPath, using incomingFilePath diffed against sourceBinPath
                             using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
                             using (FileStream sourceStream = new FileStream(sourceBinPath, FileMode.Open, FileAccess.Read))
-                            using (FileStream incomingStream = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
+                            using (MemoryStream sourceStreamChunk = new MemoryStream())
                             {
-                                // if incoming stream is empty, leave the patch empty
-                                if (incomingStream.Length >= 0)
+                                StreamsHelper.StreamCopy(sourceStream, sourceStreamChunk, chunkSize + (i * chunkSize));
+                                sourceStreamChunk.Position = 0;
+
+                                using (FileStream read = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
+                                using (MemoryStream incomingStream = new MemoryStream())
                                 {
-                                    VCCoder coder = new VCCoder(sourceStream, incomingStream, patchStream);
-                                    VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
-                                    if (result != VCDiffResult.SUCCESS)
+                                    StreamsHelper.StreamCopy(read, incomingStream, chunkSize + (i * chunkSize));
+                                    incomingStream.Position = 0;
+
+                                    // if incoming stream is empty, write an empty patch
+                                    if (incomingStream.Length >= 0)
                                     {
-                                        string error = $"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.";
-                                        Console.WriteLine(error);
-                                        throw new Exception(error);
+                                        VCCoder coder = new VCCoder(sourceStreamChunk, incomingStream, patchStream);
+                                        VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
+                                        if (result != VCDiffResult.SUCCESS)
+                                        {
+                                            string error = $"Error patching incoming file {sourceBinPath} against source {incomingFilePath}.";
+                                            Console.WriteLine(error);
+                                            throw new Exception(error);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
+
+                    if (itemType != ManifestItemTypes.Link)
+                        this.Manifest.SizeOnDisk += new FileInfo(writePath).Length;
+
+                    manifestItem.Chunks.Add(new ManifestItemChunk { 
+                        Id = i,
+                        Type = itemType
+                    });
+
+                } // for chunks
 
                 this.Manifest.DependsOn = parentPackage;
-                this.Manifest.SizeOnDisk += new FileInfo(writePath).Length;
-
-                this.Manifest.Files.Add(new ManifestItem { 
-                    Type = itemType,
-                    Path = filePath, 
-                    Hash = fileHash, 
-                    Id = FileIdentifier.Cloak(packageId, filePath) 
-                });
-
+                this.Manifest.Files.Add(manifestItem);
             }
         }
 

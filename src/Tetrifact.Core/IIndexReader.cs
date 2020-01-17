@@ -96,15 +96,6 @@ namespace Tetrifact.Core
         string RehydrateOrResolveFile(string project, string package, string filePath);
 
         /// <summary>
-        /// Gets the absolute path of an item if it exists.
-        /// </summary>
-        /// <param name="project"></param>
-        /// <param name="package"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        string GetItemPathOnDisk(string project, string package, string path);
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="project"></param>

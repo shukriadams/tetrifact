@@ -3,7 +3,6 @@ using System.Text;
 using Xunit;
 using Tetrifact.Core;
 using Tetrifact.Dev;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
 namespace Tetrifact.Tests.IndexReader
@@ -61,12 +60,6 @@ namespace Tetrifact.Tests.IndexReader
                     Assert.Equal(expectedContent, retrievedContent);
                 }
             }
-
-            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package0", "folder/file/bin")));
-            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package1", "folder/file/patch")));
-            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package2", "folder/file/patch")));
-            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package3", "folder/file/patch")));
-            Assert.True(File.Exists(this.IndexReader.GetItemPathOnDisk("some-project", "my package4", "folder/file/patch")));
         }
 
         [Fact]

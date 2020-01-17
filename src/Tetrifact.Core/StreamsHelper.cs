@@ -78,5 +78,38 @@ namespace Tetrifact.Core
 
             return items;
         }
+
+        /// <summary>
+        /// Streams data from a file to a new location, does not proceed beyond limit in source.
+        /// </summary>
+        /// <param name="fromPath"></param>
+        /// <param name="toPath"></param>
+        /// <param name="limit"></param>
+        public static void FileCopy(string fromPath, string toPath, long limit) 
+        {
+            using (FileStream read = new FileStream(fromPath, FileMode.Open, FileAccess.Read))
+            using (FileStream write = new FileStream(toPath, FileMode.Create, FileAccess.Write))
+            {
+                StreamCopy(read, write, limit);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="read"></param>
+        /// <param name="write"></param>
+        /// <param name="limit"></param>
+        public static void StreamCopy(Stream read, Stream write, long limit) 
+        {
+            byte[] buffer = new byte[2048];
+            while (read.Position < limit && read.Position < read.Length)
+            {
+                int bytesRead = read.Length - read.Position > buffer.Length ? buffer.Length : (int)(read.Length - read.Position);
+                read.Read(buffer, 0, bytesRead);
+                write.Write(buffer, 0, bytesRead);
+            }
+        }
     }
 }
+

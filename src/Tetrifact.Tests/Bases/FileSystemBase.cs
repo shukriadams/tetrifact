@@ -76,7 +76,7 @@ namespace Tetrifact.Tests
             DummyPackage testPackage = new DummyPackage(
                 packageName, 
                 new List<DummyFile>() { 
-                    new DummyFile { Content = "some content", Path=  $"path\\to\\{packageName}" } 
+                    new DummyFile { Content = "some content", Path=  $"path/to/{packageName}" } 
                 } 
             );
             
