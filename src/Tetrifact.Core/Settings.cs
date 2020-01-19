@@ -64,7 +64,7 @@ namespace Tetrifact.Core
             this.PagesPerPageGroup = 20;
             this.MaxArchives = 10;
             this.FilePersistTimeout = 10;               // days
-            this.FileChunkSize = 1 * 1000000; // in bytes. remember, bytes * 1000000 = megabytes
+            this.FileChunkSize = 100 * 1000000;         // in bytes. remember, bytes * 1000000 = megabytes
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
             this.DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
