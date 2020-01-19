@@ -149,42 +149,55 @@ namespace Tetrifact.Core
             if (File.Exists(rehydrateOutputPath))
                 return rehydrateOutputPath;
 
-            // recurse - this ensures that the entire stack of files requireq for patching out is processed
-            string binarySourcePath = null;
-            if (!string.IsNullOrEmpty(manifest.DependsOn))
-                binarySourcePath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
-
             FileHelper.EnsureParentDirectoryExists(rehydrateOutputPath);
 
             for (int i = 0; i < manifestItem.Chunks.Count; i ++)
             {
                 ManifestItemChunk chunk = manifestItem.Chunks[i];
+
                 if (chunk.Type == ManifestItemTypes.Bin)
                 {
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
-                    using (FileStream readStream = new FileStream(Path.Combine(dataPathBase, $"data_{i}"), FileMode.Open, FileAccess.Read))
+                    using (FileStream readStream = new FileStream(Path.Combine(dataPathBase, $"chunk_{i}"), FileMode.Open, FileAccess.Read))
                     {
+                        writeStream.Position = writeStream.Length; // always append to end of this stream
                         StreamsHelper.StreamCopy(readStream, writeStream, readStream.Length);
                     }
                 }
                 else if (chunk.Type == ManifestItemTypes.Link)
                 {
+                    // read chunk link from source
+                    string binarySourcePath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
+
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream readStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
                     {
-                        StreamsHelper.StreamCopy(readStream, writeStream, readStream.Length);
+                        readStream.Position = i * _settings.FileChunkSize;
+                        writeStream.Position = writeStream.Length; // always append to end of this stream
+                        StreamsHelper.StreamCopy(readStream, writeStream, (i + 1) * _settings.FileChunkSize);
                     }
                 }
                 else 
                 {
-                    using (FileStream output = new FileStream(rehydrateOutputPath, FileMode.Create, FileAccess.Write))
-                    using (FileStream dict = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
-                    using (FileStream target = new FileStream(Path.Combine(dataPathBase, $"data_{i}"), FileMode.Open, FileAccess.Read))
+                    // read source chunk against self patch
+                    string binarySourcePath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
+
+                    using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
+                    using (FileStream binarySourceStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
+                    using (FileStream patchStream = new FileStream(Path.Combine(dataPathBase, $"chunk_{i}"), FileMode.Open, FileAccess.Read))
+                    using (MemoryStream binarySourceChunkStream = new MemoryStream())
                     {
+                        // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
+                        binarySourceStream.Position = i * _settings.FileChunkSize;
+                        StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * _settings.FileChunkSize));
+                        binarySourceChunkStream.Position = 0;
+
+                        writeStream.Position = writeStream.Length; // always append to end of this stream
+
                         // if patch is empty, write an empty output file
-                        if (target.Length > 0)
+                        if (patchStream.Length > 0)
                         {
-                            VCDecoder decoder = new VCDecoder(dict, target, output);
+                            VCDecoder decoder = new VCDecoder(binarySourceChunkStream, patchStream, writeStream);
 
                             // You must call decoder.Start() first. The header of the delta file must be available before calling decoder.Start()
 

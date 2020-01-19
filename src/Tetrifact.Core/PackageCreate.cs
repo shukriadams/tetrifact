@@ -225,20 +225,18 @@ namespace Tetrifact.Core
                 FileHelper.EnsureDirectoryExists(stagingBasePath);
 
                 Manifest headManifest = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetManifest(_project, parentPackage);
-
                 FileInfo fileInfo = new FileInfo(incomingFilePath);
                 this.Manifest.Size += fileInfo.Length;
 
+                // count how many chunks file should be divided into
+                int chunks = (int)(fileInfo.Length / _settings.FileChunkSize);
+                if (fileInfo.Length % _settings.FileChunkSize != 0)
+                    chunks++;
+
+                // determine file-level (cross-chunk) usages
                 string writePath = null;
                 bool useFileAsBin = headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any();
                 bool linkDirect = headManifest != null && headManifest.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
-                ManifestItemTypes itemType = ManifestItemTypes.Bin;
-
-                // count how many chunks file should be divided into
-                long chunkSize = _settings.FileChunkSize * 1000000;
-                int chunks = (int)(fileInfo.Length / chunkSize);
-                if (fileInfo.Length % chunkSize != 0)
-                    chunks++;
 
                 // there should always at least 1 chunk - if the file is zero length, chunks will be zero, force this to 1
                 if (chunks == 0)
@@ -253,12 +251,13 @@ namespace Tetrifact.Core
 
                 for (int i = 0; i < chunks; i++) 
                 {
-                    writePath = Path.Combine(stagingBasePath, $"data_{i}");
+                    ManifestItemTypes itemType = ManifestItemTypes.Bin;
+                    writePath = Path.Combine(stagingBasePath, $"chunk_{i}");
 
                     // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
                     if (useFileAsBin)
                     {
-                        StreamsHelper.FileCopy(incomingFilePath, writePath, chunkSize + (i * chunkSize));
+                        StreamsHelper.FileCopy(incomingFilePath, writePath, i * _settings.FileChunkSize, ((i + 1) * _settings.FileChunkSize));
                     }
                     else if (linkDirect)
                     {
@@ -267,12 +266,12 @@ namespace Tetrifact.Core
                     else // create patch
                     {
                         // create patch against head version of file
-                        string sourceBinPath = _indexReader.RehydrateOrResolveFile(_project, parentPackage, filePath);
+                        string sourceBinPath = _indexReader. RehydrateOrResolveFile(_project, parentPackage, filePath);
 
-                        if (new FileInfo(sourceBinPath).Length == 0)
+                        // check if upstream file has content at for this chunk point. if not, write the entire incoming file as a "bin" type
+                        if (new FileInfo(sourceBinPath).Length < i * _settings.FileChunkSize)
                         {
-                            // cannot patch against an upstream file that is empty. If this happens, write the entire incoming file as a "bin" type
-                            StreamsHelper.FileCopy(incomingFilePath, writePath, chunkSize + (i * chunkSize));
+                            StreamsHelper.FileCopy(incomingFilePath, writePath, i * _settings.FileChunkSize, ((i + 1) * _settings.FileChunkSize));
                         }
                         else
                         {
@@ -280,22 +279,26 @@ namespace Tetrifact.Core
 
                             // write to patchPath, using incomingFilePath diffed against sourceBinPath
                             using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
-                            using (FileStream sourceStream = new FileStream(sourceBinPath, FileMode.Open, FileAccess.Read))
-                            using (MemoryStream sourceStreamChunk = new MemoryStream())
+                            using (FileStream binarySourceStream = new FileStream(sourceBinPath, FileMode.Open, FileAccess.Read))
+                            using (MemoryStream binarySourceChunkStream = new MemoryStream())
                             {
-                                StreamsHelper.StreamCopy(sourceStream, sourceStreamChunk, chunkSize + (i * chunkSize));
-                                sourceStreamChunk.Position = 0;
+                                // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
+                                binarySourceStream.Position = i * _settings.FileChunkSize;
+                                StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * _settings.FileChunkSize));
+                                binarySourceChunkStream.Position = 0;
 
-                                using (FileStream read = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
-                                using (MemoryStream incomingStream = new MemoryStream())
+                                using (FileStream incomingFileStream = new FileStream(incomingFilePath, FileMode.Open, FileAccess.Read))
+                                using (MemoryStream incomingFileChunkStream = new MemoryStream())
                                 {
-                                    StreamsHelper.StreamCopy(read, incomingStream, chunkSize + (i * chunkSize));
-                                    incomingStream.Position = 0;
+                                    // similarly, we want only a portion of the incoming file
+                                    incomingFileStream.Position = i * _settings.FileChunkSize;
+                                    StreamsHelper.StreamCopy(incomingFileStream, incomingFileChunkStream, ((i + 1) * _settings.FileChunkSize));
+                                    incomingFileChunkStream.Position = 0;
 
                                     // if incoming stream is empty, write an empty patch
-                                    if (incomingStream.Length >= 0)
+                                    if (incomingFileChunkStream.Length >= 0)
                                     {
-                                        VCCoder coder = new VCCoder(sourceStreamChunk, incomingStream, patchStream);
+                                        VCCoder coder = new VCCoder(binarySourceChunkStream, incomingFileChunkStream, patchStream);
                                         VCDiffResult result = coder.Encode(); //encodes with no checksum and not interleaved
                                         if (result != VCDiffResult.SUCCESS)
                                         {

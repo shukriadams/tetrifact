@@ -85,29 +85,42 @@ namespace Tetrifact.Core
         /// <param name="fromPath"></param>
         /// <param name="toPath"></param>
         /// <param name="limit"></param>
-        public static void FileCopy(string fromPath, string toPath, long limit) 
+        public static void FileCopy(string fromPath, string toPath, long inputStart, long limit) 
         {
-            using (FileStream read = new FileStream(fromPath, FileMode.Open, FileAccess.Read))
+            using (FileStream input = new FileStream(fromPath, FileMode.Open, FileAccess.Read))
             using (FileStream write = new FileStream(toPath, FileMode.Create, FileAccess.Write))
             {
-                StreamCopy(read, write, limit);
+                input.Position = inputStart;
+
+                byte[] buffer = new byte[2048];
+                int read;
+
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    write.Write(buffer, 0, read);
+                    if (input.Position >= limit)
+                        break;
+                }
             }
         }
 
         /// <summary>
-        /// 
+        /// Copies data from from one stream to another. 
         /// </summary>
         /// <param name="read"></param>
         /// <param name="write"></param>
         /// <param name="limit"></param>
-        public static void StreamCopy(Stream read, Stream write, long limit) 
+        public static void StreamCopy(Stream input, Stream write, long limit) 
         {
+
             byte[] buffer = new byte[2048];
-            while (read.Position < limit && read.Position < read.Length)
+            int read;
+
+            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
-                int bytesRead = read.Length - read.Position > buffer.Length ? buffer.Length : (int)(read.Length - read.Position);
-                read.Read(buffer, 0, bytesRead);
-                write.Write(buffer, 0, bytesRead);
+                write.Write(buffer, 0, read);
+                if (input.Position >= limit)
+                    break;
             }
         }
     }

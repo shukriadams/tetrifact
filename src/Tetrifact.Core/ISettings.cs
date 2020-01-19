@@ -106,6 +106,6 @@ namespace Tetrifact.Core
         /// <summary>
         /// Size of chunks (in megabytes) to divide large files into. Smaller chunk sizes result in faster process times, but takes up more disk storage space.
         /// </summary>
-        int FileChunkSize { get; set; }
+        long FileChunkSize { get; set; }
     }
 }
