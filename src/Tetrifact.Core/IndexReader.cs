@@ -172,9 +172,9 @@ namespace Tetrifact.Core
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream readStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
                     {
-                        readStream.Position = i * _settings.FileChunkSize;
+                        readStream.Position = i * manifest.FileChunkSize;
                         writeStream.Position = writeStream.Length; // always append to end of this stream
-                        StreamsHelper.StreamCopy(readStream, writeStream, (i + 1) * _settings.FileChunkSize);
+                        StreamsHelper.StreamCopy(readStream, writeStream, (i + 1) * manifest.FileChunkSize);
                     }
                 }
                 else 
@@ -188,8 +188,8 @@ namespace Tetrifact.Core
                     using (MemoryStream binarySourceChunkStream = new MemoryStream())
                     {
                         // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
-                        binarySourceStream.Position = i * _settings.FileChunkSize;
-                        StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * _settings.FileChunkSize));
+                        binarySourceStream.Position = i * manifest.FileChunkSize;
+                        StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * manifest.FileChunkSize));
                         binarySourceChunkStream.Position = 0;
 
                         writeStream.Position = writeStream.Length; // always append to end of this stream

@@ -35,6 +35,11 @@ namespace Tetrifact.Core
         public string PathOnDisk { get; set; }
 
         /// <summary>
+        /// Size of chunks (in bytes) for this package. 
+        /// </summary>
+        public long FileChunkSize { get; set; }
+
+        /// <summary>
         /// Retrieves percentage saved with diff patching.
         /// </summary>
         public int Compressed 

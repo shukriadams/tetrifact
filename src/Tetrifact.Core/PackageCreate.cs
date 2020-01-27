@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using System.IO;
 using System.Text;
-using BsDiff;
 using System.Collections.Generic;
 using System.IO.Compression;
 using SharpCompress.Readers;
@@ -295,7 +294,7 @@ namespace Tetrifact.Core
                                     StreamsHelper.StreamCopy(incomingFileStream, incomingFileChunkStream, ((i + 1) * _settings.FileChunkSize));
                                     incomingFileChunkStream.Position = 0;
 
-                                    // if incoming stream is empty, write an empty patch
+                                    // if incoming stream is empty, we'll jump over this and end up with an empty patch
                                     if (incomingFileChunkStream.Length >= 0)
                                     {
                                         VCCoder coder = new VCCoder(binarySourceChunkStream, incomingFileChunkStream, patchStream);
@@ -322,6 +321,7 @@ namespace Tetrifact.Core
 
                 } // for chunks
 
+                this.Manifest.FileChunkSize = _settings.FileChunkSize;
                 this.Manifest.DependsOn = parentPackage;
                 this.Manifest.Files.Add(manifestItem);
             }

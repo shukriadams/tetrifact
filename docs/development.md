@@ -16,7 +16,7 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 ## Requirements
 
 - Dotnetcore 2.2 SDK
-- Visual Studio 2017 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
+- Visual Studio 2019 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
 
 ## Running from Visual Studio
 
