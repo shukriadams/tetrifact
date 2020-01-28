@@ -30,5 +30,12 @@
         /// <param name="referencePackage"></param>
         /// <param name="transaction"></param>
         void CreateFromExisting(string project, string package, string referencePackage, Transaction transaction);
+
+        /// <summary>
+        /// Creates a diffed version of the package, against its parent.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        void CreateDiffed(string project, string package);
     }
 }

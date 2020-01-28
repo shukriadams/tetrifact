@@ -118,6 +118,11 @@ namespace Tetrifact.Tests
             return this.Test_Projects;
         }
 
+        public IEnumerable<Package> GetUndiffedPackages(string project)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 }
