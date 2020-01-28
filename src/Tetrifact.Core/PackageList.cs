@@ -148,6 +148,15 @@ namespace Tetrifact.Core
             return new PageableData<Package>(packages.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packages.Count);
         }
 
+        public IEnumerable<Package> GetUndiffedPackages(string project)
+        {
+            IList<Package> packages;
+            if (!_cache.TryGetValue(GetPackageCacheKey(project), out packages))
+                packages = this.GeneratePackageData(project);
+
+            return packages.Where(r => r.IsDiffed);
+        }
+
         public Package GetLatestWithTag(string project, string tag)
         {
             IList<Package> packages;

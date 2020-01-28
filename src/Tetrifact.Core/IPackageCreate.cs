@@ -1,10 +1,11 @@
 ﻿namespace Tetrifact.Core
 {
     /// <summary>
-    /// Defines a type that creates a package. Packages are created in three distinct ways:
+    /// Defines a type that creates a package. Packages are created in four distinct ways:
     /// 1 - from a list of POSTed files
     /// 2 - from a POSTed archive containing a list of files
-    /// 3 - from a list of files taken from an existing package
+    /// 3 - from a list of files taken from an existing package (when a parent package is deleted, its child inherits all its file content)
+    /// 4 - when optimizing a package by diffing it against parent (the opposite of 3 above, the child loses all file content which exists in parent)
     /// 
     /// The first two methods require validation, the third bypasses checks as the files are from a package that has already been validated.
     /// 

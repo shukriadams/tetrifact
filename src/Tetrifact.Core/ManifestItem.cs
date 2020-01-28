@@ -10,6 +10,8 @@ namespace Tetrifact.Core
 
         public string Id { get; set; }
 
+        public long Size { get; set; }
+
         public IList<ManifestItemChunk> Chunks { get; private set; }
 
         public ManifestItem()

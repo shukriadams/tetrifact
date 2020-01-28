@@ -84,5 +84,12 @@ namespace Tetrifact.Core
         /// </summary>
         /// <returns></returns>
         IEnumerable<string> GetProjects();
+
+        /// <summary>
+        /// Gets all undiffed packages in a project
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        public IEnumerable<Package> GetUndiffedPackages(string project);
     }
 }

@@ -51,6 +51,11 @@ namespace Tetrifact.Core
         /// </summary>
         public HashSet<string> Tags { get; set; }
 
+        /// <summary>
+        /// True if content of manifest has been diffed against other packages.
+        /// </summary>
+        public bool IsDiffed { get; set; }
+
         #endregion
 
         #region CTORS
