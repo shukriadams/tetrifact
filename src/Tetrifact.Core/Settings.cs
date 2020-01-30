@@ -48,6 +48,8 @@ namespace Tetrifact.Core
         
         public long FileChunkSize { get; set; }
 
+        public int AutoDiffInterval { get; set; }
+
         #endregion
 
         #region CTORS
@@ -67,6 +69,7 @@ namespace Tetrifact.Core
             this.FileChunkSize = 100 * 1000000;         // in bytes. remember, bytes * 1000000 = megabytes
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
+            this.AutoDiffInterval = 1;                  // 10 minutes, in milliseconds 
             this.DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
             this.ProjectsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
@@ -88,6 +91,7 @@ namespace Tetrifact.Core
             this.ArchivePath = this.GetSetting("ARCHIVE_PATH", this.ArchivePath);
             this.TempBinaries = this.GetSetting("TEMP_BINARIES", this.TempBinaries);
             this.FilePersistTimeout = this.GetSetting("FILE_PERSIST_TIMEOUT", this.FilePersistTimeout);
+            this.AutoDiffInterval = this.GetSetting("AUTO_DIFF_INTERVAL", this.AutoDiffInterval) * 60 * 60; // convert minute to milliseoncs;
 
             // special case - access tokens can be passed in as a comma-separated string, need to split to array here
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 

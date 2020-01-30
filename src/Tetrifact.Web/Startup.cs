@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -43,6 +44,7 @@ namespace Tetrifact.Web
             services.AddTransient<IApplicationLogic, AppLogic>();
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IPackageDeleter, PackageDeleter>();
+            services.AddTransient<IDiffService, DiffService>();
 
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -67,7 +69,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ISettings settings, IApplicationLogic appLogic)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ISettings settings, IApplicationLogic appLogic, IServiceProvider serviceProvider)
         {
             // register custom error pages
             if (env.IsDevelopment())
@@ -106,6 +108,13 @@ namespace Tetrifact.Web
             app.UseCookiePolicy();
 
             appLogic.Start();
+
+            // start autodiff service
+            using (var scope = serviceProvider.CreateScope())
+            {
+                IDiffService diffService = scope.ServiceProvider.GetRequiredService(typeof(IDiffService)) as IDiffService;
+                diffService.Start();
+            }
 
             app.UseMvc(routes =>
             {
