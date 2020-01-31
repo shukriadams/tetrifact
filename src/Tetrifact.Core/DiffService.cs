@@ -18,6 +18,8 @@ namespace Tetrifact.Core
 
         private bool _exit;
 
+        public DateTime? LastRun { get; private set; }
+
         public DiffService(IPackageList packageList, IPackageCreate packageCreate, ILogger<DiffService> log, ISettings settings) 
         {
             _settings = settings;
@@ -30,7 +32,7 @@ namespace Tetrifact.Core
         {
             _exit = false;
 
-            // call without await, as this starts an endless watch loop
+            // call without await, this starts an endless loop
             Task.Run(async () => this.ProcessAll());
         }
 
@@ -49,6 +51,8 @@ namespace Tetrifact.Core
             {
                 while (true)
                 {
+                    this.LastRun = DateTime.UtcNow;
+
                     foreach (string project in _packageList.GetProjects())
                     {
                         // processed oldest first
@@ -63,7 +67,7 @@ namespace Tetrifact.Core
                     if (_exit)
                         break;
 
-                    await Task.Delay(_settings.AutoDiffInterval); // poll every 5 seconds
+                    await Task.Delay(_settings.AutoDiffInterval);
                 }
             }
             catch (Exception ex)

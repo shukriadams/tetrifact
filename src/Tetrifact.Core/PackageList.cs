@@ -154,7 +154,7 @@ namespace Tetrifact.Core
             if (!_cache.TryGetValue(GetPackageCacheKey(project), out packages))
                 packages = this.GeneratePackageData(project);
 
-            return packages.Where(r => r.IsDiffed);
+            return packages.Where(r => !r.IsDiffed);
         }
 
         public Package GetLatestWithTag(string project, string tag)
@@ -213,6 +213,7 @@ namespace Tetrifact.Core
                         CreatedUtc = manifest.CreatedUtc,
                         Id = manifest.Id,
                         Description = manifest.Description,
+                        IsDiffed = manifest.IsDiffed,
                         Hash = manifest.Hash,
                         Tags = manifest.Tags
                     });

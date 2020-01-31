@@ -155,9 +155,13 @@ namespace Tetrifact.Core
 
         public void CreateDiffed(string project, string package)
         {
+            this.Initialize(project);
+
             Manifest manifest = _indexReader.GetManifest(project, package);
-            Manifest headManifest = string.IsNullOrEmpty(manifest.DependsOn) ? null : _indexReader.GetManifest(_project, manifest.DependsOn);
-            
+            Manifest headManifest = string.IsNullOrEmpty(manifest.DependsOn) ? null : _indexReader.GetManifest(project, manifest.DependsOn);
+
+            if (manifest.DependsOn == null)
+                throw new Exception("cannot diff a package with no parent");
 
             foreach (ManifestItem manifestItem in manifest.Files)
             {
@@ -171,8 +175,8 @@ namespace Tetrifact.Core
                     chunks = 1;
 
                 // create patch against head version of file
-                string thisFileBinPath = _indexReader.RehydrateOrResolveFile(_project, package, manifestItem.Path);
-                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(_project, manifest.DependsOn, manifestItem.Path);
+                string thisFileBinPath = _indexReader.RehydrateOrResolveFile(project, package, manifestItem.Path);
+                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(project, manifest.DependsOn, manifestItem.Path);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, manifestItem.Path);
                 bool linkDirect = headManifest != null && headManifest.Files.Where(r => r.Path == manifestItem.Path).FirstOrDefault()?.Hash == manifestItem.Hash;
 
@@ -206,6 +210,8 @@ namespace Tetrifact.Core
                     else
                     {
                         itemType = ManifestItemTypes.Patch;
+
+                        FileHelper.EnsureParentDirectoryExists(writePath);
 
                         // write to patchPath, using incomingFilePath diffed against sourceBinPath
                         using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))

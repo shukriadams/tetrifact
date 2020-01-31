@@ -45,6 +45,7 @@ namespace Tetrifact.Web
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IPackageDeleter, PackageDeleter>();
             services.AddTransient<IDiffService, DiffService>();
+            services.AddTransient<IDiffServiceProvider, DiffServiceProvider>();
 
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -112,8 +113,8 @@ namespace Tetrifact.Web
             // start autodiff service
             using (var scope = serviceProvider.CreateScope())
             {
-                IDiffService diffService = scope.ServiceProvider.GetRequiredService(typeof(IDiffService)) as IDiffService;
-                diffService.Start();
+                IDiffServiceProvider diffServiceProvider = scope.ServiceProvider.GetRequiredService(typeof(IDiffServiceProvider)) as IDiffServiceProvider;
+                diffServiceProvider.Instance.Start();
             }
 
             app.UseMvc(routes =>
