@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Tetrifact.Core
 {
@@ -11,16 +12,13 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IPackageDeleter> _logger;
+        private IServiceProvider _serviceProvider;
 
-        private readonly ILogger<IPackageCreate> _packageCreateLogger;
-
-        public PackageDeleter(IIndexReader indexReader, ISettings settings, ILogger<IPackageDeleter> logger, ILogger<IPackageCreate> packageCreateLogger) 
+        public PackageDeleter(IIndexReader indexReader, ISettings settings, IServiceProvider serviceProvider) 
         {
-            _packageCreateLogger = packageCreateLogger;
+            _serviceProvider = serviceProvider;
             _indexReader = indexReader;
             _settings = settings;
-            _logger = logger;
         }
 
         public void Delete(string project, string package)
@@ -53,10 +51,15 @@ namespace Tetrifact.Core
                 {
                     foreach (string dependant in dependants)
                     {
-                        string dependantPackage = Obfuscator.Decloak(Path.GetFileName(dependant).Replace($"dep_{packageObfuscated}_", string.Empty));
-                        IPackageCreate packageCreate = new PackageCreate(_indexReader, _packageCreateLogger, _settings);
-                        // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
-                        packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
+                        string dependantPackage = Obfuscator.Decloak((Path.GetFileName(dependant).Replace($"dep_{packageObfuscated}_", string.Empty)).Replace("_", string.Empty));
+                        
+                        using (var scope = _serviceProvider.CreateScope())
+                        {
+                            IPackageCreate packageCreate = scope.ServiceProvider.GetRequiredService(typeof(IPackageCreate)) as IPackageCreate;
+                            // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
+                            packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
+                        }
+
                     }
                 }
 

@@ -27,6 +27,7 @@ namespace Tetrifact.Core
 
         private StringBuilder _hashes;
 
+        private IPackageList _packageList;
         #endregion
 
         #region PROPERTIES
@@ -39,11 +40,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, ISettings settings)
+        public PackageCreate(IIndexReader indexReader, IPackageList packageList, ILogger<IPackageCreate> log, ISettings settings)
         {
             _indexReader = indexReader;
             _log = log;
             _settings = settings;
+            _packageList = packageList;
         }
 
         #endregion
@@ -265,6 +267,16 @@ namespace Tetrifact.Core
             this.Manifest.IsDiffed = true;
             this.Manifest.FileChunkSize = _settings.FileChunkSize;
             this.Manifest.DependsOn = manifest.DependsOn;
+            this.Manifest.Id = manifest.Id;
+            this.Manifest.Size = manifest.Size;
+
+            // create a transaction for each diffed package instead of grouping them into single transaction, large packages can be costly to process
+            // and we want to maximumize the chances of as many getting through as possible
+            Transaction transaction = new Transaction(_settings, _indexReader, project);
+            this.Finalize(this.Manifest.Id, this.Manifest.DependsOn, transaction);
+            transaction.Commit();
+
+            _packageList.Clear(project);
         }
 
         private void Initialize(string project)
@@ -419,7 +431,7 @@ namespace Tetrifact.Core
             transaction.AddShard(package, Path.Combine(this.WorkspacePath, Constants.StagingFragment));
 
             if (!string.IsNullOrEmpty(dependsOn))
-                transaction.AddDependecy(dependsOn, package, !string.IsNullOrEmpty(diffAgainstPackage));
+                transaction.AddDependecy(dependsOn, package);
 
             if (string.IsNullOrEmpty(diffAgainstPackage))
                 transaction.SetHead(package);

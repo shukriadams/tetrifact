@@ -11,5 +11,7 @@
         public static readonly string ShardsFragment = "shards";
 
         public static readonly string TransactionsFragment = "transactions";
+
+        public static readonly string ExplicitLinkSwitch = "___!";
     }
 }

@@ -111,10 +111,9 @@ namespace Tetrifact.Core
             File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_shard"), packageNoCollideName);
         }
 
-        public void AddDependecy(string parent, string child, bool isExplicity)
+        public void AddDependecy(string parent, string child)
         {
-            string explicitSwitch = isExplicity ? "_!" : string.Empty;
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(parent)}_{Obfuscator.Cloak(child)}{explicitSwitch}"), string.Empty);
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(parent)}_{Obfuscator.Cloak(child)}_"), string.Empty);
         }
 
         public void Remove(string package) 

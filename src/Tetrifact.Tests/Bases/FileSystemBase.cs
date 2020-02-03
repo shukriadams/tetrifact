@@ -2,6 +2,8 @@
 using System.IO;
 using Tetrifact.Core;
 using Tetrifact.Dev;
+using Ninject;
+using System.Reflection;
 
 namespace Tetrifact.Tests
 {
@@ -40,14 +42,18 @@ namespace Tetrifact.Tests
 
             AppLogic appLogic = new AppLogic(Settings);
             appLogic.Start();
+            
+
+            StandardKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
 
             this.Logger = new TestLogger<IIndexReader>();
             this.DeleterLogger = new TestLogger<IPackageDeleter>();
             this.ProjectServiceLogger = new TestLogger<IProjectService>();
             this.IndexReader = new Core.IndexReader(Settings, Logger);
-            this.PackageDeleter = new Core.PackageDeleter(this.IndexReader, Settings, DeleterLogger, PackageCreateLogger);
+            this.PackageDeleter = kernel.Get<Core.PackageDeleter>();
             this.PackageCreateLogger = new TestLogger<IPackageCreate>();
-            this.PackageCreate = new Core.PackageCreate(this.IndexReader, this.PackageCreateLogger, this.Settings);
+            this.PackageCreate = kernel.Get<Core.PackageCreate>();
             this.ProjectService = new Core.ProjectService(Settings, new Core.PackageList(MemoryCacheHelper.GetInstance(), this.IndexReader, this.Settings, new TestLogger<IPackageList>()), ProjectServiceLogger);
             this.ProjectService.Create("some-project");
         }
