@@ -6,26 +6,29 @@ using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
-    public class DiffService : IDiffService
+    public class Daemon : IDiffService
     {
         private IPackageList _packageList;
 
         private IPackageCreate _packageCreate;
 
-        private ILogger<DiffService> _log;
+        private ILogger<Daemon> _log;
 
         private ISettings _settings;
 
         private bool _exit;
 
+        private ICleaner _cleaner;
+
         public DateTime? LastRun { get; private set; }
 
-        public DiffService(IPackageList packageList, IPackageCreate packageCreate, ILogger<DiffService> log, ISettings settings) 
+        public Daemon(IPackageList packageList, IPackageCreate packageCreate, ILogger<Daemon> log, ISettings settings, ICleaner cleaner) 
         {
             _settings = settings;
             _packageList = packageList;
             _packageCreate = packageCreate;
             _log = log;
+            _cleaner = cleaner;
         }
 
         public void Start() 
@@ -53,22 +56,16 @@ namespace Tetrifact.Core
                 {
                     this.LastRun = DateTime.UtcNow;
 
-                    foreach (string project in _packageList.GetProjects())
-                    {
-                        // processed oldest first
-                        IEnumerable<string> undiffedPackages = _packageList.GetUndiffedPackages(project).OrderBy(r => r.CreatedUtc).Select(r => r.Id);
-                        foreach (string undiffedPackage in undiffedPackages) 
-                        {
-                            _log.LogInformation($"Autdiffing package {undiffedPackage}");
-                            _packageCreate.CreateDiffed(project, undiffedPackage);
-                        }
-                    }
+                    this.Diff();
+
+                    this.Clean();
 
                     if (_exit)
                         break;
 
                     await Task.Delay(_settings.AutoDiffInterval);
                 }
+
             }
             catch (Exception ex)
             {
@@ -76,5 +73,28 @@ namespace Tetrifact.Core
             }
         }
 
+        private void Clean() 
+        {
+            if (!_settings.AutoClean)
+                return;
+
+            foreach (string project in _packageList.GetProjects())
+                if (_settings.AutoClean)
+                    _cleaner.Clean(project);
+        }
+
+        private void Diff() 
+        {
+            foreach (string project in _packageList.GetProjects())
+            {
+                // processed oldest first
+                IEnumerable<string> undiffedPackages = _packageList.GetUndiffedPackages(project).OrderBy(r => r.CreatedUtc).Select(r => r.Id);
+                foreach (string undiffedPackage in undiffedPackages)
+                {
+                    _log.LogInformation($"Autdiffing package {undiffedPackage}");
+                    _packageCreate.CreateDiffed(project, undiffedPackage);
+                }
+            }
+        }
     }
 }

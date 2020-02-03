@@ -41,7 +41,7 @@ namespace Tetrifact.Core
 
             // find all transaction not in history view
             string[] allTransactions = Directory.GetDirectories(PathHelper.ResolveTransactionRoot(_settings, project));
-            TimeSpan transactionTimeout = new TimeSpan(24, 0, 0);
+            TimeSpan transactionTimeout = new TimeSpan(0, _settings.TransactionTimeout, 0);
 
             foreach (string existingTransaction in allTransactions)
             {

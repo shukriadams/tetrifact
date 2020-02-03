@@ -50,6 +50,10 @@ namespace Tetrifact.Core
 
         public int AutoDiffInterval { get; set; }
 
+        public bool AutoClean { get; set; }
+
+        public int TransactionTimeout { get; set; }
+
         #endregion
 
         #region CTORS
@@ -57,6 +61,7 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
+            this.AutoClean = true;
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.LinkLockWaitTime = 1000;               // 1 second
@@ -69,6 +74,7 @@ namespace Tetrifact.Core
             this.FileChunkSize = 100 * 1000000;         // in bytes. remember, bytes * 1000000 = megabytes
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.TransactionHistoryDepth = 2;
+            this.TransactionTimeout = 60;               // minutes
             this.AutoDiffInterval = 1;                  // 10 minutes, in milliseconds 
             this.DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
             this.ProjectsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "projects");
@@ -92,6 +98,8 @@ namespace Tetrifact.Core
             this.TempBinaries = this.GetSetting("TEMP_BINARIES", this.TempBinaries);
             this.FilePersistTimeout = this.GetSetting("FILE_PERSIST_TIMEOUT", this.FilePersistTimeout);
             this.AutoDiffInterval = this.GetSetting("AUTO_DIFF_INTERVAL", this.AutoDiffInterval) * 60 * 60; // convert minute to milliseoncs;
+            this.AutoClean = this.GetSetting("AUTO_CLEAN", this.AutoClean);
+            
 
             // special case - access tokens can be passed in as a comma-separated string, need to split to array here
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
@@ -127,6 +135,24 @@ namespace Tetrifact.Core
 
             if (!int.TryParse(settingsRawVariable, out defaultValue))
                 throw new Exception($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private bool GetSetting(string settingsName, bool defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (settingsRawVariable == null)
+                return defaultValue;
+
+            if (!bool.TryParse(settingsRawVariable, out defaultValue))
+                throw new Exception($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid bool.");
 
             return defaultValue;
         }

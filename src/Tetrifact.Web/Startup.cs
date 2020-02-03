@@ -44,7 +44,7 @@ namespace Tetrifact.Web
             services.AddTransient<IApplicationLogic, AppLogic>();
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IPackageDeleter, PackageDeleter>();
-            services.AddTransient<IDiffService, DiffService>();
+            services.AddTransient<IDiffService, Daemon>();
             services.AddTransient<IDiffServiceProvider, DiffServiceProvider>();
 
             // register filterws

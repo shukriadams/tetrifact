@@ -112,5 +112,15 @@ namespace Tetrifact.Core
         /// In minutes
         /// </summary>
         int AutoDiffInterval { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        bool AutoClean { get; set; }
+
+        /// <summary>
+        /// In minutes.
+        /// </summary>
+        int TransactionTimeout { get; set; }
     }
 }
