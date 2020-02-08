@@ -21,8 +21,8 @@ namespace Tetrifact.Tests.PackageList
         {
             _memoryCache = MemoryCacheHelper.GetInstance();
             this.PackageListLogger = new TestLogger<IPackageList>();
-            this.PackageList = new Core.PackageList(_memoryCache, IndexReader, Settings, this.PackageListLogger);
-            this.TagService = new Core.TagsService(this.Settings, this.IndexReader, this.PackageList);
+            this.PackageList = new Core.PackageList(_memoryCache, IndexReader, this.PackageListLogger);
+            this.TagService = new Core.TagsService(this.IndexReader, this.PackageList);
 
         }
 

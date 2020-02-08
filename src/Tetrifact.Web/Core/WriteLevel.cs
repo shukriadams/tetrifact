@@ -7,13 +7,6 @@ namespace Tetrifact.Web
 {
     public class WriteLevel : IActionFilter
     {
-        private readonly ISettings _settings;
-
-        public WriteLevel(ISettings settings)
-        {
-            _settings = settings;
-        }
-
         public void OnActionExecuted(ActionExecutedContext context)
         {
 
@@ -21,7 +14,7 @@ namespace Tetrifact.Web
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (_settings.AuthorizationLevel == AuthorizationLevel.None || _settings.AuthorizationLevel > AuthorizationLevel.Write)
+            if (Settings.AuthorizationLevel == AuthorizationLevel.None || Settings.AuthorizationLevel > AuthorizationLevel.Write)
                 return;
 
             string authmethod = context.HttpContext.Request.Headers["Authorization"];
@@ -31,7 +24,7 @@ namespace Tetrifact.Web
                 if (authmethod.StartsWith("token "))
                 {
                     string token = authmethod.Substring(5).Trim();
-                    if (_settings.AccessTokens.Contains(token))
+                    if (Settings.AccessTokens.Contains(token))
                         return;
                 }
             }

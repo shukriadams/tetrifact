@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
+    [Collection("Tests")]
     public class GetPopularTags : Base
     {
         [Fact]

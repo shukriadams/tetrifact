@@ -16,8 +16,8 @@ namespace Tetrifact.Tests.TagsService
         {
             _memoryCache = MemoryCacheHelper.GetInstance();
 
-            this.PackageList = new Core.PackageList(_memoryCache, this.IndexReader, this.Settings, new TestLogger<IPackageList>());
-            this.TagsService = new Core.TagsService(this.Settings, this.IndexReader, this.PackageList);
+            this.PackageList = new Core.PackageList(_memoryCache, this.IndexReader, new TestLogger<IPackageList>());
+            this.TagsService = new Core.TagsService(this.IndexReader, this.PackageList);
         }
 
         public void Dispose()

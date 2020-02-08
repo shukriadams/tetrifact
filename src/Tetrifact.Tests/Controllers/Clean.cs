@@ -3,6 +3,7 @@ using Ninject;
 
 namespace Tetrifact.Tests.Controllers
 {
+    [Collection("Tests")]
     public class Clean : TestBase
     {
         private readonly Tetrifact.Web.CleanController _controller;

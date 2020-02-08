@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
+    [Collection("Tests")]
     public class GetWithTag : Base
     {
         [Fact]

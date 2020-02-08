@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Transaction
 {
+    [Collection("Tests")]
     public class AddManifest : FileSystemBase
     {
         /// <summary>
@@ -14,7 +15,7 @@ namespace Tetrifact.Tests.Transaction
         {
             Assert.Throws<ProjectCorruptException>(() =>
             {
-                Core.Transaction transaction = new Core.Transaction(this.Settings, this.IndexReader, "random-invalid-project-name");
+                Core.Transaction transaction = new Core.Transaction(this.IndexReader, "random-invalid-project-name");
                 transaction.AddManifest(new Manifest { Id = Guid.NewGuid().ToString() });
             });
 

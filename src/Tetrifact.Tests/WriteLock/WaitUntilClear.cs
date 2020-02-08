@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.WriteLock
 {
+    [Collection("Tests")]
     public class WaitUntilClear
     {
         /// <summary>

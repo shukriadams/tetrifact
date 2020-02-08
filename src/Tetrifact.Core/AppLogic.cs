@@ -4,31 +4,24 @@ namespace Tetrifact.Core
 {
     public class AppLogic : IApplicationLogic
     {
-        private readonly ISettings _settings;
-
-        public AppLogic(ISettings settings) 
-        {
-            _settings = settings;
-        }
-
         public void Start() 
         {
-            FileHelper.EnsureDirectoryExists(_settings.ArchivePath);
+            FileHelper.EnsureDirectoryExists(Settings.ArchivePath);
 
             // force wipe the temp folder when app starts
             try {
-                if (Directory.Exists(_settings.TempPath))
-                    Directory.Delete(_settings.TempPath, true);
-                Directory.CreateDirectory(_settings.TempPath);
+                if (Directory.Exists(Settings.TempPath))
+                    Directory.Delete(Settings.TempPath, true);
+                Directory.CreateDirectory(Settings.TempPath);
             }
             catch (IOException) 
             {
                 // if temp is folder is locked, ignore deleting it
             }
 
-            FileHelper.EnsureDirectoryExists(_settings.ProjectsPath);
-            FileHelper.EnsureDirectoryExists(_settings.TempPath);
-            FileHelper.EnsureDirectoryExists(_settings.TempBinaries);
+            FileHelper.EnsureDirectoryExists(Settings.ProjectsPath);
+            FileHelper.EnsureDirectoryExists(Settings.TempPath);
+            FileHelper.EnsureDirectoryExists(Settings.TempBinaries);
         }
     }
 }

@@ -16,8 +16,6 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ISettings _settings;
-
         private readonly ILogger<IIndexReader> _logger;
 
         #endregion
@@ -30,9 +28,8 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="settings"></param>
         /// <param name="logger"></param>
-        public IndexReader(ISettings settings, ILogger<IIndexReader> logger) 
+        public IndexReader(ILogger<IIndexReader> logger) 
         {
-            _settings = settings;
             _logger = logger;
         }
 
@@ -42,19 +39,19 @@ namespace Tetrifact.Core
 
         public bool ProjectExists(string project) 
         {
-            return Directory.Exists(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project)));
+            return Directory.Exists(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project)));
         }
 
         public DirectoryInfo GetActiveTransactionInfo(string project) 
         {
-            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
+            return new DirectoryInfo(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
                 .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.Name)
                 .FirstOrDefault();
         }
 
         public IEnumerable<DirectoryInfo> GetRecentTransactionsInfo(string project, int count)
         {
-            return new DirectoryInfo(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
+            return new DirectoryInfo(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
                 .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.Name)
                 .Take(count);
         }
@@ -102,7 +99,7 @@ namespace Tetrifact.Core
             if (!File.Exists(manifestPointerPath))
                 throw new PackageNotFoundException(packageId);
 
-            string manifestRealPath = Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
+            string manifestRealPath = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
 
             if (!File.Exists(manifestRealPath))
                 return null;
@@ -134,10 +131,10 @@ namespace Tetrifact.Core
 
         public string RehydrateOrResolveFile(string project, string package, string filePath) 
         {
-            string projectPath = PathHelper.GetExpectedProjectPath(_settings, project);
+            string projectPath = PathHelper.GetExpectedProjectPath(project);
             string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, package);
             string dataPathBase = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath);
-            string rehydrateOutputPath = Path.Combine(this._settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");
+            string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");
 
             Manifest manifest = this.GetManifest(project, package);
             ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
@@ -236,11 +233,11 @@ namespace Tetrifact.Core
             // is archive still building?
             string tempPath = this.GetTempArchivePath(project, packageId);
             DateTime start = DateTime.Now;
-            TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
+            TimeSpan timeout = new TimeSpan(0, 0, Settings.ArchiveWaitTimeout);
 
             while (File.Exists(tempPath))
             {
-                Thread.Sleep(this._settings.ArchiveAvailablePollInterval);
+                Thread.Sleep(Settings.ArchiveAvailablePollInterval);
                 if (DateTime.Now - start > timeout)
                     throw new TimeoutException($"Timeout waiting for package ${packageId} archive to build");
             }
@@ -251,12 +248,12 @@ namespace Tetrifact.Core
         // todo : make private
         public string GetArchivePath(string project, string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));
+            return Path.Combine(Settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));
         }
 
         public string GetTempArchivePath(string project, string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip.tmp"));
+            return Path.Combine(Settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip.tmp"));
         }
 
         public string GetHead(string project) 

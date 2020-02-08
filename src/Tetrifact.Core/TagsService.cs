@@ -4,8 +4,6 @@
     {
         #region FIELDS
 
-        private readonly ISettings _settings;
-
         private readonly IPackageList _packageList;
 
         private readonly IIndexReader _indexReader;
@@ -14,10 +12,9 @@
 
         #region CTORS
 
-        public TagsService(ISettings settings, IIndexReader indexReader, IPackageList packageList)
+        public TagsService(IIndexReader indexReader, IPackageList packageList)
         {
             _indexReader = indexReader;
-            _settings = settings;
             _packageList = packageList;
         }
 
@@ -38,7 +35,7 @@
                 if (manifest.Tags.Contains(tag))
                     return;
 
-                Transaction transaction = new Transaction(_settings, _indexReader, project);
+                Transaction transaction = new Transaction(_indexReader, project);
 
                 manifest.Tags.Add(tag);
 
@@ -74,7 +71,7 @@
                 manifest.Tags.Remove(tag);
 
 
-                Transaction transaction = new Transaction(_settings, _indexReader, project);
+                Transaction transaction = new Transaction(_indexReader, project);
                 transaction.AddManifest(manifest);
                 transaction.Commit();
 

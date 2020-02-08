@@ -4,6 +4,7 @@ using Tetrifact.Core;
 using Tetrifact.Dev;
 using Ninject;
 using System.Reflection;
+using System;
 
 namespace Tetrifact.Tests
 {
@@ -32,15 +33,12 @@ namespace Tetrifact.Tests
         {
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
-            Settings = new Settings()
-            {
-                ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
-                TempPath = Path.Combine(testFolder, "temp"),
-                TempBinaries = Path.Combine(testFolder, "temp_binaries"),
-                ArchivePath = Path.Combine(testFolder, "archives")
-            };
+            Settings.ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment);
+            Settings.TempPath = Path.Combine(testFolder, "temp");
+            Settings.TempBinaries = Path.Combine(testFolder, "temp_binaries");
+            Settings.ArchivePath = Path.Combine(testFolder, "archives");
 
-            AppLogic appLogic = new AppLogic(Settings);
+            AppLogic appLogic = new AppLogic();
             appLogic.Start();
             
 
@@ -50,11 +48,11 @@ namespace Tetrifact.Tests
             this.Logger = new TestLogger<IIndexReader>();
             this.DeleterLogger = new TestLogger<IPackageDeleter>();
             this.ProjectServiceLogger = new TestLogger<IProjectService>();
-            this.IndexReader = new Core.IndexReader(Settings, Logger);
+            this.IndexReader = new Core.IndexReader(Logger);
             this.PackageDeleter = kernel.Get<Core.PackageDeleter>();
             this.PackageCreateLogger = new TestLogger<IPackageCreate>();
             this.PackageCreate = kernel.Get<Core.PackageCreate>();
-            this.ProjectService = new Core.ProjectService(Settings, new Core.PackageList(MemoryCacheHelper.GetInstance(), this.IndexReader, this.Settings, new TestLogger<IPackageList>()), ProjectServiceLogger);
+            this.ProjectService = new Core.ProjectService(new Core.PackageList(MemoryCacheHelper.GetInstance(), this.IndexReader, new TestLogger<IPackageList>()), ProjectServiceLogger);
             this.ProjectService.Create("some-project");
         }
 
@@ -86,11 +84,14 @@ namespace Tetrifact.Tests
                 } 
             );
             
-            this.PackageCreate.Create(new PackageCreateArguments {
+            PackageCreateResult result = this.PackageCreate.Create(new PackageCreateArguments {
                 Files = FormFileHelper.Multiple(testPackage.Files),
                 Id = testPackage.Id,
                 Project = "some-project"
             });
+
+            if (!result.Success)
+                throw new Exception("Package creation failed");
 
             return testPackage;
         }

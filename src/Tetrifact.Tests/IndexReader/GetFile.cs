@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    [Collection("Tests")]
     public class GetFile : FileSystemBase
     {
         /// <summary>

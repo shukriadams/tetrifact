@@ -25,8 +25,6 @@ namespace Tetrifact.Core
 
         private readonly IMemoryCache _cache;
 
-        private readonly ISettings _settings;
-
         private readonly ILogger<IPackageList> _logger;
 
         private readonly IIndexReader _indexReader;
@@ -35,10 +33,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, IIndexReader indexReader, ISettings settings, ILogger<IPackageList> logger)
+        public PackageList(IMemoryCache memoryCache, IIndexReader indexReader, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
-            _settings = settings;
             _logger = logger;
             _indexReader = indexReader;
         }
@@ -181,12 +178,12 @@ namespace Tetrifact.Core
 
         private IEnumerable<string> GenerateProjectData()
         {
-            string[] directories = Directory.GetDirectories(_settings.ProjectsPath);
+            string[] directories = Directory.GetDirectories(Settings.ProjectsPath);
             IEnumerable<string> projects = directories.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
 
             // Set cache options.
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(Settings.CacheTimeout));
 
             _cache.Set(GetProjectCacheKey(), projects);
 
@@ -207,7 +204,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath)));
+                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath)));
                     packages.Add(new Package
                     {
                         CreatedUtc = manifest.CreatedUtc,
@@ -229,7 +226,7 @@ namespace Tetrifact.Core
 
             // Set cache options.
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(Settings.CacheTimeout));
 
             _cache.Set(GetPackageCacheKey(project), packages);
 

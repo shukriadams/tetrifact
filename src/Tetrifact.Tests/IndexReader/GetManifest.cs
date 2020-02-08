@@ -4,6 +4,7 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    [Collection("Tests")]
     public class GetManifest : FileSystemBase
     {
         [Fact]

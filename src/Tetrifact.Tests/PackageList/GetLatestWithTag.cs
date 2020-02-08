@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
+    [Collection("Tests")]
     public class GetLatestWithTag : Base
     {
         /// <summary>

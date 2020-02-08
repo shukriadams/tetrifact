@@ -9,17 +9,14 @@ namespace Tetrifact.Core
         #region FIELDS
 
         private readonly IIndexReader _indexReader;
-        
-        private readonly ISettings _settings;
 
         #endregion
 
         #region CTORS
 
-        public TransactionHelper(IIndexReader indexReader, ISettings settings) 
+        public TransactionHelper(IIndexReader indexReader)
         {
             _indexReader = indexReader;
-            _settings = settings;
         }
 
         #endregion
@@ -34,7 +31,7 @@ namespace Tetrifact.Core
         public ProjectRecentHistory GetRecentProjectHistory(string project) 
         {
             // get a list of the transacations we want to keep (our history)
-            IList<DirectoryInfo> recentHistory = _indexReader.GetRecentTransactionsInfo(project, _settings.TransactionHistoryDepth).ToList();
+            IList<DirectoryInfo> recentHistory = _indexReader.GetRecentTransactionsInfo(project, Settings.TransactionHistoryDepth).ToList();
 
             // shorten the history to make it easier to do .include string checks
             IEnumerable<string> recentHistoryDirectoryNames = recentHistory.Select(r => r.Name);

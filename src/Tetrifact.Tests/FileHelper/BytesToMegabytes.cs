@@ -2,6 +2,7 @@
 
 namespace Tetrifact.Tests.FileHelper
 {
+    [Collection("Tests")]
     public class BytesToMegabytes
     {
         /// <summary>

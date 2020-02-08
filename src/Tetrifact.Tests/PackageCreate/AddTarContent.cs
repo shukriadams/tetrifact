@@ -7,6 +7,7 @@ using SharpCompress.Writers.Tar;
 
 namespace Tetrifact.Tests.Workspace
 {
+    [Collection("Tests")]
     public class AddTarContent
     {
         /*

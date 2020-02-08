@@ -5,6 +5,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    [Collection("Tests")]
     public class Delete : FileSystemBase
     {
         [Fact]
@@ -14,7 +15,7 @@ namespace Tetrifact.Tests.IndexReader
 
             this.PackageDeleter.Delete("some-project", testPackage.Id);
 
-            Assert.False(File.Exists(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "manifest.json" )));
+            Assert.False(File.Exists(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "manifest.json" )));
         }
 
         [Fact]

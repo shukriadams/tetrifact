@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using Xunit;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.HashService
 {
+    [Collection("Tests")]
     public class FromFile : Base
     {
         /// <summary>
@@ -11,8 +13,8 @@ namespace Tetrifact.Tests.HashService
         [Fact]
         public void Basic()
         {
-            Directory.CreateDirectory(this.Settings.TempPath);
-            string path = Path.Join(this.Settings.TempPath, "hashFromFileTest.txt");
+            Directory.CreateDirectory(Settings.TempPath);
+            string path = Path.Join(Settings.TempPath, "hashFromFileTest.txt");
             File.WriteAllText(path, _input);
             Assert.Equal(_expectedHash, Core.HashService.FromFile(path));
         }

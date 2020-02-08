@@ -34,28 +34,28 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        public static string GetExpectedProjectPath(ISettings settings, string project)
+        public static string GetExpectedProjectPath(string project)
         {
-            string projectPath = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project));
+            string projectPath = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project));
             if (!Directory.Exists(projectPath))
                 throw new ProjectNotFoundException(project);
 
             return projectPath;
         }
 
-        public static string ResolveShardRoot(ISettings settings, string project)
+        public static string ResolveShardRoot(string project)
         {
-            return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment);
+            return Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ShardsFragment);
         }
 
-        public static string ResolveTransactionRoot(ISettings settings, string project)
+        public static string ResolveTransactionRoot(string project)
         {
-            return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment);
+            return Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment);
         }
 
-        public static string ResolveManifestsRoot(ISettings settings, string project)
+        public static string ResolveManifestsRoot(string project)
         {
-            return Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment);
+            return Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment);
         }
 
         /// <summary>

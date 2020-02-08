@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    [Collection("Tests")]
     public class GetHead : FileSystemBase
     {
 

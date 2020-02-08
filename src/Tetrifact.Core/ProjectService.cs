@@ -6,13 +6,11 @@ namespace Tetrifact.Core
 {
     public class ProjectService : IProjectService
     {
-        ISettings _settings;
         ILogger<IProjectService> _logger;
         IPackageList _packageList;
 
-        public ProjectService(ISettings settings, IPackageList packageList, ILogger<IProjectService> logger) 
+        public ProjectService(IPackageList packageList, ILogger<IProjectService> logger) 
         {
-            _settings = settings;
             _logger = logger;
             _packageList = packageList;
         }
@@ -21,7 +19,7 @@ namespace Tetrifact.Core
         {
             try
             {
-                string projectsRoot = Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(name));
+                string projectsRoot = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(name));
                 if (Directory.Exists(projectsRoot))
                     return new ProjectCreateResult { Success = false, PublicError = "Project already exists" };
 

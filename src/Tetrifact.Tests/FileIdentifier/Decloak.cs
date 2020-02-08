@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests
 {
+    [Collection("Tests")]
     public class Decloak
     {
         /// <summary>

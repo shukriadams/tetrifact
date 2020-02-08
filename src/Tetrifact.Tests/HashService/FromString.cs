@@ -2,6 +2,7 @@
 
 namespace Tetrifact.Tests.HashService
 {
+    [Collection("Tests")]
     public class FromString : Base
     {
         /// <summary>

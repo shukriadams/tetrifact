@@ -1,10 +1,9 @@
 ﻿using System;
-using System.IO;
 using Xunit;
-using Tetrifact.Core;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    [Collection("Tests")]
     public class PackageNameInUse : FileSystemBase
     {
         [Fact]

@@ -15,7 +15,7 @@
     public interface IPackageCreate
     {
         /// <summary>
-        /// Creates a package
+        /// Creates a new package, typically from uploaded files.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="package"></param>
@@ -23,7 +23,8 @@
         PackageCreateResult Create(PackageCreateArguments package);
 
         /// <summary>
-        /// Creates a package from an existing package. This must always be done against a reference package, and is intended for package deleting.
+        /// Creates a package from an existing package. This must always be done against a reference package, and is used when a package is deleted and its child is recreated from the deleted
+        /// parents' content.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="package"></param>
@@ -32,7 +33,7 @@
         void CreateFromExisting(string project, string package, string referencePackage, Transaction transaction);
 
         /// <summary>
-        /// Creates a diffed version of the package, against its parent.
+        /// Creates a diffed version of the package, from itself.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="package"></param>

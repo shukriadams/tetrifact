@@ -5,6 +5,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.PackageList
 {
+    [Collection("Tests")]
     public class GetPackageIds : Base
     {
         /// <summary>
@@ -28,7 +29,7 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void SoftOverrun()
         {
-            Directory.CreateDirectory(Path.Combine(this.Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
+            Directory.CreateDirectory(Path.Combine(Settings.ProjectsPath, "some-project", Constants.ManifestsFragment, "package1"));
 
             // deliberately overshoot number of available packages
             IEnumerable<string> packages = this.PackageList.GetPackageIds("some-project", 2, 10); 

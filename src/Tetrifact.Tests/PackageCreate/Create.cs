@@ -6,6 +6,7 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.PackageCreate
 {
+    [Collection("Tests")]
     public class Create : FileSystemBase
     {
         [Fact]
@@ -54,7 +55,7 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Equal(IndexReader.GetHead("some-project"), packageId);
 
             // ensure that workspace has been cleaned up
-            Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
+            Assert.Empty(Directory.GetDirectories(Settings.TempPath));
         }
 
         /// <summary>
@@ -126,9 +127,9 @@ namespace Tetrifact.Tests.PackageCreate
             // empty argument list
             PackageCreateArguments args = new PackageCreateArguments();
 
-            PackageCreateResult result = PackageCreate.Create(args);
-            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
-            Assert.Equal("Files collection is empty.", result.PublicError);
+            PackageCreateException ex = Assert.Throws<PackageCreateException>(() => PackageCreate.Create(args));
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, ex.ErrorType);
+            Assert.Equal("Files collection is empty.", ex.PublicError);
         }
 
         [Fact]
@@ -140,19 +141,19 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<PackageCreateItem>()
             };
 
-            PackageCreateResult result = PackageCreate.Create(args);
-            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
-            Assert.Equal("Files collection is empty.", result.PublicError);
+            PackageCreateException ex = Assert.Throws<PackageCreateException>(() => PackageCreate.Create(args));
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, ex.ErrorType);
+            Assert.Equal("Files collection is empty.", ex.PublicError);
         }        
 
         [Fact]
         public void CreateWithNoName(){
             PackageCreateArguments args = new PackageCreateArguments();
             args.Files = FormFileHelper.Single("somt text", "folder/file");
-            
-            PackageCreateResult result = PackageCreate.Create(args);
-            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
-            Assert.Equal("Id is required.", result.PublicError);
+
+            PackageCreateException ex = Assert.Throws<PackageCreateException>(() => PackageCreate.Create(args));
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, ex.ErrorType);
+            Assert.Equal("Id is required.", ex.PublicError);
         }   
 
         [Fact]
@@ -169,9 +170,8 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.True(result.Success);
 
             // attempt to create package with same name
-            result = PackageCreate.Create(package);
-            Assert.False(result.Success);
-            Assert.Equal(PackageCreateErrorTypes.PackageExists, result.ErrorType);
+            PackageCreateException ex = Assert.Throws<PackageCreateException>(() => PackageCreate.Create(package));
+            Assert.Equal(PackageCreateErrorTypes.PackageExists, ex.ErrorType);
         }
 
         [Fact]
@@ -188,9 +188,8 @@ namespace Tetrifact.Tests.PackageCreate
                 })
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
-            Assert.False(result.Success);
-            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
+            PackageCreateException ex = Assert.Throws<PackageCreateException>(()=> PackageCreate.Create(package));
+            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, ex.ErrorType);
         }
 
         [Fact]

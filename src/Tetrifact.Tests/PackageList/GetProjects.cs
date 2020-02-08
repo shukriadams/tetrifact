@@ -5,10 +5,14 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
+    [Collection("Tests")]
     public class GetProjects // No base - we need a totally
     {
-        ISettings Settings;
+        #region FIELDS
+
         IPackageList PackageList;
+
+        #endregion
 
         #region CTOR
 
@@ -21,21 +25,18 @@ namespace Tetrifact.Tests.PackageList
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
             // bind settings to that folder
-            Settings = new Settings()
-            {
-                ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
-                TempPath = Path.Combine(testFolder, "temp"),
-                TempBinaries = Path.Combine(testFolder, "temp_binaries"),
-                ArchivePath = Path.Combine(testFolder, "archives")
-            };
-            
+            Settings.ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment);
+            Settings.TempPath = Path.Combine(testFolder, "temp");
+            Settings.TempBinaries = Path.Combine(testFolder, "temp_binaries");
+            Settings.ArchivePath = Path.Combine(testFolder, "archives");
+
             // initialize app, this is always needed
-            AppLogic appLogic = new AppLogic(Settings);
+            AppLogic appLogic = new AppLogic();
             appLogic.Start();
 
             // we'll be using indexreader for all tests
-            IIndexReader indexReader = new Core.IndexReader(Settings, new TestLogger<IIndexReader>() );
-            this.PackageList = new Core.PackageList(MemoryCacheHelper.GetInstance(), indexReader, Settings, new TestLogger<IPackageList>());
+            IIndexReader indexReader = new Core.IndexReader(new TestLogger<IIndexReader>() );
+            this.PackageList = new Core.PackageList(MemoryCacheHelper.GetInstance(), indexReader, new TestLogger<IPackageList>());
         }
 
         #endregion

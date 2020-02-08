@@ -24,10 +24,8 @@ namespace Tetrifact.Web
 
         private readonly IIndexReader _indexService;
         private readonly ILogger<PackagesController> _log;
-        private readonly IPackageCreate _packageService;
+        private readonly IPackageCreate _packageCreate;
         private readonly IPackageList _packageList;
-        private readonly ISettings _settings;
-        private readonly ITagsService _tagService;
         private readonly IPackageDeleter _packageDeleter;
 
         #endregion
@@ -37,19 +35,17 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="packageService"></param>
+        /// <param name="packageCreate"></param>
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageDeleter packageDeleter, ITagsService tagService, IPackageList packageList, IIndexReader indexService, ISettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageCreate, IPackageDeleter packageDeleter, IPackageList packageList, IIndexReader indexService, ILogger<PackagesController> log)
         {
             _packageDeleter = packageDeleter;
             _packageList = packageList;
-            _packageService = packageService;
+            _packageCreate = packageCreate;
             _indexService = indexService;
-            _settings = settings;
-            _tagService = tagService;
             _log = log;
         }
 
@@ -173,10 +169,10 @@ namespace Tetrifact.Web
 
                 // check if there is space available
                 DiskUseStats useStats = FileHelper.GetDiskUseSats();
-                if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
+                if (useStats.ToPercent() < Settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = _packageService.Create(new PackageCreateArguments
+                PackageCreateResult result = _packageCreate.Create(new PackageCreateArguments
                 {
                     Description = post.Description,
                     Files = post.Files.Select(r => new PackageCreateItem { Content = r.OpenReadStream(), FileName = post.RemoveFirstDirectoryFromPath ? RemoveFirstDirectoryFromPath(r.FileName) : r.FileName}).ToList(),
@@ -185,27 +181,26 @@ namespace Tetrifact.Web
                     IsArchive = post.IsArchive
                 });
 
-                if (result.Success)
-                {
-                    _packageList.Clear(post.Project);
-                    return Ok($"Success - package \"{post.Id}\" created.");
-                }
-
-                if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
+                _packageList.Clear(post.Project);
+                return Ok($"Success - package \"{post.Id}\" created.");
+            }
+            catch (PackageCreateException ex)
+            {
+                if (ex.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
                     return Responses.InvalidArchiveFormatError();
 
-                if (result.ErrorType == PackageCreateErrorTypes.InvalidFileCount)
+                if (ex.ErrorType == PackageCreateErrorTypes.InvalidFileCount)
                     return Responses.InvalidArchiveContent();
 
-                if (result.ErrorType == PackageCreateErrorTypes.PackageExists)
+                if (ex.ErrorType == PackageCreateErrorTypes.PackageExists)
                     return Responses.PackageExistsError(post.Id);
 
-                if (result.ErrorType == PackageCreateErrorTypes.MissingValue)
-                    return Responses.MissingInputError(result.PublicError);
+                if (ex.ErrorType == PackageCreateErrorTypes.MissingValue)
+                    return Responses.MissingInputError(ex.PublicError);
 
                 return Responses.UnexpectedError();
-            }
-            catch (Exception ex)
+            } 
+            catch(Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
                 Console.WriteLine("An unexpected error occurred : ");

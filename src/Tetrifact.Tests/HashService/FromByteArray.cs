@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.HashService
 {
+    [Collection("Tests")]
     public class FromByteArray : Base
     {
         /// <summary>

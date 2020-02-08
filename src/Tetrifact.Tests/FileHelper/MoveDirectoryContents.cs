@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using Xunit;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.FileHelper
 {
+    [Collection("Tests")]
     public class MoveDirectoryContents : FileSystemBase
     {
         /// <summary>

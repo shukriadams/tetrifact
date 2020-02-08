@@ -15,7 +15,9 @@ namespace Tetrifact.Tests
 
         public T GetInstance<T>()
         {
-            _kernel.Load(Assembly.GetExecutingAssembly());
+            if (!_kernel.HasModule(typeof(Bindings).FullName))
+                _kernel.Load(Assembly.GetExecutingAssembly());
+
             return _kernel.Get<T>();
         }
     }

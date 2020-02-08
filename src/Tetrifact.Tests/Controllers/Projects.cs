@@ -7,6 +7,7 @@ using System;
 
 namespace Tetrifact.Tests.Controllers
 {
+    [Collection("Tests")]
     public class Projects : TestBase
     {
         #region FIELDS

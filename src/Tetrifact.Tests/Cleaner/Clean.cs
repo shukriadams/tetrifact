@@ -7,13 +7,14 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.Clean
 {
+    [Collection("Tests")]
     public class Clean : FileSystemBase
     {
         private readonly ICleaner _respositoryCleaner;
 
         public Clean()
         {
-            _respositoryCleaner = new Core.Cleaner(this.IndexReader, this.Settings, new TestLogger<ICleaner>());
+            _respositoryCleaner = new Core.Cleaner(this.IndexReader, new TestLogger<ICleaner>());
         }
 
         /// <summary>
@@ -23,7 +24,7 @@ namespace Tetrifact.Tests.Clean
         public void CleanTransactions()
         {
             // create some transaction folders
-            string projectPath = PathHelper.GetExpectedProjectPath(base.Settings, "some-project");
+            string projectPath = PathHelper.GetExpectedProjectPath("some-project");
             string transaction1 = Path.Combine(projectPath, Constants.TransactionsFragment, DateTime.Now.Ticks.ToString());
             Directory.CreateDirectory(transaction1);
 
@@ -32,7 +33,7 @@ namespace Tetrifact.Tests.Clean
             Directory.CreateDirectory(transaction2);
 
             // force transaction preservation depth to preserve 1, then clean
-            base.Settings.TransactionHistoryDepth = 1;
+            Settings.TransactionHistoryDepth = 1;
             _respositoryCleaner.Clean("some-project");
             Thread.Sleep(100); // need to wait to give the 2nd transaction time to separate
 

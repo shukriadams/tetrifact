@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Tetrifact.Tests.Controllers
 {
+    [Collection("Tests")]
     public class Package : TestBase
     {
         private readonly PackagesController _controller;

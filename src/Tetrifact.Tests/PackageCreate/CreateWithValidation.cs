@@ -8,6 +8,7 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.PackageCreate
 {
+    [Collection("Tests")]
     public class CreateWithValidation : FileSystemBase
     {
         #region TESTS
@@ -137,70 +138,8 @@ namespace Tetrifact.Tests.PackageCreate
                 })
             };
 
-            PackageCreateResult result = this.PackageCreate.Create(postArgs);
-            
-            Assert.False(result.Success);
-            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
-        }
-
-        /// <summary>
-        /// Identical content is linked instead of patched
-        /// </summary>
-        [Fact]
-        public void CreateLinked() 
-        {
-            // create first package
-            this.PackageCreate.Create(new PackageCreateArguments
-            {
-                Id = "1",
-                Project = "some-project",
-                Files = FormFileHelper.Multiple(new [] {
-                    new DummyFile("some content", "folder2/file.txt") 
-                })
-            });
-
-            // create 2nd package with identical content to first
-            this.PackageCreate.Create(new PackageCreateArguments
-            {
-                Id = "2",
-                Project = "some-project",
-                Files = FormFileHelper.Multiple(new[] {
-                    new DummyFile( "some content", "folder2/file.txt")
-                })
-            });
-
-            Manifest manifest = IndexReader.GetManifest("some-project", "2");
-            Assert.Equal(ManifestItemTypes.Link, manifest.Files[0].Chunks[0].Type);
-        }
-
-        /// <summary>
-        /// Changed content is patched
-        /// </summary>
-        [Fact]
-        public void CreatePatched()
-        {
-            // create first package
-            this.PackageCreate.Create(new PackageCreateArguments
-            {
-                Id = "1",
-                Project = "some-project",
-                Files = FormFileHelper.Multiple(new [] {
-                    new DummyFile ( "some content", "folder2/file.txt" )
-                })
-            });
-
-            // create 2nd package with identical content to first
-            this.PackageCreate.Create(new PackageCreateArguments
-            {
-                Id = "2",
-                Project = "some-project",
-                Files = FormFileHelper.Multiple(new [] {
-                    new DummyFile ( "some content2", "folder2/file.txt" )
-                })
-            });
-
-            Manifest manifest = IndexReader.GetManifest("some-project", "2");
-            Assert.Equal(ManifestItemTypes.Patch, manifest.Files[0].Chunks[0].Type);
+            PackageCreateException ex = Assert.Throws<PackageCreateException>(() => PackageCreate.Create(postArgs));
+            Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, ex.ErrorType);
         }
 
         #endregion

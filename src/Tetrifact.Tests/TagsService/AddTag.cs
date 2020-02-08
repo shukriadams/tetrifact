@@ -6,6 +6,7 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.TagsService
 {
+    [Collection("Tests")]
     public class AddTag : Base 
     {
         /// <summary>

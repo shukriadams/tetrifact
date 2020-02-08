@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageDeleter
 {
+    [Collection("Tests")]
     public class Delete : FileSystemBase
     {
         #region TESTS

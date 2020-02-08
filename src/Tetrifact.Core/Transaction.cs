@@ -15,22 +15,20 @@ namespace Tetrifact.Core
         private readonly string _finalTransactionFolder;
         private readonly string _tempTransactionFolder;
         private readonly IIndexReader _indexReader;
-        private readonly ISettings _settings;
         private string _project;
 
         #endregion
 
         #region CTORS
 
-        public Transaction(ISettings settings, IIndexReader indexReader, string project) 
+        public Transaction(IIndexReader indexReader, string project) 
         {
             _indexReader = indexReader;
-            _settings = settings;
             _project = project;
 
             long ticks = DateTime.UtcNow.Ticks;
-            _tempTransactionFolder = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"~{ticks}");
-            _finalTransactionFolder = Path.Combine(settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"{ticks}");
+            _tempTransactionFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"~{ticks}");
+            _finalTransactionFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"{ticks}");
             Directory.CreateDirectory(_tempTransactionFolder);
 
             // find current transaction and copy all files over 
@@ -70,22 +68,22 @@ namespace Tetrifact.Core
             string fileName = $"{Guid.NewGuid()}_{manifest.Id}";
             try
             {
-                File.WriteAllText(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+                File.WriteAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
             }
             catch (DirectoryNotFoundException ex) 
             {
                 // this will rarely be reached - if so, try to derive a more helpful exception from missing directory exception
 
                 // test projectPaths
-                if (!Directory.Exists(_settings.ProjectsPath))
+                if (!Directory.Exists(Settings.ProjectsPath))
                     throw new SystemCorruptException("Projects folder not found");
 
                 // test project folder
-                if (!Directory.Exists(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project))))
+                if (!Directory.Exists(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(_project))))
                     throw new ProjectNotFoundException(_project);
 
                 // test manifests fragment
-                if (!Directory.Exists(Path.Combine(_settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment)))
+                if (!Directory.Exists(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment)))
                     throw new ProjectCorruptException(_project, "Manifests folder not found");
 
                 throw ex;
@@ -103,7 +101,7 @@ namespace Tetrifact.Core
         public void AddShard(string package, string contentDirectory) 
         {
             string packageNoCollideName = $"{Guid.NewGuid()}__{Obfuscator.Cloak(package)}";
-            string shardRoot = PathHelper.ResolveShardRoot(_settings, _project);
+            string shardRoot = PathHelper.ResolveShardRoot(_project);
             string finalRoot = Path.Combine(shardRoot, packageNoCollideName);
             FileHelper.MoveDirectoryContents(contentDirectory, finalRoot);
 

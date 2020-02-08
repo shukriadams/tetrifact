@@ -14,17 +14,14 @@ namespace Tetrifact.Core
 
         private ILogger<Daemon> _log;
 
-        private ISettings _settings;
-
         private bool _exit;
 
         private ICleaner _cleaner;
 
         public DateTime? LastRun { get; private set; }
 
-        public Daemon(IPackageList packageList, IPackageCreate packageCreate, ILogger<Daemon> log, ISettings settings, ICleaner cleaner) 
+        public Daemon(IPackageList packageList, IPackageCreate packageCreate, ILogger<Daemon> log, ICleaner cleaner) 
         {
-            _settings = settings;
             _packageList = packageList;
             _packageCreate = packageCreate;
             _log = log;
@@ -63,7 +60,7 @@ namespace Tetrifact.Core
                     if (_exit)
                         break;
 
-                    await Task.Delay(_settings.AutoDiffInterval);
+                    await Task.Delay(Settings.AutoDiffInterval);
                 }
 
             }
@@ -75,11 +72,11 @@ namespace Tetrifact.Core
 
         private void Clean() 
         {
-            if (!_settings.AutoClean)
+            if (!Settings.AutoClean)
                 return;
 
             foreach (string project in _packageList.GetProjects())
-                if (_settings.AutoClean)
+                if (Settings.AutoClean)
                     _cleaner.Clean(project);
         }
 

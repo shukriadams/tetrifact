@@ -35,7 +35,6 @@ namespace Tetrifact.Web
             });
 
             // register type injections here
-            services.AddTransient<ISettings, Settings>();
             services.AddTransient<ICleaner, Cleaner>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IProjectService, ProjectService>();
@@ -47,7 +46,6 @@ namespace Tetrifact.Web
             services.AddTransient<IDiffService, Daemon>();
             services.AddTransient<IDiffServiceProvider, DiffServiceProvider>();
             services.AddTransient<ITypeProvider, ServiceTypeProvider>();
-
             
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -72,7 +70,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ISettings settings, IApplicationLogic appLogic, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IApplicationLogic appLogic, IServiceProvider serviceProvider)
         {
             // register custom error pages
             if (env.IsDevelopment())
@@ -105,7 +103,7 @@ namespace Tetrifact.Web
             });
 
 
-            loggerFactory.AddFile(settings.LogPath);
+            loggerFactory.AddFile(Settings.LogPath);
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

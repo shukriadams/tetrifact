@@ -11,14 +11,14 @@ namespace Tetrifact.Tests
     public abstract class TestBase
     {
         protected StandardKernel Kernel;
-        protected ISettings Settings;
 
         public TestBase()
         {
             this.Kernel = new StandardKernel();
-            this.Kernel.Load(Assembly.GetExecutingAssembly());
-            this.Settings = Kernel.Get<ISettings>();
-            AppLogic appLogic = new AppLogic(this.Settings);
+            if (!Kernel.HasModule(typeof(Bindings).FullName))
+                this.Kernel.Load(Assembly.GetExecutingAssembly());
+
+            AppLogic appLogic = new AppLogic();
             appLogic.Start();
         }
     }

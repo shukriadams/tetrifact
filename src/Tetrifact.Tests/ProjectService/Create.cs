@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests
 {
+    [Collection("Tests")]
     public class ProjectService : FileSystemBase
     {
         /// <summary>

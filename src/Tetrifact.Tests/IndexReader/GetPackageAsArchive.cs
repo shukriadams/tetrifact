@@ -8,6 +8,7 @@ using Tetrifact.Dev;
 
 namespace Tetrifact.Tests.IndexReader
 {
+    [Collection("Tests")]
     public class GetPackageAsArchive : FileSystemBase
     {
         [Fact]
@@ -69,8 +70,8 @@ namespace Tetrifact.Tests.IndexReader
         public void GetTimesOut()
         {
             // zero wait times to speed up test
-            base.Settings.ArchiveWaitTimeout = 0;
-            base.Settings.ArchiveAvailablePollInterval = 0;
+            Settings.ArchiveWaitTimeout = 0;
+            Settings.ArchiveAvailablePollInterval = 0;
 
             // we need a valid package first
             DummyPackage testPackage = base.CreatePackage();

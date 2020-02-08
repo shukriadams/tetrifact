@@ -9,7 +9,6 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ISettings _settings;
         private readonly IIndexReader _indexReader;
         private readonly IPackageList _packageList;
 
@@ -17,9 +16,8 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettings settings, IIndexReader indexReader, IPackageList packageList)
+        public HomeController(IIndexReader indexReader, IPackageList packageList)
         {
-            _settings = settings;
             _indexReader = indexReader;
             _packageList = packageList;
         }
@@ -40,8 +38,8 @@ namespace Tetrifact.Web
         public IActionResult Project(string project)
         {
             return View(new ProjectModel(
-                _packageList.GetPopularTags(project, _settings.IndexTagListLength),
-                _packageList.Get(project, 0, _settings.ListPageSize),
+                _packageList.GetPopularTags(project, Settings.IndexTagListLength),
+                _packageList.Get(project, 0, Settings.ListPageSize),
                 project));
         }
 
@@ -88,10 +86,10 @@ namespace Tetrifact.Web
             if (page != 0)
                 page--;
 
-            PageableData<Package> packages  = _packageList.GetPage(project, page, _settings.ListPageSize);
+            PageableData<Package> packages  = _packageList.GetPage(project, page, Settings.ListPageSize);
 
             Pager pager = new Pager();
-            string pagerString = pager.Render<Package>(packages, _settings.PagesPerPageGroup, "/packages", "page");
+            string pagerString = pager.Render<Package>(packages, Settings.PagesPerPageGroup, "/packages", "page");
 
             return View(new PackageListModel(project, pagerString, packages));
         }
@@ -103,7 +101,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                IEnumerable<Package> packages = _packageList.GetWithTag(project, tag, 0, _settings.ListPageSize);
+                IEnumerable<Package> packages = _packageList.GetWithTag(project, tag, 0, Settings.ListPageSize);
                 return View(new PackagesWithTagModel(project, tag, packages));
             }
             catch (TagNotFoundException)
@@ -141,11 +139,11 @@ namespace Tetrifact.Web
             s.AppendLine($"Drive size : {FileHelper.BytesToMegabytes(useStats.TotalBytes)}M");
             s.AppendLine($"Space available :  {freeMegabytes}M ({useStats.ToPercent()}%)");
 
-            if (freeMegabytes > _settings.SpaceSafetyThreshold){
+            if (freeMegabytes > Settings.SpaceSafetyThreshold){
                 return Ok(s.ToString());
             }
 
-            s.AppendLine($"Insufficient space for safe operation - minimum allowed is {_settings.SpaceSafetyThreshold}M.");
+            s.AppendLine($"Insufficient space for safe operation - minimum allowed is {Settings.SpaceSafetyThreshold}M.");
 
             return Responses.InsufficientSpace(s.ToString());
         }

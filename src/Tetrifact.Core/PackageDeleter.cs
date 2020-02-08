@@ -8,15 +8,12 @@ namespace Tetrifact.Core
     {
         private readonly IIndexReader _indexReader;
 
-        private readonly ISettings _settings;
-
         private ITypeProvider _typeProvider;
 
-        public PackageDeleter(IIndexReader indexReader, ISettings settings, ITypeProvider typeProvider) 
+        public PackageDeleter(IIndexReader indexReader, ITypeProvider typeProvider) 
         {
             _typeProvider = typeProvider;
             _indexReader = indexReader;
-            _settings = settings;
         }
 
         public void Delete(string project, string package)
@@ -32,7 +29,7 @@ namespace Tetrifact.Core
                 if (packageToDeleteManifest == null)
                     throw new PackageNotFoundException(package);
 
-                Transaction transaction = new Transaction(_settings, _indexReader, project);
+                Transaction transaction = new Transaction(_indexReader, project);
                 
 
                 string packageObfuscated = Obfuscator.Cloak(package);

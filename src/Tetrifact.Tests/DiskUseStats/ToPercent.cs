@@ -2,6 +2,7 @@
 
 namespace Tetrifact.Tests.DiskUseStats
 {
+    [Collection("Tests")]
     public class ToPercent
     {
         /// <summary>

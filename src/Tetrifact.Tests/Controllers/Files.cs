@@ -3,6 +3,7 @@ using Ninject;
 
 namespace Tetrifact.Tests.Controllers
 {
+    [Collection("Tests")]
     public class Files : TestBase
     {
         private readonly Tetrifact.Web.FilesController _controller;

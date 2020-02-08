@@ -1,8 +1,11 @@
 ﻿using System.IO;
 using Xunit;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.PackageCreate
 {
+
+    [Collection("Tests")]
     public class Cleanup : FileSystemBase
     {
         /// <summary>

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Tests.Controllers
 {
+    [Collection("Tests")]
     public class Home : FileSystemBase
     {
         private readonly HomeController _controller;

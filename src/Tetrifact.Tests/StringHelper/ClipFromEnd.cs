@@ -2,6 +2,7 @@
 
 namespace Tetrifact.Tests.StringHelper
 {
+    [Collection("Tests")]
     public class ClipFromEnd
     {
         [Fact]

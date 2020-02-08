@@ -4,29 +4,21 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.AppStart
 {
+    [Collection("Tests")]
     public class Start // no base class, clean start required
     {
-        #region FIELDS
-
-        private ISettings Settings;
-
-        #endregion
-
         #region CTORS
 
         public Start() 
         {
             string testFolder = TestSetupHelper.SetupDirectories(this);
 
-            this.Settings = new Settings()
-            {
-                ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment),
-                TempPath = Path.Combine(testFolder, "temp"),
-                TempBinaries = Path.Combine(testFolder, "temp_binaries"),
-                ArchivePath = Path.Combine(testFolder, "archives")
-            };
+            Settings.ProjectsPath = Path.Combine(testFolder, Constants.ProjectsFragment);
+            Settings.TempPath = Path.Combine(testFolder, "temp");
+            Settings.TempBinaries = Path.Combine(testFolder, "temp_binaries");
+            Settings.ArchivePath = Path.Combine(testFolder, "archives");
 
-            AppLogic appLogic = new AppLogic(Settings);
+            AppLogic appLogic = new AppLogic();
             appLogic.Start();
         }
 
@@ -41,11 +33,11 @@ namespace Tetrifact.Tests.AppStart
         public void Basic()
         {
             // create a dummy file in temp folder
-            string tempFilePath = Path.Combine(this.Settings.TempPath, "file");
+            string tempFilePath = Path.Combine(Settings.TempPath, "file");
             File.WriteAllText(tempFilePath, "some text");
 
             // start app
-            AppLogic appLogic = new AppLogic(this.Settings);
+            AppLogic appLogic = new AppLogic();
             appLogic.Start();
 
             // ensure dummy file is gone

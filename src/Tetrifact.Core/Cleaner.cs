@@ -10,8 +10,6 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ISettings _settings;
-
         private readonly ILogger<ICleaner> _logger;
 
         private readonly IIndexReader _indexReader;
@@ -20,9 +18,8 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Cleaner(IIndexReader indexReader, ISettings settings, ILogger<ICleaner> logger)
+        public Cleaner(IIndexReader indexReader, ILogger<ICleaner> logger)
         {
-            _settings = settings;
             _logger = logger;
             _indexReader = indexReader;
         }
@@ -33,15 +30,15 @@ namespace Tetrifact.Core
 
         public void Clean(string project)
         {
-            TransactionHelper transactionHelper = new TransactionHelper(_indexReader, _settings);
+            TransactionHelper transactionHelper = new TransactionHelper(_indexReader);
             ProjectRecentHistory projectView = transactionHelper.GetRecentProjectHistory(project);
 
             List<string> filesToDelete = new List<string>();
             List<string> directoriesToDelete = new List<string>();
 
             // find all transaction not in history view
-            string[] allTransactions = Directory.GetDirectories(PathHelper.ResolveTransactionRoot(_settings, project));
-            TimeSpan transactionTimeout = new TimeSpan(0, _settings.TransactionTimeout, 0);
+            string[] allTransactions = Directory.GetDirectories(PathHelper.ResolveTransactionRoot(project));
+            TimeSpan transactionTimeout = new TimeSpan(0, Settings.TransactionTimeout, 0);
 
             foreach (string existingTransaction in allTransactions)
             {
@@ -81,7 +78,7 @@ namespace Tetrifact.Core
 
 
             // find all shards not in history view
-            string[] allShards = Directory.GetDirectories(PathHelper.ResolveShardRoot(_settings, project));
+            string[] allShards = Directory.GetDirectories(PathHelper.ResolveShardRoot(project));
             foreach (string existingShard in allShards)
             {
                 if (Path.GetFileName(existingShard).StartsWith(PathHelper.DeleteFlag))
@@ -107,7 +104,7 @@ namespace Tetrifact.Core
 
 
             // find all manifests not in history view
-            string[] allManifests = Directory.GetFiles(PathHelper.ResolveManifestsRoot(_settings, project));
+            string[] allManifests = Directory.GetFiles(PathHelper.ResolveManifestsRoot(project));
             foreach (string existingManifest in allManifests)
             {
                 if (Path.GetFileName(existingManifest).StartsWith(PathHelper.DeleteFlag))
@@ -132,18 +129,18 @@ namespace Tetrifact.Core
             }
 
             // find all outdated rehydrated files
-            string projectTempBinariesRoot = Path.Combine(_settings.TempBinaries, Obfuscator.Cloak(project));
+            string projectTempBinariesRoot = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project));
             if (Directory.Exists(projectTempBinariesRoot)) 
             {
                 IEnumerable<FileInfo> rehydratedFiles = Directory.GetFiles(projectTempBinariesRoot, "bin", SearchOption.AllDirectories).Select(r => new FileInfo(r));
-                rehydratedFiles = rehydratedFiles.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(_settings.FilePersistTimeout * -1));
+                rehydratedFiles = rehydratedFiles.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(Settings.FilePersistTimeout * -1));
                 filesToDelete = filesToDelete.Concat(rehydratedFiles.Select(r => r.FullName)).ToList();
             }
 
             // find all outdated archives
-            DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
+            DirectoryInfo info = new DirectoryInfo(Settings.ArchivePath);
             IEnumerable<FileInfo> archives = info.GetFiles();
-            archives = archives.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(_settings.FilePersistTimeout * -1));
+            archives = archives.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(Settings.FilePersistTimeout * -1));
             filesToDelete = filesToDelete.Concat(archives.Select(r => r.FullName)).ToList();
 
             foreach (string item in directoriesToDelete)

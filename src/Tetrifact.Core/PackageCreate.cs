@@ -22,13 +22,12 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageCreate> _log;
 
-        private readonly ISettings _settings;
-
         private string _project;
 
         private StringBuilder _hashes;
 
         private IPackageList _packageList;
+
         #endregion
 
         #region PROPERTIES
@@ -41,11 +40,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, IPackageList packageList, ILogger<IPackageCreate> log, ISettings settings)
+        public PackageCreate(IIndexReader indexReader, IPackageList packageList, ILogger<IPackageCreate> log)
         {
             _indexReader = indexReader;
             _log = log;
-            _settings = settings;
             _packageList = packageList;
         }
 
@@ -66,22 +64,22 @@ namespace Tetrifact.Core
 
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
+                    throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
 
                 if (string.IsNullOrEmpty(newPackage.Id))
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
+                    throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
 
                 // ensure package does not already exist
                 if (_indexReader.PackageNameInUse(newPackage.Project, newPackage.Id))
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists };
+                    throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.PackageExists };
 
                 // if archive, ensure correct file count
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
+                    throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
                 // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
-                if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetManifest(newPackage.Project, newPackage.BranchFrom) == null) 
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
+                if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetManifest(newPackage.Project, newPackage.BranchFrom) == null)
+                    throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
 
                 this.Initialize(newPackage.Project);
 
@@ -112,17 +110,11 @@ namespace Tetrifact.Core
                 this.Manifest.Description = newPackage.Description;
 
                 // we calculate package hash from a sum of all child hashes
-                Transaction transaction = new Transaction(_settings, _indexReader, newPackage.Project);
+                Transaction transaction = new Transaction(_indexReader, newPackage.Project);
                 this.Finalize(newPackage.Id, newPackage.BranchFrom, transaction);
                 transaction.Commit();
  
                 return new PackageCreateResult { Success = true, PackageHash = this.Manifest.Hash };
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Unexpected error");
-                Console.WriteLine($"Unexpected error : {ex}");
-                return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }
             finally
             {
@@ -170,8 +162,8 @@ namespace Tetrifact.Core
             foreach (ManifestItem manifestItem in manifest.Files)
             {
                 // count how many chunks file should be divided into.
-                int chunks = (int)(manifestItem.Size / _settings.FileChunkSize);
-                if (manifestItem.Size % _settings.FileChunkSize != 0)
+                int chunks = (int)(manifestItem.Size / Settings.FileChunkSize);
+                if (manifestItem.Size % Settings.FileChunkSize != 0)
                     chunks++;
 
                 // there should always at least 1 chunk - if the file is zero length, chunks will be zero, force this to 1
@@ -206,10 +198,10 @@ namespace Tetrifact.Core
                     {
                         itemType = ManifestItemTypes.Link;
                     }
-                    else if (new FileInfo(ancestorBinPath).Length < i * _settings.FileChunkSize)
+                    else if (new FileInfo(ancestorBinPath).Length < i * Settings.FileChunkSize)
                     {
                         // check if upstream file has content at for this chunk point. if not, write the entire incoming file as a "bin" type
-                        StreamsHelper.FileCopy(ancestorBinPath, writePath, i * _settings.FileChunkSize, ((i + 1) * _settings.FileChunkSize));
+                        StreamsHelper.FileCopy(ancestorBinPath, writePath, i * Settings.FileChunkSize, ((i + 1) * Settings.FileChunkSize));
                     }
                     else
                     {
@@ -223,16 +215,16 @@ namespace Tetrifact.Core
                         using (MemoryStream binarySourceChunkStream = new MemoryStream())
                         {
                             // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
-                            binarySourceStream.Position = i * _settings.FileChunkSize;
-                            StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * _settings.FileChunkSize));
+                            binarySourceStream.Position = i * Settings.FileChunkSize;
+                            StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * Settings.FileChunkSize));
                             binarySourceChunkStream.Position = 0;
 
                             using (FileStream incomingFileStream = new FileStream(thisFileBinPath, FileMode.Open, FileAccess.Read))
                             using (MemoryStream incomingFileChunkStream = new MemoryStream())
                             {
                                 // similarly, we want only a portion of the incoming file
-                                incomingFileStream.Position = i * _settings.FileChunkSize;
-                                StreamsHelper.StreamCopy(incomingFileStream, incomingFileChunkStream, ((i + 1) * _settings.FileChunkSize));
+                                incomingFileStream.Position = i * Settings.FileChunkSize;
+                                StreamsHelper.StreamCopy(incomingFileStream, incomingFileChunkStream, ((i + 1) * Settings.FileChunkSize));
                                 incomingFileChunkStream.Position = 0;
 
                                 // if incoming stream is empty, we'll jump over this and end up with an empty patch
@@ -267,7 +259,7 @@ namespace Tetrifact.Core
             } // foreach manifestitem
 
             this.Manifest.IsDiffed = true;
-            this.Manifest.FileChunkSize = _settings.FileChunkSize;
+            this.Manifest.FileChunkSize = Settings.FileChunkSize;
             this.Manifest.DependsOn = manifest.DependsOn;
             this.Manifest.Id = manifest.Id;
             this.Manifest.Size = manifest.Size;
@@ -275,7 +267,7 @@ namespace Tetrifact.Core
 
             // create a transaction for each diffed package instead of grouping them into single transaction, large packages can be costly to process
             // and we want to maximumize the chances of as many getting through as possible
-            Transaction transaction = new Transaction(_settings, _indexReader, project);
+            Transaction transaction = new Transaction(_indexReader, project);
             this.Finalize(this.Manifest.Id, this.Manifest.DependsOn, transaction);
             transaction.Commit();
 
@@ -294,7 +286,7 @@ namespace Tetrifact.Core
             // here, but if we cannot generate a true GUID we have bigger problems.
             while (true)
             {
-                this.WorkspacePath = Path.Combine(_settings.TempPath, Guid.NewGuid().ToString());
+                this.WorkspacePath = Path.Combine(Settings.TempPath, Guid.NewGuid().ToString());
                 if (!Directory.Exists(this.WorkspacePath))
                     break;
             }
@@ -358,8 +350,8 @@ namespace Tetrifact.Core
                 this.Manifest.Size += fileInfo.Length;
 
                 // count how many chunks file should be divided into
-                int chunks = (int)(fileInfo.Length / _settings.FileChunkSize);
-                if (fileInfo.Length % _settings.FileChunkSize != 0)
+                int chunks = (int)(fileInfo.Length / Settings.FileChunkSize);
+                if (fileInfo.Length % Settings.FileChunkSize != 0)
                     chunks++;
 
                 // there should always at least 1 chunk - if the file is zero length, chunks will be zero, force this to 1
@@ -385,7 +377,7 @@ namespace Tetrifact.Core
                     writePath = Path.Combine(stagingBasePath, $"chunk_{i}");
 
                     // treat as bin, ie, copy section directly
-                    StreamsHelper.FileCopy(incomingFilePath, writePath, i * _settings.FileChunkSize, ((i + 1) * _settings.FileChunkSize));
+                    StreamsHelper.FileCopy(incomingFilePath, writePath, i * Settings.FileChunkSize, ((i + 1) * Settings.FileChunkSize));
 
                     /*
                     // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
@@ -410,7 +402,7 @@ namespace Tetrifact.Core
                 } // for chunks
 
                 this.Manifest.IsDiffed = this.Manifest.DependsOn == null ? true : false; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
-                this.Manifest.FileChunkSize = _settings.FileChunkSize;
+                this.Manifest.FileChunkSize = Settings.FileChunkSize;
                 this.Manifest.DependsOn = parentPackage;
                 this.Manifest.Files.Add(manifestItem);
             }
