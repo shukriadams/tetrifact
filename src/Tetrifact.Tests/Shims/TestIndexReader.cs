@@ -21,7 +21,7 @@ namespace Tetrifact.Tests
 
         public bool Test_PackageIdExists { get; set; }
 
-        public Manifest Test_Manifest { get; set; }
+        public Package Test_Manifest { get; set; }
 
         public Stream Test_PackageItem { get; set; }
 
@@ -57,7 +57,7 @@ namespace Tetrifact.Tests
             // no need to do anything here
         }
 
-        public Manifest GetManifest(string project, string packageId)
+        public Package GetPackage(string project, string packageId)
         {
             return this.Test_Manifest;
         }

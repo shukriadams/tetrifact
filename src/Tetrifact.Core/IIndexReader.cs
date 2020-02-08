@@ -45,7 +45,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="package"></param>
         /// <returns></returns>
-        Manifest GetManifest(string project, string package);
+        Package GetPackage(string project, string package);
 
         /// <summary>
         /// Gets a file from a package, as a binary array. Returns null if the package or file is invalid.

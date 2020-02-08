@@ -60,15 +60,15 @@ namespace Tetrifact.Core
             }
         }
 
-        public void AddManifest(Manifest manifest) 
+        public void AddManifest(Package package) 
         {
-            if (string.IsNullOrEmpty(manifest.Id))
+            if (string.IsNullOrEmpty(package.Id))
                 throw new Exception("Manifest id not set");
 
-            string fileName = $"{Guid.NewGuid()}_{manifest.Id}";
+            string fileName = $"{Guid.NewGuid()}_{package.Id}";
             try
             {
-                File.WriteAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(manifest));
+                File.WriteAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(package));
             }
             catch (DirectoryNotFoundException ex) 
             {
@@ -90,7 +90,7 @@ namespace Tetrifact.Core
             }
 
             // write pointer, this overwrites existing pointer
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(manifest.Id)}_manifest"), fileName);
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package.Id)}_manifest"), fileName);
         }
 
         /// <summary>

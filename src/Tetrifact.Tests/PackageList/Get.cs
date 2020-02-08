@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.PackageList
             string packageName2 = "package2004";
             this.CreatePackage(packageName1);
             this.CreatePackage(packageName2);
-            Manifest manifest = IndexReader.GetManifest("some-project", packageName1);
+            Package manifest = IndexReader.GetPackage("some-project", packageName1);
             File.WriteAllText(manifest.PathOnDisk, "definitely not some valid json");
 
             IList<Package> packages = this.PackageList.Get("some-project", 0, 10).ToList();

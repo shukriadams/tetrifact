@@ -6,9 +6,9 @@ namespace Tetrifact.Web
     {
         public string Project { get; private set; }
         public string PackageId { get; private set; }
-        public Manifest Manifest { get; private set; }
+        public Package Manifest { get; private set; }
 
-        public PackageModel(string project, string packageId, Manifest manifest)
+        public PackageModel(string project, string packageId, Package manifest)
         {
             this.Project = project;
             this.PackageId = packageId;

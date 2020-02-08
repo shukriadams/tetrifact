@@ -34,7 +34,7 @@ namespace Tetrifact.Core
 
         public string WorkspacePath { get; private set; }
 
-        public Manifest Manifest { get; private set; }
+        public Package Package { get; private set; }
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace Tetrifact.Core
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
                 // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
-                if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetManifest(newPackage.Project, newPackage.BranchFrom) == null)
+                if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetPackage(newPackage.Project, newPackage.BranchFrom) == null)
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
 
                 this.Initialize(newPackage.Project);
@@ -107,14 +107,14 @@ namespace Tetrifact.Core
 
                 this.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
 
-                this.Manifest.Description = newPackage.Description;
+                this.Package.Description = newPackage.Description;
 
                 // we calculate package hash from a sum of all child hashes
                 Transaction transaction = new Transaction(_indexReader, newPackage.Project);
                 this.Finalize(newPackage.Id, newPackage.BranchFrom, transaction);
                 transaction.Commit();
  
-                return new PackageCreateResult { Success = true, PackageHash = this.Manifest.Hash };
+                return new PackageCreateResult { Success = true, PackageHash = this.Package.Hash };
             }
             finally
             {
@@ -123,15 +123,15 @@ namespace Tetrifact.Core
             }
         }
 
-        public void CreateFromExisting(string project, string package, string referencePackage, Transaction transaction) 
+        public void CreateFromExisting(string project, string packageId, string referencePackage, Transaction transaction) 
         {
             try
             {
                 this.Initialize(project);
 
                 // rehydrate entire package to temp location
-                Manifest manifest = _indexReader.GetManifest(project, package);
-                foreach (ManifestItem file in manifest.Files)
+                Package package = _indexReader.GetPackage(project, packageId);
+                foreach (ManifestItem file in package.Files)
                 {
                     using (Stream sourceFile = _indexReader.GetFile(project, file.Id).Content)
                     {
@@ -139,8 +139,8 @@ namespace Tetrifact.Core
                     }
                 }
 
-                this.StageAllFiles(package, referencePackage);
-                this.Finalize(package, referencePackage, transaction);
+                this.StageAllFiles(packageId, referencePackage);
+                this.Finalize(packageId, referencePackage, transaction);
             }
             finally 
             {
@@ -148,18 +148,18 @@ namespace Tetrifact.Core
             }
         }
 
-        public void CreateDiffed(string project, string package)
+        public void CreateDiffed(string project, string packageId)
         {
             this.Initialize(project);
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            Manifest manifest = _indexReader.GetManifest(project, package);
-            Manifest headManifest = string.IsNullOrEmpty(manifest.DependsOn) ? null : _indexReader.GetManifest(project, manifest.DependsOn);
+            Package package = _indexReader.GetPackage(project, packageId);
+            Package headPackage = string.IsNullOrEmpty(package.DependsOn) ? null : _indexReader.GetPackage(project, package.DependsOn);
 
-            if (manifest.DependsOn == null)
+            if (package.DependsOn == null)
                 throw new Exception("cannot diff a package with no parent");
 
-            foreach (ManifestItem manifestItem in manifest.Files)
+            foreach (ManifestItem manifestItem in package.Files)
             {
                 // count how many chunks file should be divided into.
                 int chunks = (int)(manifestItem.Size / Settings.FileChunkSize);
@@ -171,10 +171,10 @@ namespace Tetrifact.Core
                     chunks = 1;
 
                 // create patch against head version of file
-                string thisFileBinPath = _indexReader.RehydrateOrResolveFile(project, package, manifestItem.Path);
-                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(project, manifest.DependsOn, manifestItem.Path);
+                string thisFileBinPath = _indexReader.RehydrateOrResolveFile(project, packageId, manifestItem.Path);
+                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(project, package.DependsOn, manifestItem.Path);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, manifestItem.Path);
-                bool linkDirect = headManifest != null && headManifest.Files.Where(r => r.Path == manifestItem.Path).FirstOrDefault()?.Hash == manifestItem.Hash;
+                bool linkDirect = headPackage != null && headPackage.Files.Where(r => r.Path == manifestItem.Path).FirstOrDefault()?.Hash == manifestItem.Hash;
 
                 ManifestItem newManifestItem = new ManifestItem
                 {
@@ -244,7 +244,7 @@ namespace Tetrifact.Core
                     }
 
                     if (itemType != ManifestItemTypes.Link)
-                        this.Manifest.SizeOnDisk += new FileInfo(writePath).Length;
+                        this.Package.SizeOnDisk += new FileInfo(writePath).Length;
 
                     manifestItem.Chunks.Add(new ManifestItemChunk
                     {
@@ -254,32 +254,32 @@ namespace Tetrifact.Core
 
                 } // for i chunks
 
-                this.Manifest.Files.Add(newManifestItem);
+                this.Package.Files.Add(newManifestItem);
 
             } // foreach manifestitem
 
-            this.Manifest.IsDiffed = true;
-            this.Manifest.FileChunkSize = Settings.FileChunkSize;
-            this.Manifest.DependsOn = manifest.DependsOn;
-            this.Manifest.Id = manifest.Id;
-            this.Manifest.Size = manifest.Size;
+            this.Package.IsDiffed = true;
+            this.Package.FileChunkSize = Settings.FileChunkSize;
+            this.Package.DependsOn = package.DependsOn;
+            this.Package.Id = package.Id;
+            this.Package.Size = package.Size;
 
 
             // create a transaction for each diffed package instead of grouping them into single transaction, large packages can be costly to process
             // and we want to maximumize the chances of as many getting through as possible
             Transaction transaction = new Transaction(_indexReader, project);
-            this.Finalize(this.Manifest.Id, this.Manifest.DependsOn, transaction);
+            this.Finalize(this.Package.Id, this.Package.DependsOn, transaction);
             transaction.Commit();
 
             _packageList.Clear(project);
 
-            _log.LogInformation($"Packing down package \"{package}\" completed, took {stopwatch.ElapsedMilliseconds * 1000} seconds.");
+            _log.LogInformation($"Packing down package \"{packageId}\" completed, took {stopwatch.ElapsedMilliseconds * 1000} seconds.");
         }
 
         private void Initialize(string project)
         {
             _hashes = new StringBuilder();
-            this.Manifest = new Manifest();
+            this.Package = new Package();
             this._project = project;
 
             // workspaces have random names, for safety ensure name is not already in use. There's no loop-of-death checking
@@ -321,7 +321,7 @@ namespace Tetrifact.Core
             // get all files which were uploaded, sort alphabetically for combined hashing
             string[] files = this.GetIncomingFileNames().ToArray();
             Array.Sort(files, (x, y) => String.Compare(x, y));
-            Manifest headManifest = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetManifest(_project, parentPackage);
+            Package headPackage = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetPackage(_project, parentPackage);
 
             foreach (string fp in files)
             {
@@ -347,7 +347,7 @@ namespace Tetrifact.Core
                 FileHelper.EnsureDirectoryExists(stagingBasePath);
 
                 FileInfo fileInfo = new FileInfo(incomingFilePath);
-                this.Manifest.Size += fileInfo.Length;
+                this.Package.Size += fileInfo.Length;
 
                 // count how many chunks file should be divided into
                 int chunks = (int)(fileInfo.Length / Settings.FileChunkSize);
@@ -360,8 +360,8 @@ namespace Tetrifact.Core
 
                 // determine file-level (cross-chunk) usages
                 string writePath = null;
-                bool useFileAsBin = headManifest == null || !headManifest.Files.Where(r => r.Path == filePath).Any();
-                bool linkDirect = headManifest != null && headManifest.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
+                bool useFileAsBin = headPackage == null || !headPackage.Files.Where(r => r.Path == filePath).Any();
+                bool linkDirect = headPackage != null && headPackage.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
 
                 ManifestItem manifestItem = new ManifestItem
                 {
@@ -392,7 +392,7 @@ namespace Tetrifact.Core
                     }
                     */
 
-                    this.Manifest.SizeOnDisk += new FileInfo(writePath).Length;
+                    this.Package.SizeOnDisk += new FileInfo(writePath).Length;
 
                     manifestItem.Chunks.Add(new ManifestItemChunk { 
                         Id = i,
@@ -401,10 +401,10 @@ namespace Tetrifact.Core
 
                 } // for chunks
 
-                this.Manifest.IsDiffed = this.Manifest.DependsOn == null ? true : false; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
-                this.Manifest.FileChunkSize = Settings.FileChunkSize;
-                this.Manifest.DependsOn = parentPackage;
-                this.Manifest.Files.Add(manifestItem);
+                this.Package.IsDiffed = this.Package.DependsOn == null ? true : false; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
+                this.Package.FileChunkSize = Settings.FileChunkSize;
+                this.Package.DependsOn = parentPackage;
+                this.Package.Files.Add(manifestItem);
             }
         }
 
@@ -420,11 +420,11 @@ namespace Tetrifact.Core
             }
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
-            this.Manifest.Id = package;
-            this.Manifest.Hash = HashService.FromString(_hashes.ToString());
-            this.Manifest.DependsOn = dependsOn;
+            this.Package.Id = package;
+            this.Package.Hash = HashService.FromString(_hashes.ToString());
+            this.Package.DependsOn = dependsOn;
 
-            transaction.AddManifest(this.Manifest);
+            transaction.AddManifest(this.Package);
             transaction.AddShard(package, Path.Combine(this.WorkspacePath, Constants.StagingFragment));
 
             if (!string.IsNullOrEmpty(dependsOn))

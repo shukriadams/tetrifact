@@ -109,7 +109,7 @@ namespace Tetrifact.Web
         [HttpGet("{project}/{package}/exists")]
         public ActionResult<bool> PackageExists(string project, string package)
         {
-            return _indexService.GetManifest(project, package) != null;
+            return _indexService.GetPackage(project, package) != null;
         }
 
 
@@ -124,7 +124,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                Manifest manifest = _indexService.GetManifest(project, package);
+                Package manifest = _indexService.GetPackage(project, package);
                 if (manifest == null)
                     return NotFound();
 

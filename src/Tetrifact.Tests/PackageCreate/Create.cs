@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Null(result.ErrorType);
 
             // check that package can be retrieved as manifest
-            Manifest manifest = IndexReader.GetManifest("some-project", packageId);
+            Package manifest = IndexReader.GetPackage("some-project", packageId);
             Assert.NotNull(manifest);
             Assert.Equal(manifest.Files.Count, filesToAdd);
 

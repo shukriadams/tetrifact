@@ -28,18 +28,18 @@
             {
                 WriteLock.Instance.WaitUntilClear(project);
 
-                Manifest manifest = _indexReader.GetManifest(project, packageId);
-                if (manifest == null)
+                Package package = _indexReader.GetPackage(project, packageId);
+                if (package == null)
                     throw new PackageNotFoundException(packageId);
 
-                if (manifest.Tags.Contains(tag))
+                if (package.Tags.Contains(tag))
                     return;
 
                 Transaction transaction = new Transaction(_indexReader, project);
 
-                manifest.Tags.Add(tag);
+                package.Tags.Add(tag);
 
-                transaction.AddManifest(manifest);
+                transaction.AddManifest(package);
                 transaction.Commit();
 
                 _packageList.Clear(project);
@@ -58,21 +58,21 @@
                 WriteLock.Instance.WaitUntilClear(project);
 
                 // get current manifest
-                Manifest manifest = _indexReader.GetManifest(project, packageId);
+                Package package = _indexReader.GetPackage(project, packageId);
 
-                if (manifest == null)
+                if (package == null)
                     throw new PackageNotFoundException(packageId);
 
                 // create new transaction
 
-                if (!manifest.Tags.Contains(tag))
+                if (!package.Tags.Contains(tag))
                     return;
 
-                manifest.Tags.Remove(tag);
+                package.Tags.Remove(tag);
 
 
                 Transaction transaction = new Transaction(_indexReader, project);
-                transaction.AddManifest(manifest);
+                transaction.AddManifest(package);
                 transaction.Commit();
 
                 // flush in-memory tags

@@ -195,7 +195,7 @@ namespace Tetrifact.Tests.PackageDeleter
             fileResponse.Content.Dispose();
 
             // confirm second is no longer linked but now fully owns content
-            Manifest manifest = this.IndexReader.GetManifest("some-project", "second");
+            Package manifest = this.IndexReader.GetPackage("some-project", "second");
             Assert.Single(manifest.Files);
             Assert.Equal(ManifestItemTypes.Bin, manifest.Files[0].Chunks[0].Type);
         }

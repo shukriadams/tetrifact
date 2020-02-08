@@ -204,15 +204,15 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath)));
+                    Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath)));
                     packages.Add(new Package
                     {
-                        CreatedUtc = manifest.CreatedUtc,
-                        Id = manifest.Id,
-                        Description = manifest.Description,
-                        IsDiffed = manifest.IsDiffed,
-                        Hash = manifest.Hash,
-                        Tags = manifest.Tags
+                        CreatedUtc = package.CreatedUtc,
+                        Id = package.Id,
+                        Description = package.Description,
+                        IsDiffed = package.IsDiffed,
+                        Hash = package.Hash,
+                        Tags = package.Tags
                     });
                 }
                 catch (Exception ex)

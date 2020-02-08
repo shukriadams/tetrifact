@@ -25,7 +25,7 @@ namespace Tetrifact.Core
                 if (!_indexReader.ProjectExists(project))
                     throw new ProjectNotFoundException(project);
 
-                Manifest packageToDeleteManifest = _indexReader.GetManifest(project, package);
+                Package packageToDeleteManifest = _indexReader.GetPackage(project, package);
                 if (packageToDeleteManifest == null)
                     throw new PackageNotFoundException(package);
 

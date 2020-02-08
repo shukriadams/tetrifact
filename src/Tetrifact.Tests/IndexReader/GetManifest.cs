@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.IndexReader
             // create package
             DummyPackage package = this.CreatePackage();
 
-            Manifest testManifest = this.IndexReader.GetManifest("some-project", package.Id);
+            Package testManifest = this.IndexReader.GetPackage("some-project", package.Id);
             Assert.Single(testManifest.Files);
             Assert.Equal(package.Files[0].Path, testManifest.Files[0].Path);
         }
@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetEmpty()
         {
-            Manifest testManifest = this.IndexReader.GetManifest("some-project", "someinvalidpackage");
+            Package testManifest = this.IndexReader.GetPackage("some-project", "someinvalidpackage");
             Assert.Null(testManifest);
 
             // should not generate a log message
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidManifet()
         {
-            Manifest testManifest = this.IndexReader.GetManifest("some-project", "someinvalidpackage");
+            Package testManifest = this.IndexReader.GetPackage("some-project", "someinvalidpackage");
             Assert.Null(testManifest);
         }
     }

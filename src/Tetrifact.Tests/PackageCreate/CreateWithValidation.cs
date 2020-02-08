@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.PackageCreate
                 // retrieve this passes' package and manifest
                 Stream outZip = this.IndexReader.GetPackageAsArchive("some-project", $"AddZipLinked{i}");
                 IEnumerable<DummyFile> outFiles = ArchiveHelper.FilesFromZipStream(outZip);
-                Manifest manifest = this.IndexReader.GetManifest("some-project", $"AddZipLinked{i}");
+                Package manifest = this.IndexReader.GetPackage("some-project", $"AddZipLinked{i}");
 
                 // confirm the 3 hashes line up - this confirms file content, paths, count and order at once
                 Assert.Equal(manifest.Hash, FormFileHelper.GetHash(inFiles));

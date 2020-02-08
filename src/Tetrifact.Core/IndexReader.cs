@@ -89,7 +89,7 @@ namespace Tetrifact.Core
             return rawList.Contains(id);
         }
 
-        public Manifest GetManifest(string project, string packageId)
+        public Package GetPackage(string project, string packageId)
         {
             DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
             if (latestTransactionInfo == null)
@@ -106,9 +106,9 @@ namespace Tetrifact.Core
 
             try
             {
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestRealPath));
-                manifest.PathOnDisk = manifestRealPath;
-                return manifest;
+                Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(manifestRealPath));
+                package.PathOnDisk = manifestRealPath;
+                return package;
             }
             catch (Exception ex)
             {
@@ -129,15 +129,15 @@ namespace Tetrifact.Core
                 return new GetFileResponse(new FileStream(binPath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
-        public string RehydrateOrResolveFile(string project, string package, string filePath) 
+        public string RehydrateOrResolveFile(string project, string packageId, string filePath) 
         {
             string projectPath = PathHelper.GetExpectedProjectPath(project);
-            string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, package);
+            string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, packageId);
             string dataPathBase = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath);
-            string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(package), filePath, "bin");
+            string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(packageId), filePath, "bin");
 
-            Manifest manifest = this.GetManifest(project, package);
-            ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+            Package package = this.GetPackage(project, packageId);
+            ManifestItem manifestItem = package.Files.FirstOrDefault(r => r.Path == filePath);
             // if neither patch nor bin exist, file doesn't exist
             if (manifestItem == null)
                 return null;
@@ -164,20 +164,20 @@ namespace Tetrifact.Core
                 else if (chunk.Type == ManifestItemTypes.Link)
                 {
                     // read chunk link from source
-                    string binarySourcePath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
+                    string binarySourcePath = RehydrateOrResolveFile(project, package.DependsOn, filePath);
 
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream readStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
                     {
-                        readStream.Position = i * manifest.FileChunkSize;
+                        readStream.Position = i * package.FileChunkSize;
                         writeStream.Position = writeStream.Length; // always append to end of this stream
-                        StreamsHelper.StreamCopy(readStream, writeStream, (i + 1) * manifest.FileChunkSize);
+                        StreamsHelper.StreamCopy(readStream, writeStream, (i + 1) * package.FileChunkSize);
                     }
                 }
                 else 
                 {
                     // read source chunk against self patch
-                    string binarySourcePath = RehydrateOrResolveFile(project, manifest.DependsOn, filePath);
+                    string binarySourcePath = RehydrateOrResolveFile(project, package.DependsOn, filePath);
 
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream binarySourceStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
@@ -185,8 +185,8 @@ namespace Tetrifact.Core
                     using (MemoryStream binarySourceChunkStream = new MemoryStream())
                     {
                         // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
-                        binarySourceStream.Position = i * manifest.FileChunkSize;
-                        StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * manifest.FileChunkSize));
+                        binarySourceStream.Position = i * package.FileChunkSize;
+                        StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * package.FileChunkSize));
                         binarySourceChunkStream.Position = 0;
 
                         writeStream.Position = writeStream.Length; // always append to end of this stream
@@ -271,8 +271,8 @@ namespace Tetrifact.Core
 
         private bool DoesPackageExist(string project, string packageId)
         {
-            Manifest manifest = this.GetManifest(project, packageId);
-            return manifest != null;
+            Package package = this.GetPackage(project, packageId);
+            return package != null;
         }
 
         private void CreateArchive(string project, string packageId)
@@ -290,11 +290,11 @@ namespace Tetrifact.Core
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
-                Manifest manifest = this.GetManifest(project, packageId);
+                Package package = this.GetPackage(project, packageId);
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var file in manifest.Files)
+                    foreach (var file in package.Files)
                     {
                         ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
 

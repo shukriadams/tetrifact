@@ -74,7 +74,7 @@ namespace Tetrifact.DevUtils
                     sw.Stop();
                     times.AppendLine($"{diffMethod} retrieve {i}, took {sw.Elapsed} ms");
 
-                    Manifest manifest = this.IndexReader.GetManifest(projectName, packageName);
+                    Package manifest = this.IndexReader.GetPackage(projectName, packageName);
                     times.AppendLine($"{diffMethod} pass {i}, {manifest.Compressed}% saved. {Environment.NewLine}");
                     outZip.Dispose();
 

@@ -70,7 +70,7 @@ namespace Tetrifact.Web
         [Route("package/{project}/{packageId}")]
         public IActionResult Package(string project, string packageId)
         {
-            Manifest manifest = _indexReader.GetManifest(project, packageId);
+            Package manifest = _indexReader.GetPackage(project, packageId);
             if (manifest == null)
                 return View("Error404");
 
