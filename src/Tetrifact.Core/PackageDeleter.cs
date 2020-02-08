@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Tetrifact.Core
 {
@@ -12,11 +10,11 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private IServiceProvider _serviceProvider;
+        private ITypeProvider _typeProvider;
 
-        public PackageDeleter(IIndexReader indexReader, ISettings settings, IServiceProvider serviceProvider) 
+        public PackageDeleter(IIndexReader indexReader, ISettings settings, ITypeProvider typeProvider) 
         {
-            _serviceProvider = serviceProvider;
+            _typeProvider = typeProvider;
             _indexReader = indexReader;
             _settings = settings;
         }
@@ -52,14 +50,11 @@ namespace Tetrifact.Core
                     foreach (string dependant in dependants)
                     {
                         string dependantPackage = Obfuscator.Decloak((Path.GetFileName(dependant).Replace($"dep_{packageObfuscated}_", string.Empty)).Replace("_", string.Empty));
-                        
-                        using (var scope = _serviceProvider.CreateScope())
-                        {
-                            IPackageCreate packageCreate = scope.ServiceProvider.GetRequiredService(typeof(IPackageCreate)) as IPackageCreate;
-                            // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
-                            packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
-                        }
 
+                        IPackageCreate packageCreate = _typeProvider.GetInstance<IPackageCreate>();
+
+                        // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
+                        packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
                     }
                 }
 

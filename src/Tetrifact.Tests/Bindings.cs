@@ -32,6 +32,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<ILogger<IPackageDeleter>>().To<TestLogger<IPackageDeleter>>();
+            Bind<ITypeProvider>().To<NinjectTypeProvider>();
 
             Bind<Core.PackageCreate>().To<Core.PackageCreate>();
             Bind<Core.PackageDeleter>().To<Core.PackageDeleter> ();

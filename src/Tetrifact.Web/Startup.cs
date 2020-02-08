@@ -46,7 +46,9 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageDeleter, PackageDeleter>();
             services.AddTransient<IDiffService, Daemon>();
             services.AddTransient<IDiffServiceProvider, DiffServiceProvider>();
+            services.AddTransient<ITypeProvider, ServiceTypeProvider>();
 
+            
             // register filterws
             services.AddScoped<ReadLevel>();
             services.AddScoped<WriteLevel>();

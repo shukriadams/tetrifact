@@ -10,6 +10,7 @@ using SharpCompress.Readers.Tar;
 using SharpCompress.Common;
 using VCDiff.Encoders;
 using VCDiff.Includes;
+using System.Diagnostics;
 
 namespace Tetrifact.Core
 {
@@ -158,6 +159,7 @@ namespace Tetrifact.Core
         public void CreateDiffed(string project, string package)
         {
             this.Initialize(project);
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             Manifest manifest = _indexReader.GetManifest(project, package);
             Manifest headManifest = string.IsNullOrEmpty(manifest.DependsOn) ? null : _indexReader.GetManifest(project, manifest.DependsOn);
@@ -270,6 +272,7 @@ namespace Tetrifact.Core
             this.Manifest.Id = manifest.Id;
             this.Manifest.Size = manifest.Size;
 
+
             // create a transaction for each diffed package instead of grouping them into single transaction, large packages can be costly to process
             // and we want to maximumize the chances of as many getting through as possible
             Transaction transaction = new Transaction(_settings, _indexReader, project);
@@ -277,6 +280,8 @@ namespace Tetrifact.Core
             transaction.Commit();
 
             _packageList.Clear(project);
+
+            _log.LogInformation($"Packing down package \"{package}\" completed, took {stopwatch.ElapsedMilliseconds * 1000} seconds.");
         }
 
         private void Initialize(string project)
