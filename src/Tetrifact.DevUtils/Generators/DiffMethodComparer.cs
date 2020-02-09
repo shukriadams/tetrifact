@@ -75,7 +75,7 @@ namespace Tetrifact.DevUtils
                     times.AppendLine($"{diffMethod} retrieve {i}, took {sw.Elapsed} ms");
 
                     Package manifest = this.IndexReader.GetPackage(projectName, packageName);
-                    times.AppendLine($"{diffMethod} pass {i}, {manifest.Compressed}% saved. {Environment.NewLine}");
+                    times.AppendLine($"{diffMethod} pass {i}, {manifest.CompressedPercent}% saved. {Environment.NewLine}");
                     outZip.Dispose();
 
                     // update files for next pass

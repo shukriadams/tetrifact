@@ -8,12 +8,6 @@ namespace Tetrifact.Core
     /// </summary>
     public class Package
     {
-        #region FIELDS
-
-        private string _description = String.Empty;
-
-        #endregion
-
         #region PROPERTIES
 
         /// <summary>
@@ -37,19 +31,9 @@ namespace Tetrifact.Core
         public DateTime CreatedUtc { get; set; }
 
         /// <summary>
-        /// Optional free text field for manifest. Returns an emptry string if empty.
+        /// Optional free text field for manifest. 
         /// </summary>
-        public string Description
-        {
-            get
-            {
-                return _description;
-            }
-            set
-            {
-                _description = value ?? string.Empty;
-            }
-        }
+        public string Description { get; set; }
 
         /// <summary>
         /// 
@@ -60,7 +44,6 @@ namespace Tetrifact.Core
         /// True if content of manifest has been diffed against other packages.
         /// </summary>
         public bool IsDiffed { get; set; }
-
 
         /// <summary>
         /// Files in this package. Each file can be downloaded using its public id, and should be saved at its path.
@@ -80,7 +63,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Optional - string id of package this package depends on.
         /// </summary>
-        public string DependsOn { get; set; }
+        public string Parent { get; set; }
 
         /// <summary>
         /// Path on disk for this manifest file. This path will change if the manifest is changed.
@@ -95,7 +78,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Retrieves percentage saved with diff patching.
         /// </summary>
-        public int Compressed
+        public int CompressedPercent
         {
             get
             {
@@ -103,7 +86,7 @@ namespace Tetrifact.Core
                     return 0;
 
                 decimal p = (decimal)this.SizeOnDisk / (decimal)this.Size;
-                return (int)System.Math.Round((decimal)(p * 100), 0);
+                return (int)Math.Round((decimal)(p * 100), 0);
             }
         }
 
@@ -116,6 +99,28 @@ namespace Tetrifact.Core
             this.Tags = new HashSet<string>();
             this.CreatedUtc = DateTime.UtcNow;
             this.Files = new List<ManifestItem>();
+            this.Description = string.Empty;
+        }
+
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// Duplicates all fields which should remain constant when a package is repacked.
+        /// </summary>
+        /// <param name="package"></param>
+        public void CopyTo(Package package) 
+        {
+            package.CreatedUtc = this.CreatedUtc;
+            package.Description = this.Description;
+            package.FileChunkSize = this.FileChunkSize;
+            package.Hash = this.Hash;
+            package.Name = this.Name;
+            package.Parent = this.Parent;
+            package.Size = this.Size;
+            package.Tags = this.Tags;
+            package.UniqueId = this.UniqueId;
         }
 
         #endregion

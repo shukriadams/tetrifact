@@ -63,17 +63,21 @@
         let isArchive,
             removeFirstDirectoryFromPath;
 
+        let formData = new FormData();
+
         if (folderSelector.files.length) {
-            folderSelector.setAttribute('name', 'Files');
+            for (const item of folderSelector.files)
+                formData.append('Files', item);
+
             isArchive = false;
             removeFirstDirectoryFromPath = true;
-        } else if (archiveSelector.files.length){
-            archiveSelector.setAttribute('name', 'Files');
+        } else if (archiveSelector.files.length) {
+            formData.append('Files', archiveSelector.files[0]);
             isArchive = true;
             removeFirstDirectoryFromPath = false;
         } 
        
-        const formData = new FormData(form),
+        const 
             package = encodeURIComponent(packageName.value),
             project = encodeURIComponent(projectName.value);
 
@@ -83,6 +87,9 @@
         try {
             const response = await fetch(`/v1/packages/${project}/${package}?isArchive=${isArchive}&removeFirstDirectoryFromPath=${removeFirstDirectoryFromPath}`, {
                 method: 'POST',
+                headers: {
+
+                },
                 body: formData
             });
 

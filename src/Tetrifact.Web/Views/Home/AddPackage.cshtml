@@ -5,10 +5,12 @@
 }
 
 <div>
-    <form id="archiveUpload" enctype="multipart/form-data">
+    <form id="archiveUpload">
         <input class="projectName" value="@Model.Project" type="hidden" />
         <p>
-            Manually create a package from an uploaded zip or tar.gz archive.
+            Manually create a package from a zip, tar.gz or upload an entire folder of uncompressed files.
+            <strong>NOTE : </strong>Avoid posting very large builds (over 1 gig) with this form. CURL or a similar client is more robust
+            and above certain sizes, form uploads may hang.
         </p>
 
         <div class="layout-row">

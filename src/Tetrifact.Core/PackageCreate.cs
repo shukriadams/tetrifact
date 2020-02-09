@@ -55,37 +55,37 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageCreateResult Create(PackageCreateArguments newPackage)
+        public PackageCreateResult Create(PackageCreateArguments createArgs)
         {
             try
             {
                 // wait until current write process is free
-                WriteLock.Instance.WaitUntilClear(newPackage.Project);
+                WriteLock.Instance.WaitUntilClear(createArgs.Project);
 
                 // validate the contents of "newPackage" object
-                if (!newPackage.Files.Any())
+                if (!createArgs.Files.Any())
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
 
-                if (string.IsNullOrEmpty(newPackage.Id))
+                if (string.IsNullOrEmpty(createArgs.Id))
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
 
                 // ensure package does not already exist
-                if (_indexReader.PackageNameInUse(newPackage.Project, newPackage.Id))
+                if (_indexReader.PackageNameInUse(createArgs.Project, createArgs.Id))
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.PackageExists };
 
                 // if archive, ensure correct file count
-                if (newPackage.IsArchive && newPackage.Files.Count() != 1)
+                if (createArgs.IsArchive && createArgs.Files.Count() != 1)
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
                 // if branchFrom package is specified, ensure that package exists (read its manifest as proof)
-                if (!string.IsNullOrEmpty(newPackage.BranchFrom) && _indexReader.GetPackage(newPackage.Project, newPackage.BranchFrom) == null)
+                if (!string.IsNullOrEmpty(createArgs.Parent) && _indexReader.GetPackage(createArgs.Project, createArgs.Parent) == null)
                     throw new PackageCreateException { ErrorType = PackageCreateErrorTypes.InvalidDiffAgainstPackage };
 
-                this.Initialize(newPackage.Project);
+                this.Initialize(createArgs.Project);
 
                 // if archive, unzip
-                if (newPackage.IsArchive) {
-                    PackageCreateItem incomingArchive = newPackage.Files.First();
+                if (createArgs.IsArchive) {
+                    PackageCreateItem incomingArchive = createArgs.Files.First();
                     
                     // get extension from archive file
                     string extensionRaw = Path.GetExtension(incomingArchive.FileName).Replace(".", string.Empty).ToLower();
@@ -99,54 +99,54 @@ namespace Tetrifact.Core
                         return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
                     ArchiveTypes archiveType = (ArchiveTypes)archiveTypeTest;
 
-                    this.AddArchive(incomingArchive.Content, archiveType);
+                    this.UnpackArchive(incomingArchive.Content, archiveType);
                 }
                 else
-                    foreach (PackageCreateItem formFile in newPackage.Files)
-                        this.AddFile(formFile.Content, formFile.FileName);
+                    foreach (PackageCreateItem formFile in createArgs.Files)
+                        this.AddIncomingFile(formFile.Content, formFile.FileName);
 
-                this.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
+                this.StageAllFiles(createArgs.Id, createArgs.Parent);
 
-                this.Package.Description = newPackage.Description;
+                this.Package.Description = createArgs.Description;
                 this.Package.UniqueId = Guid.NewGuid();
 
                 // we calculate package hash from a sum of all child hashes
-                Transaction transaction = new Transaction(_indexReader, newPackage.Project);
-                this.Finalize(newPackage.Id, newPackage.BranchFrom, transaction);
+                Transaction transaction = new Transaction(_indexReader, createArgs.Project);
+                this.Finalize(createArgs.Id, transaction, createArgs.Parent);
                 transaction.Commit();
  
                 return new PackageCreateResult { Success = true, PackageHash = this.Package.Hash };
             }
             finally
             {
-                WriteLock.Instance.Clear(newPackage.Project);
-                this.Dispose();
+                WriteLock.Instance.Clear(createArgs.Project);
+                this.CleanUp();
             }
         }
 
-        public void CreateFromExisting(string project, string packageId, string referencePackage, Transaction transaction) 
+        public void CreateFromExisting(string project, string packageName, Transaction transaction, string parentPackageName) 
         {
             try
             {
                 this.Initialize(project);
 
                 // rehydrate entire package to temp location
-                Package package = _indexReader.GetPackage(project, packageId);
+                Package package = _indexReader.GetPackage(project, packageName);
                 foreach (ManifestItem file in package.Files)
                 {
                     using (Stream sourceFile = _indexReader.GetFile(project, file.Id).Content)
                     {
-                        this.AddFile(sourceFile, file.Path);
+                        this.AddIncomingFile(sourceFile, file.Path);
                     }
                 }
 
-                this.StageAllFiles(packageId, referencePackage);
+                this.StageAllFiles(packageName, parentPackageName);
                 this.Package.UniqueId = package.UniqueId; // reuse id, package has identical content
-                this.Finalize(packageId, referencePackage, transaction);
+                this.Finalize(packageName, transaction, parentPackageName);
             }
             finally 
             {
-                this.Dispose();
+                this.CleanUp();
             }
         }
 
@@ -161,9 +161,9 @@ namespace Tetrifact.Core
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             Package package = _indexReader.GetPackage(project, packageId);
-            Package headPackage = string.IsNullOrEmpty(package.DependsOn) ? null : _indexReader.GetPackage(project, package.DependsOn);
+            Package headPackage = string.IsNullOrEmpty(package.Parent) ? null : _indexReader.GetPackage(project, package.Parent);
 
-            if (package.DependsOn == null)
+            if (package.Parent == null)
                 throw new Exception("cannot diff a package with no parent");
 
             foreach (ManifestItem manifestItem in package.Files)
@@ -179,7 +179,7 @@ namespace Tetrifact.Core
 
                 // create patch against head version of file
                 string thisFileBinPath = _indexReader.RehydrateOrResolveFile(project, packageId, manifestItem.Path);
-                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(project, package.DependsOn, manifestItem.Path);
+                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(project, package.Parent, manifestItem.Path);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, manifestItem.Path);
                 bool linkDirect = headPackage != null && headPackage.Files.Where(r => r.Path == manifestItem.Path).FirstOrDefault()?.Hash == manifestItem.Hash;
 
@@ -267,7 +267,7 @@ namespace Tetrifact.Core
 
             this.Package.IsDiffed = true;
             this.Package.FileChunkSize = Settings.FileChunkSize;
-            this.Package.DependsOn = package.DependsOn;
+            this.Package.Parent = package.Parent;
             this.Package.Name = package.Name;
             this.Package.Size = package.Size;
             this.Package.UniqueId = package.UniqueId; // this has to be carried over, as the package contains the same data.
@@ -280,23 +280,27 @@ namespace Tetrifact.Core
             // create a transaction for each diffed package instead of grouping them into single transaction, large packages can be costly to process
             // and we want to maximumize the chances of as many getting through as possible
             Transaction transaction = new Transaction(_indexReader, project);
-            this.Finalize(this.Package.Name, this.Package.DependsOn, transaction);
+            this.Finalize(this.Package.Name, transaction, this.Package.Parent);
             transaction.Commit();
 
             // flush package list to update
             _packageList.Clear(project);
 
-            _log.LogInformation($"Packing down package \"{packageId}\" completed, took {stopwatch.ElapsedMilliseconds * 1000} seconds.");
+            _log.LogInformation($"Packing down package \"{packageId}\" completed, took {stopwatch.ElapsedMilliseconds / 1000} seconds for {this.Package.Size} bytes.");
         }
 
+        /// <summary>
+        /// Sets state of this object so it can create a package. This must be called from each method which creates a package, regardless of approach.
+        /// </summary>
+        /// <param name="project"></param>
         private void Initialize(string project)
         {
             _hashes = new StringBuilder();
+            _project = project;
             this.Package = new Package();
-            this._project = project;
 
             // workspaces have random names, for safety ensure name is not already in use. There's no loop-of-death checking
-            // here, but if we cannot generate a true GUID we have bigger problems.
+            // here, but if we cannot generate a true GUID over multiple iterations of this loop, we have bigger problems.
             while (true)
             {
                 this.WorkspacePath = Path.Combine(Settings.TempPath, Guid.NewGuid().ToString());
@@ -304,17 +308,25 @@ namespace Tetrifact.Core
                     break;
             }
 
-            // create all directories needed for a functional workspace
+            // create temp path we'll do all work in
             Directory.CreateDirectory(this.WorkspacePath);
 
-            // incoming is where uploaded files first land. If upload is an archive, this is where archive is unpacked to
+            // inside temp path ...
+            // create an incoming folder, this is where uploaded files are placed, where archive files are unpacked if applicable, but also where files from an existing package are assembled to create
+            // a new package from.
             Directory.CreateDirectory(Path.Combine(this.WorkspacePath, "incoming"));
 
-            // staying is the next place files are moved to. Staging will contain either the raw file, or a patch of the file vs the version from a previous version 
+            // create staging directory, this is where files are copied from incoming (if applicable), also where patch files are generated before everything is finally moved to a shard folder
             Directory.CreateDirectory(Path.Combine(this.WorkspacePath, Constants.StagingFragment));
         }
 
-        private bool AddFile(Stream formFile, string relativePath)
+        /// <summary>
+        /// Writes file from stream to incoming folder - stream can be a form upload, but also from an existing package's file
+        /// </summary>
+        /// <param name="formFile"></param>
+        /// <param name="relativePath"></param>
+        /// <returns></returns>
+        private bool AddIncomingFile(Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
                 return false;
@@ -329,29 +341,34 @@ namespace Tetrifact.Core
             }
         }
 
-        private void StageAllFiles(string packageId, string parentPackage)
+        /// <summary>
+        /// Moves files from incoming
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <param name="parentPackageName"></param>
+        private void StageAllFiles(string packageName, string parentPackageName)
         {
             // get all files which were uploaded, sort alphabetically for combined hashing
             string[] files = this.GetIncomingFileNames().ToArray();
             Array.Sort(files, (x, y) => String.Compare(x, y));
-            Package headPackage = string.IsNullOrEmpty(parentPackage) ? null : _indexReader.GetPackage(_project, parentPackage);
+            Package parentPackage = string.IsNullOrEmpty(parentPackageName) ? null : _indexReader.GetPackage(_project, parentPackageName);
 
-            foreach (string fp in files)
+            foreach (string filePathRaw in files)
             {
                 // force unix path 
-                string filePath = fp.Replace("\\", "/");
+                string filePath = filePathRaw.Replace("\\", "/");
 
                 // get hash of incoming file
                 string fileHash = this.GetIncomingFileHash(filePath);
                 _hashes.Append(HashService.FromString(filePath));
                 _hashes.Append(fileHash);
 
-                if (string.IsNullOrEmpty(parentPackage)) 
+                if (string.IsNullOrEmpty(parentPackageName)) 
                 {
-                    parentPackage = _indexReader.GetHead(_project);
+                    parentPackageName = _indexReader.GetHead(_project);
                     // when deleting the 2nd last package, we can end up with package linking to itself, block this
-                    if (parentPackage == packageId)
-                        parentPackage = null;
+                    if (parentPackageName == packageName)
+                        parentPackageName = null;
                 }
 
                 string incomingFilePath = Path.Combine(this.WorkspacePath, "incoming", filePath);
@@ -373,15 +390,15 @@ namespace Tetrifact.Core
 
                 // determine file-level (cross-chunk) usages
                 string writePath = null;
-                bool useFileAsBin = headPackage == null || !headPackage.Files.Where(r => r.Path == filePath).Any();
-                bool linkDirect = headPackage != null && headPackage.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
+                bool useFileAsBin = parentPackage == null || !parentPackage.Files.Where(r => r.Path == filePath).Any();
+                bool linkDirect = parentPackage != null && parentPackage.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
 
                 ManifestItem manifestItem = new ManifestItem
                 {
                     Path = filePath.Replace("\\", "/"),
                     Hash = fileHash,
                     Size = fileInfo.Length,
-                    Id = FileIdentifier.Cloak(packageId, filePath.Replace("\\", "/"))
+                    Id = FileIdentifier.Cloak(packageName, filePath.Replace("\\", "/"))
                 };
 
                 for (int i = 0; i < chunks; i++) 
@@ -391,20 +408,6 @@ namespace Tetrifact.Core
 
                     // treat as bin, ie, copy section directly
                     StreamsHelper.FileCopy(incomingFilePath, writePath, i * Settings.FileChunkSize, ((i + 1) * Settings.FileChunkSize));
-
-                    /*
-                    // if no head (this is first package in project), or head doesn't contain the same file path, write incoming as raw bin
-                    if (useFileAsBin)
-                    {
-                        StreamsHelper.FileCopy(incomingFilePath, writePath, i * _settings.FileChunkSize, ((i + 1) * _settings.FileChunkSize));
-                    }
-
-                    else // create patch
-                    {
-                        
-                    }
-                    */
-
                     this.Package.SizeOnDisk += new FileInfo(writePath).Length;
 
                     manifestItem.Chunks.Add(new ManifestItemChunk { 
@@ -414,36 +417,36 @@ namespace Tetrifact.Core
 
                 } // for chunks
 
-                this.Package.IsDiffed = this.Package.DependsOn == null ? true : false; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
+                this.Package.IsDiffed = this.Package.Parent == null ? true : false; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
                 this.Package.FileChunkSize = Settings.FileChunkSize;
-                this.Package.DependsOn = parentPackage;
+                this.Package.Parent = parentPackageName;
                 this.Package.Files.Add(manifestItem);
             }
         }
 
-        private void Finalize(string package, string diffAgainstPackage, Transaction transaction)
+        private void Finalize(string package, Transaction transaction, string parentPackageName)
         {
-            string dependsOn = diffAgainstPackage;
-            if (string.IsNullOrEmpty(dependsOn)) 
+            string parentPackageNameCheck = parentPackageName;
+            if (string.IsNullOrEmpty(parentPackageNameCheck)) 
             {
-                dependsOn = _indexReader.GetHead(_project);
+                parentPackageNameCheck = _indexReader.GetHead(_project);
                 // package cannot depend on itself, this will happen when deleting the last package, force null
-                if (dependsOn == package)
-                    dependsOn = null;
+                if (parentPackageNameCheck == package)
+                    parentPackageNameCheck = null;
             }
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
             this.Package.Name = package;
             this.Package.Hash = HashService.FromString(_hashes.ToString());
-            this.Package.DependsOn = dependsOn;
+            this.Package.Parent = parentPackageNameCheck;
 
             transaction.AddManifest(this.Package);
             transaction.AddShard(package, Path.Combine(this.WorkspacePath, Constants.StagingFragment));
 
-            if (!string.IsNullOrEmpty(dependsOn))
-                transaction.AddDependecy(dependsOn, package);
+            if (!string.IsNullOrEmpty(parentPackageNameCheck))
+                transaction.AddDependecy(parentPackageNameCheck, package);
 
-            if (string.IsNullOrEmpty(diffAgainstPackage))
+            if (string.IsNullOrEmpty(parentPackageName))
                 transaction.SetHead(package);
         }
 
@@ -454,7 +457,12 @@ namespace Tetrifact.Core
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
         }
 
-        private void AddArchive(Stream file, ArchiveTypes type)
+        /// <summary>
+        /// Unpacks an archive (tar or zip) to incoming folder. This is used only if the packge is uploaded as a single-file archive.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="type"></param>
+        private void UnpackArchive(Stream file, ArchiveTypes type)
         {
             if (type == ArchiveTypes.zip)
                 using (var archive = new ZipArchive(file))
@@ -510,7 +518,10 @@ namespace Tetrifact.Core
             return HashService.FromFile(Path.Combine(this.WorkspacePath, "incoming", relativePath));
         }
 
-        private void Dispose()
+        /// <summary>
+        /// Cleans up after creating a package.
+        /// </summary>
+        private void CleanUp()
         {
             try
             {

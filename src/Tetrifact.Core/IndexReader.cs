@@ -164,7 +164,7 @@ namespace Tetrifact.Core
                 else if (chunk.Type == ManifestItemTypes.Link)
                 {
                     // read chunk link from source
-                    string binarySourcePath = RehydrateOrResolveFile(project, package.DependsOn, filePath);
+                    string binarySourcePath = RehydrateOrResolveFile(project, package.Parent, filePath);
 
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream readStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
@@ -177,7 +177,7 @@ namespace Tetrifact.Core
                 else 
                 {
                     // read source chunk against self patch
-                    string binarySourcePath = RehydrateOrResolveFile(project, package.DependsOn, filePath);
+                    string binarySourcePath = RehydrateOrResolveFile(project, package.Parent, filePath);
 
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream binarySourceStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))

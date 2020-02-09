@@ -40,7 +40,7 @@ namespace Tetrifact.Core
 
                 if (dependants.Count() == 0)
                 {
-                    transaction.SetHead(packageToDeleteManifest.DependsOn);
+                    transaction.SetHead(packageToDeleteManifest.Parent);
                 }
                 else 
                 {
@@ -51,7 +51,7 @@ namespace Tetrifact.Core
                         IPackageCreate packageCreate = _typeProvider.GetInstance<IPackageCreate>();
 
                         // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
-                        packageCreate.CreateFromExisting(project, dependantPackage, packageToDeleteManifest.DependsOn, transaction);
+                        packageCreate.CreateFromExisting(project, dependantPackage, transaction, packageToDeleteManifest.Parent);
                     }
                 }
 

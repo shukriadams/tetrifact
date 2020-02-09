@@ -24,7 +24,7 @@ namespace Tetrifact.Core
         /// If set, uploaded package cannot become head. Use this feature to group build variations around clusters and reduce unnecessary "noise" in
         /// your main binary stream.
         /// </summary>
-        public string BranchFrom { get; set; }
+        public string Parent { get; set; }
 
         /// <summary>
         /// Files to upload to package (multipart/form-data).

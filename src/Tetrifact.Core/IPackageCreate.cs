@@ -27,10 +27,10 @@
         /// parents' content.
         /// </summary>
         /// <param name="project"></param>
-        /// <param name="package"></param>
-        /// <param name="referencePackage"></param>
-        /// <param name="transaction"></param>
-        void CreateFromExisting(string project, string package, string referencePackage, Transaction transaction);
+        /// <param name="packageName"></param>
+        /// <param name="transaction">Transaction to create package in. </param>
+        /// <param name="parentPackageName">Name of parent package to compare to. OPTIONAL.</param>
+        void CreateFromExisting(string project, string packageName, Transaction transaction, string parentPackageName);
 
         /// <summary>
         /// Creates a diffed version of the package, from itself.

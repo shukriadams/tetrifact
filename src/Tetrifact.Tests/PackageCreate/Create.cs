@@ -107,7 +107,7 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "my package2",
                 Project = "some-project",
-                BranchFrom = "my package1",
+                Parent = "my package1",
                 Files = FormFileHelper.Single("content", "folder/file")
             });
 

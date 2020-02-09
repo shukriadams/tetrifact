@@ -33,17 +33,17 @@ your version control system says you're at revision 921. In your Thingernator bu
 
 Your QA team's automated test system wants builds of Thingernator. Tag your new build so it knows this build is testable.
 
-        curl -X POST http://tetriserver.example.com/v1/tag/test-me!/Thingernator-921
+        curl -X POST http://tetriserver.example.com/v1/tag/test-me/Thingernator-921
 
 The QA system can query new builds with
 
-        curl http://tetriserver.example.com/v1/packages/latest/test-me! 
+        curl http://tetriserver.example.com/v1/packages/latest/test-me 
         -> returns "Thingernator-921"
         
 or 
 
-        curl http://tetriserver.example.com/v1/tags/test-me!/packages 
-        -> returns ["Thingernator-921"], a JSON array of builds with "Test-me!" tag.
+        curl http://tetriserver.example.com/v1/tags/test-me/packages 
+        -> returns ["Thingernator-921"], a JSON array of builds with "Test-me" tag.
 
 A zip of the build can then be downloaded with
         
