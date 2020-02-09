@@ -108,6 +108,7 @@ namespace Tetrifact.Core
                 this.StageAllFiles(newPackage.Id, newPackage.BranchFrom);
 
                 this.Package.Description = newPackage.Description;
+                this.Package.UniqueId = Guid.NewGuid();
 
                 // we calculate package hash from a sum of all child hashes
                 Transaction transaction = new Transaction(_indexReader, newPackage.Project);
@@ -140,6 +141,7 @@ namespace Tetrifact.Core
                 }
 
                 this.StageAllFiles(packageId, referencePackage);
+                this.Package.UniqueId = package.UniqueId; // reuse id, package has identical content
                 this.Finalize(packageId, referencePackage, transaction);
             }
             finally 
@@ -261,16 +263,22 @@ namespace Tetrifact.Core
             this.Package.IsDiffed = true;
             this.Package.FileChunkSize = Settings.FileChunkSize;
             this.Package.DependsOn = package.DependsOn;
-            this.Package.Id = package.Id;
+            this.Package.Name = package.Name;
             this.Package.Size = package.Size;
+            this.Package.UniqueId = package.UniqueId; // this has to be carried over, as the package contains the same data.
 
+            // ensure package still exists when publishing
+            Package packageCheck = _indexReader.GetPackage(project, packageId);
+            if (packageCheck == null || packageCheck.UniqueId != package.UniqueId)
+                return;
 
             // create a transaction for each diffed package instead of grouping them into single transaction, large packages can be costly to process
             // and we want to maximumize the chances of as many getting through as possible
             Transaction transaction = new Transaction(_indexReader, project);
-            this.Finalize(this.Package.Id, this.Package.DependsOn, transaction);
+            this.Finalize(this.Package.Name, this.Package.DependsOn, transaction);
             transaction.Commit();
 
+            // flush package list to update
             _packageList.Clear(project);
 
             _log.LogInformation($"Packing down package \"{packageId}\" completed, took {stopwatch.ElapsedMilliseconds * 1000} seconds.");
@@ -420,7 +428,7 @@ namespace Tetrifact.Core
             }
 
             // calculate package hash from child hashes: this is the hash of the concatenated hashes of each file's path + each file's contented, sorted by file path.
-            this.Package.Id = package;
+            this.Package.Name = package;
             this.Package.Hash = HashService.FromString(_hashes.ToString());
             this.Package.DependsOn = dependsOn;
 

@@ -117,7 +117,7 @@ namespace Tetrifact.Tests
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<string> GetManifestPaths(string project)
+        public IEnumerable<string> GetPackagePaths(string project)
         {
             throw new System.NotImplementedException();
         }

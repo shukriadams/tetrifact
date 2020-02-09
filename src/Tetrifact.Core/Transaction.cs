@@ -62,10 +62,10 @@ namespace Tetrifact.Core
 
         public void AddManifest(Package package) 
         {
-            if (string.IsNullOrEmpty(package.Id))
+            if (string.IsNullOrEmpty(package.Name))
                 throw new Exception("Manifest id not set");
 
-            string fileName = $"{Guid.NewGuid()}_{package.Id}";
+            string fileName = $"{Guid.NewGuid()}_{package.Name}";
             try
             {
                 File.WriteAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(_project), Constants.ManifestsFragment, fileName), JsonConvert.SerializeObject(package));
@@ -90,7 +90,7 @@ namespace Tetrifact.Core
             }
 
             // write pointer, this overwrites existing pointer
-            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package.Id)}_manifest"), fileName);
+            File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package.Name)}_manifest"), fileName);
         }
 
         /// <summary>

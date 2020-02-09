@@ -31,7 +31,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        IEnumerable<string> GetManifestPaths(string project);
+        IEnumerable<string> GetPackagePaths(string project);
 
         /// <summary>
         /// Returns true if the package is being used. This doesn't mean the package is available, just that the package folder 

@@ -16,7 +16,7 @@ namespace Tetrifact.Tests.Transaction
             Assert.Throws<ProjectCorruptException>(() =>
             {
                 Core.Transaction transaction = new Core.Transaction(this.IndexReader, "random-invalid-project-name");
-                transaction.AddManifest(new Package { Id = Guid.NewGuid().ToString() });
+                transaction.AddManifest(new Package { Name = Guid.NewGuid().ToString() });
             });
 
         }

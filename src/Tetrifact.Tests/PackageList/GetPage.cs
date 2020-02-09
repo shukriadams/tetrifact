@@ -14,9 +14,9 @@ namespace Tetrifact.Tests.PackageList
             this.CreatePackage("package2002");
             this.CreatePackage("package2001");
 
-            Assert.Equal("package2001", this.PackageList.GetPage("some-project", 0, 1).Page.First().Id);
-            Assert.Equal("package2002", this.PackageList.GetPage("some-project", 1, 1).Page.First().Id);
-            Assert.Equal("package2003", this.PackageList.GetPage("some-project", 2, 1).Page.First().Id);
+            Assert.Equal("package2001", this.PackageList.GetPage("some-project", 0, 1).Page.First().Name);
+            Assert.Equal("package2002", this.PackageList.GetPage("some-project", 1, 1).Page.First().Name);
+            Assert.Equal("package2003", this.PackageList.GetPage("some-project", 2, 1).Page.First().Name);
 
             PageableData<Package> page = this.PackageList.GetPage("some-project", 0, 1);
             Assert.Equal(3, page.VirtualItemCount);

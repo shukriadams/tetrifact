@@ -18,12 +18,12 @@ namespace Tetrifact.Tests.PackageList
             // tag a package, GetLatestWithTag should return it
             this.TagService.AddTag("some-project", "package2002", "tag");
             Package package = this.PackageList.GetLatestWithTag("some-project", "tag");
-            Assert.Equal("package2002", package.Id);
+            Assert.Equal("package2002", package.Name);
 
             // tag another package, GetLatestWithTag should return that instead of the previos package
             this.TagService.AddTag("some-project", "package2003", "tag");
             package = this.PackageList.GetLatestWithTag("some-project", "tag");
-            Assert.Equal("package2003", package.Id);
+            Assert.Equal("package2003", package.Name);
         }
     }
 }

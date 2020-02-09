@@ -65,7 +65,7 @@ namespace Tetrifact.Core
             return Directory.GetFiles(latestTransactionInfo.FullName, "*_manifest").Select(r => Path.GetFileName(r));
         }
 
-        public IEnumerable<string> GetManifestPaths(string project) 
+        public IEnumerable<string> GetPackagePaths(string project) 
         {
             DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
             if (latestTransactionInfo == null)
@@ -134,9 +134,9 @@ namespace Tetrifact.Core
             string projectPath = PathHelper.GetExpectedProjectPath(project);
             string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, packageId);
             string dataPathBase = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath);
-            string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), Obfuscator.Cloak(packageId), filePath, "bin");
-
             Package package = this.GetPackage(project, packageId);
+            string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), package.UniqueId.ToString(), filePath, "bin");
+
             ManifestItem manifestItem = package.Files.FirstOrDefault(r => r.Path == filePath);
             // if neither patch nor bin exist, file doesn't exist
             if (manifestItem == null)

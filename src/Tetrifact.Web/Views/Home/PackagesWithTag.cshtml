@@ -13,7 +13,7 @@
             @foreach (Package package in Model.Packages)
             {
                 <li class="listItem">
-                    <a href="/package/@Model.Project/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize() )</div>
+                    <a href="/package/@Model.Project/@package.Name">@package.Name</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize() )</div>
                 </li>
             }
         </ul>

@@ -85,7 +85,7 @@ namespace Tetrifact.Core
             foreach (string project in _packageList.GetProjects())
             {
                 // processed oldest first
-                IEnumerable<string> undiffedPackages = _packageList.GetUndiffedPackages(project).OrderBy(r => r.CreatedUtc).Select(r => r.Id);
+                IEnumerable<string> undiffedPackages = _packageList.GetUndiffedPackages(project).OrderBy(r => r.CreatedUtc).Select(r => r.Name);
                 foreach (string undiffedPackage in undiffedPackages)
                 {
                     _log.LogInformation($"Autdiffing package {undiffedPackage}");

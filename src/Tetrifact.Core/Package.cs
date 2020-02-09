@@ -17,9 +17,14 @@ namespace Tetrifact.Core
         #region PROPERTIES
 
         /// <summary>
-        /// The unique name of the package, corresponds to folder name in "/packages" folder.
+        /// Internal id of package, guaranteed to be unique for an instance of a package. Name can be reused after a package is deleted, but UniqueId cannot be resurrected.
         /// </summary>
-        public string Id { get; set; }
+        public Guid UniqueId { get; set; }
+
+        /// <summary>
+        /// The unique, public name of the package, corresponds to folder name in "/packages" folder.
+        /// </summary>
+        public string Name { get; set; }
 
         /// <summary>
         /// Hash of all file hashes in package. Files must be sorted alphabetically by full path + name, their hash strings concatenated and then the resulting string hashed.

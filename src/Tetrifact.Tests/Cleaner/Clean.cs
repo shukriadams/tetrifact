@@ -66,7 +66,8 @@ namespace Tetrifact.Tests.Clean
             IndexReader.GetFile("some-project", Core.FileIdentifier.Cloak("my package2", "folder/file")).Content.Dispose();
 
             // confirm rehydrated file exists
-            string rehydratedPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak("some-project"), Obfuscator.Cloak("my package2"), "folder", "file", "bin");
+            Package package = IndexReader.GetPackage("some-project", "my package2");
+            string rehydratedPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak("some-project"), package.UniqueId.ToString(), "folder", "file", "bin");
             Assert.True(File.Exists(rehydratedPath));
 
             // allow deleting of all rehydrated files

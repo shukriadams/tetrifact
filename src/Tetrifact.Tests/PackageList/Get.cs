@@ -22,9 +22,9 @@ namespace Tetrifact.Tests.PackageList
             IList<Package> packages = this.PackageList.Get("some-project", 0, 10).ToList();
 
             Assert.Equal(3, packages.Count());
-            Assert.NotEmpty(packages.Where(r => r.Id == "package2001"));
-            Assert.NotEmpty(packages.Where(r => r.Id == "package2002"));
-            Assert.NotEmpty(packages.Where(r => r.Id == "package2003"));
+            Assert.NotEmpty(packages.Where(r => r.Name == "package2001"));
+            Assert.NotEmpty(packages.Where(r => r.Name == "package2002"));
+            Assert.NotEmpty(packages.Where(r => r.Name == "package2003"));
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Tetrifact.Tests.PackageList
             IList<Package> packages = this.PackageList.Get("some-project", 0, 10).ToList();
 
             Assert.Single(packages);
-            Assert.NotEmpty(packages.Where(r => r.Id == packageName2));
+            Assert.NotEmpty(packages.Where(r => r.Name == packageName2));
         }
     }
 }

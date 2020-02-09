@@ -69,7 +69,7 @@ namespace Tetrifact.Core
             if (!_cache.TryGetValue(GetPackageCacheKey(project), out packages))
                 packages = this.GeneratePackageData(project);
 
-            return packages.OrderBy(r => r.Id).Skip(pageIndex).Take(pageSize).Select(r => r.Id);
+            return packages.OrderBy(r => r.Name).Skip(pageIndex).Take(pageSize).Select(r => r.Name);
         }
 
         public IEnumerable<string> GetPackagesWithTag(string project, string tag) 
@@ -78,7 +78,7 @@ namespace Tetrifact.Core
             if (!_cache.TryGetValue(GetPackageCacheKey(project), out packages))
                 packages = this.GeneratePackageData(project);
 
-            return packages.Where(r => r.Tags.Contains(tag)).Select(r => r.Id);
+            return packages.Where(r => r.Tags.Contains(tag)).Select(r => r.Name);
         }
 
         public void Clear(string project)
@@ -198,7 +198,7 @@ namespace Tetrifact.Core
         private IList<Package> GeneratePackageData(string project)
         {
             IList<Package> packages = new List<Package>();
-            IEnumerable<string> manifestPaths = _indexReader.GetManifestPaths(project);
+            IEnumerable<string> manifestPaths = _indexReader.GetPackagePaths(project);
 
             foreach (string manifestPath in manifestPaths)
             {
@@ -208,7 +208,7 @@ namespace Tetrifact.Core
                     packages.Add(new Package
                     {
                         CreatedUtc = package.CreatedUtc,
-                        Id = package.Id,
+                        Name = package.Name,
                         Description = package.Description,
                         IsDiffed = package.IsDiffed,
                         Hash = package.Hash,
