@@ -91,7 +91,8 @@ namespace Tetrifact.Tests.Clean
             IndexReader.GetPackageAsArchive("some-project", "my package1").Dispose();
 
             // confirm archive exists
-            string archivePath = Path.Combine(Settings.ArchivePath, $"{Obfuscator.Cloak("some-project")}_{Obfuscator.Cloak("my package1")}.zip");
+            Package package = IndexReader.GetPackage("some-project", "my package1");
+            string archivePath = Path.Combine(Settings.ArchivePath, Obfuscator.Cloak("some-project"), $"{package.UniqueId}.zip");
             Assert.True(File.Exists(archivePath));
 
             // allow deleting of all archives 

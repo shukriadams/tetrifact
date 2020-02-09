@@ -249,13 +249,19 @@ namespace Tetrifact.Core
         public string GetArchivePath(string project, string packageId)
         {
             Package package = this.GetPackage(project, packageId);
-            return Path.Combine(Settings.ArchivePath, project, string.Format($"{package.UniqueId}.zip"));
+            if (package == null)
+                throw new PackageNotFoundException(packageId);
+
+            return Path.Combine(Settings.ArchivePath, Obfuscator.Cloak(project), string.Format($"{package.UniqueId}.zip"));
         }
 
         public string GetTempArchivePath(string project, string packageId)
         {
             Package package = this.GetPackage(project, packageId);
-            return Path.Combine(Settings.ArchivePath, project, string.Format($"{package.UniqueId}.zip.tmp"));
+            if (package == null)
+                throw new PackageNotFoundException(packageId);
+
+            return Path.Combine(Settings.ArchivePath, Obfuscator.Cloak(project), string.Format($"{package.UniqueId}.zip.tmp"));
         }
 
         public string GetHead(string project) 

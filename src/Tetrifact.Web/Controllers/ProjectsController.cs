@@ -57,13 +57,7 @@ namespace Tetrifact.Web
                 post.Project = HttpUtility.UrlDecode(post.Project);
                 ProjectCreateResult result = _projectService.Create(post.Project);
 
-                // todo : add more granular error handling here
-                if (result.Success)
-                {
-                    return Ok($"Success - project \"{post.Project}\" created.");
-                } 
-
-                return Responses.UnexpectedError(result.PublicError);
+                return Ok($"Success - project \"{post.Project}\" created.");
             }
             catch (Exception ex)
             {

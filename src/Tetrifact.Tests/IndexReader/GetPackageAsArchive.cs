@@ -79,6 +79,7 @@ namespace Tetrifact.Tests.IndexReader
             // mock a temp archive file, this means actual archive creation will be skipped and
             // therefore never complete.
             string tempArchivePath = this.IndexReader.GetTempArchivePath("some-project", testPackage.Id);
+            Core.FileHelper.EnsureParentDirectoryExists(tempArchivePath);
             File.WriteAllText(tempArchivePath, string.Empty);
 
             Assert.Throws<TimeoutException>(() =>{

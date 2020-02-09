@@ -138,10 +138,13 @@ namespace Tetrifact.Core
             }
 
             // find all outdated archives
-            DirectoryInfo info = new DirectoryInfo(Settings.ArchivePath);
-            IEnumerable<FileInfo> archives = info.GetFiles();
-            archives = archives.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(Settings.FilePersistTimeout * -1));
-            filesToDelete = filesToDelete.Concat(archives.Select(r => r.FullName)).ToList();
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(Settings.ArchivePath, Obfuscator.Cloak(project)));
+            if (info.Exists) 
+            {
+                IEnumerable<FileInfo> archives = info.GetFiles();
+                archives = archives.Where(r => r.LastAccessTimeUtc < DateTime.UtcNow.AddDays(Settings.FilePersistTimeout * -1));
+                filesToDelete = filesToDelete.Concat(archives.Select(r => r.FullName)).ToList();
+            }
 
             foreach (string item in directoriesToDelete)
             {

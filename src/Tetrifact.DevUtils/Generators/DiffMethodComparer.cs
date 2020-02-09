@@ -45,7 +45,7 @@ namespace Tetrifact.DevUtils
                 };
 
                 // need project per diffMethod to keep their comparitive diffing separate
-                IProjectService projectService = new ProjectService(this.PackageList, new MemoryLogger<IProjectService>());
+                IProjectService projectService = new ProjectService(this.PackageList);
                 string projectName = diffMethod.ToString();
                 projectService.Create(projectName);
 
