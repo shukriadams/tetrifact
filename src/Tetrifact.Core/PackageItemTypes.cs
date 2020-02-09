@@ -1,6 +1,6 @@
 ﻿namespace Tetrifact.Core
 {
-    public enum ManifestItemTypes
+    public enum PackageItemTypes
     {
         Bin,
         Link,

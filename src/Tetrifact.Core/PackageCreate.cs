@@ -197,13 +197,13 @@ namespace Tetrifact.Core
                     if (ancestorBinPath == null) 
                         continue;
 
-                    ManifestItemTypes itemType = ManifestItemTypes.Bin;
+                    PackageItemTypes itemType = PackageItemTypes.Bin;
 
                     string writePath = Path.Combine(stagingBasePath, $"chunk_{i}");
 
                     if (linkDirect) 
                     {
-                        itemType = ManifestItemTypes.Link;
+                        itemType = PackageItemTypes.Link;
                     }
                     else if (new FileInfo(ancestorBinPath).Length < i * Settings.FileChunkSize)
                     {
@@ -212,7 +212,7 @@ namespace Tetrifact.Core
                     }
                     else
                     {
-                        itemType = ManifestItemTypes.Patch;
+                        itemType = PackageItemTypes.Patch;
 
                         FileHelper.EnsureParentDirectoryExists(writePath);
 
@@ -250,7 +250,7 @@ namespace Tetrifact.Core
                         }
                     }
 
-                    if (itemType != ManifestItemTypes.Link)
+                    if (itemType != PackageItemTypes.Link)
                         this.Package.SizeOnDisk += new FileInfo(writePath).Length;
 
                     manifestItem.Chunks.Add(new PackageItemChunk
@@ -412,7 +412,7 @@ namespace Tetrifact.Core
 
                     manifestItem.Chunks.Add(new PackageItemChunk { 
                         Id = i,
-                        Type = ManifestItemTypes.Bin
+                        Type = PackageItemTypes.Bin
                     });
 
                 } // for chunks

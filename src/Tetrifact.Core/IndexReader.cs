@@ -152,7 +152,7 @@ namespace Tetrifact.Core
             {
                 PackageItemChunk chunk = manifestItem.Chunks[i];
 
-                if (chunk.Type == ManifestItemTypes.Bin)
+                if (chunk.Type == PackageItemTypes.Bin)
                 {
                     using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
                     using (FileStream readStream = new FileStream(Path.Combine(dataPathBase, $"chunk_{i}"), FileMode.Open, FileAccess.Read))
@@ -161,7 +161,7 @@ namespace Tetrifact.Core
                         StreamsHelper.StreamCopy(readStream, writeStream, readStream.Length);
                     }
                 }
-                else if (chunk.Type == ManifestItemTypes.Link)
+                else if (chunk.Type == PackageItemTypes.Link)
                 {
                     // read chunk link from source
                     string binarySourcePath = RehydrateOrResolveFile(project, package.Parent, filePath);
