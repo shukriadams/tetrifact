@@ -61,7 +61,6 @@ namespace Tetrifact.Core
                 // merge patches into next package
                 transaction.Commit();
             }
-
             finally
             {
                 WriteLock.Instance.Clear(project);

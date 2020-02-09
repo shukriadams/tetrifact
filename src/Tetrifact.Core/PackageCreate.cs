@@ -150,6 +150,11 @@ namespace Tetrifact.Core
             }
         }
 
+        /// <summary>
+        /// Note : no catch / log in this method as it is always called from daemon which has its own log
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="packageId"></param>
         public void CreateDiffed(string project, string packageId)
         {
             this.Initialize(project);

@@ -248,12 +248,14 @@ namespace Tetrifact.Core
         // todo : make private
         public string GetArchivePath(string project, string packageId)
         {
-            return Path.Combine(Settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip"));
+            Package package = this.GetPackage(project, packageId);
+            return Path.Combine(Settings.ArchivePath, project, string.Format($"{package.UniqueId}.zip"));
         }
 
         public string GetTempArchivePath(string project, string packageId)
         {
-            return Path.Combine(Settings.ArchivePath, string.Format($"{Obfuscator.Cloak(project)}_{Obfuscator.Cloak(packageId)}.zip.tmp"));
+            Package package = this.GetPackage(project, packageId);
+            return Path.Combine(Settings.ArchivePath, project, string.Format($"{package.UniqueId}.zip.tmp"));
         }
 
         public string GetHead(string project) 
@@ -286,6 +288,8 @@ namespace Tetrifact.Core
 
             if (!this.DoesPackageExist(project, packageId))
                 throw new PackageNotFoundException(packageId);
+
+            FileHelper.EnsureParentDirectoryExists(archivePathTemp);
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
