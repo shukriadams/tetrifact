@@ -132,7 +132,7 @@ namespace Tetrifact.Core
 
                 // rehydrate entire package to temp location
                 Package package = _indexReader.GetPackage(project, packageName);
-                foreach (ManifestItem file in package.Files)
+                foreach (PackageItem file in package.Files)
                 {
                     using (Stream sourceFile = _indexReader.GetFile(project, file.Id).Content)
                     {
@@ -166,7 +166,7 @@ namespace Tetrifact.Core
             if (package.Parent == null)
                 throw new Exception("cannot diff a package with no parent");
 
-            foreach (ManifestItem manifestItem in package.Files)
+            foreach (PackageItem manifestItem in package.Files)
             {
                 // count how many chunks file should be divided into.
                 int chunks = (int)(manifestItem.Size / Settings.FileChunkSize);
@@ -183,7 +183,7 @@ namespace Tetrifact.Core
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, manifestItem.Path);
                 bool linkDirect = headPackage != null && headPackage.Files.Where(r => r.Path == manifestItem.Path).FirstOrDefault()?.Hash == manifestItem.Hash;
 
-                ManifestItem newManifestItem = new ManifestItem
+                PackageItem newManifestItem = new PackageItem
                 {
                     Path = manifestItem.Path,
                     Hash = manifestItem.Hash,
@@ -253,7 +253,7 @@ namespace Tetrifact.Core
                     if (itemType != ManifestItemTypes.Link)
                         this.Package.SizeOnDisk += new FileInfo(writePath).Length;
 
-                    manifestItem.Chunks.Add(new ManifestItemChunk
+                    manifestItem.Chunks.Add(new PackageItemChunk
                     {
                         Id = i,
                         Type = itemType
@@ -393,7 +393,7 @@ namespace Tetrifact.Core
                 bool useFileAsBin = parentPackage == null || !parentPackage.Files.Where(r => r.Path == filePath).Any();
                 bool linkDirect = parentPackage != null && parentPackage.Files.Where(r => r.Path == filePath).FirstOrDefault()?.Hash == fileHash;
 
-                ManifestItem manifestItem = new ManifestItem
+                PackageItem manifestItem = new PackageItem
                 {
                     Path = filePath.Replace("\\", "/"),
                     Hash = fileHash,
@@ -410,7 +410,7 @@ namespace Tetrifact.Core
                     StreamsHelper.FileCopy(incomingFilePath, writePath, i * Settings.FileChunkSize, ((i + 1) * Settings.FileChunkSize));
                     this.Package.SizeOnDisk += new FileInfo(writePath).Length;
 
-                    manifestItem.Chunks.Add(new ManifestItemChunk { 
+                    manifestItem.Chunks.Add(new PackageItemChunk { 
                         Id = i,
                         Type = ManifestItemTypes.Bin
                     });

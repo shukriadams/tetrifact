@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Core
 {
-    public class ManifestItem
+    public class PackageItem
     {
         public string Path { get; set; }
 
@@ -12,11 +12,11 @@ namespace Tetrifact.Core
 
         public long Size { get; set; }
 
-        public IList<ManifestItemChunk> Chunks { get; private set; }
+        public IList<PackageItemChunk> Chunks { get; private set; }
 
-        public ManifestItem()
+        public PackageItem()
         {
-            this.Chunks = new List<ManifestItemChunk>();
+            this.Chunks = new List<PackageItemChunk>();
         }
 
     }

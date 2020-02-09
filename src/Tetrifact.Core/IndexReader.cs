@@ -137,7 +137,7 @@ namespace Tetrifact.Core
             Package package = this.GetPackage(project, packageId);
             string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), package.UniqueId.ToString(), filePath, "bin");
 
-            ManifestItem manifestItem = package.Files.FirstOrDefault(r => r.Path == filePath);
+            PackageItem manifestItem = package.Files.FirstOrDefault(r => r.Path == filePath);
             // if neither patch nor bin exist, file doesn't exist
             if (manifestItem == null)
                 return null;
@@ -150,7 +150,7 @@ namespace Tetrifact.Core
 
             for (int i = 0; i < manifestItem.Chunks.Count; i ++)
             {
-                ManifestItemChunk chunk = manifestItem.Chunks[i];
+                PackageItemChunk chunk = manifestItem.Chunks[i];
 
                 if (chunk.Type == ManifestItemTypes.Bin)
                 {
