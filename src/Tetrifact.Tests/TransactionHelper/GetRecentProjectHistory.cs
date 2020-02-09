@@ -14,13 +14,13 @@ namespace Tetrifact.Tests.TransactionHelper
         {
             // create first transation with 1 manifest in it
             Core.Transaction transaction = new Core.Transaction(this.IndexReader, "some-project");
-            transaction.AddManifest(new Package { Name = Guid.NewGuid().ToString() });
+            transaction.AddPackage(new Package { Name = Guid.NewGuid().ToString() });
             transaction.Commit();
 
             // create second transaction with 2 manifests and 1 shard
             transaction = new Core.Transaction(this.IndexReader, "some-project");
-            transaction.AddManifest(new Package { Name = Guid.NewGuid().ToString() });
-            transaction.AddManifest(new Package { Name = Guid.NewGuid().ToString() });
+            transaction.AddPackage(new Package { Name = Guid.NewGuid().ToString() });
+            transaction.AddPackage(new Package { Name = Guid.NewGuid().ToString() });
 
             string contentPath = Path.Combine(Settings.TempPath, Guid.NewGuid().ToString());
             Core.FileHelper.EnsureDirectoryExists(contentPath);

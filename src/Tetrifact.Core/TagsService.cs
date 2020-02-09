@@ -39,7 +39,7 @@
 
                 package.Tags.Add(tag);
 
-                transaction.AddManifest(package);
+                transaction.AddPackage(package);
                 transaction.Commit();
 
                 _packageList.Clear(project);
@@ -72,7 +72,7 @@
 
 
                 Transaction transaction = new Transaction(_indexReader, project);
-                transaction.AddManifest(package);
+                transaction.AddPackage(package);
                 transaction.Commit();
 
                 // flush in-memory tags

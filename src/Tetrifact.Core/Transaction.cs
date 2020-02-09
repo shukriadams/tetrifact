@@ -60,7 +60,11 @@ namespace Tetrifact.Core
             }
         }
 
-        public void AddManifest(Package package) 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="package"></param>
+        public void AddPackage(Package package) 
         {
             if (string.IsNullOrEmpty(package.Name))
                 throw new Exception("Manifest id not set");
@@ -109,11 +113,20 @@ namespace Tetrifact.Core
             File.WriteAllText(Path.Combine(_tempTransactionFolder, $"{Obfuscator.Cloak(package)}_shard"), packageNoCollideName);
         }
 
-        public void AddDependecy(string parent, string child)
+        /// <summary>
+        /// Writes an index flag linking a package to its parent. This is used to rapidly lookup children when deleting a package.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="child"></param>
+        public void AddChildReference(string parent, string child)
         {
             File.WriteAllText(Path.Combine(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(parent)}_{Obfuscator.Cloak(child)}_"), string.Empty);
         }
 
+        /// <summary>
+        /// Removes a package and all related files from the transaction.
+        /// </summary>
+        /// <param name="package"></param>
         public void Remove(string package) 
         {
             // remove manifest pointer
@@ -135,13 +148,10 @@ namespace Tetrifact.Core
                 File.Delete(dependencyLink);
         }
 
-        public void RemoveDependency(string parent, string child)
-        {
-            string path = Path.Combine(_tempTransactionFolder, $"dep_{Obfuscator.Cloak(parent)}_{Obfuscator.Cloak(child)}");
-            if (File.Exists(path))
-                File.Delete(path);
-        }
-
+        /// <summary>
+        /// Renames the transaction to its final location, exposing it and "going live". This is a single step that either passes or fails, assuming the
+        /// filesystem rename is atomic.
+        /// </summary>
         public void Commit() 
         {
             // flip transaction live

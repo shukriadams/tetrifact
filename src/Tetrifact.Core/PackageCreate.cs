@@ -440,11 +440,11 @@ namespace Tetrifact.Core
             this.Package.Hash = HashService.FromString(_hashes.ToString());
             this.Package.Parent = parentPackageNameCheck;
 
-            transaction.AddManifest(this.Package);
+            transaction.AddPackage(this.Package);
             transaction.AddShard(package, Path.Combine(this.WorkspacePath, Constants.StagingFragment));
 
             if (!string.IsNullOrEmpty(parentPackageNameCheck))
-                transaction.AddDependecy(parentPackageNameCheck, package);
+                transaction.AddChildReference(parentPackageNameCheck, package);
 
             if (string.IsNullOrEmpty(parentPackageName))
                 transaction.SetHead(package);
