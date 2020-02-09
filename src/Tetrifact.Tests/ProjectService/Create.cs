@@ -17,7 +17,7 @@ namespace Tetrifact.Tests
         public void Basic()
         {
             string project = Guid.NewGuid().ToString();
-            this.ProjectService.Create(project);
+            this.ProjectService.CreateProject(project);
 
             IEnumerable<string> projects = Directory.GetDirectories(Settings.ProjectsPath).Select(r => Path.GetFileName(r));
             Assert.Contains(Obfuscator.Cloak(project), projects);
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
         public void DirectoryStructure()
         {
             string project = Guid.NewGuid().ToString();
-            this.ProjectService.Create(project);
+            this.ProjectService.CreateProject(project);
 
             string projectPathOnDisk = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project));
             IEnumerable<string> projects = Directory.GetDirectories(projectPathOnDisk);
@@ -47,7 +47,7 @@ namespace Tetrifact.Tests
         public void IllegalCharacterSupport()
         {
             string project = ": // \\ *";
-            this.ProjectService.Create(project);
+            this.ProjectService.CreateProject(project);
 
             IEnumerable<string> projects = Directory.GetDirectories(Settings.ProjectsPath).Select(r => Path.GetFileName(r));
             Assert.Contains(Obfuscator.Cloak(project), projects);

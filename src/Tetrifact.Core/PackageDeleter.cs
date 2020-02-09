@@ -25,9 +25,19 @@ namespace Tetrifact.Core
                 if (!_indexReader.ProjectExists(project))
                     throw new ProjectNotFoundException(project);
 
-                Package packageToDeleteManifest = _indexReader.GetPackage(project, package);
-                if (packageToDeleteManifest == null)
+                Package packageToDelete = _indexReader.GetPackage(project, package);
+                if (packageToDelete == null)
                     throw new PackageNotFoundException(package);
+
+                // if package hasn't been diffed yet, prevent deletes until diffing is complete
+                if (!packageToDelete.IsDiffed)
+                    throw new PackageLockedException();
+
+                // similary, if a package has a child that hasn't been diffed yet, wait
+                Package childPackage = _indexReader.GetChild(project, package);
+                if (childPackage != null && !childPackage.IsDiffed)
+                    throw new PackageLockedException();
+
 
                 Transaction transaction = new Transaction(_indexReader, project);
                 
@@ -40,7 +50,7 @@ namespace Tetrifact.Core
 
                 if (dependants.Count() == 0)
                 {
-                    transaction.SetHead(packageToDeleteManifest.Parent);
+                    transaction.SetHead(packageToDelete.Parent);
                 }
                 else 
                 {
@@ -51,7 +61,7 @@ namespace Tetrifact.Core
                         IPackageCreate packageCreate = _typeProvider.GetInstance<IPackageCreate>();
 
                         // decouple dependend from package-to-delete, link it to package-to-delete's parent instead
-                        packageCreate.CreateFromExisting(project, dependantPackage, transaction, packageToDeleteManifest.Parent);
+                        packageCreate.CreateFromExisting(project, dependantPackage, transaction, packageToDelete.Parent);
                     }
                 }
 

@@ -70,11 +70,14 @@ namespace Tetrifact.Web
         [Route("package/{project}/{packageId}")]
         public IActionResult Package(string project, string packageId)
         {
-            Package manifest = _indexReader.GetPackage(project, packageId);
-            if (manifest == null)
+            Package package = _indexReader.GetPackage(project, packageId);
+            Package child = _indexReader.GetChild(project, packageId);
+            bool canDelete = package.IsDiffed && (child == null || child.IsDiffed);
+
+            if (package == null)
                 return View("Error404");
 
-            return View(new PackageModel(project, packageId, manifest));
+            return View(new PackageModel(project, packageId, package, canDelete));
         }
 
 

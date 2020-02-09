@@ -137,6 +137,11 @@ namespace Tetrifact.Tests
             throw new System.NotImplementedException();
         }
 
+        public Package GetChild(string project, string package)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 }

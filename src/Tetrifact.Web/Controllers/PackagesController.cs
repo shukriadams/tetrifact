@@ -225,6 +225,10 @@ namespace Tetrifact.Web
                 _packageList.Clear(project);
                 return Ok();
             }
+            catch (PackageLockedException) 
+            {
+                return Responses.PackageLockedError();
+            }
             catch (PackageNotFoundException)
             {
                 return NotFound();

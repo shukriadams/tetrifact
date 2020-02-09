@@ -11,7 +11,7 @@ namespace Tetrifact.Core
             _packageList = packageList;
         }
 
-        public ProjectCreateResult Create(string name)
+        public ProjectCreateResult CreateProject(string name)
         {
             string projectsRoot = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(name));
             if (Directory.Exists(projectsRoot))

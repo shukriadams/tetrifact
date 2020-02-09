@@ -37,6 +37,21 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public Package GetChild(string project, string package) 
+        {
+            DirectoryInfo activeTransaction = this.GetActiveTransactionInfo(project);
+            if (activeTransaction == null)
+                return null;
+
+            string childLink = Directory.GetFiles(activeTransaction.FullName, $"dep_{Obfuscator.Cloak(package)}_*").FirstOrDefault();
+            if (childLink == null)
+                return null;
+
+            string childName = Path.GetFileNameWithoutExtension(childLink).Replace($"dep_{Obfuscator.Cloak(package)}_", string.Empty).Replace("_", string.Empty);
+            childName = Obfuscator.Decloak(childName);
+            return this.GetPackage(project, childName);
+        }
+
         public bool ProjectExists(string project) 
         {
             return Directory.Exists(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project)));

@@ -89,7 +89,15 @@
             Functions
         </div>
         <div class="layout-value">
-            <a href="javascript:void(0);" class="package-removePackage">Delete</a>
+            @if (Model.CanDelete)
+            {
+                <a href="javascript:void(0);" class="package-removePackage">Delete</a>
+            }
+            else
+            {
+                <span>Package cannot be deleted while it or child is being diff'ed.</span>
+            }
+
         </div>
     </div>
 

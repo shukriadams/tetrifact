@@ -55,7 +55,7 @@ namespace Tetrifact.Web
             try
             {
                 post.Project = HttpUtility.UrlDecode(post.Project);
-                ProjectCreateResult result = _projectService.Create(post.Project);
+                ProjectCreateResult result = _projectService.CreateProject(post.Project);
 
                 return Ok($"Success - project \"{post.Project}\" created.");
             }

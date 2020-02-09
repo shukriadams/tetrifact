@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="name"></param>
         /// <param name="description"></param>
-        ProjectCreateResult Create(string name);
+        ProjectCreateResult CreateProject(string name);
     }
 }

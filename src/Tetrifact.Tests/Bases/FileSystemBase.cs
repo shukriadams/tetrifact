@@ -53,7 +53,7 @@ namespace Tetrifact.Tests
             this.PackageCreateLogger = new TestLogger<IPackageCreate>();
             this.PackageCreate = kernel.Get<Core.PackageCreate>();
             this.ProjectService = new Core.ProjectService(new Core.PackageList(MemoryCacheHelper.GetInstance(), this.IndexReader, new MemoryLogger<IPackageList>()));
-            this.ProjectService.Create("some-project");
+            this.ProjectService.CreateProject("some-project");
         }
 
         #endregion

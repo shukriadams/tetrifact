@@ -23,6 +23,19 @@ namespace Tetrifact.Web
             });
         }
 
+        public static BadRequestObjectResult PackageLockedError()
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 400.09,
+                    Message = $"The package cannot be deleted because either it or its child are still being diffed.."
+                }
+            });
+        }
+
+
         public static BadRequestObjectResult UnexpectedError()
         {
             return UnexpectedError(null);

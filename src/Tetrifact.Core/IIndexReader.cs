@@ -9,6 +9,13 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IIndexReader
     {
+        /// <summary>
+        /// Gets the child of the given package. Returns null if no child present.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        /// <returns></returns>
+        Package GetChild(string project, string package);
 
         /// <summary>
         /// Gets the directory info for the folder containing the latest and therefore current transaction. Returns null if no
