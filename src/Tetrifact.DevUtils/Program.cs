@@ -36,6 +36,11 @@ namespace Tetrifact.DevUtils
             }
         }
 
+        private static void StressTest() 
+        {
+
+        }
+
         private static void GeneratePackages(CommandLineSwitches commandArgs) 
         {
             if (!commandArgs.Contains("size"))
