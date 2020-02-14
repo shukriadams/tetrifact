@@ -28,6 +28,10 @@ ol {
     padding: 0;
 }
 
+code {
+    display:block;
+}
+
 .subtext {
     color: gray;
     font-size: 12px;

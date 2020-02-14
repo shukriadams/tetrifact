@@ -62,7 +62,8 @@
         </div>
         <div class="layout-value">
             @String.Format("{0:n0}", Model.Manifest.SizeOnDisk) bytes (@Model.Manifest.CompressedPercent %)
-            @(Model.Manifest.IsDiffed ? "" : "(diff pending)")
+            @(Model.Manifest.DiffState == DiffStates.Undiffed ? "(diff pending)" : string.Empty)
+            @(Model.Manifest.DiffState == DiffStates.Failed ? "(diff failed)" : string.Empty)
         </div>
     </div>
 

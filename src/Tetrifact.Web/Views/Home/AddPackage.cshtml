@@ -36,7 +36,25 @@
                     <input placeholder="Archive" id="archiveSelector" class="package-fileSelector" type="file" />
                 </div>
                 <p class="package-addDescription" data-original="Add either a zip/tar.gz archive, or a folder containing package files.">
-                    
+
+                </p>
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+
+            </div>
+            <div class="layout-value">
+                <p>
+                    The most reliable way to add an package to upload an archive with curl. Use the following script
+                    <blockquote>
+                        curl 
+                        -X POST 
+                        -H "Content-Type: multipart/form-data" 
+                        -F "Files=@Html.Raw("@")mypackage.zip" 
+                        @Model.HostName/v1/packages/myproject/mypackage?isArchive=true
+                    </blockquote>
                 </p>
             </div>
         </div>

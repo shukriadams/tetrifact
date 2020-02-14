@@ -89,7 +89,17 @@ namespace Tetrifact.Core
                 foreach (string undiffedPackage in undiffedPackages)
                 {
                     _log.LogInformation($"Autdiffing package {undiffedPackage}");
-                    _packageCreate.CreateDiffed(project, undiffedPackage);
+                    try
+                    {
+                        _packageCreate.CreateDiffed(project, undiffedPackage);
+                    }
+                    catch (Exception ex) 
+                    {
+                        _packageCreate.MarkFailedDiff(project, undiffedPackage);
+                        throw ex;
+                    }
+
+
                 }
             }
         }
