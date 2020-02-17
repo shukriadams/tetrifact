@@ -43,7 +43,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// True if content of manifest has been diffed against other packages.
         /// </summary>
-        public bool IsDiffed { get; set; }
+        public DiffStates DiffState { get; set; }
 
         /// <summary>
         /// Files in this package. Each file can be downloaded using its public id, and should be saved at its path.

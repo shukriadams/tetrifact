@@ -38,5 +38,12 @@
         /// <param name="project"></param>
         /// <param name="package"></param>
         void CreateDiffed(string project, string package);
+
+        /// <summary>
+        /// Marks a diff as failed, removing this package from autodiff queue.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="package"></param>
+        void MarkFailedDiff(string project, string package);
     }
 }

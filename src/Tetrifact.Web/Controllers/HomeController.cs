@@ -2,6 +2,7 @@
 using Tetrifact.Core;
 using System.Text;
 using System.Collections.Generic;
+using System;
 
 namespace Tetrifact.Web
 {
@@ -47,7 +48,8 @@ namespace Tetrifact.Web
         [Route("addPackage/{project}")]
         public IActionResult AddPackage(string project)
         {
-            return View(new AddPackageModel { Project = project });
+            string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            return View(new AddPackageModel { Project = project, HostName = hostname });
         }
 
         [ServiceFilter(typeof(ReadLevel))]
@@ -72,7 +74,7 @@ namespace Tetrifact.Web
         {
             Package package = _indexReader.GetPackage(project, packageId);
             Package child = _indexReader.GetChild(project, packageId);
-            bool canDelete = package.IsDiffed && (child == null || child.IsDiffed);
+            bool canDelete = package.DiffState != DiffStates.Undiffed && (child == null || child.DiffState != DiffStates.Undiffed);
 
             if (package == null)
                 return View("Error404");

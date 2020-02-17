@@ -30,12 +30,12 @@ namespace Tetrifact.Core
                     throw new PackageNotFoundException(package);
 
                 // if package hasn't been diffed yet, prevent deletes until diffing is complete
-                if (!packageToDelete.IsDiffed)
+                if (packageToDelete.DiffState == DiffStates.Undiffed)
                     throw new PackageLockedException();
 
                 // similary, if a package has a child that hasn't been diffed yet, wait
                 Package childPackage = _indexReader.GetChild(project, package);
-                if (childPackage != null && !childPackage.IsDiffed)
+                if (childPackage != null && childPackage.DiffState == DiffStates.Undiffed)
                     throw new PackageLockedException();
 
 

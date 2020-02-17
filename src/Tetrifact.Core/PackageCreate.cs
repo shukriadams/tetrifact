@@ -150,6 +150,21 @@ namespace Tetrifact.Core
             }
         }
 
+        public void MarkFailedDiff(string project, string packageName) 
+        {
+            this.Initialize(project);
+            Package package = _indexReader.GetPackage(project, packageName);
+            this.Package = package;
+            this.Package.DiffState = DiffStates.Failed;
+
+            Transaction transaction = new Transaction(_indexReader, project);
+            this.Finalize(this.Package.Name, transaction, this.Package.Parent);
+            transaction.Commit();
+
+            // flush package list to update
+            _packageList.Clear(project);
+        }
+
         /// <summary>
         /// Note : no catch / log in this method as it is always called from daemon which has its own log
         /// </summary>
@@ -265,7 +280,7 @@ namespace Tetrifact.Core
 
             } // foreach manifestitem
 
-            this.Package.IsDiffed = true;
+            this.Package.DiffState = DiffStates.Diffed;
             this.Package.FileChunkSize = Settings.FileChunkSize;
             this.Package.Parent = package.Parent;
             this.Package.Name = package.Name;
@@ -417,7 +432,8 @@ namespace Tetrifact.Core
 
                 } // for chunks
 
-                this.Package.IsDiffed = this.Package.Parent == null ? true : false; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
+                if (this.Package.Parent == null)
+                    this.Package.DiffState = DiffStates.Diffed; // if this package has no ancestors, mark as already diffed, else we'll diff it later. 
                 this.Package.FileChunkSize = Settings.FileChunkSize;
                 this.Package.Parent = parentPackageName;
                 this.Package.Files.Add(manifestItem);
