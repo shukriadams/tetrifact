@@ -92,7 +92,7 @@ namespace Tetrifact.Web
             PageableData<Package> packages  = _packageList.GetPage(project, page, Settings.ListPageSize);
 
             Pager pager = new Pager();
-            string pagerString = pager.Render<Package>(packages, Settings.PagesPerPageGroup, "/packages", "page");
+            string pagerString = pager.Render<Package>(packages, Settings.PagesPerPageGroup, $"/packages/{project}", "page");
 
             return View(new PackageListModel(project, pagerString, packages));
         }

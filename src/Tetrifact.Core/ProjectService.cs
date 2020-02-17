@@ -26,5 +26,18 @@ namespace Tetrifact.Core
             _packageList.Clear();
             return new ProjectCreateResult { Success = true };
         }
+
+        public void DeleteProject(string project) 
+        {
+            string projectsFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project));
+            if (!Directory.Exists(projectsFolder))
+                return;
+
+            string deleteName = Path.Combine(Path.GetDirectoryName(projectsFolder), $"!{projectsFolder}");
+            if (!Directory.Exists(deleteName))
+                Directory.Move(projectsFolder, deleteName);
+
+            Directory.Delete(deleteName, true);
+        }
     }
 }

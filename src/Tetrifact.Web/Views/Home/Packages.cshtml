@@ -16,7 +16,7 @@
             @foreach (Package package in Model.Packages.Page)
             {
                 <li class="listItem">
-                    <a href="/package/@package.Name">@package.Name</a>
+                    <a href="/package/@Model.Project/@package.Name">@package.Name</a>
                     <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize())</div>
                     <ul class="tags">
                         @foreach (string tag in package.Tags)

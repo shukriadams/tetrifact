@@ -8,5 +8,7 @@
         /// <param name="name"></param>
         /// <param name="description"></param>
         ProjectCreateResult CreateProject(string name);
+
+        void DeleteProject(string name);
     }
 }

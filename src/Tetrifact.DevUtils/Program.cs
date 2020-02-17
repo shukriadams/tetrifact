@@ -28,6 +28,12 @@ namespace Tetrifact.DevUtils
                     return;
                 }
 
+                case "stressTest":
+                {
+                    StressTest();
+                    return;
+                }
+
                 default:
                 {
                     Console.WriteLine("Unsupported run case");
@@ -38,7 +44,8 @@ namespace Tetrifact.DevUtils
 
         private static void StressTest() 
         {
-
+            StressTester stressTester = new StressTester();
+            stressTester.Start();
         }
 
         private static void GeneratePackages(CommandLineSwitches commandArgs) 

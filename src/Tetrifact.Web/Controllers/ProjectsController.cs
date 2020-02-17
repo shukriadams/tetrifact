@@ -68,6 +68,26 @@ namespace Tetrifact.Web
             }
         }
 
+        [ServiceFilter(typeof(WriteLevel))]
+        [HttpDelete("{project}")]
+        public ActionResult DeleteProject(string project)
+        {
+            try
+            {
+                project = HttpUtility.UrlDecode(project);
+                _projectService.DeleteProject(project);
+
+                return Ok($"Success - project \"{project}\" deleted.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                Console.WriteLine("An unexpected error occurred : ");
+                Console.WriteLine(ex);
+                return Responses.UnexpectedError();
+            }
+        }
+
         #endregion
     }
 }

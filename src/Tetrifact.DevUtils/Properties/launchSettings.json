@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Tetrifact.DevUtils": {
+      "commandName": "Project",
+      "commandLineArgs": "--run stressTest"
+    }
+  }
+}
