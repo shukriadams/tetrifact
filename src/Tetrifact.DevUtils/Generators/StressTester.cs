@@ -19,7 +19,7 @@ namespace Tetrifact.DevUtils
         public void Curl(string command, string workingDirectory) 
         {
             // force display of headers in output, we want this for HTTP status codes
-            command = $"-D - {command}";
+            command = $"-s -D - {command}";
 
             ProcessStartInfo serverStartInfo = new ProcessStartInfo("curl");
             if (workingDirectory != null)
@@ -31,6 +31,7 @@ namespace Tetrifact.DevUtils
             process.StartInfo.RedirectStandardOutput = true;
             process.Start();
             process.WaitForExit();
+
             string result = process.StandardOutput.ReadToEnd();
             if (!result.Contains("200 OK") && !result.Contains("404 Not Found"))
                 throw new Exception($"Server call failed : {result}");
@@ -66,9 +67,9 @@ namespace Tetrifact.DevUtils
 
         private void StartServer() 
         {
-            ProcessStartInfo serverStartInfo = new ProcessStartInfo("dotnet");
+            ProcessStartInfo serverStartInfo = new ProcessStartInfo("cmd");
             serverStartInfo.WorkingDirectory = "../../../../";
-            serverStartInfo.Arguments = $"run --project Tetrifact.Web";
+            serverStartInfo.Arguments = $" /C \"SET TRANSACTION_HISTORY_DEPTH=1000 && dotnet run --project Tetrifact.Web\"";
 
             _serverProcess = new Process();
             _serverProcess.StartInfo = serverStartInfo;

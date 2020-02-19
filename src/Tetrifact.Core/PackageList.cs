@@ -204,7 +204,14 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath)));
+                    string pathOnDisk = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath);
+                    
+                    // there is no guarantee the manifest in a transaction is actually available - if a newer transaction was created without that manifest
+                    // it will not exist on disk. The list package is a "soft" reader.
+                    if (!File.Exists(pathOnDisk))
+                        continue;
+
+                    Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(pathOnDisk));
                     packages.Add(new Package
                     {
                         CreatedUtc = package.CreatedUtc,
@@ -217,7 +224,7 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {manifestPath}");
+                    _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestPath}");
                 }
             }
 

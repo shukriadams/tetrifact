@@ -145,7 +145,7 @@ namespace Tetrifact.Core
             FilePersistTimeout = 10;               // days
             FileChunkSize = 100 * 1000000;         // in bytes. remember, bytes * 1000000 = megabytes
             AuthorizationLevel = AuthorizationLevel.None;
-            TransactionHistoryDepth = 2;
+            TransactionHistoryDepth = 10;
             TransactionTimeout = 60;               // minutes
             AutoDiffInterval = 1;                  // 10 minutes, in milliseconds 
             DiffMethod = DiffMethods.VcDiff;   // VcDiff is about 5 times faster than BsDiff, hence default
