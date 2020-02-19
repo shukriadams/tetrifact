@@ -79,6 +79,10 @@ namespace Tetrifact.Web
 
                 return Ok($"Success - project \"{project}\" deleted.");
             }
+            catch (ProjectNotFoundException) 
+            {
+                return NotFound($"Project {project} does not exist.");
+            }
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");

@@ -178,7 +178,7 @@ namespace Tetrifact.Core
 
         private IEnumerable<string> GenerateProjectData()
         {
-            string[] directories = Directory.GetDirectories(Settings.ProjectsPath);
+            IEnumerable<string> directories = Directory.GetDirectories(Settings.ProjectsPath).Where(r => !Path.GetFileName(r).StartsWith(Constants.DeleteFlag));
             IEnumerable<string> projects = directories.Select(r => Obfuscator.Decloak(Path.GetFileName(r)));
 
             // Set cache options.

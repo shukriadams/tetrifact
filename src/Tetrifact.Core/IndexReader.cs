@@ -116,9 +116,6 @@ namespace Tetrifact.Core
 
             string manifestRealPath = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
 
-            if (!File.Exists(manifestRealPath))
-                return null;
-
             try
             {
                 Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(manifestRealPath));
@@ -127,7 +124,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {manifestRealPath}");
+                _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestRealPath}. Pointer path was {manifestRealPath}.");
                 return null;
             }
         }
@@ -303,36 +300,47 @@ namespace Tetrifact.Core
             // store path with .tmp extension while building, this is used to detect if archiving has already started
             string archivePathTemp = this.GetTempArchivePath(project, packageId);
 
-            // if temp archive exists, it's already building
-            if (File.Exists(archivePathTemp))
-                return;
 
             if (!this.DoesPackageExist(project, packageId))
                 throw new PackageNotFoundException(packageId);
 
             FileHelper.EnsureParentDirectoryExists(archivePathTemp);
 
+            // if temp archive exists, it's already building
+            if (File.Exists(archivePathTemp))
+                return;
+
             // create zip file on disk asap to lock file name off
-            using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
+            try
             {
-                Package package = this.GetPackage(project, packageId);
-
-                using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
                 {
-                    foreach (var file in package.Files)
-                    {
-                        ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
+                    Package package = this.GetPackage(project, packageId);
 
-                        using (Stream entryStream = fileEntry.Open())
+                    using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                    {
+                        foreach (var file in package.Files)
                         {
-                            using (Stream itemStream = this.GetFile(project, file.Id).Content)
+                            ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
+
+                            using (Stream entryStream = fileEntry.Open())
                             {
-                                itemStream.CopyTo(entryStream);
+                                using (Stream itemStream = this.GetFile(project, file.Id).Content)
+                                {
+                                    itemStream.CopyTo(entryStream);
+                                }
                             }
                         }
                     }
                 }
             }
+            catch (IOException ex) 
+            {
+                // this should not occur because we're already testing for file locks, but if the tmp file exists and is locked, the archive must still be cooking
+                if (ex.Message.Contains("The process cannot access the file"))
+                    return;
+            }
+
 
             // flip temp file to final path, it is ready for use only when this happens
             string archivePath = this.GetArchivePath(project, packageId);

@@ -31,13 +31,15 @@ namespace Tetrifact.Core
         {
             string projectsFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project));
             if (!Directory.Exists(projectsFolder))
-                return;
+                throw new ProjectNotFoundException(project);
 
-            string deleteName = Path.Combine(Path.GetDirectoryName(projectsFolder), $"!{projectsFolder}");
+            string deleteName = Path.Combine(Path.GetDirectoryName(projectsFolder), $"{Constants.DeleteFlag}{Path.GetFileName(projectsFolder)}");
             if (!Directory.Exists(deleteName))
                 Directory.Move(projectsFolder, deleteName);
 
             Directory.Delete(deleteName, true);
+
+            _packageList.Clear();
         }
     }
 }

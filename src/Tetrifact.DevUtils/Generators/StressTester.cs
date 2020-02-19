@@ -10,12 +10,17 @@ namespace Tetrifact.DevUtils
     public class StressTester
     {
         Process _serverProcess;
+        Thread _serverThread;
+        List<string> packageNames = new List<string>();
 
         const string url = "http://127.0.0.1:3000";
-        string workingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "stressTests");
+        string _workingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "stressTests");
 
         public void Curl(string command, string workingDirectory) 
         {
+            // force display of headers in output, we want this for HTTP status codes
+            command = $"-D - {command}";
+
             ProcessStartInfo serverStartInfo = new ProcessStartInfo("curl");
             if (workingDirectory != null)
                 serverStartInfo.WorkingDirectory = workingDirectory;
@@ -23,25 +28,30 @@ namespace Tetrifact.DevUtils
 
             Process process = new Process();
             process.StartInfo = serverStartInfo;
+            process.StartInfo.RedirectStandardOutput = true;
             process.Start();
+            process.WaitForExit();
+            string result = process.StandardOutput.ReadToEnd();
+            if (!result.Contains("200 OK") && !result.Contains("404 Not Found"))
+                throw new Exception($"Server call failed : {result}");
         }
 
         public void Start() 
         {
             int threads = 10;
 
-            if (Directory.Exists(workingDirectory))
-                Directory.Delete(workingDirectory, true);
+            if (Directory.Exists(_workingDirectory))
+                Directory.Delete(_workingDirectory, true);
 
             Thread.Sleep(100);
-            Directory.CreateDirectory(workingDirectory);
+            Directory.CreateDirectory(_workingDirectory);
 
 
             StartServer();
 
             Thread.Sleep(5000);
-            //Curl($"-X DELETE {url}/v1/projects/stressTest", null);
-            Curl($"-X POST {url}/v1/projects/stressTest", null);
+            Curl($"-X DELETE -H \"Content-length:0\" {url}/v1/projects/stressTest", null);
+            Curl($"-X POST -H \"Content-length:0\" {url}/v1/projects/stressTest", null);
 
             // start x nr of threads
             for (int i = 0; i < threads; i++) 
@@ -65,12 +75,12 @@ namespace Tetrifact.DevUtils
             _serverProcess.EnableRaisingEvents = true;
             _serverProcess.Exited += Server_Exited;
 
-            Thread thread = new Thread(new ThreadStart(delegate () {
+            _serverThread = new Thread(new ThreadStart(delegate () {
                 Console.WriteLine("Starting server");
                 _serverProcess.Start();
             }));
 
-            thread.Start();
+            _serverThread.Start();
         }
 
         private async void Server_Exited(object sender, EventArgs e)
@@ -87,50 +97,73 @@ namespace Tetrifact.DevUtils
                 inFiles.Add(new DummyFile
                 {
                     Data = DataHelper.GetRandomData(1, 100),
-                    Path = Guid.NewGuid().ToString()
+                    Path = $"mah/files/{i}"
                 });
 
             string packageName = Guid.NewGuid().ToString();
+            lock (packageNames) 
+            {
+                packageNames.Add(packageName);
+            }
+
             string filename = $"{packageName}.zip";
 
             // create package from files array, zipped up
             using (Stream zipStream = ArchiveHelper.ZipStreamFromFiles(inFiles)) 
             {
-                using (Stream fileStream = File.Create(Path.Combine(workingDirectory, filename)))
+                using (Stream fileStream = File.Create(Path.Combine(_workingDirectory, filename)))
                 {
                     zipStream.Seek(0, SeekOrigin.Begin);
                     zipStream.CopyTo(fileStream);
                     fileStream.Close();
                 }
             }
-            
 
-            ProcessStartInfo startInfo = new ProcessStartInfo("curl");
-            startInfo.WorkingDirectory = workingDirectory;
-            startInfo.Arguments = $"-X POST -H \"Content-Type: multipart/form-data\" -F \"Files=@{filename}\" {url}/v1/packages/stressTest/{packageName}?isArchive=true ";
-            startInfo.RedirectStandardInput = true;
+            Curl($"-X POST -H \"Content-Type: multipart/form-data\" -F \"Files=@{filename}\" {url}/v1/packages/stressTest/{packageName}?isArchive=true ", _workingDirectory);
 
-            Process process = new Process();
-            process.StartInfo = startInfo;
-            process.EnableRaisingEvents = true;
-
-            Thread thread = new Thread(new ThreadStart(delegate () {
-                process.Start();
-            }));
-
-            thread.Start();
-
+            File.Delete(Path.Combine(_workingDirectory, filename));
         }
 
         private void Retrieve()
         {
             Console.WriteLine(Thread.CurrentThread.Name + " retrieving");
+            Random random = new Random();
+            string packageToRetrieveId = null;
+            lock (packageNames)
+            {
+                packageToRetrieveId = packageNames[random.Next(0, packageNames.Count)];
+            }
 
+            if (packageToRetrieveId == null)
+                return;
+
+            string targetfile = Path.Join(_workingDirectory, $"dl-{packageToRetrieveId}.zip");
+            if (File.Exists(targetfile))
+                return;
+
+            Curl($"-o {targetfile} {url}/v1/archives/stressTest/{packageToRetrieveId}", null);
+            if (!File.Exists(targetfile))
+                throw new Exception("expected download failed");
+
+            File.Delete(targetfile);
         }
 
         private void Delete()
         {
+            string packageToDeleteId = null;
+            Random random = new Random();
+            lock (packageNames)
+            {
+                packageToDeleteId = packageNames[random.Next(0, packageNames.Count)];
+            }
+
             Console.WriteLine(Thread.CurrentThread.Name + " deleting");
+            Curl($"-X DELETE {url}/v1/packages/stressTest/{packageToDeleteId}", null);
+
+            lock (packageNames)
+            {
+                packageNames.Remove(packageToDeleteId);
+            }
         }
 
         private void Work() 

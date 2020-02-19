@@ -72,6 +72,7 @@ namespace Tetrifact.Web
             }
         }
 
+
         /// <summary>
         /// Gets latest package with the given tag.
         /// </summary>
@@ -139,6 +140,12 @@ namespace Tetrifact.Web
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private static string RemoveFirstDirectoryFromPath(string path)
         {
             path = path.Replace("\\", "/");
@@ -148,6 +155,7 @@ namespace Tetrifact.Web
 
             return string.Join("/", items.Skip(1));
         }
+
 
         /// <summary>
         /// Handles posting a new package to system. 

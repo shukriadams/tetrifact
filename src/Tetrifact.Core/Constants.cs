@@ -13,5 +13,7 @@
         public static readonly string TransactionsFragment = "transactions";
 
         public static readonly string ExplicitLinkSwitch = "___!";
+
+        public static readonly string DeleteFlag = "!!";
     }
 }
