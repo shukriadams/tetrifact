@@ -60,16 +60,32 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{project}")]
-        public JsonResult ListPackages(string project, [FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        [Produces("application/json")]
+        public ActionResult ListPackages(string project, [FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
-            if (isFull)
+            try 
             {
-                return new JsonResult(_packageList.Get(project, pageIndex, pageSize));
+                if (isFull)
+                {
+                    return Json(_packageList.Get(project, pageIndex, pageSize));
+                }
+                else
+                {
+                    return Json(_packageList.GetPackageIds(project, pageIndex, pageSize));
+                }
             }
-            else
+            catch (ProjectNotFoundException)
             {
-                return new JsonResult(_packageList.GetPackageIds(project, pageIndex, pageSize));
+                return NotFound();
             }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                Console.WriteLine("An unexpected error occurred : ");
+                Console.WriteLine(ex);
+                return Responses.UnexpectedError();
+            }
+
         }
 
 

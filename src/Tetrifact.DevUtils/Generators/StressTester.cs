@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,14 +13,17 @@ namespace Tetrifact.DevUtils
         Process _serverProcess;
         Thread _serverThread;
         List<string> packageNames = new List<string>();
-
+        const int maxPackages = 100;
         const string url = "http://127.0.0.1:3000";
         string _workingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "stressTests");
 
-        public void Curl(string command, string workingDirectory) 
+        public string Curl(string command, string workingDirectory, bool returnOutPut = false) 
         {
             // force display of headers in output, we want this for HTTP status codes
-            command = $"-s -D - {command}";
+            if (returnOutPut)
+                command = $"-s {command}";
+            else
+                command = $"-s -D - {command}";
 
             ProcessStartInfo serverStartInfo = new ProcessStartInfo("curl");
             if (workingDirectory != null)
@@ -33,8 +37,13 @@ namespace Tetrifact.DevUtils
             process.WaitForExit();
 
             string result = process.StandardOutput.ReadToEnd();
+            if (returnOutPut)
+                return result;
+
             if (!result.Contains("200 OK") && !result.Contains("404 Not Found"))
                 throw new Exception($"Server call failed : {result}");
+
+            return null;
         }
 
         public void Start() 
@@ -91,8 +100,14 @@ namespace Tetrifact.DevUtils
 
         private void Create() 
         {
-            Console.WriteLine(Thread.CurrentThread.Name + " creating");
-
+            string rawJson = Curl($"{url}/v1/packages/stressTest?size={2*maxPackages}", null, true);
+            string[] existingPackageIds = JsonConvert.DeserializeObject<string[]>(rawJson);
+            if (existingPackageIds.Length > maxPackages) 
+            {
+                Console.WriteLine($"Max packages ({maxPackages}) reached, waiting");
+                return;
+            }
+                
             List<DummyFile> inFiles = new List<DummyFile>();
             for (int i = 0; i < 50; i++)
                 inFiles.Add(new DummyFile
@@ -119,6 +134,7 @@ namespace Tetrifact.DevUtils
                     fileStream.Close();
                 }
             }
+            Console.WriteLine($"{Thread.CurrentThread.Name} creating package {packageName}");
 
             Curl($"-X POST -H \"Content-Type: multipart/form-data\" -F \"Files=@{filename}\" {url}/v1/packages/stressTest/{packageName}?isArchive=true ", _workingDirectory);
 
@@ -127,13 +143,14 @@ namespace Tetrifact.DevUtils
 
         private void Retrieve()
         {
-            Console.WriteLine(Thread.CurrentThread.Name + " retrieving");
             Random random = new Random();
             string packageToRetrieveId = null;
-            lock (packageNames)
-            {
-                packageToRetrieveId = packageNames[random.Next(0, packageNames.Count)];
-            }
+
+            if (packageNames.Count > 0)
+                lock (packageNames)
+                {
+                    packageToRetrieveId = packageNames[random.Next(0, packageNames.Count - 1)];
+                }
 
             if (packageToRetrieveId == null)
                 return;
@@ -142,9 +159,10 @@ namespace Tetrifact.DevUtils
             if (File.Exists(targetfile))
                 return;
 
+            Console.WriteLine($"{Thread.CurrentThread.Name} downloading package {packageToRetrieveId}");
             Curl($"-o {targetfile} {url}/v1/archives/stressTest/{packageToRetrieveId}", null);
             if (!File.Exists(targetfile))
-                throw new Exception("expected download failed");
+                Console.WriteLine($"Download of package ${packageToRetrieveId} failed");
 
             File.Delete(targetfile);
         }
@@ -153,12 +171,13 @@ namespace Tetrifact.DevUtils
         {
             string packageToDeleteId = null;
             Random random = new Random();
-            lock (packageNames)
-            {
-                packageToDeleteId = packageNames[random.Next(0, packageNames.Count)];
-            }
+            if (packageNames.Count > 0)
+                lock (packageNames)
+                {
+                    packageToDeleteId = packageNames[random.Next(0, packageNames.Count -1)];
+                }
 
-            Console.WriteLine(Thread.CurrentThread.Name + " deleting");
+            Console.WriteLine($"{Thread.CurrentThread.Name} deleting package {packageToDeleteId}");
             Curl($"-X DELETE {url}/v1/packages/stressTest/{packageToDeleteId}", null);
 
             lock (packageNames)
@@ -175,7 +194,7 @@ namespace Tetrifact.DevUtils
 
                 try
                 {
-                    int action = r.Next(0,2);
+                    int action = r.Next(0,3);
                     switch (action) 
                     {
                         case 0:

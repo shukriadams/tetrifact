@@ -116,15 +116,28 @@ namespace Tetrifact.Core
 
             string manifestRealPath = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
 
+            string rawPackage;
+
             try
             {
-                Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(manifestRealPath));
+                rawPackage = File.ReadAllText(manifestRealPath);
+            }
+            catch (System.IO.FileNotFoundException) 
+            {
+                // there is no guarantee the package hasn't already been deleted, so must always gracefully handle
+                // missing file
+                throw new PackageNotFoundException(packageId);
+            }
+
+            try
+            {
+                Package package = JsonConvert.DeserializeObject<Package>(rawPackage);
                 package.PathOnDisk = manifestRealPath;
                 return package;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestRealPath}. Pointer path was {manifestRealPath}.");
+                _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestRealPath}. Pointer path was {manifestPointerPath}.");
                 return null;
             }
         }

@@ -60,6 +60,15 @@ namespace Tetrifact.Web
                     options.JsonSerializerOptions.WriteIndented = true;
                 });
 
+            services.AddLogging(
+                builder =>
+                {
+                    builder.AddFilter("Microsoft", LogLevel.Warning)
+                           .AddFilter("System", LogLevel.Warning)
+                           .AddFilter("NToastNotify", LogLevel.Warning)
+                           .AddConsole();
+                });
+
             services.AddMemoryCache();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }

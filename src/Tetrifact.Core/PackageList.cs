@@ -65,6 +65,9 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> GetPackageIds(string project, int pageIndex, int pageSize)
         {
+            if (!this.GetProjects().Contains(project))
+                throw new ProjectNotFoundException(project);
+
             IList<Package> packages;
             if (!_cache.TryGetValue(GetPackageCacheKey(project), out packages))
                 packages = this.GeneratePackageData(project);
@@ -126,8 +129,8 @@ namespace Tetrifact.Core
 
         public IEnumerable<Package> Get(string project, int pageIndex, int pageSize)
         {
-            if (string.IsNullOrEmpty(project))
-                return new List<Package>();
+            if (!this.GetProjects().Contains(project))
+                throw new ProjectNotFoundException(project);
 
             IList<Package> packages;
             if (!_cache.TryGetValue(GetPackageCacheKey(project), out packages))
@@ -202,30 +205,45 @@ namespace Tetrifact.Core
 
             foreach (string manifestPath in manifestPaths)
             {
+                string pathOnDisk = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath);
+
+                // there is no guarantee the manifest in a transaction is actually available - if a newer transaction was created without that manifest
+                // it will not exist on disk. The list package is a "soft" reader.
+                if (!File.Exists(pathOnDisk))
+                    continue;
+
+                string manifestText = null;
                 try
                 {
-                    string pathOnDisk = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, manifestPath);
-                    
-                    // there is no guarantee the manifest in a transaction is actually available - if a newer transaction was created without that manifest
-                    // it will not exist on disk. The list package is a "soft" reader.
-                    if (!File.Exists(pathOnDisk))
-                        continue;
+                    manifestText = File.ReadAllText(pathOnDisk);
+                }
+                catch (IOException ex)
+                {
+                    _logger.LogError(ex, $"Error trying to read manifest @ {manifestPath} - {ex}");
+                    continue;
+                }
 
-                    Package package = JsonConvert.DeserializeObject<Package>(File.ReadAllText(pathOnDisk));
-                    packages.Add(new Package
-                    {
-                        CreatedUtc = package.CreatedUtc,
-                        Name = package.Name,
-                        Description = package.Description,
-                        DiffState = package.DiffState,
-                        Hash = package.Hash,
-                        Tags = package.Tags
-                    });
+                Package package = null;
+
+                try
+                {
+                    package = JsonConvert.DeserializeObject<Package>(manifestText);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestPath}");
+                    _logger.LogError(ex, $"Unexpected error trying to parse manifest @ {manifestPath}. File is likely corrupt. {ex}");
+                    continue;
                 }
+
+                packages.Add(new Package
+                {
+                    CreatedUtc = package.CreatedUtc,
+                    Name = package.Name,
+                    Description = package.Description,
+                    DiffState = package.DiffState,
+                    Hash = package.Hash,
+                    Tags = package.Tags
+                });
             }
 
             packages = packages.OrderByDescending(r => r.CreatedUtc).ToList();
