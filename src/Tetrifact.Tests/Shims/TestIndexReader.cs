@@ -112,7 +112,7 @@ namespace Tetrifact.Tests
             return null;
         }
 
-        public DirectoryInfo GetActiveTransactionInfo(string project)
+        public ActiveTransaction GetActiveTransaction(string project)
         {
             throw new System.NotImplementedException();
         }

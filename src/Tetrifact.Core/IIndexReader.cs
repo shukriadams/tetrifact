@@ -18,12 +18,11 @@ namespace Tetrifact.Core
         Package GetChild(string project, string package);
 
         /// <summary>
-        /// Gets the directory info for the folder containing the latest and therefore current transaction. Returns null if no
-        /// transactions are committed yet.
+        /// Returns null if no transactions are committed yet.
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        DirectoryInfo GetActiveTransactionInfo(string project);
+        ActiveTransaction GetActiveTransaction(string project);
 
         /// <summary>
         /// Gets x nr of latest transactions including active.
@@ -92,15 +91,6 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <returns></returns>
         string GetHead(string project);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="project"></param>
-        /// <param name="package"></param>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        string RehydrateOrResolveFile(string project, string package, string filePath);
 
         /// <summary>
         /// 

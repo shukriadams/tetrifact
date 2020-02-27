@@ -45,10 +45,11 @@ namespace Tetrifact.Tests
             StandardKernel kernel = new StandardKernel();
             kernel.Load(Assembly.GetExecutingAssembly());
 
+            NinjectTypeProvider typeProvider = new NinjectTypeProvider();
             this.Logger = new TestLogger<IIndexReader>();
             this.DeleterLogger = new TestLogger<IPackageDeleter>();
             this.ProjectServiceLogger = new TestLogger<IProjectService>();
-            this.IndexReader = new Core.IndexReader(Logger);
+            this.IndexReader = new Core.IndexReader(Logger, typeProvider);
             this.PackageDeleter = kernel.Get<Core.PackageDeleter>();
             this.PackageCreateLogger = new TestLogger<IPackageCreate>();
             this.PackageCreate = kernel.Get<Core.PackageCreate>();

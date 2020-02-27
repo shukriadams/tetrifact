@@ -45,11 +45,14 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageDeleter, PackageDeleter>();
             services.AddTransient<IDiffService, Daemon>();
             services.AddTransient<IDiffServiceProvider, DiffServiceProvider>();
-            services.AddTransient<ITypeProvider, ServiceTypeProvider>();
+            services.AddTransient<IRehydrator, Rehydrator>();
+            services.AddTransient<ITypeProvider, HttpServiceContext>();
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
             
             // register filterws
-            services.AddScoped<ReadLevel>();
-            services.AddScoped<WriteLevel>();
+            services.AddTransient<ReadLevel>();
+            services.AddTransient<WriteLevel>();
 
             // prettify JSON output
             services.AddMvc(

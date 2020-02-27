@@ -22,7 +22,8 @@ namespace Tetrifact.Tests.Controllers
             // inject 3 indices
             TestPackageList.Instance.Test_Indexes = new string[] { "1", "2", "3" };
 
-            IEnumerable<string> ids = _controller.ListPackages("some-project", false, 0, 10).Value as IEnumerable<string>;
+            
+            IEnumerable<string> ids = (_controller.ListPackages("some-project", false, 0, 10) as Microsoft.AspNetCore.Mvc.JsonResult).Value as IEnumerable<string>;
             Assert.True(ids.Count() == 3);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -62,11 +63,10 @@ namespace Tetrifact.Core
 
                     await Task.Delay(Settings.AutoDiffInterval);
                 }
-
             }
             catch (Exception ex)
             {
-                _log.LogError("Unexpected error", ex);
+                _log.LogError($"Unexpected error : {ex}", ex);
             }
         }
 
@@ -98,8 +98,6 @@ namespace Tetrifact.Core
                         _packageCreate.MarkFailedDiff(project, undiffedPackage);
                         throw ex;
                     }
-
-
                 }
             }
         }

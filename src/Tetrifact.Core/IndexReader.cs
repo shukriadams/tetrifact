@@ -1,5 +1,4 @@
-﻿using BsDiff;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,8 +6,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
-using VCDiff.Decoders;
-using VCDiff.Includes;
 
 namespace Tetrifact.Core
 {
@@ -17,6 +14,8 @@ namespace Tetrifact.Core
         #region FIELDS
 
         private readonly ILogger<IIndexReader> _logger;
+
+        private readonly ITypeProvider _typeProvider;
 
         #endregion
 
@@ -28,9 +27,10 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="settings"></param>
         /// <param name="logger"></param>
-        public IndexReader(ILogger<IIndexReader> logger) 
+        public IndexReader(ILogger<IIndexReader> logger, ITypeProvider typeProvider) 
         {
             _logger = logger;
+            _typeProvider = typeProvider;
         }
 
         #endregion
@@ -39,61 +39,119 @@ namespace Tetrifact.Core
 
         public Package GetChild(string project, string package) 
         {
-            DirectoryInfo activeTransaction = this.GetActiveTransactionInfo(project);
-            if (activeTransaction == null)
-                return null;
+            ActiveTransaction activeTransaction = this.GetActiveTransaction(project);
 
-            string childLink = Directory.GetFiles(activeTransaction.FullName, $"dep_{Obfuscator.Cloak(package)}_*").FirstOrDefault();
-            if (childLink == null)
-                return null;
+            try
+            {
+                if (activeTransaction == null)
+                    return null;
 
-            string childName = Path.GetFileNameWithoutExtension(childLink).Replace($"dep_{Obfuscator.Cloak(package)}_", string.Empty).Replace("_", string.Empty);
-            childName = Obfuscator.Decloak(childName);
-            return this.GetPackage(project, childName);
+                string childLink = Directory.GetFiles(activeTransaction.Info.FullName, $"dep_{Obfuscator.Cloak(package)}_*").FirstOrDefault();
+                if (childLink == null)
+                    return null;
+
+                string childName = Path.GetFileNameWithoutExtension(childLink).Replace($"dep_{Obfuscator.Cloak(package)}_", string.Empty).Replace("_", string.Empty);
+                childName = Obfuscator.Decloak(childName);
+                return this.GetPackage(project, childName);
+            }
+            finally 
+            {
+                if (activeTransaction!= null)
+                    activeTransaction.Unlock();
+            }
+
         }
+
 
         public bool ProjectExists(string project) 
         {
             return Directory.Exists(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project)));
         }
 
-        public DirectoryInfo GetActiveTransactionInfo(string project) 
+
+        public ActiveTransaction GetActiveTransaction(string project) 
         {
-            return new DirectoryInfo(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
-                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.Name)
-                .FirstOrDefault();
+            while (true) 
+            {
+                DirectoryInfo info = new DirectoryInfo(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
+                    .GetDirectories()
+                    .Where(r => !r.Name.StartsWith(Constants.UnpublishedFlag) && !r.Name.StartsWith(PathHelper.DeleteFlag))
+                    .OrderByDescending(d => d.Name)
+                    .FirstOrDefault();
+
+                if (info == null)
+                    return null;
+
+                if (Directory.Exists(info.FullName)) 
+                {
+                    try
+                    {
+                        return new ActiveTransaction(info);
+                    }
+                    catch (MissingTransacationException) 
+                    {
+                        // ignore these, transaction was deleted during seek
+                    }
+                }
+                    
+            }
         }
+
 
         public IEnumerable<DirectoryInfo> GetRecentTransactionsInfo(string project, int count)
         {
             return new DirectoryInfo(Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment))
-                .GetDirectories().Where(r => !r.Name.StartsWith("~") && !r.Name.StartsWith(PathHelper.DeleteFlag)).OrderByDescending(d => d.Name)
+                .GetDirectories()
+                .Where(r => !r.Name.StartsWith(Constants.UnpublishedFlag) && !r.Name.StartsWith(PathHelper.DeleteFlag))
+                .OrderByDescending(d => d.Name)
                 .Take(count);
         }
 
+
         private IEnumerable<string> GetManifestPointers(string project) 
         {
-            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
-            if (latestTransactionInfo == null)
-                return new string[]{ };
+            ActiveTransaction latestTransactionInfo = this.GetActiveTransaction(project);
+            try
+            {
+                if (latestTransactionInfo == null)
+                    return new string[] { };
 
-            return Directory.GetFiles(latestTransactionInfo.FullName, "*_manifest").Select(r => Path.GetFileName(r));
+                return Directory.GetFiles(latestTransactionInfo.Info.FullName, "*_manifest").Select(r => Path.GetFileName(r));
+            }
+            finally 
+            {
+                if (latestTransactionInfo != null)
+                    latestTransactionInfo.Unlock();
+            }
+
+
         }
+
 
         public IEnumerable<string> GetPackagePaths(string project) 
         {
-            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
-            if (latestTransactionInfo == null)
-                return new string[] { };
+            ActiveTransaction latestTransactionInfo = this.GetActiveTransaction(project);
 
-            IEnumerable<string> pointers = Directory.GetFiles(latestTransactionInfo.FullName, "*_manifest");
+            try
+            {
+                if (latestTransactionInfo == null)
+                    return new string[] { };
 
-            List<string> manifests = new List<string>();
-            foreach (string pointer in pointers) 
-                manifests.Add(File.ReadAllText(pointer));
+                IEnumerable<string> pointers = Directory.GetFiles(latestTransactionInfo.Info.FullName, "*_manifest");
 
-            return manifests;
+                List<string> manifests = new List<string>();
+                foreach (string pointer in pointers)
+                    manifests.Add(File.ReadAllText(pointer));
+
+                return manifests;
+            }
+            finally 
+            {
+                if (latestTransactionInfo != null)
+                    latestTransactionInfo.Unlock();
+            }
         }
+
 
         public bool PackageNameInUse(string project, string id)
         {
@@ -104,49 +162,62 @@ namespace Tetrifact.Core
             return rawList.Contains(id);
         }
 
+
         public Package GetPackage(string project, string packageId)
         {
-            DirectoryInfo latestTransactionInfo = this.GetActiveTransactionInfo(project);
-            if (latestTransactionInfo == null)
-                return null;
-
-            string manifestPointerPath = Path.Combine(latestTransactionInfo.FullName, $"{Obfuscator.Cloak(packageId)}_manifest");
-            if (!File.Exists(manifestPointerPath))
-                throw new PackageNotFoundException(packageId);
-
-            string manifestRealPath = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
-
-            string rawPackage;
+            ActiveTransaction latestTransactionInfo = this.GetActiveTransaction(project);
 
             try
             {
-                rawPackage = File.ReadAllText(manifestRealPath);
+
+                if (latestTransactionInfo == null)
+                    return null;
+
+                string manifestPointerPath = Path.Combine(latestTransactionInfo.Info.FullName, $"{Obfuscator.Cloak(packageId)}_manifest");
+                if (!File.Exists(manifestPointerPath))
+                    throw new PackageNotFoundException(packageId);
+
+                string manifestRealPath = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.ManifestsFragment, File.ReadAllText(manifestPointerPath));
+
+                string rawPackage;
+
+                try
+                {
+                    rawPackage = File.ReadAllText(manifestRealPath);
+                }
+                catch (System.IO.FileNotFoundException)
+                {
+                    // there is no guarantee the package hasn't already been deleted, so must always gracefully handle
+                    // missing file
+                    throw new PackageNotFoundException(packageId);
+                }
+
+                try
+                {
+                    Package package = JsonConvert.DeserializeObject<Package>(rawPackage);
+                    package.PathOnDisk = manifestRealPath;
+                    return package;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestRealPath}. Pointer path was {manifestPointerPath}.");
+                    return null;
+                }
             }
-            catch (System.IO.FileNotFoundException) 
+            finally 
             {
-                // there is no guarantee the package hasn't already been deleted, so must always gracefully handle
-                // missing file
-                throw new PackageNotFoundException(packageId);
+                if (latestTransactionInfo != null)
+                    latestTransactionInfo.Unlock();
             }
 
-            try
-            {
-                Package package = JsonConvert.DeserializeObject<Package>(rawPackage);
-                package.PathOnDisk = manifestRealPath;
-                return package;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Unexpected error trying to read manifest @ {manifestRealPath}. Pointer path was {manifestPointerPath}.");
-                return null;
-            }
         }
+
 
         public GetFileResponse GetFile(string project, string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-
-            string binPath = RehydrateOrResolveFile(project, fileIdentifier.Package, fileIdentifier.Path);
+            IRehydrator rehydrator = _typeProvider.GetInstance<IRehydrator>();
+            string binPath = rehydrator.RehydrateOrResolveFile(project, fileIdentifier.Package, fileIdentifier.Path);
 
             if (string.IsNullOrEmpty(binPath)) 
                 throw new Tetrifact.Core.FileNotFoundException(fileIdentifier.Path);
@@ -154,98 +225,6 @@ namespace Tetrifact.Core
                 return new GetFileResponse(new FileStream(binPath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
         }
 
-        public string RehydrateOrResolveFile(string project, string packageId, string filePath) 
-        {
-            string projectPath = PathHelper.GetExpectedProjectPath(project);
-            string shardGuid = PathHelper.GetLatestShardAbsolutePath(this, project, packageId);
-            string dataPathBase = Path.Combine(projectPath, Constants.ShardsFragment, shardGuid, filePath);
-            Package package = this.GetPackage(project, packageId);
-            string rehydrateOutputPath = Path.Combine(Settings.TempBinaries, Obfuscator.Cloak(project), package.UniqueId.ToString(), filePath, "bin");
-
-            PackageItem manifestItem = package.Files.FirstOrDefault(r => r.Path == filePath);
-            // if neither patch nor bin exist, file doesn't exist
-            if (manifestItem == null)
-                return null;
-
-            // file has already been rehydrated by a previous process and is ready to serve
-            if (File.Exists(rehydrateOutputPath))
-                return rehydrateOutputPath;
-
-            FileHelper.EnsureParentDirectoryExists(rehydrateOutputPath);
-
-            for (int i = 0; i < manifestItem.Chunks.Count; i ++)
-            {
-                PackageItemChunk chunk = manifestItem.Chunks[i];
-
-                if (chunk.Type == PackageItemTypes.Bin)
-                {
-                    using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
-                    using (FileStream readStream = new FileStream(Path.Combine(dataPathBase, $"chunk_{i}"), FileMode.Open, FileAccess.Read))
-                    {
-                        writeStream.Position = writeStream.Length; // always append to end of this stream
-                        StreamsHelper.StreamCopy(readStream, writeStream, readStream.Length);
-                    }
-                }
-                else if (chunk.Type == PackageItemTypes.Link)
-                {
-                    // read chunk link from source
-                    string binarySourcePath = RehydrateOrResolveFile(project, package.Parent, filePath);
-
-                    using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
-                    using (FileStream readStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
-                    {
-                        readStream.Position = i * package.FileChunkSize;
-                        writeStream.Position = writeStream.Length; // always append to end of this stream
-                        StreamsHelper.StreamCopy(readStream, writeStream, (i + 1) * package.FileChunkSize);
-                    }
-                }
-                else 
-                {
-                    // read source chunk against self patch
-                    string binarySourcePath = RehydrateOrResolveFile(project, package.Parent, filePath);
-
-                    using (FileStream writeStream = new FileStream(rehydrateOutputPath, FileMode.OpenOrCreate, FileAccess.Write))
-                    using (FileStream binarySourceStream = new FileStream(Path.Combine(binarySourcePath), FileMode.Open, FileAccess.Read))
-                    using (FileStream patchStream = new FileStream(Path.Combine(dataPathBase, $"chunk_{i}"), FileMode.Open, FileAccess.Read))
-                    using (MemoryStream binarySourceChunkStream = new MemoryStream())
-                    {
-                        // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
-                        binarySourceStream.Position = i * package.FileChunkSize;
-                        StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * package.FileChunkSize));
-                        binarySourceChunkStream.Position = 0;
-
-                        writeStream.Position = writeStream.Length; // always append to end of this stream
-
-                        // if patch is empty, write an empty output file
-                        if (patchStream.Length > 0)
-                        {
-                            VCDecoder decoder = new VCDecoder(binarySourceChunkStream, patchStream, writeStream);
-
-                            // You must call decoder.Start() first. The header of the delta file must be available before calling decoder.Start()
-
-                            VCDiffResult result = decoder.Start();
-
-                            if (result != VCDiffResult.SUCCESS)
-                            {
-                                //error abort
-                                throw new Exception($"vcdiff abort error in file {filePath}");
-                            }
-
-                            long bytesWritten = 0;
-                            result = decoder.Decode(out bytesWritten);
-
-                            if (result != VCDiffResult.SUCCESS)
-                            {
-                                //error decoding
-                                throw new Exception($"vcdiff decode error in file {filePath}");
-                            }
-                        }
-                    }
-                }
-            }
-
-            return rehydrateOutputPath;
-        }
 
         public Stream GetPackageAsArchive(string project, string packageId)
         {
@@ -270,6 +249,7 @@ namespace Tetrifact.Core
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
+
         // todo : make private
         public string GetArchivePath(string project, string packageId)
         {
@@ -280,6 +260,7 @@ namespace Tetrifact.Core
             return Path.Combine(Settings.ArchivePath, Obfuscator.Cloak(project), string.Format($"{package.UniqueId}.zip"));
         }
 
+
         public string GetTempArchivePath(string project, string packageId)
         {
             Package package = this.GetPackage(project, packageId);
@@ -289,24 +270,36 @@ namespace Tetrifact.Core
             return Path.Combine(Settings.ArchivePath, Obfuscator.Cloak(project), string.Format($"{package.UniqueId}.zip.tmp"));
         }
 
+
         public string GetHead(string project) 
         {
-            DirectoryInfo activeTransaction = this.GetActiveTransactionInfo(project);
-            if (activeTransaction == null)
-                return null;
+            ActiveTransaction activeTransaction = this.GetActiveTransaction(project);
 
-            string headPath = Path.Combine(activeTransaction.FullName, "head");
-            if (!File.Exists(headPath))
-                return null;
+            try
+            {
+                if (activeTransaction == null)
+                    return null;
 
-            return File.ReadAllText(headPath);
+                string headPath = Path.Combine(activeTransaction.Info.FullName, "head");
+                if (!File.Exists(headPath))
+                    return null;
+
+                return File.ReadAllText(headPath);
+            }
+            finally
+            {
+                if (activeTransaction != null)
+                    activeTransaction.Unlock();
+            }
         }
+
 
         private bool DoesPackageExist(string project, string packageId)
         {
             Package package = this.GetPackage(project, packageId);
             return package != null;
         }
+
 
         private void CreateArchive(string project, string packageId)
         {

@@ -35,7 +35,7 @@ namespace Tetrifact.Tests.PackageList
             appLogic.Start();
 
             // we'll be using indexreader for all tests
-            IIndexReader indexReader = new Core.IndexReader(new TestLogger<IIndexReader>() );
+            IIndexReader indexReader = new Core.IndexReader(new TestLogger<IIndexReader>(), new NinjectTypeProvider() );
             this.PackageList = new Core.PackageList(MemoryCacheHelper.GetInstance(), indexReader, new TestLogger<IPackageList>());
         }
 

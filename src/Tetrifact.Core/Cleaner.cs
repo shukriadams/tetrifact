@@ -31,29 +31,18 @@ namespace Tetrifact.Core
         public void Clean(string project)
         {
             TransactionHelper transactionHelper = new TransactionHelper(_indexReader);
-            ProjectRecentHistory projectView = transactionHelper.GetRecentProjectHistory(project);
 
             List<string> filesToDelete = new List<string>();
             List<string> directoriesToDelete = new List<string>();
 
             // find all transaction not in history view
             string[] allTransactions = Directory.GetDirectories(PathHelper.ResolveTransactionRoot(project));
+            ProjectRecentHistory projectView = transactionHelper.GetRecentProjectHistory(project);
             TimeSpan transactionTimeout = new TimeSpan(0, Settings.TransactionTimeout, 0);
-
+            
             foreach (string existingTransaction in allTransactions)
             {
-                // handle uncommitted transactions
-                if (Path.GetFileName(existingTransaction).StartsWith("~")) 
-                {
-                    // if transaction has timed out, add to delete list, else ignore it
-                    DirectoryInfo dirInfo = new DirectoryInfo(existingTransaction);
-                    if (DateTime.UtcNow - dirInfo.CreationTimeUtc > transactionTimeout)
-                        directoriesToDelete.Add(existingTransaction);
-
-                    continue;
-                }
-                
-                // if transactiotn has already been flagged for delete, the previous clean run attempted 
+                // if transactions has already been flagged for delete, the previous clean run attempted 
                 // and failed to delete it. Add to delete list to try again.
                 if (Path.GetFileName(existingTransaction).StartsWith(PathHelper.DeleteFlag))
                 {
@@ -61,21 +50,31 @@ namespace Tetrifact.Core
                     continue;
                 }
 
-                if (!projectView.Transactions.Contains(Path.GetFileName(existingTransaction)))
+                // handle uncommitted transactions
+                if (Path.GetFileName(existingTransaction).StartsWith(Constants.UnpublishedFlag)) 
                 {
-                    try
-                    {
-                        string targetPath = PathHelper.GetDeletingPath(existingTransaction);
-                        Directory.Move(existingTransaction, targetPath);
-                        directoriesToDelete.Add(targetPath);
-                    }
-                    catch (IOException)
-                    {
-                        // ignore, content is in use, we'll delete on next clean
-                    }
+                    // ignore transaction if it has not yet timed out
+                    DirectoryInfo dirInfo = new DirectoryInfo(existingTransaction);
+                    if (DateTime.UtcNow - dirInfo.CreationTimeUtc < transactionTimeout)
+                        continue;
+                }
+
+                // if transaction is current, ignore it
+                if (projectView.Transactions.Contains(Path.GetFileName(existingTransaction)))
+                    continue;
+
+                try
+                {
+                    string targetPath = PathHelper.GetDeletingPath(existingTransaction);
+                    Directory.Move(existingTransaction, targetPath);
+                    directoriesToDelete.Add(targetPath);
+                }
+                catch (IOException)
+                {
+                    // ignore, content is in use, we'll delete on next clean
                 }
             }
-
+            
 
             // find all shards not in history view
             string[] allShards = Directory.GetDirectories(PathHelper.ResolveShardRoot(project));
@@ -150,7 +149,6 @@ namespace Tetrifact.Core
             IEnumerable<DirectoryInfo> hangingProjects = new DirectoryInfo(Settings.ProjectsPath).GetDirectories();
             hangingProjects = hangingProjects.Where(r => r.Name.StartsWith(Constants.DeleteFlag));
             directoriesToDelete = directoriesToDelete.Concat(hangingProjects.Select(r => r.FullName)).ToList();
-
 
             foreach (string item in directoriesToDelete)
             {

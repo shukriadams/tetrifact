@@ -27,15 +27,30 @@ namespace Tetrifact.Core
             _project = project;
 
             long ticks = DateTime.UtcNow.Ticks;
-            _tempTransactionFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"~{ticks}");
+            _tempTransactionFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"{Constants.UnpublishedFlag}{ticks}");
             _finalTransactionFolder = Path.Combine(Settings.ProjectsPath, Obfuscator.Cloak(project), Constants.TransactionsFragment, $"{ticks}");
             Directory.CreateDirectory(_tempTransactionFolder);
 
             // find current transaction and copy all files over 
-            DirectoryInfo activeTransaction = _indexReader.GetActiveTransactionInfo(project);
-            if (activeTransaction != null) 
-                foreach (FileInfo file in activeTransaction.GetFiles())
-                    file.CopyTo(Path.Combine(_tempTransactionFolder, file.Name));
+            ActiveTransaction activeTransaction = _indexReader.GetActiveTransaction(project);
+
+            try
+            {
+                if (activeTransaction != null)
+                    foreach (FileInfo file in activeTransaction.Info.GetFiles()) 
+                    {
+                        // ignore lock files
+                        if (Path.GetFileName(file.FullName).StartsWith(Constants.LockFragment))
+                            continue;
+
+                        file.CopyTo(Path.Combine(_tempTransactionFolder, file.Name));
+                    }
+            }
+            finally
+            {
+                if (activeTransaction!= null)
+                    activeTransaction.Unlock();
+            }
         }
 
         #endregion
@@ -54,7 +69,7 @@ namespace Tetrifact.Core
                 if (File.Exists(path))
                     File.Delete(path);
             }
-            else 
+            else
             {
                 File.WriteAllText(path, package);
             }

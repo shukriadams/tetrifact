@@ -18,6 +18,8 @@ namespace Tetrifact.Core
 
         public void Delete(string project, string package)
         {
+            ActiveTransaction activeTransaction = null;
+
             try
             {
                 WriteLock.Instance.WaitUntilClear(project);
@@ -45,8 +47,11 @@ namespace Tetrifact.Core
                 string packageObfuscated = Obfuscator.Cloak(package);
 
                 // find all dependants, there should be only one
-                DirectoryInfo currentTransaction = _indexReader.GetActiveTransactionInfo(project);
-                IEnumerable<string> dependants = currentTransaction.GetFiles().Where(r => r.Name.StartsWith($"dep_{packageObfuscated}_")).Select(r => r.FullName);
+                activeTransaction = _indexReader.GetActiveTransaction(project);
+                if (activeTransaction == null)
+                    return;
+
+                IEnumerable<string> dependants = activeTransaction.Info.GetFiles().Where(r => r.Name.StartsWith($"dep_{packageObfuscated}_")).Select(r => r.FullName);
 
                 if (dependants.Count() == 0)
                 {
@@ -73,6 +78,9 @@ namespace Tetrifact.Core
             }
             finally
             {
+                if (activeTransaction != null)
+                    activeTransaction.Unlock();
+
                 WriteLock.Instance.Clear(project);
             }
         }

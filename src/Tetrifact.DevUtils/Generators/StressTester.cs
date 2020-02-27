@@ -219,7 +219,7 @@ namespace Tetrifact.DevUtils
                     Console.WriteLine(ex);
                 }
 
-                Thread.Sleep(r.Next(500, 5000));
+                Thread.Sleep(r.Next(500, 1000));
             }
         }
     }

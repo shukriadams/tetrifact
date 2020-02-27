@@ -15,5 +15,9 @@
         public static readonly string ExplicitLinkSwitch = "___!";
 
         public static readonly string DeleteFlag = "!!";
+
+        public static readonly string UnpublishedFlag = "~";
+
+        public static readonly string LockFragment = "lock_";
     }
 }

@@ -87,7 +87,7 @@ namespace Tetrifact.Core
         /// <param name="limit"></param>
         public static void FileCopy(string fromPath, string toPath, long inputStart, long limit) 
         {
-            using (FileStream input = new FileStream(fromPath, FileMode.Open, FileAccess.Read))
+            using (FileStream input = new FileStream(fromPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (FileStream write = new FileStream(toPath, FileMode.Create, FileAccess.Write))
             {
                 input.Position = inputStart;

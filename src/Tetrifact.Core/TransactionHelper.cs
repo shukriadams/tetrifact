@@ -46,6 +46,10 @@ namespace Tetrifact.Core
                 IEnumerable<FileInfo> transactionFiles = transaction.GetFiles();
                 foreach (FileInfo transactionFile in transactionFiles)
                 {
+
+                    if (Path.GetFileName(transactionFile.FullName).StartsWith(Constants.LockFragment))
+                        continue;
+
                     string pointer = File.ReadAllText(transactionFile.FullName);
                     if (transactionFile.Name.EndsWith("_manifest"))
                         manifestsInRecentHistory.Add(pointer);

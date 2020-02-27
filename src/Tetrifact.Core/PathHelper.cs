@@ -15,18 +15,29 @@ namespace Tetrifact.Core
         /// <param name="project"></param>
         /// <param name="package"></param>
         /// <returns></returns>
-        public static string GetLatestShardAbsolutePath(IndexReader indexReader, string project, string package) 
+        public static string GetLatestShardAbsolutePath(IIndexReader indexReader, string project, string package) 
         {
-            DirectoryInfo currentTransactionInfo = indexReader.GetActiveTransactionInfo(project);
-            // if no transaction found, the package hasn't been written, so treat as not found
-            if (currentTransactionInfo == null)
-                throw new PackageNotFoundException(package);
+            ActiveTransaction currentTransactionInfo = null;
 
-            string pointerPath = Path.Combine(currentTransactionInfo.FullName, $"{Obfuscator.Cloak(package)}_shard");
-            if (!File.Exists(pointerPath))
-                throw new PackageNotFoundException(package);
+            try
+            {
+                currentTransactionInfo = indexReader.GetActiveTransaction(project);
 
-            return File.ReadAllText(pointerPath);
+                // if no transaction found, the package hasn't been written, so treat as not found
+                if (currentTransactionInfo == null)
+                    throw new PackageNotFoundException(package);
+
+                string pointerPath = Path.Combine(currentTransactionInfo.Info.FullName, $"{Obfuscator.Cloak(package)}_shard");
+                if (!File.Exists(pointerPath))
+                    throw new PackageNotFoundException(package);
+
+                return File.ReadAllText(pointerPath);
+            }
+            finally 
+            {
+                if (currentTransactionInfo != null)
+                    currentTransactionInfo.Unlock();
+            }
         }
 
         /// <summary>

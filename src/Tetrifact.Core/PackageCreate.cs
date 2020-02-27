@@ -28,6 +28,8 @@ namespace Tetrifact.Core
 
         private IPackageList _packageList;
 
+        private ITypeProvider _typeProvider;
+
         #endregion
 
         #region PROPERTIES
@@ -40,11 +42,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, IPackageList packageList, ILogger<IPackageCreate> log)
+        public PackageCreate(IIndexReader indexReader, IPackageList packageList, ILogger<IPackageCreate> log, ITypeProvider typeProvider)
         {
             _indexReader = indexReader;
             _log = log;
             _packageList = packageList;
+            _typeProvider = typeProvider;
         }
 
         #endregion
@@ -193,8 +196,10 @@ namespace Tetrifact.Core
                     chunks = 1;
 
                 // create patch against head version of file
-                string thisFileBinPath = _indexReader.RehydrateOrResolveFile(project, packageId, manifestItem.Path);
-                string ancestorBinPath = _indexReader.RehydrateOrResolveFile(project, package.Parent, manifestItem.Path);
+                IRehydrator thisRehydrator = _typeProvider.GetInstance<IRehydrator>();
+                string thisFileBinPath = thisRehydrator.RehydrateOrResolveFile(project, packageId, manifestItem.Path);
+                IRehydrator ancestorRehydrator = _typeProvider.GetInstance<IRehydrator>();
+                string ancestorBinPath = ancestorRehydrator.RehydrateOrResolveFile(project, package.Parent, manifestItem.Path);
                 string stagingBasePath = Path.Combine(this.WorkspacePath, Constants.StagingFragment, manifestItem.Path);
                 bool linkDirect = headPackage != null && headPackage.Files.Where(r => r.Path == manifestItem.Path).FirstOrDefault()?.Hash == manifestItem.Hash;
 
@@ -233,7 +238,7 @@ namespace Tetrifact.Core
 
                         // write to patchPath, using incomingFilePath diffed against sourceBinPath
                         using (FileStream patchStream = new FileStream(writePath, FileMode.Create, FileAccess.Write))
-                        using (FileStream binarySourceStream = new FileStream(ancestorBinPath, FileMode.Open, FileAccess.Read))
+                        using (FileStream binarySourceStream = new FileStream(ancestorBinPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         using (MemoryStream binarySourceChunkStream = new MemoryStream())
                         {
                             // we want only a portion of the binary source file, so we copy that portion to a chunk memory stream
@@ -241,7 +246,7 @@ namespace Tetrifact.Core
                             StreamsHelper.StreamCopy(binarySourceStream, binarySourceChunkStream, ((i + 1) * Settings.FileChunkSize));
                             binarySourceChunkStream.Position = 0;
 
-                            using (FileStream incomingFileStream = new FileStream(thisFileBinPath, FileMode.Open, FileAccess.Read))
+                            using (FileStream incomingFileStream = new FileStream(thisFileBinPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                             using (MemoryStream incomingFileChunkStream = new MemoryStream())
                             {
                                 // similarly, we want only a portion of the incoming file
