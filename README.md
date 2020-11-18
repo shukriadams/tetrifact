@@ -57,7 +57,7 @@ To start Tetrifact unzip and from the command line run
 
     dotnet Tetrifact.web.dll
 
-All configuration is passed in as environment variables - these can also be set from web.config.
+All configuration is passed in as environment variables - these can also be set from the web.config file.
 
 ### Docker image
 
@@ -73,7 +73,7 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
         version: "2"
         services:
         tetrifact:
-            image: shukriadams/tetrifact:latest
+            image: shukriadams/tetrifact:<TAG>
             container_name: tetrifact
             restart: unless-stopped
             environment:
