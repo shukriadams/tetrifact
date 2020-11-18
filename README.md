@@ -24,6 +24,7 @@ your version control system says you're at revision 921. In your Thingernator bu
         curl 
             -X POST 
             -H "Content-Type: multipart/form-data" 
+            -H "Transfer-Encoding: chunked"
             -F "Files=@path/to/thingernator-build.zip" 
             http://tetriserver.example.com/v1/packages/Thingernator-921?isArchive=true 
 
