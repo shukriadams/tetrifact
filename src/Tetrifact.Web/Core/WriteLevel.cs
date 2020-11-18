@@ -21,9 +21,15 @@ namespace Tetrifact.Web
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            // allow all operations for none/read
             if (_settings.AuthorizationLevel == AuthorizationLevel.None || _settings.AuthorizationLevel > AuthorizationLevel.Write)
                 return;
 
+            // allow of no authtokens defined in settings
+            if (!_settings.AccessTokens.Any())
+                return;
+
+            // allow if http Authorization header contains token defined in settings
             string authmethod = context.HttpContext.Request.Headers["Authorization"];
             if (!string.IsNullOrEmpty(authmethod))
             {

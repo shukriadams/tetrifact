@@ -20,6 +20,7 @@ In your Thingernator build script, after compiling, zip Thingernator and then po
         curl 
             -X POST 
             -H "Content-Type: multipart/form-data" 
+            -H "Transfer-Encoding: chunked"
             -F "Files=@path/to/thingernator-build.zip" 
             http://tetriserver.example.com/v1/packages/Thingernator-alpha-build-0.0.6?isArchive=true 
 

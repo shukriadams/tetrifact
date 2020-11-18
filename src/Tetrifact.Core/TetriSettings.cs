@@ -65,6 +65,7 @@ namespace Tetrifact.Core
             this.PagesPerPageGroup = 20;
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
+            this.AccessTokens = new List<string>();
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
