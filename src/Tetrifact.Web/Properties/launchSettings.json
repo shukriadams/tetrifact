@@ -12,6 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "DOTNET_HOST_PATH": "dotnet",
         "AUTH_LEVEL": "Write",
         "ACCESS_TOKENS": "",
         "LIST_PAGE_SIZE": "10",
