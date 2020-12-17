@@ -18,7 +18,8 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 
 ## Running from Visual Studio
 
-Set Tetrifact.Web as your start project and run in IIS Express.
+- Open /src/Tetrifact.sln
+- Set Tetrifact.Web as your start project and run in IIS Express.
 
 ## Running from command line 
 
