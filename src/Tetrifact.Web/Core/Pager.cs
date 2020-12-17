@@ -65,13 +65,13 @@ namespace Tetrifact.Web
         /// <param name="baseurl">Nullable. Use if the existing url already has query string arguments in it. Paging args will be appended to url preserving existing.</param>
         /// <param name="pageQueryStringArg">Name of page query string argument</param>
         /// <returns>Rendered Html of pager.</returns>
-        public string Render<T>(PageableData<T> page, int pagesPerGroup, string baseurl, string pageQueryStringArg)
+        public string Render<T>(PageableData<T> page, int pagesPerGroup, string baseurl, string pageQueryStringArg, string hash = "")
         {
             this.Calculate(page.VirtualItemCount, page.PageIndex, page.PageSize, pagesPerGroup);
             if (this.NotEnoughDataToPage)
                 return string.Empty;
 
-            return this.RenderPageLinks(page.PageIndex, pagesPerGroup, baseurl, pageQueryStringArg);
+            return this.RenderPageLinks(page.PageIndex, pagesPerGroup, baseurl, pageQueryStringArg, hash);
         }
 
         private static int LimitLongToInt(long lng)
@@ -123,7 +123,7 @@ namespace Tetrifact.Web
         /// <param name="baseurl"></param>
         /// <param name="pageIndexName"></param>
         /// <returns>Rendered Html of pager.</returns>
-        private string RenderPageLinks(int currentPage, int pagesPerGroup, string baseurl, string pageIndexName)
+        private string RenderPageLinks(int currentPage, int pagesPerGroup, string baseurl, string pageIndexName, string hash)
         {
             StringBuilder s = new StringBuilder();
 
@@ -134,7 +134,7 @@ namespace Tetrifact.Web
             if (this.Currentgroup > 0)
             {
                 int back = ((this.Currentgroup * pagesPerGroup) - 1);
-                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{pageIndexName}={back + 1}'>");
+                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{pageIndexName}={back + 1}{hash}'>");
                 s.Append("<span class='pager-linkContent'>");
                 s.Append("..");
                 s.Append("</span>");
@@ -152,7 +152,7 @@ namespace Tetrifact.Web
                 if (isActive)
                     s.Append($"<a class='pager-link pager-link--active'>");
                 else
-                    s.Append($"<a class='pager-link' href='{baseurl}/{c + 1}'>");
+                    s.Append($"<a class='pager-link' href='{baseurl}/{c + 1}{hash}'>");
 
                 s.Append("<span class='pager-linkContent'>");
                 s.Append(c + 1);
@@ -165,7 +165,7 @@ namespace Tetrifact.Web
             if (this.Currentgroup < this.TotalGroups - 1)
             {
                 int forward = (this.Currentgroup + 1) * pagesPerGroup;
-                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{forward + 1}'>");
+                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{forward + 1}{hash}'>");
                 s.Append("<span class='pager-linkContent'>");
                 s.Append("..");
                 s.Append("</span>");

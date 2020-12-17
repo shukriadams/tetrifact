@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Text;
-using System.IO;
-using System.Reflection;
+using System.Linq;
 
 namespace Tetrifact.Web
 {
@@ -48,15 +46,23 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("package/{packageId}")]
-        public IActionResult Package(string packageId)
+        [Route("package/{packageId}/{page?}")]
+        public IActionResult Package(string packageId, int page)
         {
             ViewData["packageId"] = packageId;
             Manifest manifest = _indexService.GetManifest(packageId);
             if (manifest == null)
                 return View("Error404");
 
-            ViewData["manifest"] = _indexService.GetManifest(packageId);
+            ViewData["manifest"] = manifest;
+
+            if (page != 0)
+                page--;
+
+            Pager pager = new Pager();
+            PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(page * _settings.ListPageSize).Take(_settings.ListPageSize), page, _settings.ListPageSize, manifest.Files.Count);
+            ViewData["filesPage"] = filesPage;
+            ViewData["filesPager"] = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles");
             return View();
         }
 
@@ -71,7 +77,7 @@ namespace Tetrifact.Web
 
             Pager pager = new Pager();
             PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
-            ViewData["pager"] = pager.Render<Package>(packages, _settings.PagesPerPageGroup, "/packages", "page");
+            ViewData["pager"] = pager.Render(packages, _settings.PagesPerPageGroup, "/packages", "page");
             ViewData["packages"] = packages;
             return View();
         }

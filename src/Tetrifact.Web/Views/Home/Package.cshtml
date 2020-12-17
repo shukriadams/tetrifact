@@ -4,6 +4,8 @@
 @{
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
+    PageableData<ManifestItem> filesPage = ViewData["filesPage"] as PageableData<ManifestItem>;
+    string pager = ViewData["filesPager"] as string;
 
     ViewData["Title"] = $"Package : {packageId}";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -121,25 +123,31 @@
 <div class="layout-section">
     <div>
         <h2>Files</h2>
-        @if (manifest.Files.Any())
+        <a id="manifestFiles"></a>
+        @if (filesPage.Page.Any())
         {
             <div>
-                @foreach (ManifestItem file in manifest.Files)
-                {
-                    <div class="listItem">
-                        <a class="listItem-icon package-download" href="/v1/files/@file.Id">&#10515;</a>
-                        <div class="listItem-text">
-                            @file.Path
-                        </div>
-                    </div>
-                }
-            </div>
+                @Html.Raw(pager)
 
-        }
-        else
-        {
+                <ul>
+                    @foreach (ManifestItem file in filesPage.Page)
+                    {
+                        <li class="listItem">
+                            <a class="listItem-icon package-download" href="/v1/files/@file.Id">&#10515;</a>
+                            <div class="listItem-text">
+                                @file.Path
+                            </div>
+                        </li>
+                    }
+
+                </ul>
+
+                @Html.Raw(pager)
+            </div> 
+
+        } else {
             <text>
-                None
+                This package contains no files.
             </text>
         }
     </div>
