@@ -22,16 +22,16 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        Package GetLatestWithTag(string tag);
+        Package GetLatestWithTags(string[] tags);
 
         /// <summary>
-        /// Gets a page of packages with the given tag.
+        /// Gets a page of packages with the given tags.
         /// </summary>
         /// <param name="tag"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize);
+        IEnumerable<Package> GetWithTags(string[] tags, int pageIndex, int pageSize);
 
         /// <summary>
         /// Gets a page of packages.

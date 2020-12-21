@@ -32,6 +32,6 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
-        IEnumerable<string> GetPackageIdsWithTag(string tag);
+        IEnumerable<string> GetPackageIdsWithTags(string[] tags);
     }
 }

@@ -147,18 +147,24 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Gets packages with tag from the tag index, not directly from package manifests.
+        /// Gets packages with tags from the tag index, not directly from package manifests.
         /// </summary>
-        /// <param name="tag"></param>
+        /// <param name="tags"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetPackageIdsWithTag(string tag)
+        public IEnumerable<string> GetPackageIdsWithTags(string[] tags)
         {
-            string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
-            if (!Directory.Exists(tagDirectory))
-                throw new TagNotFoundException();
+            IEnumerable<string> matches = new List<string>();
 
-            string[] files = Directory.GetFiles(tagDirectory);
-            return files.Select(r => Path.GetFileName(r));
+            foreach (string tag in tags) {
+                string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
+                if (!Directory.Exists(tagDirectory))
+                    throw new TagNotFoundException();
+
+                string[] files = Directory.GetFiles(tagDirectory);
+                matches = matches.Union(files.Select(r => Path.GetFileName(r)));
+            }
+
+            return matches;
         }
 
         #endregion

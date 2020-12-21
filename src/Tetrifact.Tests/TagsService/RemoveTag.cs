@@ -1,7 +1,6 @@
 using Xunit;
 using Tetrifact.Core;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Tetrifact.Tests.TagsService
 {
@@ -9,12 +8,16 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Basic(){
-            TestPackage package = this.CreatePackage();
-            string tag = "mytag";
-            base.TagsService.AddTag(package.Name, tag);
-            base.TagsService.RemoveTag(package.Name, tag);
 
-            IEnumerable<Package> packages = base.PackageList.GetWithTag(tag, 0, 10);
+            TestPackage package = this.CreatePackage();
+            string[] tags = new[] { "mytag" };
+
+            foreach (string tag in tags) {
+                base.TagsService.AddTag(package.Name, tag);
+                base.TagsService.RemoveTag(package.Name, tag);
+            }
+
+            IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }
     }

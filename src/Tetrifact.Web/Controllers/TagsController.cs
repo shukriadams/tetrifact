@@ -57,13 +57,19 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// GEts a list of package ids which have the given tags.
+        /// </summary>
+        /// <param name="tags">Comma-separated list of tags.</param>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{tag}/packages")]
-        public ActionResult<string[]> GetTagPackages(string tag)
+        public ActionResult<string[]> GetTagPackages(string tags)
         {
             try
             {
-                return _tagsService.GetPackageIdsWithTag(tag).ToArray();
+                string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                return _tagsService.GetPackageIdsWithTags(tagsSplit).ToArray();
             }
             catch (PackageNotFoundException)
             {

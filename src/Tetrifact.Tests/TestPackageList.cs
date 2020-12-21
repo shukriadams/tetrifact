@@ -40,7 +40,7 @@ namespace Tetrifact.Tests
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
         }
 
-        public Package GetLatestWithTag(string tag)
+        public Package GetLatestWithTags(string[] tags)
         {
             return LatestPackage;
         }
@@ -56,7 +56,7 @@ namespace Tetrifact.Tests
             return PopularTags.Take(count);   
         }
 
-        public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
+        public IEnumerable<Package> GetWithTags(string[] tags, int pageIndex, int pageSize)
         {
             return Packages.Skip(pageIndex * pageSize).Take(pageSize);
         }

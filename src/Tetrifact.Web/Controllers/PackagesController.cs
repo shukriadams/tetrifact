@@ -74,17 +74,18 @@ namespace Tetrifact.Web
         /// <summary>
         /// Gets latest package with the given tag.
         /// </summary>
-        /// <param name="tag"></param>
-        /// <returns></returns>
+        /// <param name="tags">Comma-separated string of tags</param>
+        /// <returns>Package for the lookup.Null if no match.</returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("latest/{tag}")]
-        public ActionResult<Package> GetLatestPackageWithTag(string tag)
+        [HttpGet("latest/{tags}")]
+        public ActionResult<Package> GetLatestPackageWithTag(string tags)
         {
             try
             {
-                Package package = _packageList.GetLatestWithTag(tag);
+                string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                Package package = _packageList.GetLatestWithTags(tagsSplit);
                 if (package == null)
-                    return NotFound($"Couldn't find any packages tagged with \"{tag}\". Try another tag maybe?");
+                    return NotFound($"Couldn't find any packages tagged with \"{tags}\". Try another tag maybe?");
 
                 return package;
             }

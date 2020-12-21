@@ -10,12 +10,16 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Basic(){
             TestPackage package = this.CreatePackage();
-            string tag = "mytag";
-            base.TagsService.AddTag(package.Name, tag);
-            IEnumerable<Package> packages = base.PackageList.GetWithTag(tag, 0, 10);
+            string[] tags = new[] { "mytag", "mytag3" };
+
+            foreach (string tag in tags){
+                base.TagsService.AddTag(package.Name, tag);
+            }
+
+            IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
 
             Assert.Single(packages);
-            Assert.Contains(tag, packages.ElementAt(0).Tags);
+            Assert.True(tags.IsSubsetOf(packages.ElementAt(0).Tags));
         }
     }
 }

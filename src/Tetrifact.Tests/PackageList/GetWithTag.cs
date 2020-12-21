@@ -10,20 +10,38 @@ namespace Tetrifact.Tests.PackageList
     public class GetWithTag : Base
     {
         [Fact]
-        public void Basic()
+        public void GetsBySingleTag()
         {
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
             Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2003"));
             Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2002"));
             Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2001"));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag2" } }));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest() { Tags = new HashSet<string> { "tag1" } }));
+            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest { Tags = new HashSet<string> { "tag2", "tag4" } }));
+            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest { Tags = new HashSet<string> { "tag2", "tag3" } }));
+            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest { Tags = new HashSet<string> { "tag1", "tag5" } }));
 
 
-            IEnumerable<Package> tags = this.PackageList.GetWithTag("tag2", 0, 2);
+            IEnumerable<Package> tags = this.PackageList.GetWithTags(new[] { "tag2" }, 0, 2);
             Assert.Equal(2, tags.Count());
             Assert.Contains("tag2", tags.ElementAt(0).Tags);
+        }
+
+        [Fact]
+        public void GetsByMultipleTags()
+        {
+            // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
+            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2003"));
+            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2002"));
+            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2001"));
+            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest { Tags = new HashSet<string> { "tag2", "tag4" } }));
+            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest { Tags = new HashSet<string> { "tag2", "tag3" } }));
+            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest { Tags = new HashSet<string> { "tag1", "tag5" } }));
+
+
+            IEnumerable<Package> tags = this.PackageList.GetWithTags(new[] { "tag2", "tag3" }, 0, 2);
+            Assert.Single(tags);
+            Assert.Contains("tag2", tags.ElementAt(0).Tags);
+            Assert.Contains("tag3", tags.ElementAt(0).Tags);
         }
     }
 }

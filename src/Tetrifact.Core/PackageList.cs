@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace Tetrifact.Core
 {
+
     /// <summary>
     /// Package list logic ; implements in-memory caching to save on expensive read operations, as generating a list of packages requires 
     /// loading the JSON manifest of each package. 
@@ -68,7 +69,7 @@ namespace Tetrifact.Core
             return tags.OrderByDescending(r => r.Value).Take(count).Select(r => r.Key);
         }
 
-        public IEnumerable<Package> GetWithTag(string tag, int pageIndex, int pageSize)
+        public IEnumerable<Package> GetWithTags(string[] tags, int pageIndex, int pageSize)
         {
             IList<Package> packageData = null;
 
@@ -76,8 +77,8 @@ namespace Tetrifact.Core
             {
                 packageData = this.GeneratePackageData();
             }
-
-            return packageData.Where(r => r.Tags.Contains(tag)).Skip(pageIndex * pageSize).Take(pageSize);
+            
+            return packageData.Where(r => tags.IsSubsetOf(r.Tags)).Skip(pageIndex * pageSize).Take(pageSize);
         }
 
         public IEnumerable<Package> Get(int pageIndex, int pageSize)
@@ -106,7 +107,7 @@ namespace Tetrifact.Core
             return new PageableData<Package>(packageData.Skip(pageIndex * pageSize).Take(pageSize), pageIndex, pageSize, packageData.Count);
         }
 
-        public Package GetLatestWithTag(string tag)
+        public Package GetLatestWithTags(string[] tags)
         {
             IList<Package> packageData;
 
@@ -115,7 +116,7 @@ namespace Tetrifact.Core
                 packageData = this.GeneratePackageData();
             }
 
-            return packageData.Where(r => r.Tags.Contains(tag)).OrderByDescending(r => r.CreatedUtc).FirstOrDefault();
+            return packageData.Where(r => tags.IsSubsetOf(r.Tags)).OrderByDescending(r => r.CreatedUtc).FirstOrDefault();
         }
 
         #endregion

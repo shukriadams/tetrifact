@@ -84,13 +84,14 @@ namespace Tetrifact.Web
 
 
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("packagesWithTag/{tag}")]
-        public IActionResult PackagesWithTag(string tag)
+        [Route("packagesWithTag/{tags}")]
+        public IActionResult PackagesWithTag(string tags)
         {
             try
             {
-                ViewData["tag"] = tag;
-                ViewData["packages"] = _packageList.GetWithTag(tag, 0, _settings.ListPageSize);
+                string[] tagsSplit = tags.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
+                ViewData["tag"] = tags;
+                ViewData["packages"] = _packageList.GetWithTags(tagsSplit, 0, _settings.ListPageSize);
                 return View();
             }
             catch (TagNotFoundException)
