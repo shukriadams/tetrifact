@@ -11,7 +11,7 @@ git clone --depth 1 --branch $tag https://github.com/shukriadams/tetrifact.git c
 cd .\clone\src
 
 # force remove existing publish folder if any
-Remove-Item -LiteralPath ".\Tetrifact.Web\bin\Release\netcoreapp2.2\publish" -Force -Recurse -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath ".\Tetrifact.Web\bin\Release\netcoreapp3.1\publish" -Force -Recurse -ErrorAction SilentlyContinue
 
 # run full dotnet publish
 dotnet restore
@@ -19,7 +19,7 @@ dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configurati
 
 # zip publish target folder back up to folder from which we started
 
-Compress-Archive -Force -Path .\Tetrifact.Web\bin\Release\netcoreapp2.2\publish\* -DestinationPath .\..\..\out\Tetrifact.$($tag).zip
+Compress-Archive -Force -Path .\Tetrifact.Web\bin\Release\netcoreapp3.1\publish\* -DestinationPath .\..\..\out\Tetrifact.$($tag).zip
 
 # return to whence we came
 cd ..\..

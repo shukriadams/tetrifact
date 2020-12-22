@@ -19,7 +19,7 @@ mkdir -p .stage/.artefacts &&
 cp ./../../docker/Dockerfile ./.stage
 
 # make local copy of build 
-cp -R ./../../src/Tetrifact.Web/bin/Release/netcoreapp2.2/publish/* ./.stage/.artefacts
+cp -R ./../../src/Tetrifact.Web/bin/Release/netcoreapp3.1/publish/* ./.stage/.artefacts
 
 # build hosting container
 cd ./.stage

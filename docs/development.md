@@ -13,7 +13,7 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 
 ## Requirements
 
-- Dotnetcore 2.2 SDK
+- Dotnetcore 3.1 SDK
 - Visual Studio 2017 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
 
 ## Running from Visual Studio
@@ -38,7 +38,7 @@ to view navigate your browser to
 
     http://localhost:3000/
 
-All content is placed in /src/Tetrifact.Web/bin/Debug/netcoreapp2.2/data
+All content is placed in /src/Tetrifact.Web/bin/Debug/netcoreapp3.1/data
 
 ## Build for deploy
 
@@ -47,7 +47,7 @@ from command line
     cd /src
     dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release
 
-Your build artefacts will be in /src/Tetrifact.Web/bin/Debug/netcoreapp2.2/publish/
+Your build artefacts will be in /src/Tetrifact.Web/bin/Debug/netcoreapp3.1/publish/
 To start the server run the following from the same folder as the build artefacts
 
     dotnet Tetrifact.Web.dll

@@ -6,7 +6,7 @@ RUN apt-get update \
     && sh -c 'dpkg -i packages-microsoft-prod.deb' \
     && apt-get install apt-transport-https -y \
     && apt-get update \
-    && apt-get install aspnetcore-runtime-2.2 -y \
+    && apt-get install aspnetcore-runtime-3.1 -y \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \

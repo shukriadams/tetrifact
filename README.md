@@ -10,7 +10,7 @@ Develop branch
 
 Tetrifact is a server that stores build arfefacts. It was originally written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. Tetrifact cuts down on storage space by sharing identical files across builds. It exposes an HTTP REST API so it can easily be integrated into your CI build and test chain. 
 
-It is implemented in C# for Dotnetcore 2.2, and will run on any system that supports this framework.
+It is implemented in C# for Dotnetcore 3.1, and will run on any system that supports this framework.
 
 ## Demo
 
@@ -50,7 +50,7 @@ A zip of the build can then be downloaded with
 
 ### Binaries
 
-Binary builds require DotNetCore 2.2 or better to run. Binaries can be downloaded from the 
+Binary builds require DotNetCore 3.1 or better to run. Binaries can be downloaded from the 
 [official Tetrifact demo server](https://tetrifact.manafeed.com).
 
 To start Tetrifact unzip and from the command line run

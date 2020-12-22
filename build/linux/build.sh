@@ -1,3 +1,4 @@
+set -e
 # tag must be passed in as an argument when calling this script
 TAG=$1
 
@@ -9,14 +10,14 @@ fi
 mkdir -p out
 
 # clone working copy of repo at the latest tag
-rm -rf clone &&
-git clone --depth 1 --branch $TAG https://github.com/shukriadams/tetrifact.git clone &&
+rm -rf clone 
+git clone --depth 1 --branch $TAG https://github.com/shukriadams/tetrifact.git clone 
 
-cd ./clone/src &&
+cd ./clone/src 
 
-dotnet restore &&
-dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release &&
+dotnet restore 
+dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release 
 
-tar -czvf ./../../out/Tetrifact.$TAG.tar.gz -C ./Tetrifact.Web/bin/Release/netcoreapp2.2/publish .
+tar -czvf ./../../out/Tetrifact.$TAG.tar.gz -C ./Tetrifact.Web/bin/Release/netcoreapp3.1/publish .
 
 cd -
