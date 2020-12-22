@@ -164,6 +164,11 @@ namespace Tetrifact.Web
                 if (result.Success)
                 {
                     _packageList.Clear();
+
+                    if (_settings.AutoCreateArchiveOnPackageCreate){
+                        _indexService.GetPackageAsArchive(post.Id);
+                    }
+
                     return Ok($"Success - package \"{post.Id}\" created.");
                 }
 
