@@ -91,7 +91,7 @@ namespace Tetrifact.Core
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
             string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
-
+            
             if (File.Exists(directFilePath))
                 return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
 

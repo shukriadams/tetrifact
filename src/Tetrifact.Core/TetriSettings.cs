@@ -46,6 +46,8 @@ namespace Tetrifact.Core
         public AuthorizationLevel AuthorizationLevel { get; set; }
 
         public IEnumerable<string> AccessTokens { get; set; }
+        
+        public bool IsStorageCompressionEnabled { get; set; }
 
         #endregion
 
@@ -66,6 +68,7 @@ namespace Tetrifact.Core
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.AccessTokens = new List<string>();
+            this.IsStorageCompressionEnabled = false;
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -73,6 +76,7 @@ namespace Tetrifact.Core
             this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
             this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
+            this.IsStorageCompressionEnabled = this.GetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);

@@ -24,6 +24,11 @@ namespace Tetrifact.Core
         /// </summary>
         public long Size { get; set; }
 
+        /// <summary>
+        /// If true, binary date will be compressed when written to disk.
+        /// </summary>
+        public bool IsCompressionEnabled { get; set; }
+
         #endregion
 
         #region CTORS

@@ -40,7 +40,9 @@ namespace Tetrifact.Core
 
         public void Initialize()
         {
-            this.Manifest = new Manifest();
+            this.Manifest = new Manifest{ 
+                IsCompressionEnabled = _settings.IsStorageCompressionEnabled
+            };
 
             // workspaces have random names, for safety ensure name is not already in use
             while (true)
@@ -90,11 +92,32 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(packagesDirectory);
 
             bool onDisk = false;
+            string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
+            FileInfo fileInfo = new FileInfo(incomingPath);
 
-            if (!File.Exists(targetPath)) { 
-                File.Move(
-                    Path.Join(this.WorkspacePath, "incoming", filePath),
-                    targetPath);
+            if (!File.Exists(targetPath)) {
+
+                if (this.Manifest.IsCompressionEnabled){
+
+                    using (FileStream zipStream = new FileStream(targetPath, FileMode.Create))
+                    {
+                        using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                        {
+                            ZipArchiveEntry fileEntry = archive.CreateEntry(filePath);
+
+                            using (Stream entryStream = fileEntry.Open())
+                            {
+                                using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                                {
+                                    itemStream.CopyTo(entryStream);
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    File.Move(incomingPath,targetPath);
+                }
 
                 onDisk = true;
             }
@@ -105,7 +128,7 @@ namespace Tetrifact.Core
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
 
-            FileInfo fileInfo = new FileInfo(targetPath);
+            
             this.Manifest.Size += fileInfo.Length;
             if (onDisk)
                 this.Manifest.SizeOnDisk += fileInfo.Length;
