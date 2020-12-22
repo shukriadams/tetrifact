@@ -163,12 +163,8 @@ namespace Tetrifact.Web
                 PackageCreateResult result = _packageService.CreatePackage(post);
                 if (result.Success)
                 {
+                    // force flush in-memory list of packages
                     _packageList.Clear();
-
-                    if (_settings.AutoCreateArchiveOnPackageCreate){
-                        _indexService.GetPackageAsArchive(post.Id);
-                    }
-
                     return Ok($"Success - package \"{post.Id}\" created.");
                 }
 

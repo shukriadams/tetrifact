@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -14,16 +15,17 @@ namespace Tetrifact.Core
         private readonly IIndexReader _indexReader;
         private readonly IWorkspace _workspace;
         private readonly ILogger<IPackageCreate> _log;
-
+        private readonly ITetriSettings _settings;
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, IWorkspace workspace)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
         {
             _indexReader = indexReader;
             _log = log;
             _workspace = workspace;
+            _settings = settings;
         }
 
         #endregion
@@ -97,6 +99,9 @@ namespace Tetrifact.Core
                 _workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
 
                 _workspace.Dispose();
+
+                if (_settings.AutoCreateArchiveOnPackageCreate)
+                    using(Stream stream = _indexReader.GetPackageAsArchive(newPackage.Id)){ }
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }
