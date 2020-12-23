@@ -50,6 +50,7 @@ namespace Tetrifact.Web
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
+            services.AddTransient<Daemon, Daemon>();
 
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -120,10 +121,14 @@ namespace Tetrifact.Web
             // initialize indexes
             IServiceProvider serviceProvider = app.ApplicationServices;
             IEnumerable<IIndexReader> indexReaders = serviceProvider.GetServices<IIndexReader>();
-
             foreach (IIndexReader indexReader in indexReaders)
                 indexReader.Initialize();
-            
+
+            Daemon daemon = serviceProvider.GetService<Daemon>();
+            int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
+            int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+            daemon.Start(daemonInterval);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
