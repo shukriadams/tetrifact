@@ -9,6 +9,7 @@ namespace Tetrifact.Web
         private readonly IRepositoryCleaner _repositoryCleaner;
         private readonly IIndexReader _indexService;
         private bool _busy;
+        private bool _running;
 
         public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService)
         {
@@ -20,24 +21,32 @@ namespace Tetrifact.Web
         {
             _tickInterval = tickInterval;
             Task.Run(async () => this.Tick());
+            _running = true;
+
+        }
+
+        public void Stop(){
+            _running = false;
         }
 
         private async Task Tick()
         { 
-            try 
-            {
-                if (_busy)
-                    return;
+            while(_running){
+                try
+                {
+                    if (_busy)
+                        return;
 
-                _busy = true;
+                    _busy = true;
 
-                _repositoryCleaner.Clean();
-                _indexService.PurgeOldArchives();
-            }
-            finally
-            {
-                _busy = false;
-                await Task.Delay(_tickInterval);
+                    _repositoryCleaner.Clean();
+                    _indexService.PurgeOldArchives();
+                }
+                finally
+                {
+                    _busy = false;
+                    await Task.Delay(_tickInterval);
+                }
             }
         }
     }
