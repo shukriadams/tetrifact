@@ -250,7 +250,7 @@ namespace Tetrifact.Core
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var file in manifest.Files)
+                    foreach (ManifestItem file in manifest.Files)
                     {
                         ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
 

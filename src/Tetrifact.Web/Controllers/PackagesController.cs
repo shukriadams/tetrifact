@@ -165,7 +165,16 @@ namespace Tetrifact.Web
                 {
                     // force flush in-memory list of packages
                     _packageList.Clear();
-                    return Ok($"Success - package \"{post.Id}\" created.");
+
+                    return Ok(new
+                    {
+                        success = new
+                        {
+                            id = post.Id,
+                            hash = result.PackageHash,
+                            description = "Package successfully created"
+                        }
+                    });
                 }
 
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
