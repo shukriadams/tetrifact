@@ -82,7 +82,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {filePath}");
+                _logger.LogError(ex, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.");
                 return null;
             }
         }
@@ -245,6 +245,8 @@ namespace Tetrifact.Core
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
                 Manifest manifest = this.GetManifest(packageId);
+                if (manifest == null)
+                    throw new PackageNotFoundException(packageId);
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
