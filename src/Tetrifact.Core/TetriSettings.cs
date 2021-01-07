@@ -64,7 +64,7 @@ namespace Tetrifact.Core
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.ListPageSize = 20;
             this.IndexTagListLength = 20;
-            this.PagesPerPageGroup = 20;
+            this.PagesPerPageGroup = 10;
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.AccessTokens = new List<string>();
