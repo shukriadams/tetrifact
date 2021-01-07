@@ -64,7 +64,7 @@ namespace Tetrifact.Web
         }
 
         /// <summary>
-        /// Returns a status code the given archive.
+        /// Returns JSON with status code the given archive.
         /// 0 : Archive does not exist and has not been queued for creation.
         /// 1 : Archive is being created.
         /// 2 : Archive is available for download.
@@ -73,13 +73,19 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/status")]
-        public ActionResult<int> GetArchiveStatus(string packageId)
+        public ActionResult GetArchiveStatus(string packageId)
         {
             try
             {
                 _indexService.PurgeOldArchives();
 
-                return _indexService.GetPackageArchiveStatus(packageId);
+                return Ok(new
+                {
+                    success = new
+                    {
+                        status = _indexService.GetPackageArchiveStatus(packageId)
+                    }
+                });
             }
             catch (PackageNotFoundException)
             {

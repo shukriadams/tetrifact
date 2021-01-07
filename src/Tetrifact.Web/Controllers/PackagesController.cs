@@ -141,7 +141,7 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// Handles posting a new package to system. 
+        /// Creates a new package. Returns JSON with local hash of package.
         /// 
         /// Url : /packages/[ID]
         /// Method : POST
