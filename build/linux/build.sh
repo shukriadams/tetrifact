@@ -3,7 +3,7 @@ set -e
 TAG=$1
 
 if [ -z $TAG ]; then
-   echo "Error, tag not set. Tag must be a valid github repo tag. Call this script : ./buildTag myTag";
+   echo "Error, tag not set. Tag must be a valid github repo tag. Call this script : ./build myTag";
    exit 1;
 fi
 
