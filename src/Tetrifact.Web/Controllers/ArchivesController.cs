@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
 using Tetrifact.Core;
 
@@ -47,8 +48,15 @@ namespace Tetrifact.Web
         {
             try
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
                 _indexService.PurgeOldArchives();
                 Stream archiveStream = _indexService.GetPackageAsArchive(packageId);
+
+                sw.Stop();
+                _log.LogInformation($"Archive for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
+
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
             }
             catch (PackageNotFoundException)

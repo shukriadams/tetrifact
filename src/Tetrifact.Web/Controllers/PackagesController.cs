@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
+using System.Diagnostics;
 
 namespace Tetrifact.Web
 {
@@ -153,8 +154,12 @@ namespace Tetrifact.Web
         [HttpPost("{id}")]
         public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             try
             {
+
                 // check if there is space available
                 DiskUseStats useStats = FileHelper.GetDiskUseSats();
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
@@ -197,6 +202,11 @@ namespace Tetrifact.Web
                 Console.WriteLine("An unexpected error occurred : ");
                 Console.WriteLine(ex);
                 return Responses.UnexpectedError();
+            }
+            finally 
+            {
+                sw.Stop();
+                _log.LogInformation($"Uploaded for package {post.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
             }
         }
 
