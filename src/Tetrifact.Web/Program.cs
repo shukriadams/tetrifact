@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Web
 {
@@ -15,7 +16,11 @@ namespace Tetrifact.Web
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>{ 
+                    logging.AddConsole();
+                })
                 .UseStartup<Startup>();
+                
 
             bool isIIS = Environment.GetEnvironmentVariable("IS_IIS") == "true";
 

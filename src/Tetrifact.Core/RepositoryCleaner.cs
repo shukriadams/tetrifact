@@ -78,7 +78,6 @@ namespace Tetrifact.Core
                             }
                             catch (IOException ex)
                             {
-                                Console.WriteLine(ex);
                                 _logger.LogError($"Unexpected error deleting file ${file} ", ex);
                             }
                         }
@@ -110,7 +109,6 @@ namespace Tetrifact.Core
                 }
                 catch (IOException ex)
                 {
-                    Console.WriteLine(ex);
                     _logger.LogError($"Failed to delete file ${filePath} ", ex);
                 }
 

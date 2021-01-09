@@ -67,7 +67,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unexpected error");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -104,7 +103,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unexpected error");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }

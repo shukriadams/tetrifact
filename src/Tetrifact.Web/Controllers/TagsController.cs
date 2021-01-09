@@ -56,8 +56,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -88,8 +86,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -125,8 +121,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -163,8 +157,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
