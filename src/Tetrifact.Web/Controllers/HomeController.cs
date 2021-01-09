@@ -148,9 +148,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [Route("isAlive")]
-        public IActionResult IsAlive()
+        public ActionResult IsAlive()
         {
-            return Ok(new
+            return new JsonResult(new
             {
                 success = new
                 {
@@ -165,12 +165,12 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [Route("spacecheck")]
-        public IActionResult SpaceCheck()
+        public ActionResult SpaceCheck()
         {
             DiskUseStats useStats = FileHelper.GetDiskUseSats();
             double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
 
-            return Ok(new
+            return new JsonResult(new
             {
                 success = new
                 {

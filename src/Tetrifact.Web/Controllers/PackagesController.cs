@@ -59,7 +59,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
-        public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        public ActionResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
             if (isFull)
             {
@@ -91,14 +91,14 @@ namespace Tetrifact.Web
         /// <returns>Package for the lookup. Null if no match.</returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("latest/{tags}")]
-        public ActionResult<Package> GetLatestPackageWithTag(string tags)
+        public ActionResult GetLatestPackageWithTag(string tags)
         {
             try
             {
                 string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries);
                 Package package = _packageList.GetLatestWithTags(tagsSplit);
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {
@@ -124,9 +124,9 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/exists")]
-        public ActionResult<bool> PackageExists(string packageId)
+        public ActionResult PackageExists(string packageId)
         {
-            return Ok(new
+            return new JsonResult(new
             {
                 success = new
                 {
@@ -151,7 +151,7 @@ namespace Tetrifact.Web
                 if (manifest == null)
                     return Responses.NotFoundError(this, $"Package ${packageId} does not exist");
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {
@@ -199,7 +199,7 @@ namespace Tetrifact.Web
                     // force flush in-memory list of packages
                     _packageList.Clear();
 
-                    return Ok(new
+                    return new JsonResult(new
                     {
                         success = new
                         {
@@ -253,7 +253,7 @@ namespace Tetrifact.Web
                 _indexService.DeletePackage(packageId);
                 _packageList.Clear();
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {

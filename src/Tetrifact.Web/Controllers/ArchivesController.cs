@@ -89,7 +89,7 @@ namespace Tetrifact.Web
             {
                 _indexService.PurgeOldArchives();
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {

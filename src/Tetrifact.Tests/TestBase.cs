@@ -16,9 +16,10 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="actionResult"></param>
         /// <returns></returns>
-        public dynamic ToDynamic(JsonResult actionResult)
+        public dynamic ToDynamic(ActionResult actionResult)
         {
-            string jrawJson = JsonConvert.SerializeObject(actionResult.Value);
+            JsonResult jsonResult = (JsonResult)actionResult;
+            string jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
             dynamic obj = JsonConvert.DeserializeObject(jrawJson);
             return obj;
         }

@@ -43,7 +43,7 @@ namespace Tetrifact.Web
         {
             _repositoryCleaner.Clean();
             _indexService.PurgeOldArchives();
-            return Ok(new
+            return new JsonResult(new
             {
                 success = new
                 {

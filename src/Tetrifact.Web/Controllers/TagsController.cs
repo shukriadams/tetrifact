@@ -41,11 +41,11 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
-        public ActionResult<string[]> GetTags()
+        public ActionResult GetTags()
         {
             try
             {
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {
@@ -70,13 +70,13 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{tag}/packages")]
-        public ActionResult<string[]> GetTagPackages(string tags)
+        public ActionResult GetTagPackages(string tags)
         {
             try
             {
                 string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries);
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {
@@ -110,7 +110,7 @@ namespace Tetrifact.Web
                 tag = HttpUtility.UrlDecode(tag);
                 _tagsService.AddTag(packageId, tag);
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {
@@ -147,7 +147,7 @@ namespace Tetrifact.Web
                 tag = HttpUtility.UrlDecode(tag);
                 _tagsService.RemoveTag(packageId, tag);
 
-                return Ok(new
+                return new JsonResult(new
                 {
                     success = new
                     {
