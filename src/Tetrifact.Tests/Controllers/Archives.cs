@@ -1,23 +1,15 @@
-using Tetrifact.Web;
-using System.Collections.Generic;
 using Xunit;
 using Ninject;
-using Tetrifact.Core;
-using System.Linq;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.IO.Compression;
 
 namespace Tetrifact.Tests.Controlers
 {
     public class Archives : TestBase
     {
-        private readonly Tetrifact.Web.ArchivesController _controller;
+        private readonly Web.ArchivesController _controller;
 
         public Archives()
         {
-            _controller = this.Kernel.Get<Tetrifact.Web.ArchivesController>();
+            _controller = this.Kernel.Get<Web.ArchivesController>();
 
             TestingWorkspace.Reset();
         }
@@ -29,6 +21,16 @@ namespace Tetrifact.Tests.Controlers
         public void Touch()
         {
             _controller.GetArchive("invalid-package");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Fact]
+        public void GetArchiveStatus()
+        { 
+            dynamic result = this.ToDynamic(_controller.GetArchiveStatus("invalid-package"));
+            Assert.NotNull(result.success);
         }
     }
 }

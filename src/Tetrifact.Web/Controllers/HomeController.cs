@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Tetrifact.Core;
-using System.Text;
 using System.Linq;
 
 namespace Tetrifact.Web
