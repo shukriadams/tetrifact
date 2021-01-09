@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -10,11 +11,13 @@ namespace Tetrifact.Web
         private readonly IIndexReader _indexService;
         private bool _busy;
         private bool _running;
+        private ILogger<Daemon> _log;
 
-        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService)
+        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, ILogger<Daemon> log)
         {
             _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;
+            _log = log;
         }
 
         public void Start(int tickInterval)
@@ -34,6 +37,9 @@ namespace Tetrifact.Web
             while(_running){
                 try
                 {
+                    _log.LogInformation("Daemon ticking");
+
+
                     if (_busy)
                         return;
 

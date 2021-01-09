@@ -35,17 +35,23 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        /// <summary>
+        /// Gets a list of all tags currently in use.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
         public ActionResult<string[]> GetTags()
         {
             try
             {
-                return _tagsService.GetAllTags().ToArray();
-            }
-            catch (PackageNotFoundException)
-            {
-                return NotFound();
+                return Ok(new
+                {
+                    success = new
+                    {
+                        tags = _tagsService.GetAllTags().ToArray()
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -69,11 +75,15 @@ namespace Tetrifact.Web
             try
             {
                 string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries);
-                return _tagsService.GetPackageIdsWithTags(tagsSplit).ToArray();
-            }
-            catch (PackageNotFoundException)
-            {
-                return NotFound();
+
+                return Ok(new
+                {
+                    success = new
+                    {
+                        packages = _tagsService.GetPackageIdsWithTags(tagsSplit).ToArray()
+                    }
+                });
+
             }
             catch (Exception ex)
             {
@@ -85,6 +95,12 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Adds a tag to the given package.
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{tag}/{packageId}")]
         public ActionResult AddTag(string tag, string packageId)
@@ -93,11 +109,18 @@ namespace Tetrifact.Web
             {
                 tag = HttpUtility.UrlDecode(tag);
                 _tagsService.AddTag(packageId, tag);
-                return Ok($"Tag {tag} was added to package {packageId}");
+
+                return Ok(new
+                {
+                    success = new
+                    {
+                        description = $"Tag {tag} was added to package {packageId}"
+                    }
+                });
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
             }
             catch (Exception ex)
             {
@@ -109,6 +132,12 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Removes tag from the given tag
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{tag}/{packageId}")]
         public ActionResult RemoveTag(string tag, string packageId)
@@ -117,11 +146,19 @@ namespace Tetrifact.Web
             {
                 tag = HttpUtility.UrlDecode(tag);
                 _tagsService.RemoveTag(packageId, tag);
-                return Ok($"Tag {tag} was removed from package {packageId}");
+
+                return Ok(new
+                {
+                    success = new
+                    {
+                        description = $"Tag {tag} was removed from package {packageId}"
+                    }
+                });
+
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
             }
             catch (Exception ex)
             {

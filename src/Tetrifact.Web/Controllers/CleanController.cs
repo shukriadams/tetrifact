@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -34,13 +33,23 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        /// <summary>
+        /// Force runs clean on deleted packages, old archives etc.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("")]
         public ActionResult Clean()
         {
             _repositoryCleaner.Clean();
             _indexService.PurgeOldArchives();
-            return Ok("Clean complete");
+            return Ok(new
+            {
+                success = new
+                {
+                    description = "Clean complete"
+                }
+            });
         }
 
         #endregion

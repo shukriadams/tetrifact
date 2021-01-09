@@ -1,4 +1,6 @@
-﻿using Ninject;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Ninject;
 using System.Reflection;
 using Tetrifact.Core;
 
@@ -8,6 +10,18 @@ namespace Tetrifact.Tests
     {
         protected StandardKernel Kernel;
         protected ITetriSettings Settings;
+
+        /// <summary>
+        /// Common method for convert JsonResult from API endjoing to dynamic object
+        /// </summary>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
+        public dynamic ToDynamic(JsonResult actionResult)
+        {
+            string jrawJson = JsonConvert.SerializeObject(actionResult.Value);
+            dynamic obj = JsonConvert.DeserializeObject(jrawJson);
+            return obj;
+        }
 
         public TestBase()
         {

@@ -37,7 +37,7 @@ namespace Tetrifact.Web
         #region METHODS
 
         /// <summary>
-        /// 
+        /// Downloads a package file.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

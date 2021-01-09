@@ -5,6 +5,22 @@ namespace Tetrifact.Web
     public class Responses
     {
         #region METHODS
+    
+        /// <summary>
+        /// Generic 404 JSON response
+        /// </summary>
+        /// <param name="description"></param>
+        /// <returns></returns>
+        public static NotFoundObjectResult NotFoundError(Controller controller, string description)
+        {
+            return controller.NotFound(new
+            {
+                error = new
+                {
+                    description = description
+                }
+            });
+        }
 
         /// <summary>
         /// 
@@ -18,7 +34,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 100,
-                    Message = $"A package with id {packageId} already exists."
+                    description = $"A package with id {packageId} already exists."
                 }
             });
         }
@@ -30,7 +46,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 101,
-                    Message = "An internal server occurred. You didn't do anything wrong."
+                    description = "An internal server occurred. You didn't do anything wrong."
                 }
             });
         }
@@ -46,7 +62,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 102,
-                    Message = "Invalid package content. A package flagged as archive must contain a single zip file."
+                    description = "Invalid package content. A package flagged as archive must contain a single zip file."
                 }
             });
         }
@@ -63,7 +79,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 103,
-                    Message = $"The package format {format} is not valid. Valid values are : zip" 
+                    description = $"The package format {format} is not valid. Valid values are : zip" 
                 }
             });
         }
@@ -81,7 +97,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 104,
-                    Message = $"The package upload failed. Please check log enry {logId} for more information."
+                    description = $"The package upload failed. Please check log enry {logId} for more information."
                 }
             });
         }
@@ -97,7 +113,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 105,
-                    Message = "The file id you gave is not valid. File ids should be obtained from manifests."
+                    description = "The file id you gave is not valid. File ids should be obtained from manifests."
                 }
             });
         }
@@ -114,7 +130,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 106,
-                    Message = error
+                    description = error
                 }
             });
         }
@@ -131,7 +147,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 107,
-                    Message = error
+                    description = error
                 }
             });
         }

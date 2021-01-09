@@ -28,6 +28,10 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         public IActionResult Index()
         {
@@ -37,6 +41,10 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("api")]
         public IActionResult Api()
@@ -45,6 +53,10 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("package/{packageId}/{page?}")]
         public IActionResult Package(string packageId, int page)
@@ -67,6 +79,10 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("packages/{page?}")]
         public IActionResult Packages(int page)
@@ -83,6 +99,10 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("packagesWithTag/{tags}")]
         public IActionResult PackagesWithTag(string tags)
@@ -101,41 +121,64 @@ namespace Tetrifact.Web
         }
 
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [Route("error/404")]
         public IActionResult Error404()
         {
             return View();
         }
 
+
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [Route("error/500")]
         public IActionResult Error500()
         {
             return View();
         }
 
+
+        /// <summary>
+        /// Renders empty JSON response
+        /// </summary>
+        /// <returns></returns>
         [Route("isAlive")]
         public IActionResult IsAlive()
         {
-            return Ok("200");
+            return Ok(new
+            {
+                success = new
+                {
+                    
+                }
+            });
         }
 
+
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
         [Route("spacecheck")]
         public IActionResult SpaceCheck()
         {
             DiskUseStats useStats = FileHelper.GetDiskUseSats();
             double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
 
-            StringBuilder s = new StringBuilder();
-            s.AppendLine($"Drive size : {FileHelper.BytesToMegabytes(useStats.TotalBytes)}M");
-            s.AppendLine($"Space available :  {freeMegabytes}M ({useStats.ToPercent()}%)");
-
-            if (freeMegabytes > _settings.SpaceSafetyThreshold){
-                return Ok(s.ToString());
-            }
-
-            s.AppendLine($"Insufficient space for safe operation - minimum allowed is {_settings.SpaceSafetyThreshold}M.");
-
-            return Responses.InsufficientSpace(s.ToString());
+            return Ok(new
+            {
+                success = new
+                {
+                    total = $"{FileHelper.BytesToMegabytes(useStats.TotalBytes)}M",
+                    available = $"{freeMegabytes}M ({useStats.ToPercent()}%)",
+                    safetyExceeded = freeMegabytes < _settings.SpaceSafetyThreshold
+                }
+            });
         }
 
         #endregion

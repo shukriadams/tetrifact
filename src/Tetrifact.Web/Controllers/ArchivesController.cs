@@ -37,6 +37,7 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+
         /// <summary>
         /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
         /// </summary>
@@ -55,13 +56,13 @@ namespace Tetrifact.Web
                 Stream archiveStream = _indexService.GetPackageAsArchive(packageId);
 
                 sw.Stop();
-                _log.LogInformation($"Archive for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
+                _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
 
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
             }
             catch (Exception ex)
             {
@@ -70,6 +71,7 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
+
 
         /// <summary>
         /// Returns JSON with status code the given archive.
@@ -97,7 +99,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
             }
             catch (Exception ex)
             {
