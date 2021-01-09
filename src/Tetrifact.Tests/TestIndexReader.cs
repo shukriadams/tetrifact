@@ -108,6 +108,11 @@ namespace Tetrifact.Tests
             return Test_Indexes;
         }
 
+        public void VerifyPackage(string packageId)
+        {
+
+        }
+
         #endregion
     }
 }

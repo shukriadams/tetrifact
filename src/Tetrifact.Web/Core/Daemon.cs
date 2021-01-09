@@ -4,8 +4,13 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
+    /// <summary>
+    /// Internal timed process that manages automated processes, such as cleanup, integrity checks, etc.
+    /// </summary>
     public class Daemon
     {
+        #region FIELDS
+
         private int _tickInterval;
         private readonly IRepositoryCleaner _repositoryCleaner;
         private readonly IIndexReader _indexService;
@@ -13,12 +18,20 @@ namespace Tetrifact.Web
         private bool _running;
         private ILogger<Daemon> _log;
 
+        #endregion
+
+        #region CTORS
+
         public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, ILogger<Daemon> log)
         {
             _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;
             _log = log;
         }
+
+        #endregion
+
+        #region METHODS
 
         public void Start(int tickInterval)
         {
@@ -37,7 +50,7 @@ namespace Tetrifact.Web
             while(_running){
                 try
                 {
-                    _log.LogInformation("Daemon ticking");
+                    _log.LogInformation("Daemon ticked");
 
 
                     if (_busy)
@@ -55,5 +68,8 @@ namespace Tetrifact.Web
                 }
             }
         }
+
+        #endregion
+
     }
 }

@@ -76,7 +76,7 @@ namespace Tetrifact.Core
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 string[] files = _workspace.GetIncomingFileNames().ToArray();
-                Array.Sort(files, (x, y) => String.Compare(x, y));
+                files = HashService.SortFileArrayForHashing(files);
                 
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);

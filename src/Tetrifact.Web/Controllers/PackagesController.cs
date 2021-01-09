@@ -134,6 +134,45 @@ namespace Tetrifact.Web
         }
 
 
+        [ServiceFilter(typeof(WriteLevel))]
+        [HttpGet("{packageId}/verify")]
+        public ActionResult VerifyPackage(string packageId)
+        {
+            try
+            {
+                _indexService.VerifyPackage(packageId);
+
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        isValid = true,
+                        description = "Package is valid"
+                    }
+                });
+            }
+            catch (PackageCorruptException ex)
+            {
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        isValid = false,
+                        error = ex.Message,
+                        description = "Package is corrupt, see logs for detailed error description"
+                    }
+                });
+
+                _log.LogError(ex, $"Package {packageId} is corrupt");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError();
+            }
+        }
+
+
         /// <summary>
         /// Returns the manifest for a package
         /// </summary>
