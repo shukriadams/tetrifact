@@ -64,6 +64,7 @@ namespace Tetrifact.Web
                 });
 
             services.AddMemoryCache();
+            services.AddResponseCompression();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
@@ -117,6 +118,7 @@ namespace Tetrifact.Web
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseRouting();
+            app.UseResponseCompression();
 
             // initialize indexes
             IServiceProvider serviceProvider = app.ApplicationServices;
