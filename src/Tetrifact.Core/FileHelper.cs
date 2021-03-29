@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Tetrifact.Core
@@ -11,6 +12,23 @@ namespace Tetrifact.Core
             var megs = (bytes / 1024f) / 1024f;
             return Math.Round(megs, 0);
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string RemoveFirstDirectoryFromPath(string path)
+        {
+            path = path.Replace("\\", "/");
+            string[] items = path.Split("/");
+            if (items.Length == 1)
+                return path;
+
+            return string.Join("/", items.Skip(1));
+        }
+
 
         public static DiskUseStats GetDiskUseSats()
         {

@@ -121,6 +121,25 @@ main {
     border-bottom: solid 1px #e6e6e6;
 }
 
+/******************************************************************************
+ upload package
+ *****************************************************************************/
+.uploadPackage-contactingServer {
+    display: none;
+}
+
+.uploadPackage-contactingServer.uploadPackage-contactingServer--show {
+    display: block;
+}
+
+.uploadPackage-uploadButton {
+    width: 100px;
+    margin-bottom: 12px;
+}
+
+.uploadPackage-fileSelector {
+    display: none;
+}
 
 /******************************************************************************
  *footer

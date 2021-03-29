@@ -3,6 +3,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Tetrifact.Web
 {
@@ -215,7 +216,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{id}")]
-        public ActionResult AddPackage([FromForm]PackageCreateArguments post)
+        public ActionResult AddPackage([FromForm]PackageCreateFromPost post)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -228,7 +229,14 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = _packageService.CreatePackage(post);
+                PackageCreateResult result = _packageService.CreatePackage(new PackageCreateArguments
+                {
+                    Description = post.Description,
+                    Files = post.Files.Select(r => new PackageCreateItem { Content = r.OpenReadStream(), FileName = post.RemoveFirstDirectoryFromPath ? FileHelper.RemoveFirstDirectoryFromPath(r.FileName) : r.FileName }).ToList(),
+                    Id = post.Id,
+                    IsArchive = post.IsArchive
+                });
+
                 if (result.Success)
                 {
                     // force flush in-memory list of packages

@@ -53,6 +53,20 @@ namespace Tetrifact.Web
 
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("uploadPackage")]
+        public IActionResult UploadPackage(string project)
+        {
+            string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            return View(new UploadPackageModel { HostName = hostname });
+        }
+
+
+        /// <summary>
         /// Renders view.
         /// </summary>
         /// <returns></returns>
