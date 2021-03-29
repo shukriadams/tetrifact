@@ -47,13 +47,15 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}")]
         public ActionResult GetArchive(string packageId)
         {
+            Stream archiveStream = null;
+
             try
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
                 _indexService.PurgeOldArchives();
-                Stream archiveStream = _indexService.GetPackageAsArchive(packageId);
+                archiveStream = _indexService.GetPackageAsArchive(packageId);
 
                 sw.Stop();
                 _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
@@ -66,6 +68,9 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
+                if (archiveStream != null)
+                    archiveStream.Close();
+
                 _log.LogError(ex, "Unexpected error");
                 return Responses.UnexpectedError();
             }

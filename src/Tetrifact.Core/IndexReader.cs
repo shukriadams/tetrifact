@@ -288,13 +288,30 @@ namespace Tetrifact.Core
                 {
                     foreach (ManifestItem file in manifest.Files)
                     {
-                        ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path);
 
-                        using (Stream entryStream = fileEntry.Open())
+                        using (Stream zipEntryStream = zipEntry.Open())
                         {
-                            using (Stream itemStream = this.GetFile(file.Id).Content)
+                            if (manifest.IsCompressed)
                             {
-                                itemStream.CopyTo(entryStream);
+                                using (var storageArchive = new ZipArchive(this.GetFile(file.Id).Content))
+                                {
+                                    if (storageArchive.Entries.Count != 1)
+                                        throw new Exception($"Invalid storage of compressed file {file.Id} in package {packageId} - expected single entry, got {storageArchive.Entries.Count}");
+
+                                    ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
+                                    using (var storageArchiveStream = storageArchiveEntry.Open()) 
+                                    {
+                                        storageArchiveStream.CopyTo(zipEntryStream);
+                                    }
+                                }
+                            } 
+                            else 
+                            {
+                                using (Stream fileStream = this.GetFile(file.Id).Content)
+                                {
+                                    fileStream.CopyTo(zipEntryStream);
+                                }
                             }
                         }
                     }

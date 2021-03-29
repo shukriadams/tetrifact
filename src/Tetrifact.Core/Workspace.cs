@@ -41,7 +41,7 @@ namespace Tetrifact.Core
         public void Initialize()
         {
             this.Manifest = new Manifest{ 
-                IsCompressionEnabled = _settings.IsStorageCompressionEnabled
+                IsCompressed = _settings.IsStorageCompressionEnabled
             };
 
             // workspaces have random names, for safety ensure name is not already in use
@@ -97,7 +97,7 @@ namespace Tetrifact.Core
 
             if (!File.Exists(targetPath)) {
 
-                if (this.Manifest.IsCompressionEnabled){
+                if (this.Manifest.IsCompressed){
 
                     using (FileStream zipStream = new FileStream(targetPath, FileMode.Create))
                     {
