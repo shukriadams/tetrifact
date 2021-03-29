@@ -99,5 +99,12 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         void DeletePackage(string packageId);
+
+        /// <summary>
+        /// Verifies integrity of package by recalculating hash of all files in package and comparing it with manifest hash.
+        /// Throws exception if hashes do not match.
+        /// </summary>
+        /// <param name="packageId"></param>
+        void VerifyPackage(string packageId);
     }
 }

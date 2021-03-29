@@ -73,7 +73,7 @@
             Info
         </div>
         <div class="layout-value">
-            <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
+            <a href="/v1/packages/@ViewData["packageId"]">Manifest</a>
         </div>
     </div>
 
@@ -127,7 +127,6 @@
         @if (filesPage.Page.Any())
         {
             <div>
-                @Html.Raw(pager)
 
                 <ul>
                     @foreach (ManifestItem file in filesPage.Page)

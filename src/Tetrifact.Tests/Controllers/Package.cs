@@ -8,6 +8,9 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.IO.Compression;
+using System.Dynamic;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Tetrifact.Tests.Controlers
 {
@@ -26,14 +29,25 @@ namespace Tetrifact.Tests.Controlers
         }
 
         [Fact]
-        public void GetPackageList()
+        public void GetPackageIdList()
         {
             // inject 3 indices
             TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
-
-            IEnumerable<string> ids = _controller.ListPackages(false, 0, 10).Value as IEnumerable<string>;
-            Assert.True(ids.Count() == 3);
+            dynamic json = this.ToDynamic(_controller.ListPackages(false, 0, 10));
+            string[] ids = json.success.packages.ToObject<string[]>();
+            Assert.Equal(3, ids.Count());
         }
+
+        [Fact]
+        public void GetPackageList()
+        {
+            // inject 3 objects
+            TestPackageList.Packages = new List<Core.Package>() { new Core.Package(), new Core.Package(), new Core.Package() };
+            dynamic json = this.ToDynamic(_controller.ListPackages(true, 0, 10));
+            Core.Package[] packages = json.success.packages.ToObject<Core.Package[]>();
+            Assert.Equal(3, packages.Count());
+        }
+
 
         [Fact]
         public void AddPackageAsFiles()

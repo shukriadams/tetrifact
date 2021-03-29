@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
 using Tetrifact.Core;
 
@@ -36,6 +37,7 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+
         /// <summary>
         /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
         /// </summary>
@@ -47,24 +49,31 @@ namespace Tetrifact.Web
         {
             try
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
                 _indexService.PurgeOldArchives();
                 Stream archiveStream = _indexService.GetPackageAsArchive(packageId);
+
+                sw.Stop();
+                _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
+
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unexpected error");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
 
+
         /// <summary>
-        /// Returns a status code the given archive.
+        /// Returns JSON with status code the given archive.
         /// 0 : Archive does not exist and has not been queued for creation.
         /// 1 : Archive is being created.
         /// 2 : Archive is available for download.
@@ -73,22 +82,27 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/status")]
-        public ActionResult<int> GetArchiveStatus(string packageId)
+        public ActionResult GetArchiveStatus(string packageId)
         {
             try
             {
                 _indexService.PurgeOldArchives();
 
-                return _indexService.GetPackageArchiveStatus(packageId);
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        status = _indexService.GetPackageArchiveStatus(packageId)
+                    }
+                });
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unexpected error");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }

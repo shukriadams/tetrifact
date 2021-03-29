@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -61,6 +62,17 @@ namespace Tetrifact.Core
                 byte[] hash = hashAlgorithm.ComputeHash(stream);
                 return ToHex(hash);
             }
+        }
+
+        /// <summary>
+        /// Sorts file paths so they are in standard order for hash creation.
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
+        public static string[] SortFileArrayForHashing(string[] files)
+        {
+            Array.Sort(files, (x, y) => String.Compare(x, y));
+            return files;
         }
 
     }

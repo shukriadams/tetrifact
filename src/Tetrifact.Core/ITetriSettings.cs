@@ -40,6 +40,11 @@ namespace Tetrifact.Core
         int ArchiveWaitTimeout { get; set; }
 
         /// <summary>
+        /// If true, a package will be automatically archived after package creation.
+        /// </summary>
+        bool AutoCreateArchiveOnPackageCreate { get; set; }
+
+        /// <summary>
         /// Time in milliseconds to wait for a locked link to be released.
         /// </summary>
         int LinkLockWaitTime { get; set; }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
+using System.Diagnostics;
 
 namespace Tetrifact.Web
 {
@@ -58,15 +59,27 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
-        public JsonResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        public ActionResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
             if (isFull)
             {
-                return new JsonResult(_packageList.Get(pageIndex, pageSize));
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        packages = _packageList.Get(pageIndex, pageSize)
+                    }
+                });
             }
             else
             {
-                return new JsonResult(_indexService.GetPackageIds(pageIndex, pageSize));
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        packages = _indexService.GetPackageIds(pageIndex, pageSize)
+                    }
+                });
             }
         }
 
@@ -75,25 +88,27 @@ namespace Tetrifact.Web
         /// Gets latest package with the given tag.
         /// </summary>
         /// <param name="tags">Comma-separated string of tags</param>
-        /// <returns>Package for the lookup.Null if no match.</returns>
+        /// <returns>Package for the lookup. Null if no match.</returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("latest/{tags}")]
-        public ActionResult<Package> GetLatestPackageWithTag(string tags)
+        public ActionResult GetLatestPackageWithTag(string tags)
         {
             try
             {
                 string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries);
                 Package package = _packageList.GetLatestWithTags(tagsSplit);
-                if (package == null)
-                    return NotFound($"Couldn't find any packages tagged with \"{tags}\". Try another tag maybe?");
 
-                return package;
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        package = package
+                    }
+                });
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -107,9 +122,54 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/exists")]
-        public ActionResult<bool> PackageExists(string packageId)
+        public ActionResult PackageExists(string packageId)
         {
-            return _indexService.GetManifest(packageId) != null;
+            return new JsonResult(new
+            {
+                success = new
+                {
+                    exists = _indexService.GetManifest(packageId) != null
+                }
+            });
+        }
+
+
+        [ServiceFilter(typeof(WriteLevel))]
+        [HttpGet("{packageId}/verify")]
+        public ActionResult VerifyPackage(string packageId)
+        {
+            try
+            {
+                _indexService.VerifyPackage(packageId);
+
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        isValid = true,
+                        description = "Package is valid"
+                    }
+                });
+            }
+            catch (PackageCorruptException ex)
+            {
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        isValid = false,
+                        error = ex.Message,
+                        description = "Package is corrupt, see logs for detailed error description"
+                    }
+                });
+
+                _log.LogError(ex, $"Package {packageId} is corrupt");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError();
+            }
         }
 
 
@@ -126,22 +186,26 @@ namespace Tetrifact.Web
             {
                 Manifest manifest = _indexService.GetManifest(packageId);
                 if (manifest == null)
-                    return NotFound();
+                    return Responses.NotFoundError(this, $"Package ${packageId} does not exist");
 
-                return new JsonResult(manifest);
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        package = manifest
+                    }
+                });
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }
 
 
         /// <summary>
-        /// Handles posting a new package to system. 
+        /// Creates a new package. Returns JSON with local hash of package.
         /// 
         /// Url : /packages/[ID]
         /// Method : POST
@@ -153,8 +217,12 @@ namespace Tetrifact.Web
         [HttpPost("{id}")]
         public ActionResult AddPackage([FromForm]PackageCreateArguments post)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             try
             {
+
                 // check if there is space available
                 DiskUseStats useStats = FileHelper.GetDiskUseSats();
                 if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
@@ -163,8 +231,18 @@ namespace Tetrifact.Web
                 PackageCreateResult result = _packageService.CreatePackage(post);
                 if (result.Success)
                 {
+                    // force flush in-memory list of packages
                     _packageList.Clear();
-                    return Ok($"Success - package \"{post.Id}\" created.");
+
+                    return new JsonResult(new
+                    {
+                        success = new
+                        {
+                            id = post.Id,
+                            hash = result.PackageHash,
+                            description = "Package successfully created"
+                        }
+                    });
                 }
 
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
@@ -184,9 +262,12 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
+            }
+            finally 
+            {
+                sw.Stop();
+                _log.LogInformation($"Uploaded for package {post.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
             }
         }
 
@@ -204,17 +285,22 @@ namespace Tetrifact.Web
             {
                 _indexService.DeletePackage(packageId);
                 _packageList.Clear();
-                return Ok();
+
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        description = "Package deleted"
+                    }
+                });
             }
             catch (PackageNotFoundException)
             {
-                return NotFound();
+                return Responses.NotFoundError(this, $"Package ");
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
         }

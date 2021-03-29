@@ -15,8 +15,10 @@
         "DOTNET_HOST_PATH": "dotnet",
         "AUTH_LEVEL": "Write",
         "ACCESS_TOKENS": "",
+        "DAEMON_INTERVAL": "60000",
         "LIST_PAGE_SIZE": "10",
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE": "True",
         "IS_IIS": "true"
       }
     },

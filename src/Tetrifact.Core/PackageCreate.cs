@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -14,16 +15,17 @@ namespace Tetrifact.Core
         private readonly IIndexReader _indexReader;
         private readonly IWorkspace _workspace;
         private readonly ILogger<IPackageCreate> _log;
-
+        private readonly ITetriSettings _settings;
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ILogger<IPackageCreate> log, IWorkspace workspace)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
         {
             _indexReader = indexReader;
             _log = log;
             _workspace = workspace;
+            _settings = settings;
         }
 
         #endregion
@@ -74,7 +76,7 @@ namespace Tetrifact.Core
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 string[] files = _workspace.GetIncomingFileNames().ToArray();
-                Array.Sort(files, (x, y) => String.Compare(x, y));
+                files = HashService.SortFileArrayForHashing(files);
                 
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
@@ -98,12 +100,14 @@ namespace Tetrifact.Core
 
                 _workspace.Dispose();
 
+                if (_settings.AutoCreateArchiveOnPackageCreate)
+                    using(Stream stream = _indexReader.GetPackageAsArchive(newPackage.Id)){ }
+
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, string.Empty);
-                Console.WriteLine($"Unexpected error : {ex}");
                 return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }
             finally

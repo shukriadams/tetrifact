@@ -10,6 +10,7 @@ namespace Tetrifact.Tests.PackageCreate
         {
             PackageCreate = new Core.PackageCreate(
                 IndexReader, 
+                Settings,
                 new TestLogger<IPackageCreate>(), 
                 new Core.Workspace(Settings, new TestLogger<IWorkspace>()));
         }

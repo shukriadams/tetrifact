@@ -3,6 +3,9 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
+    /// <summary>
+    /// Renders pager control as text, this must be emitted into Razor views.
+    /// </summary>
     public class Pager
     {
         #region PROPERTIES
@@ -51,7 +54,6 @@ namespace Tetrifact.Web
             this.CssClass = "pager";
             this.Inline = string.Empty;
         }
-
 
         #endregion
 

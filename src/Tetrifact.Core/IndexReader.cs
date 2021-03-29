@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace Tetrifact.Core
@@ -82,7 +83,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {filePath}");
+                _logger.LogError(ex, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.");
                 return null;
             }
         }
@@ -160,6 +161,41 @@ namespace Tetrifact.Core
                 return 1;
 
             return 2;
+        }
+
+        public void VerifyPackage(string packageId) 
+        {
+            Manifest manifest = this.GetManifest(packageId);
+            if (manifest == null)
+                throw new PackageNotFoundException(packageId);
+
+            try
+            {
+
+                StringBuilder hashes = new StringBuilder();
+                string[] files = files = HashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+
+                foreach (string filePath in files)
+                {
+                    ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+                    
+                    string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                    if (!File.Exists(directFilePath))
+                        throw new PackageCorruptException($"Expected package file {directFilePath} not found ");
+
+                    hashes.Append(HashService.FromString(manifestItem.Path));
+                    hashes.Append(HashService.FromFile(directFilePath));
+                }
+
+                string finalHash = HashService.FromString(hashes.ToString());
+                if (finalHash != manifest.Hash)
+                    throw new PackageCorruptException("Hashes do not match");
+
+            }
+            catch (Exception ex)
+            {
+                throw new PackageCorruptException("Unexpected error", ex);
+            }
         }
 
         public void DeletePackage(string packageId)
@@ -245,10 +281,12 @@ namespace Tetrifact.Core
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
                 Manifest manifest = this.GetManifest(packageId);
+                if (manifest == null)
+                    throw new PackageNotFoundException(packageId);
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var file in manifest.Files)
+                    foreach (ManifestItem file in manifest.Files)
                     {
                         ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
 

@@ -141,12 +141,11 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateInvalidArchiveFormat()
         {
-            string packageId = "my package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
             PackageCreateArguments package = new PackageCreateArguments
             {
-                Id = packageId,
+                Id = "my package",
                 IsArchive = true,
                 Format = "123",
                 Files = new List<IFormFile>() {
@@ -157,6 +156,26 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateResult result = PackageCreate.CreatePackage(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidArchiveFormat, result.ErrorType);
+        }
+
+        [Fact]
+        public void CreateWithAutoArchive()
+        {
+            this.Settings.AutoCreateArchiveOnPackageCreate = true;
+            Stream fileStream = StreamsHelper.StreamFromString("some text");
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = "mypackage",
+                Format = "123",
+                Files = new List<IFormFile>() {
+                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
+                }
+            };
+
+            PackageCreate.CreatePackage(package);
+            Assert.True(File.Exists(Path.Join(Settings.ArchivePath, "mypackage.zip")));
+
         }
     }
 }

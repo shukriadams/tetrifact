@@ -49,6 +49,8 @@ namespace Tetrifact.Core
         
         public bool IsStorageCompressionEnabled { get; set; }
 
+        public bool AutoCreateArchiveOnPackageCreate { get; set; }
+
         #endregion
 
         #region CTORS
@@ -64,7 +66,7 @@ namespace Tetrifact.Core
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.ListPageSize = 20;
             this.IndexTagListLength = 20;
-            this.PagesPerPageGroup = 20;
+            this.PagesPerPageGroup = 10;
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.AccessTokens = new List<string>();
@@ -81,6 +83,7 @@ namespace Tetrifact.Core
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
+            this.AutoCreateArchiveOnPackageCreate = this.GetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
@@ -134,6 +137,18 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             if (!long.TryParse(settingsRawVariable, out defaultValue))
+                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+
+            return defaultValue;
+        }
+
+        private bool GetSetting(string settingsName, bool defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (settingsRawVariable == null)
+                return defaultValue;
+
+            if (!Boolean.TryParse(settingsRawVariable, out defaultValue))
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
 
             return defaultValue;
