@@ -128,7 +128,9 @@ namespace Tetrifact.Web
 
             Daemon daemon = serviceProvider.GetService<Daemon>();
             int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
-            int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
+                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+
             daemon.Start(daemonInterval);
 
             app.UseEndpoints(endpoints =>
