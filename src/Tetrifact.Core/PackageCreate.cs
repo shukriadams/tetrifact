@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +12,13 @@ namespace Tetrifact.Core
         #region FIELDS
 
         private readonly IIndexReader _indexReader;
+
         private readonly IWorkspace _workspace;
+
         private readonly ILogger<IPackageCreate> _log;
+
         private readonly ITetriSettings _settings;
+
         #endregion
 
         #region CTORS

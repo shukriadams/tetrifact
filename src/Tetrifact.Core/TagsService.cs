@@ -59,25 +59,6 @@ namespace Tetrifact.Core
 
             // flush in-memory tags
             _packageList.Clear();
-
-            /*
-            using (FileStream fileStream = new FileStream(manifestPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
-            {
-                string fileContents = string.Empty;
-                using (StreamReader reader = new StreamReader(fileStream))
-                {
-                    fileContents = reader.ReadToEnd();
-                }
-
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(fileContents);
-                if (!manifest.Tags.Contains(tag))
-                {
-                    manifest.Tags.Add(tag);
-                    byte[] data = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(manifest));
-                    fileStream.Write(data, 0, data.Length);
-                }
-            }
-            */
         }
 
         public void RemoveTag(string packageId, string tag)
@@ -100,25 +81,6 @@ namespace Tetrifact.Core
 
             // flush in-memory tags
             _packageList.Clear();
-
-            /*
-            using (FileStream fileStream = new FileStream(manifestPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
-            {
-                string fileContents = string.Empty;
-                using (StreamReader reader = new StreamReader(fileStream))
-                {
-                    fileContents = reader.ReadToEnd();
-                }
-
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(fileContents);
-                if (manifest.Tags.Contains(tag))
-                {
-                    manifest.Tags.Remove(tag);
-                    byte[] data = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(manifest));
-                    fileStream.Write(data, 0, data.Length);
-                }
-            }
-            */
         }
 
         /// <summary>

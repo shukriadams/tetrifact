@@ -4,7 +4,7 @@ using System.Text;
 namespace Tetrifact.Core
 {
     /// <summary>
-    /// Mangles/restores strings with base64. This is for cosmetic reasons (to mask complex data structure in public ids), and for sanitizing text for
+    /// Obscures/restores strings with base64. This is for cosmetic reasons (to mask complex data structure in public ids), and for sanitizing text for
     /// writing as filesystem names.
     /// </summary>
     public static class Obfuscator
@@ -25,7 +25,5 @@ namespace Tetrifact.Core
                 throw new InvalidFileIdentifierException(input);
             }
         }
-
-
     }
 }

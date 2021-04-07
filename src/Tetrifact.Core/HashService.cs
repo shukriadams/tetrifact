@@ -10,14 +10,22 @@ namespace Tetrifact.Core
     /// </summary>
     public class HashService
     {
+
+        /// <summary>
+        /// Locally utilty function, hex stage of generating hash.
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         private static string ToHex(byte[] bytes)
         {
             StringBuilder s = new StringBuilder();
+
             foreach (byte b in bytes)
                 s.Append(b.ToString("x2").ToLower());
 
             return s.ToString();
         }
+
 
         /// <summary>
         /// Generates a SHA256 hash of the file at the given path.
@@ -34,8 +42,9 @@ namespace Tetrifact.Core
             }
         }
 
+
         /// <summary>
-        /// 
+        /// Generates a SHA256 hash from a byte array.
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
@@ -49,8 +58,9 @@ namespace Tetrifact.Core
             }
         }
 
+
         /// <summary>
-        /// 
+        /// Generates a SHA256 hash from a string.
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -63,6 +73,7 @@ namespace Tetrifact.Core
                 return ToHex(hash);
             }
         }
+
 
         /// <summary>
         /// Sorts file paths so they are in standard order for hash creation.

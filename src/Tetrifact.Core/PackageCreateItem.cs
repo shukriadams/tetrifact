@@ -2,10 +2,20 @@
 
 namespace Tetrifact.Core
 {
+    /// <summary>
+    /// Wraps uploaded file content when creating package
+    /// </summary>
     public class PackageCreateItem
     {
+        #region FIELDS
+
         public string FileName { get; set; }
+
         public Stream Content { get; set; }
+
+        #endregion
+
+        #region CTORS
 
         public PackageCreateItem()
         { }
@@ -15,5 +25,7 @@ namespace Tetrifact.Core
             this.FileName = filename;
             this.Content = content;
         }
+
+        #endregion
     }
 }

@@ -7,6 +7,11 @@ namespace Tetrifact.Core
 {
     public class FileHelper
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public static double BytesToMegabytes(long bytes)
         {
             var megs = (bytes / 1024f) / 1024f;
@@ -29,7 +34,7 @@ namespace Tetrifact.Core
             return string.Join("/", items.Skip(1));
         }
 
-
+        
         public static DiskUseStats GetDiskUseSats()
         {
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
