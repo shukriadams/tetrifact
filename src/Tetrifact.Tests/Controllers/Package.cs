@@ -65,10 +65,10 @@ namespace Tetrifact.Tests.Controlers
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
-                Files = new IFormFile[]
+                Files = new PackageCreateItem[]
                 {
-                    new FormFile(file1, 0, file1.Length, "Files", "folder1/file1.txt"),
-                    new FormFile(file2, 0, file2.Length, "Files", "folder2/file2.txt")
+                    new PackageCreateItem(file1, "folder1/file1.txt"),
+                    new PackageCreateItem(file2, "folder2/file2.txt")
                 }
             };
 
@@ -113,11 +113,10 @@ namespace Tetrifact.Tests.Controlers
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
-                Format = "zip",
                 IsArchive = true,
-                Files = new IFormFile[]
+                Files = new PackageCreateItem[]
                 {
-                    new FormFile(zipStream, 0, zipStream.Length, "Files", "folder/archive.zip")
+                    new PackageCreateItem(zipStream, "folder/archive.zip")
                 }
             };
 
@@ -137,10 +136,10 @@ namespace Tetrifact.Tests.Controlers
             {
                 Id = Guid.NewGuid().ToString(),
                 IsArchive = true,
-                Files = new IFormFile[]
+                Files = new PackageCreateItem[]
                 {
-                    new FormFile(file, 0, file.Length, "Files", "folder1/file.txt"),
-                    new FormFile(file, 0, file.Length, "Files", "folder2/file.txt"),
+                    new PackageCreateItem(file, "folder1/file.txt"),
+                    new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
 

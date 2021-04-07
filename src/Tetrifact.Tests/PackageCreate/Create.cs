@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateBasic()
         {
-            List<IFormFile> files = new List<IFormFile>();
+            List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
             int filesToAdd = 10;
             string packageId = "my package";
@@ -19,7 +19,7 @@ namespace Tetrifact.Tests.PackageCreate
             for (int i = 0; i < filesToAdd; i++)
             {
                 Stream fileStream = StreamsHelper.StreamFromString(fileContent);
-                files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", $"folder{i}/file{i}"));
+                files.Add(new PackageCreateItem(fileStream, $"folder{i}/file{i}"));
             }
 
             PackageCreateArguments package = new PackageCreateArguments
@@ -76,7 +76,7 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateArguments args = new PackageCreateArguments
             {
                 // empty files list
-                Files = new List<IFormFile>()
+                Files = new List<PackageCreateItem>()
             };
 
             PackageCreateResult result = PackageCreate.CreatePackage(args);
@@ -88,7 +88,7 @@ namespace Tetrifact.Tests.PackageCreate
         public void CreateWithNoName(){
             PackageCreateArguments args = new PackageCreateArguments();
             Stream fileStream = StreamsHelper.StreamFromString("some text");
-            args.Files.Add(new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"));
+            args.Files.Add(new PackageCreateItem(fileStream, "folder/file"));
 
 
             PackageCreateResult result = PackageCreate.CreatePackage(args);
@@ -105,7 +105,7 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = packageId,
-                Files = new List<IFormFile>() {new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")}
+                Files = new List<PackageCreateItem>() {new PackageCreateItem(fileStream, "folder/file")}
             };
 
             PackageCreateResult result = PackageCreate.CreatePackage(package);
@@ -127,9 +127,9 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = packageId,
                 IsArchive = true,
-                Files = new List<IFormFile>() {
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file"), 
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
+                Files = new List<PackageCreateItem>() {
+                    new PackageCreateItem(fileStream, "folder/file"), 
+                    new PackageCreateItem(fileStream, "folder/file")
                 }
             };
 
@@ -147,9 +147,8 @@ namespace Tetrifact.Tests.PackageCreate
             {
                 Id = "my package",
                 IsArchive = true,
-                Format = "123",
-                Files = new List<IFormFile>() {
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
+                Files = new List<PackageCreateItem>() {
+                    new PackageCreateItem(fileStream, "folder/file")
                 }
             };
 
@@ -167,9 +166,8 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
-                Format = "123",
-                Files = new List<IFormFile>() {
-                    new FormFile(fileStream, 0, fileStream.Length, "Files", "folder/file")
+                Files = new List<PackageCreateItem>() {
+                    new PackageCreateItem(fileStream, "folder/file")
                 }
             };
 
