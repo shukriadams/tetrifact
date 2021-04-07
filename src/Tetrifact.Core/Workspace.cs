@@ -93,7 +93,7 @@ namespace Tetrifact.Core
 
             bool onDisk = false;
             string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
-            FileInfo fileInfo = new FileInfo(incomingPath);
+            
 
             if (!File.Exists(targetPath)) {
 
@@ -128,7 +128,7 @@ namespace Tetrifact.Core
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
 
-            
+            FileInfo fileInfo = new FileInfo(targetPath);
             this.Manifest.Size += fileInfo.Length;
             if (onDisk)
                 this.Manifest.SizeOnDisk += fileInfo.Length;

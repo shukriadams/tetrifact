@@ -139,25 +139,6 @@ namespace Tetrifact.Tests.PackageCreate
         }
 
         [Fact]
-        public void CreateInvalidArchiveFormat()
-        {
-            Stream fileStream = StreamsHelper.StreamFromString("some text");
-
-            PackageCreateArguments package = new PackageCreateArguments
-            {
-                Id = "my package",
-                IsArchive = true,
-                Files = new List<PackageCreateItem>() {
-                    new PackageCreateItem(fileStream, "folder/file")
-                }
-            };
-
-            PackageCreateResult result = PackageCreate.CreatePackage(package);
-            Assert.False(result.Success);
-            Assert.Equal(PackageCreateErrorTypes.InvalidArchiveFormat, result.ErrorType);
-        }
-
-        [Fact]
         public void CreateWithAutoArchive()
         {
             this.Settings.AutoCreateArchiveOnPackageCreate = true;
