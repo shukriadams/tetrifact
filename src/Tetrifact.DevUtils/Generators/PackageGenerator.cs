@@ -4,7 +4,6 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Tetrifact.Core;
-using Microsoft.AspNetCore.Http;
 using Troschuetz.Random;
 
 namespace Tetrifact.DevUtils
