@@ -18,13 +18,16 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IIndexReader> _logger;
 
+        private readonly ITagsService _tagService;
+
         #endregion
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger)
+        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger)
         {
             _settings = settings;
+            _tagService = tagService;
             _logger = logger;
         }
 
@@ -79,6 +82,10 @@ namespace Tetrifact.Core
             try
             {
                 Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(filePath));
+                var allTags = _tagService.GetPackagesThenTags();
+                if (allTags.ContainsKey(packageId))
+                    manifest.Tags = allTags[packageId].ToHashSet();
+
                 return manifest;
             }
             catch (Exception ex)

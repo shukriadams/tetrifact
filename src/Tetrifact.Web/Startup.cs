@@ -50,6 +50,7 @@ namespace Tetrifact.Web
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
+            services.AddTransient<IPackageListCache, PackageListCache>();
             services.AddTransient<Daemon, Daemon>();
 
             // register filterws

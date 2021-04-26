@@ -27,7 +27,7 @@ namespace Tetrifact.Web
         private readonly IPackageCreate _packageService;
         private readonly IPackageList _packageList;
         private readonly ITetriSettings _settings;
-
+        private readonly IPackageListCache _packageListCache;
         #endregion
 
         #region CTORS
@@ -40,10 +40,11 @@ namespace Tetrifact.Web
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageList packageList, IPackageListCache packageListCache, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
+            _packageListCache = packageListCache;
             _indexService = indexService;
             _settings = settings;
             _log = log;
@@ -240,7 +241,7 @@ namespace Tetrifact.Web
                 if (result.Success)
                 {
                     // force flush in-memory list of packages
-                    _packageList.Clear();
+                    _packageListCache.Clear();
 
                     return new JsonResult(new
                     {
@@ -292,7 +293,7 @@ namespace Tetrifact.Web
             try
             {
                 _indexService.DeletePackage(packageId);
-                _packageList.Clear();
+                _packageListCache.Clear();
 
                 return new JsonResult(new
                 {

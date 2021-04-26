@@ -12,7 +12,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Files in this package. Each file can be downloaded using its public id, and should be saved at its path.
         /// </summary>
-        public IList<ManifestItem> Files { get; private set; }
+        public IList<ManifestItem> Files { get; set; }
 
         /// <summary>
         /// Combined size (bytes) of files (not linked files) in package.

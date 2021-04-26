@@ -141,6 +141,10 @@ namespace Tetrifact.Core
             string targetFolder = Path.Join(_settings.PackagePath, packageId);
             Directory.CreateDirectory(targetFolder);
             File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
+
+            Manifest headCopy = JsonConvert.DeserializeObject<Manifest>(JsonConvert.SerializeObject(this.Manifest));
+            headCopy.Files = new List<ManifestItem>();
+            File.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
         }
 
         public IEnumerable<string> GetIncomingFileNames()

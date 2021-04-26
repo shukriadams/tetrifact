@@ -33,5 +33,17 @@ namespace Tetrifact.Core
         /// <param name="tag"></param>
         /// <returns></returns>
         IEnumerable<string> GetPackageIdsWithTags(string[] tags);
+
+        /// <summary>
+        /// Gets a list of all tags, and all packages tagged by each tag.
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<string, IEnumerable<string>> GetPackagesThenTags();
+
+        /// <summary>
+        /// Gets a list of all tags, and all packages tagged by each tag.
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<string, IEnumerable<string>> GetTagsThenPackages();
     }
 }

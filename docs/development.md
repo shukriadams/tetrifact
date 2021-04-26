@@ -85,7 +85,11 @@ This is a brief explanation of Tetrifact's structure and concepts
 
 ### Package
 
-A package is a collection of one or more files that are added to Tetrifact. A package is expected to have a unique name, assigned at creation, and this name will be used by you the user to retrieve the package again. Normally in a continuous integration setup, name corresponds one-to-one with a build id, which in turn usually corresponds with the version control revision id or hash from which the build was done. 
+A package is a conceputal collection of one or more files that are added to Tetrifact. A package is expected to have a unique name, assigned at creation, and this name will be used by you the user to retrieve the package again. Normally in a continuous integration setup, name corresponds one-to-one with a build id, which in turn usually corresponds with the version control revision id or hash from which the build was done. 
+
+### Manifests
+
+A Manifest is a JSON file that lists all the files in a package, along with metadata describing the package. The manifest contains a collection of file paths that point to the files in a package. 
 
 ### Repository
 

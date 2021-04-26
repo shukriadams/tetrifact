@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,17 +14,17 @@ namespace Tetrifact.Core
 
         private readonly ILogger<ITagsService> _logger;
 
-        private readonly IPackageList _packageList;
+        private readonly IPackageListCache _packageListCache;
 
         #endregion
 
         #region CTORS
 
-        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IPackageList packageList)
+        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IPackageListCache packageListCache)
         {
             _settings = settings;
             _logger = logger;
-            _packageList = packageList;
+            _packageListCache = packageListCache;
         }
 
         #endregion
@@ -49,16 +48,8 @@ namespace Tetrifact.Core
                 File.WriteAllText(targetPath, string.Empty);
                 
 
-            // WARNING - NO FILE LOCK HERE!!
-            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
-            if (!manifest.Tags.Contains(tag))
-            {
-                manifest.Tags.Add(tag);
-                File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-            }
-
             // flush in-memory tags
-            _packageList.Clear();
+            _packageListCache.Clear();
         }
 
         public void RemoveTag(string packageId, string tag)
@@ -71,16 +62,8 @@ namespace Tetrifact.Core
             if (File.Exists(targetPath))
                 File.Delete(targetPath);
 
-            // WARNING - NO FILE LOCK HERE!!
-            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
-            if (manifest.Tags.Contains(tag))
-            {
-                manifest.Tags.Remove(tag);
-                File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-            }
-
             // flush in-memory tags
-            _packageList.Clear();
+            _packageListCache.Clear();
         }
 
         /// <summary>
@@ -109,7 +92,60 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Gets packages with tags from the tag index, not directly from package manifests.
+        /// Gets a list of all tags, and all packages tagged by each tag.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, IEnumerable<string>> GetTagsThenPackages()
+        {
+            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            Dictionary<string, IEnumerable<string>> tags = new Dictionary<string, IEnumerable<string>>();
+
+            foreach (string rawTag in rawTags)
+            {
+                try
+                {
+                    IEnumerable<string> packages = Directory.GetFiles(rawTag).Select(r => Path.GetFileName(r));
+                    tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)), packages);
+                }
+                catch (FormatException)
+                {
+                    // log invalid tag folders, and continue.
+                    _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
+                }
+            }
+
+            return tags;
+        }
+
+        /// <summary>
+        /// Gets a list of all tags, and all packages tagged by each tag.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, IEnumerable<string>> GetPackagesThenTags()
+        {
+            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            Dictionary<string, IEnumerable<string>> tags = this.GetTagsThenPackages();
+
+            Dictionary<string, List<string>> packagetemp = new Dictionary<string, List<string>>();
+
+            foreach (string tag in tags.Keys)
+                foreach(string package in tags[tag])
+                {
+                    if (!packagetemp.ContainsKey(package))
+                        packagetemp.Add(package, new List<string>());
+
+                    packagetemp[package].Add(tag);
+                }
+
+            Dictionary<string, IEnumerable<string>> packageDict = new Dictionary<string, IEnumerable<string>>();
+            foreach (string tag in packagetemp.Keys)
+                packageDict.Add(tag, packagetemp[tag]);
+
+            return packageDict;
+        }
+
+        /// <summary>
+        /// Gets packages with tags from the tag index.
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
