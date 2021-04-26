@@ -70,8 +70,11 @@ namespace Tetrifact.Tests
             };
 
             Logger = new TestLogger<IIndexReader>();
+            Core.ITagsService tagService = new Core.TagsService(
+                Settings,
+                new TestLogger<Core.ITagsService>(), new Core.PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            IndexReader = new Core.IndexReader(Settings, Logger);
+            IndexReader = new Core.IndexReader(Settings, tagService, Logger);
             Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }

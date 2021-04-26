@@ -134,13 +134,14 @@ namespace Tetrifact.Core
                     }
 
                     Manifest manifestHead = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestHeadPath));
+                    string packageId = Path.GetFileName(packageDirectory);
                     packageData.Add(new Package
                     {
                         CreatedUtc = manifestHead.CreatedUtc,
-                        Id = Path.GetFileName(packageDirectory),
+                        Id = packageId,
                         Description = manifestHead.Description,
                         Hash = manifestHead.Hash,
-                        Tags = packagesThenTags.ContainsKey(packageDirectory) ? packagesThenTags[packageDirectory].ToHashSet() : new HashSet<string>()
+                        Tags = packagesThenTags.ContainsKey(packageId) ? packagesThenTags[packageId].ToHashSet() : new HashSet<string>()
                     });
                 }
                 catch (Exception ex)
