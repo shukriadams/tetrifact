@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using System.Threading;
 using Tetrifact.Core;
@@ -15,6 +17,7 @@ namespace Tetrifact.Tests
         protected TestLogger<IIndexReader> Logger;
         protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
+        protected ITagsService TagService;
 
         protected class TestPackage
         {
@@ -70,11 +73,11 @@ namespace Tetrifact.Tests
             };
 
             Logger = new TestLogger<IIndexReader>();
-            Core.ITagsService tagService = new Core.TagsService(
+            TagService = new Core.TagsService(
                 Settings,
-                new TestLogger<Core.ITagsService>(), new Core.PackageListCache(MemoryCacheHelper.GetInstance()));
+                new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            IndexReader = new Core.IndexReader(Settings, tagService, Logger);
+            IndexReader = new Core.IndexReader(Settings, TagService, Logger, new FileWrapper(new FileSystem()));
             Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }

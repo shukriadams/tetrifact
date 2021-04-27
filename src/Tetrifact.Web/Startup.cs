@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -51,6 +52,7 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
             services.AddTransient<IPackageListCache, PackageListCache>();
+            services.AddTransient<IFile, FileBase>();
             services.AddTransient<Daemon, Daemon>();
 
             // register filterws

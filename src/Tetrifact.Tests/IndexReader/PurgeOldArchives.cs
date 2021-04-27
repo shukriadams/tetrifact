@@ -1,5 +1,10 @@
-﻿using System.IO;
-using System.Text;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
+using System;
+using System.IO;
+using System.IO.Abstractions;
+using System.Threading;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -49,5 +54,25 @@ namespace Tetrifact.Tests.IndexReader
                 Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
             }
         }
+
+        
+        /// <summary>
+        /// for test coverage - ensures that io exception is thrown
+        /// </summary>
+        [Fact]
+        public void PurgeWithException() 
+        {
+            IFile file = Mock.Of<IFile>();
+            Mock.Get(file).Setup(f => f.Delete(It.IsAny<string>())).Throws<IOException>();
+            IIndexReader indexReader = new Core.IndexReader(Settings, TagService, Logger, file);
+
+            // force an archive and ensure that all archives will be purged
+            Settings.MaxArchives = 0;
+            File.WriteAllText(Path.Join(Settings.ArchivePath, "test"), string.Empty);
+
+            indexReader.PurgeOldArchives();
+            // no assert! exception is throttled internally, we just need coverage here
+        }
+        
     }
 }

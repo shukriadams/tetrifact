@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
@@ -20,15 +21,18 @@ namespace Tetrifact.Core
 
         private readonly ITagsService _tagService;
 
+        private readonly IFile _file;
+
         #endregion
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger)
+        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFile file)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
+            _file = file;
         }
 
         #endregion
@@ -119,7 +123,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    File.Delete(file.FullName);
+                    _file.Delete(file.FullName);
                 }
                 catch (IOException ex)
                 {
