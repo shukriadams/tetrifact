@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Text;
 using System.Threading;
 using Tetrifact.Core;
 
@@ -18,42 +16,6 @@ namespace Tetrifact.Tests
         protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
         protected ITagsService TagService;
-
-        protected class TestPackage
-        {
-            public byte[] Content;
-            public string Path;
-            public string Name;
-        }
-
-        /// <summary>
-        /// Generates a valid package, returns its unique id.
-        /// </summary>
-        /// <returns></returns>
-        protected TestPackage CreatePackage()
-        {
-            return this.CreatePackage("somepackage");
-        }
-
-        protected TestPackage CreatePackage(string packageName)
-        {
-            // create package, files folder and item location in one
-            TestPackage testPackage = new TestPackage
-            {
-                Content = Encoding.ASCII.GetBytes("some content"),
-                Path = $"path/to/{packageName}",
-                Name = packageName
-            };
-
-            this.WorkspaceLogger = new TestLogger<IWorkspace>();
-            IWorkspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
-            workspace.Initialize();
-            workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, "somehash2");
-
-            return testPackage;
-        }
 
         public FileSystemBase()
         {

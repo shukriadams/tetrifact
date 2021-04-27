@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void NoSingles()
         {
-            PackageHelper.WritePackage(this.Settings, new Manifest() { Id = "package" });
+            PackageHelper.WriteManifest(this.Settings, new Manifest() { Id = "package" });
             TagHelper.TagPackage(this.Settings, "tag", "package");
 
             IEnumerable<string> tags = this.PackageList.GetPopularTags(3);
@@ -25,9 +25,9 @@ namespace Tetrifact.Tests.PackageList
         public void Basic()
         {
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WritePackage(this.Settings, new Manifest() { Id = "package2004" });
-            PackageHelper.WritePackage(this.Settings, new Manifest() { Id = "package2003" });
-            PackageHelper.WritePackage(this.Settings, new Manifest() { Id = "package2002" });
+            PackageHelper.WriteManifest(this.Settings, new Manifest() { Id = "package2004" });
+            PackageHelper.WriteManifest(this.Settings, new Manifest() { Id = "package2003" });
+            PackageHelper.WriteManifest(this.Settings, new Manifest() { Id = "package2002" });
             
             TagHelper.TagPackage(this.Settings, "tag2", "package2004");
             TagHelper.TagPackage(this.Settings, "tag2", "package2003");

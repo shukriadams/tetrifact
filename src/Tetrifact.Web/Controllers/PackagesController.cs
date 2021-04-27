@@ -142,30 +142,16 @@ namespace Tetrifact.Web
         {
             try
             {
-                _indexService.VerifyPackage(packageId);
+                (bool, string) result = _indexService.VerifyPackage(packageId);
 
                 return new JsonResult(new
                 {
                     success = new
                     {
-                        isValid = true,
-                        description = "Package is valid"
+                        isValid = result.Item1,
+                        description = result.Item2
                     }
                 });
-            }
-            catch (PackageCorruptException ex)
-            {
-                return new JsonResult(new
-                {
-                    success = new
-                    {
-                        isValid = false,
-                        error = ex.Message,
-                        description = "Package is corrupt, see logs for detailed error description"
-                    }
-                });
-
-                _log.LogError(ex, $"Package {packageId} is corrupt");
             }
             catch (Exception ex)
             {

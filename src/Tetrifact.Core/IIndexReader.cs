@@ -105,6 +105,6 @@ namespace Tetrifact.Core
         /// Throws exception if hashes do not match.
         /// </summary>
         /// <param name="packageId"></param>
-        void VerifyPackage(string packageId);
+        (bool, string) VerifyPackage(string packageId);
     }
 }

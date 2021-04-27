@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            TestPackage testPackage = base.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
             using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
@@ -32,7 +32,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetExistingArchive()
         {
-            TestPackage testPackage = base.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
             using (Stream testContent1 = this.IndexReader.GetPackageAsArchive(testPackage.Name))
             {
                 // get again
@@ -71,7 +71,7 @@ namespace Tetrifact.Tests.IndexReader
             base.Settings.ArchiveAvailablePollInterval = 0;
 
             // we need a valid package first
-            TestPackage testPackage = base.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock a temp archive file, this means actual archive creation will be skipped and
             // therefore never complete.

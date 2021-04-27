@@ -18,14 +18,14 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetDefault()
         {
-            TestPackage testPackage = this.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
             Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
         }
 
         [Fact]
         public void GetInProgressStatus()
         {
-            TestPackage testPackage = this.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
             
             // mock temp archive
             File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath(testPackage.Name), string.Empty);
@@ -36,7 +36,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetReadyStatus()
         {
-            TestPackage testPackage = this.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock temp archive
 

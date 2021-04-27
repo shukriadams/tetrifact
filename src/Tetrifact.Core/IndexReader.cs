@@ -174,39 +174,32 @@ namespace Tetrifact.Core
             return 2;
         }
 
-        public void VerifyPackage(string packageId) 
+        public (bool, string) VerifyPackage(string packageId) 
         {
             Manifest manifest = this.GetManifest(packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
-            try
+            StringBuilder hashes = new StringBuilder();
+            string[] files = files = HashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+
+            foreach (string filePath in files)
             {
-
-                StringBuilder hashes = new StringBuilder();
-                string[] files = files = HashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
-
-                foreach (string filePath in files)
-                {
-                    ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+                ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
                     
-                    string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
-                    if (!File.Exists(directFilePath))
-                        throw new PackageCorruptException($"Expected package file {directFilePath} not found ");
+                string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                if (!File.Exists(directFilePath))
+                    return (false, $"Expected package file {directFilePath} not found ");
 
-                    hashes.Append(HashService.FromString(manifestItem.Path));
-                    hashes.Append(HashService.FromFile(directFilePath));
-                }
-
-                string finalHash = HashService.FromString(hashes.ToString());
-                if (finalHash != manifest.Hash)
-                    throw new PackageCorruptException("Hashes do not match");
-
+                hashes.Append(HashService.FromString(manifestItem.Path));
+                hashes.Append(HashService.FromFile(directFilePath));
             }
-            catch (Exception ex)
-            {
-                throw new PackageCorruptException("Unexpected error", ex);
-            }
+
+            string finalHash = HashService.FromString(hashes.ToString());
+            if (finalHash != manifest.Hash)
+                return (false, "Hashes do not match");
+
+            return (true, string.Empty);
         }
 
         public void DeletePackage(string packageId)

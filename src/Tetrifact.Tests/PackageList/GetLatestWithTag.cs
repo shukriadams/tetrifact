@@ -10,8 +10,8 @@ namespace Tetrifact.Tests.PackageList
         public void BasicList()
         {
             // list works by reading manifest json files on system. Create two manifests. All we need are dates on them.
-            PackageHelper.WritePackage(this.Settings, new Manifest() { Id = "package2001", CreatedUtc = DateTime.Parse("2001/1/1") });
-            PackageHelper.WritePackage(this.Settings, new Manifest() { Id = "package2002", CreatedUtc = DateTime.Parse("2002/1/1") });
+            PackageHelper.WriteManifest(this.Settings, new Manifest() { Id = "package2001", CreatedUtc = DateTime.Parse("2001/1/1") });
+            PackageHelper.WriteManifest(this.Settings, new Manifest() { Id = "package2002", CreatedUtc = DateTime.Parse("2002/1/1") });
             TagHelper.TagPackage(this.Settings, "tag", "package2001");
             TagHelper.TagPackage(this.Settings, "tag", "package2002");
 

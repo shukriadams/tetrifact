@@ -1,9 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using Moq;
-using System;
+﻿using Moq;
 using System.IO;
 using System.IO.Abstractions;
-using System.Threading;
 using Tetrifact.Core;
 using Xunit;
 

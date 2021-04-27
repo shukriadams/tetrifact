@@ -108,9 +108,9 @@ namespace Tetrifact.Tests
             return Test_Indexes;
         }
 
-        public void VerifyPackage(string packageId)
+        public (bool, string) VerifyPackage(string packageId)
         {
-
+            return (false, string.Empty);
         }
 
         #endregion
