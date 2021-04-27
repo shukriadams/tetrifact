@@ -22,5 +22,12 @@ namespace Tetrifact.Tests
             Assert.True(stats.FreeBytes > 0);
             Assert.True(stats.TotalBytes > 0);
         }
+
+        [Fact]
+        public void RemoveFirstDirectoryFromPath() 
+        {
+            string path = FileHelper.RemoveFirstDirectoryFromPath("/path/to/test");
+            Assert.Equal("to/test", path);
+        }
     }
 }

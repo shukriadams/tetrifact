@@ -233,7 +233,11 @@ namespace Tetrifact.Web
                 PackageCreateResult result = _packageService.CreatePackage(new PackageCreateArguments
                 {
                     Description = post.Description,
-                    Files = post.Files.Select(r => new PackageCreateItem { Content = r.OpenReadStream(), FileName = post.RemoveFirstDirectoryFromPath ? FileHelper.RemoveFirstDirectoryFromPath(r.FileName) : r.FileName }).ToList(),
+                    Files = post.Files.Select(r => new PackageCreateItem { 
+                        Content = r.OpenReadStream(),
+                        // packages uploaded via webform are forced to include leading folder in path, these can be marked for removal
+                        FileName = post.RemoveFirstDirectoryFromPath ? FileHelper.RemoveFirstDirectoryFromPath(r.FileName) : r.FileName 
+                        }).ToList(),
                     Id = post.Id,
                     IsArchive = post.IsArchive
                 });
