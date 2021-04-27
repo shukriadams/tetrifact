@@ -8,9 +8,16 @@ Develop branch
 
 [![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=develop)](https://travis-ci.org/shukriadams/tetrifact)
 
-Tetrifact is a server that stores build arfefacts. It was originally written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. Tetrifact cuts down on storage space by sharing identical files across builds. It exposes an HTTP REST API so it can easily be integrated into your CI build and test chain. 
+Tetrifact is a server for storeing build arfefacts. It was originally written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. 
 
-It is implemented in C# for Dotnetcore 3.1, and will run on any system that supports this framework.
+### Features
+
+- reduces storage space by sharing identical files across builds (file deduplication)
+- performs well on Unreal-scale projects with very large data footprints and file counts
+- stores files individually compressed
+- supports tagging of builds
+- Exposes an HTTP REST API for easier integration with your CI and test chain 
+- Written Linux-first in C# on Dotnetcore 3.1, runs on any system that supports this framework
 
 ## Demo
 
@@ -21,11 +28,11 @@ A Tetrifact instance is running at *https://tetrifact.manafeed.com*. For interne
 Suppose you work for the ACME Game Corporation, and you're developing Thingernator. You've just commited your latest changes, and
 your version control system says you're at revision 921. In your Thingernator build script, after compiling, zip Thingernator and then post it with
 
-        curl 
-            -X POST 
-            -H "Content-Type: multipart/form-data" 
-            -H "Transfer-Encoding: chunked"
-            -F "Files=@path/to/thingernator-build.zip" 
+        curl \
+            -X POST \ 
+            -H "Content-Type: multipart/form-data" \
+            -H "Transfer-Encoding: chunked" \
+            -F "Files=@path/to/thingernator-build.zip" \
             http://tetriserver.example.com/v1/packages/Thingernator-921?isArchive=true 
 
 Your QA team's automated test system wants builds of Thingernator. Tag your new build so it knows this build is testable.
@@ -83,11 +90,11 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
             ports:
             - "49022:5000"
 
-Note that Docker for Windows now supports Linux containers, so you can this container on Windows hosts too.
+Note that Docker for Windows now supports Linux containers, so you can run this container on Windows hosts too. 
 
 ## What it isn't
 
-Tetrifact is intended for use in your in-house CI build chain, and replaces the awful practice of storing builds in static folders on file servers. Tetrifact is not a super bullet-proof file-database-engine-thinger that adheres to ACID principles - it's written to be robust and fault-tolerant, in a real-life game studio with multiple daily builds, but you should still probably not use it to store absolutely irreplacable files. 
+Tetrifact is use-at-your-own risk open source software. It is intended for use in your in-house CI build chain, and replaces the awful practice of storing builds on SMB file servers. Tetrifact is not a version control system or super bullet-proof file-database-engine-thinger that adheres to ACID principles. It's written to be robust and fault-tolerant in a real-life game studio with multiple daily builds, but you should still probably not use it for absolutely irreplacable files such as release-to-manufacture builds. 
 
 ## Using
 
@@ -99,7 +106,7 @@ See the [developer docs](/docs/development.md) for details on running Tetrifact 
 
 ## Security
 
-NOTE : Tetrifact currently has no security model - it is 100% open. Use it on an internal network where everyone is trusted. Security will be added later.
+Tetrifact has zero security - it is 100% open and intended for use on internal networks where everyone is trusted. _Never_ expose your Tetrifact instance to "the web" unless you know what you're doing.
 
 ## License
 
