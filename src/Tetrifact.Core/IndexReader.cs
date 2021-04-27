@@ -22,17 +22,20 @@ namespace Tetrifact.Core
         private readonly ITagsService _tagService;
 
         private readonly IFile _file;
+        
+        private readonly IHashService _hashService;
 
         #endregion
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFile file)
+        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFile file, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
             _file = file;
+            _hashService = hashService;
         }
 
         #endregion
@@ -181,7 +184,7 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             StringBuilder hashes = new StringBuilder();
-            string[] files = files = HashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+            string[] files = files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
 
             foreach (string filePath in files)
             {
@@ -191,13 +194,13 @@ namespace Tetrifact.Core
                 if (!File.Exists(directFilePath))
                     return (false, $"Expected package file {directFilePath} not found ");
 
-                hashes.Append(HashService.FromString(manifestItem.Path));
-                hashes.Append(HashService.FromFile(directFilePath));
+                hashes.Append(_hashService.FromString(manifestItem.Path));
+                hashes.Append(_hashService.FromFile(directFilePath));
             }
 
-            string finalHash = HashService.FromString(hashes.ToString());
+            string finalHash = _hashService.FromString(hashes.ToString());
             if (finalHash != manifest.Hash)
-                return (false, "Hashes do not match");
+                return (false, $"Actual package hash {finalHash} does not match expected manifest hash ${manifest.Hash}");
 
             return (true, string.Empty);
         }

@@ -51,7 +51,7 @@ namespace Tetrifact.Tests
             };
 
             // create via workspace writter
-            IWorkspace workspace = new Core.Workspace(settings, new TestLogger<IWorkspace>());
+            IWorkspace workspace = new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance());
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);

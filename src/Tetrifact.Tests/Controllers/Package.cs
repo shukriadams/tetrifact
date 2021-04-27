@@ -5,12 +5,8 @@ using Ninject;
 using Tetrifact.Core;
 using System.Linq;
 using System.IO;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.IO.Compression;
-using System.Dynamic;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Tetrifact.Tests.Controlers
 {
@@ -56,11 +52,11 @@ namespace Tetrifact.Tests.Controlers
             string file2Content = "file 2 content";
             Stream file1 = StreamsHelper.StreamFromString(file1Content);
             Stream file2 = StreamsHelper.StreamFromString(file2Content);
-            string expectedFullhash = HashService.FromString(
-                HashService.FromString("folder1/file1.txt") +
-                HashService.FromString(file1Content) +
-                HashService.FromString("folder2/file2.txt") +
-                HashService.FromString(file2Content));
+            string expectedFullhash = HashServiceHelper.Instance().FromString(
+                HashServiceHelper.Instance().FromString("folder1/file1.txt") +
+                HashServiceHelper.Instance().FromString(file1Content) +
+                HashServiceHelper.Instance().FromString("folder2/file2.txt") +
+                HashServiceHelper.Instance().FromString(file2Content));
 
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
@@ -86,11 +82,11 @@ namespace Tetrifact.Tests.Controlers
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
 
-            string expectedFullhash = HashService.FromString(
-                HashService.FromString("folder1/file1.txt") +
-                HashService.FromString(file1Content) +
-                HashService.FromString("folder2/file2.txt") +
-                HashService.FromString(file2Content));
+            string expectedFullhash = HashServiceHelper.Instance().FromString(
+                HashServiceHelper.Instance().FromString("folder1/file1.txt") +
+                HashServiceHelper.Instance().FromString(file1Content) +
+                HashServiceHelper.Instance().FromString("folder2/file2.txt") +
+                HashServiceHelper.Instance().FromString(file2Content));
 
             files.Add("folder1/file1.txt", file1Content);
             files.Add("folder2/file2.txt", file2Content);

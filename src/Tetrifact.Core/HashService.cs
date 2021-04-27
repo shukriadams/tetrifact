@@ -8,7 +8,7 @@ namespace Tetrifact.Core
     /// <summary>
     /// SHA256 hashing
     /// </summary>
-    public class HashService
+    public class HashService : IHashService
     {
 
         /// <summary>
@@ -16,7 +16,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        private static string ToHex(byte[] bytes)
+        private string ToHex(byte[] bytes)
         {
             StringBuilder s = new StringBuilder();
 
@@ -32,7 +32,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static string FromFile(string filePath)
+        public string FromFile(string filePath)
         {
             using (FileStream fs = File.OpenRead(filePath))
             using (HashAlgorithm hashAlgorithm = SHA256.Create())
@@ -48,7 +48,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static string FromByteArray(byte[] data)
+        public string FromByteArray(byte[] data)
         {
             MemoryStream stream = new MemoryStream(data);
             using (HashAlgorithm hashAlgorithm = SHA256.Create())
@@ -64,7 +64,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static string FromString(string str)
+        public string FromString(string str)
         {
             Stream stream = StreamsHelper.StreamFromString(str);
             using (HashAlgorithm hashAlgorithm = SHA256.Create())
@@ -80,7 +80,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="files"></param>
         /// <returns></returns>
-        public static string[] SortFileArrayForHashing(string[] files)
+        public string[] SortFileArrayForHashing(string[] files)
         {
             Array.Sort(files, (x, y) => String.Compare(x, y));
             return files;

@@ -12,7 +12,8 @@ namespace Tetrifact.Tests.PackageCreate
                 IndexReader, 
                 Settings,
                 new TestLogger<IPackageCreate>(), 
-                new Core.Workspace(Settings, new TestLogger<IWorkspace>()));
+                new Core.Workspace(Settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance()), 
+                HashServiceHelper.Instance());
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
@@ -10,8 +7,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic() 
         {
-            PackageHelper.WriteManifest(Settings, new Core.Manifest { Id= "mypackage" });
-           // this.IndexReader.VerifyPackage();
+            PackageHelper.CreatePackage(Settings, "mypackage" );
+            (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
+            //Assert.True(result.Item1);
         }
     }
 }

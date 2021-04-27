@@ -15,7 +15,7 @@ namespace Tetrifact.Tests
         public void FromByteArray()
         {
             byte[] input = Encoding.ASCII.GetBytes(_input);
-            Assert.Equal(_expectedHash, HashService.FromByteArray(input));
+            Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromByteArray(input));
         }
 
         [Fact]
@@ -24,13 +24,13 @@ namespace Tetrifact.Tests
             Directory.CreateDirectory(this.Settings.TempPath);
             string path = Path.Join(this.Settings.TempPath, "hashFromFileTest.txt");
             File.WriteAllText(path, _input);
-            Assert.Equal(_expectedHash, HashService.FromFile(path));
+            Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromFile(path));
         }
 
         [Fact]
         public void FromString()
         {
-            Assert.Equal(_expectedHash, HashService.FromString(_input));
+            Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromString(_input));
         }
 
     }

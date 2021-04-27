@@ -94,7 +94,7 @@ namespace Tetrifact.Tests
         public string GetIncomingFileHash(string path)
         {
             byte[] content = Incoming[path];
-            return HashService.FromByteArray(content);
+            return HashServiceHelper.Instance().FromByteArray(content);
         }
 
         public void Dispose()

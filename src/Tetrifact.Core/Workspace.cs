@@ -16,6 +16,8 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IWorkspace> _logger;
 
+        private readonly IHashService _hashService;
+
         #endregion
 
         #region PROPERTIES
@@ -28,10 +30,11 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger)
+        public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger, IHashService hashService)
         {
             _settings = settings;
             _logger = logger;
+            _hashService = hashService;
         }
 
         #endregion
@@ -180,7 +183,7 @@ namespace Tetrifact.Core
 
         public string GetIncomingFileHash(string relativePath)
         {
-            return HashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
+            return _hashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
         }
 
         public void Dispose()

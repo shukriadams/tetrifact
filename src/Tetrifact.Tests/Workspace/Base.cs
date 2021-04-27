@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.Workspace
 
         public Base()
         {
-            Workspace = new Core.Workspace(Settings, base.WorkspaceLogger);
+            Workspace = new Core.Workspace(Settings, base.WorkspaceLogger, HashServiceHelper.Instance());
             Workspace.Initialize();
         }
     }

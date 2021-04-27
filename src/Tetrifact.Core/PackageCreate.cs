@@ -19,16 +19,19 @@ namespace Tetrifact.Core
 
         private readonly ITetriSettings _settings;
 
+        private readonly IHashService _hashService;
+
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;
             _workspace = workspace;
             _settings = settings;
+            _hashService = hashService;
         }
 
         #endregion
@@ -75,7 +78,7 @@ namespace Tetrifact.Core
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 string[] files = _workspace.GetIncomingFileNames().ToArray();
-                files = HashService.SortFileArrayForHashing(files);
+                files = _hashService.SortFileArrayForHashing(files);
                 
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
@@ -85,7 +88,7 @@ namespace Tetrifact.Core
                     // get hash of incoming file
                     string fileHash = _workspace.GetIncomingFileHash(filePath);
 
-                    hashes.Append(HashService.FromString(filePath));
+                    hashes.Append(_hashService.FromString(filePath));
                     hashes.Append(fileHash);
 
                     // todo : this would be a good place to confirm that existingPackageId is actually valid
@@ -95,7 +98,7 @@ namespace Tetrifact.Core
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // calculate package hash from child hashes
-                _workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
+                _workspace.WriteManifest(newPackage.Id, _hashService.FromString(hashes.ToString()));
 
                 _workspace.Dispose();
 

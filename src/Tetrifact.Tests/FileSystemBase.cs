@@ -39,7 +39,7 @@ namespace Tetrifact.Tests
                 Settings,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            IndexReader = new Core.IndexReader(Settings, TagService, Logger, new FileWrapper(new FileSystem()));
+            IndexReader = new Core.IndexReader(Settings, TagService, Logger, new FileWrapper(new FileSystem()), HashServiceHelper.Instance());
             Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }
