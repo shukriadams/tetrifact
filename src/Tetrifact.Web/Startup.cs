@@ -53,7 +53,7 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageList, PackageList>();
             services.AddTransient<IPackageListCache, PackageListCache>();
             services.AddTransient<IHashService, HashService>();
-            services.AddTransient<IFile, FileBase>();
+            services.AddTransient<IFileSystem, FileSystem>();
             services.AddTransient<Daemon, Daemon>();
 
             // register filterws

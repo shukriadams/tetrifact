@@ -21,7 +21,7 @@ namespace Tetrifact.Core
 
         private readonly ITagsService _tagService;
 
-        private readonly IFile _file;
+        private readonly IFileSystem _fileSystem;
         
         private readonly IHashService _hashService;
 
@@ -29,12 +29,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFile file, IHashService hashService)
+        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
-            _file = file;
+            _fileSystem = fileSystem;
             _hashService = hashService;
         }
 
@@ -126,7 +126,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    _file.Delete(file.FullName);
+                    _fileSystem.File.Delete(file.FullName);
                 }
                 catch (IOException ex)
                 {

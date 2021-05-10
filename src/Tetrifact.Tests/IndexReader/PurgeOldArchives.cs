@@ -59,9 +59,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void PurgeWithException() 
         {
-            IFile file = Mock.Of<IFile>();
-            Mock.Get(file).Setup(f => f.Delete(It.IsAny<string>())).Throws<IOException>();
-            IIndexReader indexReader = new Core.IndexReader(Settings, TagService, Logger, file, HashServiceHelper.Instance());
+            IFileSystem fileSystem = Mock.Of<IFileSystem>();
+            Mock.Get(fileSystem).Setup(f => f.File.Delete(It.IsAny<string>())).Throws<IOException>();
+            IIndexReader indexReader = new Core.IndexReader(Settings, TagService, Logger, fileSystem, HashServiceHelper.Instance());
 
             // force an archive and ensure that all archives will be purged
             Settings.MaxArchives = 0;
