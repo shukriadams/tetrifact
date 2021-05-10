@@ -37,7 +37,7 @@ namespace Tetrifact.Web
         #region METHODS
 
         /// <summary>
-        /// 
+        /// Downloads a package file.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -57,8 +57,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError(ex, "An unexpected error occurred.");
-                Console.WriteLine("An unexpected error occurred : ");
-                Console.WriteLine(ex);
                 return Responses.UnexpectedError();
             }
             

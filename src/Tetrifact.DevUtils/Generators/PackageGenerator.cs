@@ -4,7 +4,6 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Tetrifact.Core;
-using Microsoft.AspNetCore.Http;
 using Troschuetz.Random;
 
 namespace Tetrifact.DevUtils
@@ -33,14 +32,14 @@ namespace Tetrifact.DevUtils
             TRandom random = new TRandom();
             for (int i = 0; i < count; i++)
             {
-                List<IFormFile> files = new List<IFormFile>();
+                List<PackageCreateItem> files = new List<PackageCreateItem>();
                 int filesToAdd = random.Next(0, maxFiles);
                 for (int j = 0; j < filesToAdd; j++)
                 {
                     byte[] buffer = new byte[maxFileSize];
                     random.NextBytes(buffer);
                     Stream file = new MemoryStream(buffer);
-                    files.Add(new FormFile(file, 0, file.Length, "Files", $"folder{Guid.NewGuid()}/{Guid.NewGuid()}"));
+                    files.Add(new PackageCreateItem(file, $"folder{Guid.NewGuid()}/{Guid.NewGuid()}"));
                 }
                 PackageCreateArguments package = new PackageCreateArguments {
                     Id = Guid.NewGuid().ToString(),

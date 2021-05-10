@@ -12,7 +12,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Files in this package. Each file can be downloaded using its public id, and should be saved at its path.
         /// </summary>
-        public IList<ManifestItem> Files { get; private set; }
+        public IList<ManifestItem> Files { get; set; }
 
         /// <summary>
         /// Combined size (bytes) of files (not linked files) in package.
@@ -23,6 +23,11 @@ namespace Tetrifact.Core
         /// Size of files and linked files in package.
         /// </summary>
         public long Size { get; set; }
+
+        /// <summary>
+        /// If true, binary date will be compressed when written to disk.
+        /// </summary>
+        public bool IsCompressed { get; set; }
 
         #endregion
 

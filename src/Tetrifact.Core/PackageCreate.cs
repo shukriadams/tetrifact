@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,19 +12,26 @@ namespace Tetrifact.Core
         #region FIELDS
 
         private readonly IIndexReader _indexReader;
+
         private readonly IWorkspace _workspace;
+
         private readonly ILogger<IPackageCreate> _log;
+
         private readonly ITetriSettings _settings;
+
+        private readonly IHashService _hashService;
+
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace)
+        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;
             _workspace = workspace;
             _settings = settings;
+            _hashService = hashService;
         }
 
         #endregion
@@ -58,25 +64,21 @@ namespace Tetrifact.Core
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
-                // if archive, ensure correct file format 
-                if (newPackage.IsArchive && newPackage.Format != "zip")
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat };
-
                 // write attachments to work folder 
-                long size = newPackage.Files.Sum(f => f.Length);
+                long size = newPackage.Files.Sum(f => f.Content.Length);
 
                 _workspace.Initialize();
 
                 // if archive, unzip
                 if (newPackage.IsArchive)
-                    _workspace.AddArchiveContent(newPackage.Files.First().OpenReadStream());
+                    _workspace.AddArchiveContent(newPackage.Files.First().Content);
                 else
-                    foreach (IFormFile formFile in newPackage.Files)
-                        _workspace.AddIncomingFile(formFile.OpenReadStream(), formFile.FileName);
+                    foreach (PackageCreateItem formFile in newPackage.Files)
+                        _workspace.AddIncomingFile(formFile.Content, formFile.FileName);
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 string[] files = _workspace.GetIncomingFileNames().ToArray();
-                Array.Sort(files, (x, y) => String.Compare(x, y));
+                files = _hashService.SortFileArrayForHashing(files);
                 
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
@@ -86,7 +88,7 @@ namespace Tetrifact.Core
                     // get hash of incoming file
                     string fileHash = _workspace.GetIncomingFileHash(filePath);
 
-                    hashes.Append(HashService.FromString(filePath));
+                    hashes.Append(_hashService.FromString(filePath));
                     hashes.Append(fileHash);
 
                     // todo : this would be a good place to confirm that existingPackageId is actually valid
@@ -96,7 +98,7 @@ namespace Tetrifact.Core
                 _workspace.Manifest.Description = newPackage.Description;
 
                 // calculate package hash from child hashes
-                _workspace.WriteManifest(newPackage.Id, HashService.FromString(hashes.ToString()));
+                _workspace.WriteManifest(newPackage.Id, _hashService.FromString(hashes.ToString()));
 
                 _workspace.Dispose();
 
@@ -108,7 +110,6 @@ namespace Tetrifact.Core
             catch (Exception ex)
             {
                 _log.LogError(ex, string.Empty);
-                Console.WriteLine($"Unexpected error : {ex}");
                 return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }
             finally

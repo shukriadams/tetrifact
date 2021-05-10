@@ -8,8 +8,6 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IPackageList
     {
-        void Clear();
-
         /// <summary>
         /// Gets a list of size count of the most popular tags
         /// </summary>

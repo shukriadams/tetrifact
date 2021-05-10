@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using System.IO.Abstractions;
 using System.Threading;
 using Tetrifact.Core;
 
@@ -15,42 +15,7 @@ namespace Tetrifact.Tests
         protected TestLogger<IIndexReader> Logger;
         protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
-
-        protected class TestPackage
-        {
-            public byte[] Content;
-            public string Path;
-            public string Name;
-        }
-
-        /// <summary>
-        /// Generates a valid package, returns its unique id.
-        /// </summary>
-        /// <returns></returns>
-        protected TestPackage CreatePackage()
-        {
-            return this.CreatePackage("somepackage");
-        }
-
-        protected TestPackage CreatePackage(string packageName)
-        {
-            // create package, files folder and item location in one
-            TestPackage testPackage = new TestPackage
-            {
-                Content = Encoding.ASCII.GetBytes("some content"),
-                Path = $"path/to/{packageName}",
-                Name = packageName
-            };
-
-            this.WorkspaceLogger = new TestLogger<IWorkspace>();
-            IWorkspace workspace = new Core.Workspace(this.Settings, this.WorkspaceLogger);
-            workspace.Initialize();
-            workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.WriteFile(testPackage.Path, "somehash", testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, "somehash2");
-
-            return testPackage;
-        }
+        protected ITagsService TagService;
 
         public FileSystemBase()
         {
@@ -70,8 +35,11 @@ namespace Tetrifact.Tests
             };
 
             Logger = new TestLogger<IIndexReader>();
+            TagService = new Core.TagsService(
+                Settings,
+                new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            IndexReader = new Core.IndexReader(Settings, Logger);
+            IndexReader = new Core.IndexReader(Settings, TagService, Logger, new FileSystem(), HashServiceHelper.Instance());
             Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }

@@ -28,7 +28,7 @@
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc.ToLocalTime().ToString("g") (@manifest.CreatedUtc.ToLocalTime().Humanize())
+            @manifest.CreatedUtc.ToLocalTime().ToString("g") (@manifest.CreatedUtc.Humanize())
         </div>
     </div>
 
@@ -73,7 +73,16 @@
             Info
         </div>
         <div class="layout-value">
-            <a href="/v1/manifests/@ViewData["packageId"]">Manifest</a>
+            <a href="/v1/packages/@ViewData["packageId"]">Manifest</a>
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Compressed
+        </div>
+        <div class="layout-value">
+            @manifest.IsCompressed
         </div>
     </div>
 
@@ -127,7 +136,6 @@
         @if (filesPage.Page.Any())
         {
             <div>
-                @Html.Raw(pager)
 
                 <ul>
                     @foreach (ManifestItem file in filesPage.Page)

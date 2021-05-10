@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Ninject.Modules;
+using System.IO.Abstractions;
 using Tetrifact.Core;
 using Tetrifact.Web;
 
@@ -18,7 +18,10 @@ namespace Tetrifact.Tests
             Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
             Bind<IWorkspace>().To<TestingWorkspace>();
             Bind<IPackageList>().To<TestPackageList>();
+            Bind<IFileSystem>().To<FileSystem>();
+            Bind<IHashService>().To<HashService>();
 
+            Bind<IPackageListCache>().To<TestPackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreate>().To<Core.PackageCreate>();
             Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();

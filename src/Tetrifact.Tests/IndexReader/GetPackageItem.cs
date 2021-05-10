@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         {
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
-            string hash = Core.HashService.FromByteArray(content);
+            string hash = HashServiceHelper.Instance().FromByteArray(content);
 
             string packageFolder = Path.Combine(this.Settings.RepositoryPath, "path", "to", "file", hash);
             Directory.CreateDirectory(packageFolder);

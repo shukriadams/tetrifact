@@ -88,5 +88,10 @@ namespace Tetrifact.Core
         /// Collection of tokens which provide write access to 
         /// </summary>
         IEnumerable<string> AccessTokens { get; set; }
+
+        /// <summary>
+        /// If true, package data will be compressed on storage. This will consume less disk space, but required more CPU power to read packages.
+        /// </summary>
+        bool IsStorageCompressionEnabled { get; set; }
     }
 }

@@ -23,16 +23,19 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageList> _logger;
 
-        private readonly string _cacheKey = "_packageCache";
+        private readonly ITagsService _tagService;
+
+        public static readonly string CacheKey = "_packageCache";
 
         #endregion
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ILogger<IPackageList> logger)
+        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ITagsService tagService, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;
+            _tagService = tagService;
             _logger = logger;
         }
 
@@ -40,40 +43,26 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public void Clear()
-        {
-            _cache.Remove("_packageCache");
-        }
-
         public IEnumerable<string> GetPopularTags(int count)
         {
-            IList<Package> packageData = null;
-
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
-            {
-                packageData = this.GeneratePackageData();
-            }
-
             Dictionary<string, int> tags = new Dictionary<string, int>();
-            foreach (Package package in packageData)
-            {
-                foreach (string tag in package.Tags)
-                {
-                    if (!tags.ContainsKey(tag))
-                        tags.Add(tag, 0);
+            Dictionary<string, IEnumerable<string>> tagsThenPackages = _tagService.GetTagsThenPackages();
 
-                    tags[tag]++;
-                }
-            }
+            foreach (string tag in tagsThenPackages.Keys)
+                tags[tag] = tagsThenPackages[tag].Count();
 
-            return tags.OrderByDescending(r => r.Value).Take(count).Select(r => r.Key);
+            return tags
+                .OrderByDescending(r => r.Value)
+                .Where(r => r.Value > 1) //ignore any tag with only 1 use from "popular" list
+                .Take(count)
+                .Select(r => r.Key);
         }
 
         public IEnumerable<Package> GetWithTags(string[] tags, int pageIndex, int pageSize)
         {
             IList<Package> packageData = null;
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(CacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -86,7 +75,7 @@ namespace Tetrifact.Core
             IList<Package> packageData;
             
             
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(CacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -99,7 +88,7 @@ namespace Tetrifact.Core
             IList<Package> packageData;
 
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(CacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -111,7 +100,7 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData;
 
-            if (!_cache.TryGetValue(_cacheKey, out packageData))
+            if (!_cache.TryGetValue(CacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
             }
@@ -129,19 +118,30 @@ namespace Tetrifact.Core
 
             DirectoryInfo dirInfo = new DirectoryInfo(_settings.PackagePath);
             IEnumerable<string> packageDirectories = dirInfo.EnumerateDirectories().Select(d => d.FullName);
+            Dictionary<string, IEnumerable<string>> packagesThenTags = _tagService.GetPackagesThenTags();
 
             foreach (string packageDirectory in packageDirectories)
             {
                 try
                 {
-                    Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(packageDirectory, "manifest.json")));
+                    // generate manifest head if it doesn't exist
+                    string manifestHeadPath = Path.Join(packageDirectory, "manifest-head.json");
+                    if (!File.Exists(manifestHeadPath))
+                    {
+                        Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(packageDirectory, "manifest.json")));
+                        manifest.Files = new List<ManifestItem>();
+                        File.WriteAllText(manifestHeadPath, JsonConvert.SerializeObject(manifest));
+                    }
+
+                    Manifest manifestHead = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestHeadPath));
+                    string packageId = Path.GetFileName(packageDirectory);
                     packageData.Add(new Package
                     {
-                        CreatedUtc = manifest.CreatedUtc,
-                        Id = Path.GetFileName(packageDirectory),
-                        Description = manifest.Description,
-                        Hash = manifest.Hash,
-                        Tags = manifest.Tags
+                        CreatedUtc = manifestHead.CreatedUtc,
+                        Id = packageId,
+                        Description = manifestHead.Description,
+                        Hash = manifestHead.Hash,
+                        Tags = packagesThenTags.ContainsKey(packageId) ? packagesThenTags[packageId].ToHashSet() : new HashSet<string>()
                     });
                 }
                 catch (Exception ex)
@@ -156,7 +156,7 @@ namespace Tetrifact.Core
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
 
-            _cache.Set(_cacheKey, packageData);
+            _cache.Set(CacheKey, packageData);
 
             return packageData;
         }

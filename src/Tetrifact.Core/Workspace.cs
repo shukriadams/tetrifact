@@ -16,6 +16,8 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IWorkspace> _logger;
 
+        private readonly IHashService _hashService;
+
         #endregion
 
         #region PROPERTIES
@@ -28,10 +30,11 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger)
+        public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger, IHashService hashService)
         {
             _settings = settings;
             _logger = logger;
+            _hashService = hashService;
         }
 
         #endregion
@@ -40,7 +43,9 @@ namespace Tetrifact.Core
 
         public void Initialize()
         {
-            this.Manifest = new Manifest();
+            this.Manifest = new Manifest{ 
+                IsCompressed = _settings.IsStorageCompressionEnabled
+            };
 
             // workspaces have random names, for safety ensure name is not already in use
             while (true)
@@ -90,11 +95,32 @@ namespace Tetrifact.Core
                 Directory.CreateDirectory(packagesDirectory);
 
             bool onDisk = false;
+            string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
+            
 
-            if (!File.Exists(targetPath)) { 
-                File.Move(
-                    Path.Join(this.WorkspacePath, "incoming", filePath),
-                    targetPath);
+            if (!File.Exists(targetPath)) {
+
+                if (this.Manifest.IsCompressed){
+
+                    using (FileStream zipStream = new FileStream(targetPath, FileMode.Create))
+                    {
+                        using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                        {
+                            ZipArchiveEntry fileEntry = archive.CreateEntry(filePath);
+
+                            using (Stream entryStream = fileEntry.Open())
+                            {
+                                using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                                {
+                                    itemStream.CopyTo(entryStream);
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    File.Move(incomingPath,targetPath);
+                }
 
                 onDisk = true;
             }
@@ -118,6 +144,10 @@ namespace Tetrifact.Core
             string targetFolder = Path.Join(_settings.PackagePath, packageId);
             Directory.CreateDirectory(targetFolder);
             File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
+
+            Manifest headCopy = JsonConvert.DeserializeObject<Manifest>(JsonConvert.SerializeObject(this.Manifest));
+            headCopy.Files = new List<ManifestItem>();
+            File.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
         }
 
         public IEnumerable<string> GetIncomingFileNames()
@@ -153,7 +183,7 @@ namespace Tetrifact.Core
 
         public string GetIncomingFileHash(string relativePath)
         {
-            return HashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
+            return _hashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
         }
 
         public void Dispose()

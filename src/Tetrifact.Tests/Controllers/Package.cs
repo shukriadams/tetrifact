@@ -5,7 +5,6 @@ using Ninject;
 using Tetrifact.Core;
 using System.Linq;
 using System.IO;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.IO.Compression;
 
@@ -26,14 +25,25 @@ namespace Tetrifact.Tests.Controlers
         }
 
         [Fact]
-        public void GetPackageList()
+        public void GetPackageIdList()
         {
             // inject 3 indices
             TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
-
-            IEnumerable<string> ids = _controller.ListPackages(false, 0, 10).Value as IEnumerable<string>;
-            Assert.True(ids.Count() == 3);
+            dynamic json = this.ToDynamic(_controller.ListPackages(false, 0, 10));
+            string[] ids = json.success.packages.ToObject<string[]>();
+            Assert.Equal(3, ids.Count());
         }
+
+        [Fact]
+        public void GetPackageList()
+        {
+            // inject 3 objects
+            TestPackageList.Packages = new List<Core.Package>() { new Core.Package(), new Core.Package(), new Core.Package() };
+            dynamic json = this.ToDynamic(_controller.ListPackages(true, 0, 10));
+            Core.Package[] packages = json.success.packages.ToObject<Core.Package[]>();
+            Assert.Equal(3, packages.Count());
+        }
+
 
         [Fact]
         public void AddPackageAsFiles()
@@ -42,19 +52,19 @@ namespace Tetrifact.Tests.Controlers
             string file2Content = "file 2 content";
             Stream file1 = StreamsHelper.StreamFromString(file1Content);
             Stream file2 = StreamsHelper.StreamFromString(file2Content);
-            string expectedFullhash = HashService.FromString(
-                HashService.FromString("folder1/file1.txt") +
-                HashService.FromString(file1Content) +
-                HashService.FromString("folder2/file2.txt") +
-                HashService.FromString(file2Content));
+            string expectedFullhash = HashServiceHelper.Instance().FromString(
+                HashServiceHelper.Instance().FromString("folder1/file1.txt") +
+                HashServiceHelper.Instance().FromString(file1Content) +
+                HashServiceHelper.Instance().FromString("folder2/file2.txt") +
+                HashServiceHelper.Instance().FromString(file2Content));
 
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
-                Files = new IFormFile[]
+                Files = new PackageCreateItem[]
                 {
-                    new FormFile(file1, 0, file1.Length, "Files", "folder1/file1.txt"),
-                    new FormFile(file2, 0, file2.Length, "Files", "folder2/file2.txt")
+                    new PackageCreateItem(file1, "folder1/file1.txt"),
+                    new PackageCreateItem(file2, "folder2/file2.txt")
                 }
             };
 
@@ -72,11 +82,11 @@ namespace Tetrifact.Tests.Controlers
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
 
-            string expectedFullhash = HashService.FromString(
-                HashService.FromString("folder1/file1.txt") +
-                HashService.FromString(file1Content) +
-                HashService.FromString("folder2/file2.txt") +
-                HashService.FromString(file2Content));
+            string expectedFullhash = HashServiceHelper.Instance().FromString(
+                HashServiceHelper.Instance().FromString("folder1/file1.txt") +
+                HashServiceHelper.Instance().FromString(file1Content) +
+                HashServiceHelper.Instance().FromString("folder2/file2.txt") +
+                HashServiceHelper.Instance().FromString(file2Content));
 
             files.Add("folder1/file1.txt", file1Content);
             files.Add("folder2/file2.txt", file2Content);
@@ -99,11 +109,10 @@ namespace Tetrifact.Tests.Controlers
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
                 Id = Guid.NewGuid().ToString(),
-                Format = "zip",
                 IsArchive = true,
-                Files = new IFormFile[]
+                Files = new PackageCreateItem[]
                 {
-                    new FormFile(zipStream, 0, zipStream.Length, "Files", "folder/archive.zip")
+                    new PackageCreateItem(zipStream, "folder/archive.zip")
                 }
             };
 
@@ -123,10 +132,10 @@ namespace Tetrifact.Tests.Controlers
             {
                 Id = Guid.NewGuid().ToString(),
                 IsArchive = true,
-                Files = new IFormFile[]
+                Files = new PackageCreateItem[]
                 {
-                    new FormFile(file, 0, file.Length, "Files", "folder1/file.txt"),
-                    new FormFile(file, 0, file.Length, "Files", "folder2/file.txt"),
+                    new PackageCreateItem(file, "folder1/file.txt"),
+                    new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
 

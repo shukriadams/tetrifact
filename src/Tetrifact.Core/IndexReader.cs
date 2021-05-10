@@ -3,8 +3,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace Tetrifact.Core
@@ -17,14 +19,23 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IIndexReader> _logger;
 
+        private readonly ITagsService _tagService;
+
+        private readonly IFileSystem _fileSystem;
+        
+        private readonly IHashService _hashService;
+
         #endregion
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ILogger<IIndexReader> logger)
+        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
         {
             _settings = settings;
+            _tagService = tagService;
             _logger = logger;
+            _fileSystem = fileSystem;
+            _hashService = hashService;
         }
 
         #endregion
@@ -78,11 +89,15 @@ namespace Tetrifact.Core
             try
             {
                 Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(filePath));
+                var allTags = _tagService.GetPackagesThenTags();
+                if (allTags.ContainsKey(packageId))
+                    manifest.Tags = allTags[packageId].ToHashSet();
+
                 return manifest;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {filePath}");
+                _logger.LogError(ex, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.");
                 return null;
             }
         }
@@ -91,7 +106,7 @@ namespace Tetrifact.Core
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
             string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
-
+            
             if (File.Exists(directFilePath))
                 return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
 
@@ -111,7 +126,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    File.Delete(file.FullName);
+                    _fileSystem.File.Delete(file.FullName);
                 }
                 catch (IOException ex)
                 {
@@ -160,6 +175,34 @@ namespace Tetrifact.Core
                 return 1;
 
             return 2;
+        }
+
+        public (bool, string) VerifyPackage(string packageId) 
+        {
+            Manifest manifest = this.GetManifest(packageId);
+            if (manifest == null)
+                throw new PackageNotFoundException(packageId);
+
+            StringBuilder hashes = new StringBuilder();
+            string[] files = files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+
+            foreach (string filePath in files)
+            {
+                ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+                    
+                string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                if (!File.Exists(directFilePath))
+                    return (false, $"Expected package file {directFilePath} not found ");
+
+                hashes.Append(_hashService.FromString(manifestItem.Path));
+                hashes.Append(_hashService.FromFile(directFilePath));
+            }
+
+            string finalHash = _hashService.FromString(hashes.ToString());
+            if (finalHash != manifest.Hash)
+                return (false, $"Actual package hash {finalHash} does not match expected manifest hash ${manifest.Hash}");
+
+            return (true, string.Empty);
         }
 
         public void DeletePackage(string packageId)
@@ -245,18 +288,37 @@ namespace Tetrifact.Core
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
                 Manifest manifest = this.GetManifest(packageId);
+                if (manifest == null)
+                    throw new PackageNotFoundException(packageId);
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var file in manifest.Files)
+                    foreach (ManifestItem file in manifest.Files)
                     {
-                        ZipArchiveEntry fileEntry = archive.CreateEntry(file.Path);
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path);
 
-                        using (Stream entryStream = fileEntry.Open())
+                        using (Stream zipEntryStream = zipEntry.Open())
                         {
-                            using (Stream itemStream = this.GetFile(file.Id).Content)
+                            if (manifest.IsCompressed)
                             {
-                                itemStream.CopyTo(entryStream);
+                                using (var storageArchive = new ZipArchive(this.GetFile(file.Id).Content))
+                                {
+                                    if (storageArchive.Entries.Count != 1)
+                                        throw new Exception($"Invalid storage of compressed file {file.Id} in package {packageId} - expected single entry, got {storageArchive.Entries.Count}");
+
+                                    ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
+                                    using (var storageArchiveStream = storageArchiveEntry.Open()) 
+                                    {
+                                        storageArchiveStream.CopyTo(zipEntryStream);
+                                    }
+                                }
+                            } 
+                            else 
+                            {
+                                using (Stream fileStream = this.GetFile(file.Id).Content)
+                                {
+                                    fileStream.CopyTo(zipEntryStream);
+                                }
                             }
                         }
                     }

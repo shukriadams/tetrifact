@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -50,6 +51,9 @@ namespace Tetrifact.Web
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();
+            services.AddTransient<IPackageListCache, PackageListCache>();
+            services.AddTransient<IHashService, HashService>();
+            services.AddTransient<IFileSystem, FileSystem>();
             services.AddTransient<Daemon, Daemon>();
 
             // register filterws
@@ -64,6 +68,7 @@ namespace Tetrifact.Web
                 });
 
             services.AddMemoryCache();
+            services.AddResponseCompression();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
@@ -117,6 +122,7 @@ namespace Tetrifact.Web
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseRouting();
+            app.UseResponseCompression();
 
             // initialize indexes
             IServiceProvider serviceProvider = app.ApplicationServices;
@@ -126,7 +132,9 @@ namespace Tetrifact.Web
 
             Daemon daemon = serviceProvider.GetService<Daemon>();
             int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
-            int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
+                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+
             daemon.Start(daemonInterval);
 
             app.UseEndpoints(endpoints =>

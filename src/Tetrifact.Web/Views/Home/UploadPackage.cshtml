@@ -1,0 +1,75 @@
+﻿@model Tetrifact.Web.UploadPackageModel;
+@{
+    ViewData["Title"] = "Upload package archive";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <form id="archiveUpload">
+        <p>
+            Manually create a package from a zip, or upload an entire folder of uncompressed files.
+            <strong>NOTE : </strong>Dotnetcore does not handle large (over 1 gig) well. Use cURL or a similar client for best results.
+        </p>
+
+        <div class="layout-row">
+            <div class="layout-label">
+                Package Name
+            </div>
+            <div class="layout-value">
+                <input class="packageName" type="text">
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+                Source
+            </div>
+            <div class="layout-value">
+                <div class="layout-cell">
+                    <label for="folderSelector" class="button uploadPackage-uploadButton">Folder</label>
+                    <input placeholder="Archive" id="folderSelector" class="uploadPackage-fileSelector" type="file" webkitdirectory directory multiple />
+                </div>
+                <div class="layout-cell">
+                    <label for="archiveSelector" class="button uploadPackage-uploadButton">Archive</label>
+                    <input placeholder="Archive" id="archiveSelector" class="uploadPackage-fileSelector" type="file" />
+                </div>
+                <p class="package-addDescription" data-original="Add either a zip archive, or a folder containing package files.">
+
+                </p>
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+
+            </div>
+            <div class="layout-value">
+                <p>
+                    The most reliable way to add a package is to upload with curl. Use the following script
+                    <blockquote>
+                        <div>curl</div>
+                        <div>-X POST</div>
+                        <div>-H "Content-Type: multipart/form-data" </div>
+                        <div>-F "Files=@Html.Raw("@")&#x3C;your-file&#x3E;.zip" </div>
+                        <div>@Model.HostName/v1/packages/&#x3C;package name&#x3E;?isArchive=true</div>
+                    </blockquote>
+                </p>
+            </div>
+        </div>
+
+        <div class="layout-row">
+            <div class="layout-label">
+
+            </div>
+            <div class="layout-value">
+                <input type="button" class="submit button" value="Upload" />
+                <div class="uploadPackage-contactingServer">
+                    Contacting server ...
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script src="~/scripts/uploadPackage.js"></script>

@@ -7,10 +7,11 @@ namespace Tetrifact.Tests.IndexReader
 {
     public class DeletePackage : FileSystemBase
     {
+
         [Fact]
         public void BasicDelete()
         {
-            TestPackage testPackage = base.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             this.IndexReader.DeletePackage(testPackage.Name);
 
@@ -23,7 +24,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void DeleteWithArchive()
         {
-            TestPackage testPackage = base.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock archive
             string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Name);
@@ -37,7 +38,7 @@ namespace Tetrifact.Tests.IndexReader
         // [Fact] disabled because this fails on travis
         public void DeleteWithLockedArchive()
         {
-            TestPackage testPackage = base.CreatePackage();
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock archive
             string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Name);
