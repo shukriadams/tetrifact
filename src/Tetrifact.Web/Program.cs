@@ -29,8 +29,8 @@ namespace Tetrifact.Web
                 builder.UseKestrel(options =>
                 {
                     // SECURITY WARNING : the limit on attachment part size is removed to support large builds. 
-                    options.Limits.MaxRequestBodySize = null;
-                    options.Limits.MaxRequestBufferSize = null;
+                    options.Limits.MaxRequestBodySize = long.MaxValue;
+                    options.Limits.MaxRequestBufferSize = long.MaxValue;
                     options.Limits.MaxRequestLineSize = int.MaxValue;
 
                 });

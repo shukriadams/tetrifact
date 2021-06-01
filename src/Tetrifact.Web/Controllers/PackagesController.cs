@@ -203,6 +203,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{id}")]
+        [RequestSizeLimit(long.MaxValue)]
         public ActionResult AddPackage([FromForm]PackageCreateFromPost post)
         {
             Stopwatch sw = new Stopwatch();
