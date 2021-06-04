@@ -57,11 +57,14 @@ namespace Tetrifact.Core
                 Thread.Sleep(_settings.LinkLockWaitTime);
             }
 
+            if(!Directory.Exists(currentDirectory))
+                return;
+
             string[] files = Directory.GetFiles(currentDirectory);
             string[] directories = Directory.GetDirectories(currentDirectory);
 
             // if no children at all, delete current node
-            if (!files.Any() && !directories.Any() && Directory.Exists(currentDirectory))
+            if (!files.Any() && !directories.Any() && Directory.Exists(currentDirectory) && currentDirectory != _settings.RepositoryPath)
                 Directory.Delete(currentDirectory);
 
             if (isCurrentFolderPackages)
