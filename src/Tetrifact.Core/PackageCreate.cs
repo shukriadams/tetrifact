@@ -84,33 +84,16 @@ namespace Tetrifact.Core
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
 
-
-                ManualResetEvent resetEvent = new ManualResetEvent(false);
-                int toProcess = files.Length;
-
-                // Start workers.
                 foreach (string filePath in files)
                 {
-                    new Thread(delegate ()
-                    {
-                        // get hash of incoming file
-                        string fileHash = _workspace.GetIncomingFileHash(filePath);
+                    // get hash of incoming file
+                    string fileHash = _workspace.GetIncomingFileHash(filePath);
+                    hashes.Append(_hashService.FromString(filePath));
+                    hashes.Append(fileHash);
 
-                        hashes.Append(_hashService.FromString(filePath));
-                        hashes.Append(fileHash);
-
-                        // todo : this would be a good place to confirm that existingPackageId is actually valid
-                        _workspace.WriteFile(filePath, fileHash, newPackage.Id);
-
-                        // If at last thread, signal
-                        if (Interlocked.Decrement(ref toProcess) == 0)
-                            resetEvent.Set();
-
-                    }).Start();
+                    // todo : this would be a good place to confirm that existingPackageId is actually valid
+                    _workspace.WriteFile(filePath, fileHash, newPackage.Id);
                 }
-
-                // Wait for workers.
-                resetEvent.WaitOne();
 
                 _workspace.Manifest.Description = newPackage.Description;
 
