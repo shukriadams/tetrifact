@@ -229,6 +229,12 @@ namespace Tetrifact.Web
                     IsArchive = post.IsArchive
                 });
 
+                // force flush in-memory list of packages
+                if (result.Success)
+                    _packageListCache.Clear();
+
+                sw.Stop();
+
                 if (result.Success)
                 {
                     // force flush in-memory list of packages
@@ -240,7 +246,8 @@ namespace Tetrifact.Web
                         {
                             id = post.Id,
                             hash = result.PackageHash,
-                            description = "Package successfully created"
+                            description = "Package successfully created",
+                            processingTime = sw.Elapsed.TotalSeconds
                         }
                     });
                 }
@@ -266,7 +273,6 @@ namespace Tetrifact.Web
             }
             finally 
             {
-                sw.Stop();
                 _log.LogInformation($"Uploaded for package {post.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
             }
         }
