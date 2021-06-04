@@ -17,7 +17,7 @@
         "ACCESS_TOKENS": "",
         "DAEMON_INTERVAL": "60000",
         "LIST_PAGE_SIZE": "10",
-        "STORAGE_COMPRESSION": "True",
+        "STORAGE_COMPRESSION": "False",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE": "True",
         "IS_IIS": "true"
