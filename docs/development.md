@@ -14,12 +14,17 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 ## Requirements
 
 - Dotnetcore 3.1 SDK
-- Visual Studio 2017 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version.
+- Visual Studio 2019 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version. Visual Studio 2017 isn't supported.
 
 ## Running from Visual Studio
 
+- Start Visual Studio as administrator
 - Open /src/Tetrifact.sln
 - Set Tetrifact.Web as your start project and run in IIS Express.
+
+To access your solution from another PC, open `<project root>/.vs/Tetrifact/config/applicationhost.config` and find all instances of `<binding protocol="http" bindingInformation="*:<PORT>:localhost" />` and replace `localhost` with `*`. There should be two instances, for ports `7313` and `8080`, but this might vary for your system.
+
+Note that when running from Visual Studio, Tetrifact has a maximum package size of about 2147483647 bytes (about 2 gigs), due to VS's IIS using an integer as its maximum size. In Docker Tetrifact is free of this restriction.
 
 ## Running from command line 
 
