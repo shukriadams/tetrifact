@@ -301,7 +301,11 @@ namespace Tetrifact.Core
                         {
                             if (manifest.IsCompressed)
                             {
-                                using (var storageArchive = new ZipArchive(this.GetFile(file.Id).Content))
+                                GetFileResponse fileLookup = this.GetFile(file.Id);
+                                if (fileLookup == null)
+                                    throw new Exception($"Failed to find expected package file {file.Id}. Repository is likely corrupt.");
+
+                                using (var storageArchive = new ZipArchive(fileLookup.Content))
                                 {
                                     if (storageArchive.Entries.Count != 1)
                                         throw new Exception($"Invalid storage of compressed file {file.Id} in package {packageId} - expected single entry, got {storageArchive.Entries.Count}");
@@ -315,7 +319,11 @@ namespace Tetrifact.Core
                             } 
                             else 
                             {
-                                using (Stream fileStream = this.GetFile(file.Id).Content)
+                                GetFileResponse fileLookup = this.GetFile(file.Id);
+                                if (fileLookup == null)
+                                    throw new Exception($"Failed to find expected package file {file.Id}. Repository is likely corrupt.");
+
+                                using (Stream fileStream = fileLookup.Content)
                                 {
                                     fileStream.CopyTo(zipEntryStream);
                                 }

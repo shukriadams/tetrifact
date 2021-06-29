@@ -48,6 +48,9 @@ namespace Tetrifact.Web
             try
             {
                 GetFileResponse payload = _indexService.GetFile(fileId);
+                if (payload == null)
+                    throw new Exception($"Failed to find expected package file {fileId}. Repository is likely corrupt.");
+
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }
             catch (InvalidFileIdentifierException)
@@ -59,7 +62,6 @@ namespace Tetrifact.Web
                 _log.LogError(ex, "An unexpected error occurred.");
                 return Responses.UnexpectedError();
             }
-            
         }
 
         #endregion
