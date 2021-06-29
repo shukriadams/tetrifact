@@ -137,7 +137,7 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             if (!long.TryParse(settingsRawVariable, out defaultValue))
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid long.");
 
             return defaultValue;
         }
@@ -149,7 +149,7 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             if (!Boolean.TryParse(settingsRawVariable, out defaultValue))
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
 
             return defaultValue;
         }
