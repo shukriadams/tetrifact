@@ -49,7 +49,7 @@ namespace Tetrifact.Web
             {
                 GetFileResponse payload = _indexService.GetFile(fileId);
                 if (payload == null)
-                    throw new Exception($"Failed to find expected package file {fileId}. Repository is likely corrupt.");
+                    return Responses.NotFoundError(this, $"file {fileId} not found. Id is invalid, or has been deleted.");
 
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }
