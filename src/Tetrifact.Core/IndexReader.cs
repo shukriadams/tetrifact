@@ -185,18 +185,36 @@ namespace Tetrifact.Core
 
             StringBuilder hashes = new StringBuilder();
             string[] files = files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+            List<string> missingFiles = new List<string>();
+
+            ManualResetEvent resetEvent = new ManualResetEvent(false);
+            int toProcess = files.Length;
 
             foreach (string filePath in files)
             {
-                ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
-                    
-                string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
-                if (!File.Exists(directFilePath))
-                    return (false, $"Expected package file {directFilePath} not found ");
+                new Thread(delegate ()
+                {
+                    ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
 
-                hashes.Append(_hashService.FromString(manifestItem.Path));
-                hashes.Append(_hashService.FromFile(directFilePath));
+                    string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                    if (File.Exists(directFilePath))
+                    {
+                        hashes.Append(_hashService.FromString(manifestItem.Path));
+                        hashes.Append(_hashService.FromFile(directFilePath));
+                    }
+                    else 
+                    {
+                        missingFiles.Add(directFilePath);
+                    }
+
+                }).Start();
             }
+
+            // Wait for threads to finish
+            resetEvent.WaitOne();
+
+            if (missingFiles.Any())
+                return (false, $"Expected package files {string.Join(",", missingFiles)} not found ");
 
             string finalHash = _hashService.FromString(hashes.ToString());
             if (finalHash != manifest.Hash)

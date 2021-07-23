@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Tetrifact.Core
 {
@@ -83,16 +84,26 @@ namespace Tetrifact.Core
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
 
+                ManualResetEvent resetEvent = new ManualResetEvent(false);
+                int toProcess = files.Length;
+
                 foreach (string filePath in files)
                 {
-                    // get hash of incoming file
-                    string fileHash = _workspace.GetIncomingFileHash(filePath);
-                    hashes.Append(_hashService.FromString(filePath));
-                    hashes.Append(fileHash);
+                    new Thread(delegate ()
+                    {
+                        // get hash of incoming file
+                        string fileHash = _workspace.GetIncomingFileHash(filePath);
+                        hashes.Append(_hashService.FromString(filePath));
+                        hashes.Append(fileHash);
 
-                    // todo : this would be a good place to confirm that existingPackageId is actually valid
-                    _workspace.WriteFile(filePath, fileHash, newPackage.Id);
+                        // todo : this would be a good place to confirm that existingPackageId is actually valid
+                        _workspace.WriteFile(filePath, fileHash, newPackage.Id);
+
+                    }).Start();
                 }
+
+                // Wait for threads to finish
+                resetEvent.WaitOne();
 
                 _workspace.Manifest.Description = newPackage.Description;
 
