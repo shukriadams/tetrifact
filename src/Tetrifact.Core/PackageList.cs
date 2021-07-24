@@ -128,7 +128,11 @@ namespace Tetrifact.Core
                     string manifestHeadPath = Path.Join(packageDirectory, "manifest-head.json");
                     if (!File.Exists(manifestHeadPath))
                     {
-                        Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(packageDirectory, "manifest.json")));
+                        string manifestPath = File.ReadAllText(Path.Join(packageDirectory, "manifest.json"));
+                        if (!File.Exists(manifestPath))
+                            continue;
+
+                        Manifest manifest = JsonConvert.DeserializeObject<Manifest>(manifestPath);
                         manifest.Files = new List<ManifestItem>();
                         File.WriteAllText(manifestHeadPath, JsonConvert.SerializeObject(manifest));
                     }
