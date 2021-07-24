@@ -91,13 +91,21 @@ namespace Tetrifact.Core
                 {
                     new Thread(delegate ()
                     {
-                        // get hash of incoming file
-                        string fileHash = _workspace.GetIncomingFileHash(filePath);
-                        hashes.Append(_hashService.FromString(filePath));
-                        hashes.Append(fileHash);
+                        try
+                        {
+                            // get hash of incoming file
+                            string fileHash = _workspace.GetIncomingFileHash(filePath);
+                            hashes.Append(_hashService.FromString(filePath));
+                            hashes.Append(fileHash);
 
-                        // todo : this would be a good place to confirm that existingPackageId is actually valid
-                        _workspace.WriteFile(filePath, fileHash, newPackage.Id);
+                            // todo : this would be a good place to confirm that existingPackageId is actually valid
+                            _workspace.WriteFile(filePath, fileHash, newPackage.Id);
+                        }
+                        finally
+                        {
+                            if (Interlocked.Decrement(ref toProcess) == 0)
+                                resetEvent.Set();
+                        }
 
                     }).Start();
                 }

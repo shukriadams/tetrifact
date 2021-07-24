@@ -194,17 +194,25 @@ namespace Tetrifact.Core
             {
                 new Thread(delegate ()
                 {
-                    ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+                    try
+                    {
+                        ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
 
-                    string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
-                    if (File.Exists(directFilePath))
-                    {
-                        hashes.Append(_hashService.FromString(manifestItem.Path));
-                        hashes.Append(_hashService.FromFile(directFilePath));
+                        string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                        if (File.Exists(directFilePath))
+                        {
+                            hashes.Append(_hashService.FromString(manifestItem.Path));
+                            hashes.Append(_hashService.FromFile(directFilePath));
+                        }
+                        else
+                        {
+                            missingFiles.Add(directFilePath);
+                        }
                     }
-                    else 
+                    finally 
                     {
-                        missingFiles.Add(directFilePath);
+                        if (Interlocked.Decrement(ref toProcess) == 0)
+                            resetEvent.Set();
                     }
 
                 }).Start();

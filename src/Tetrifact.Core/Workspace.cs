@@ -85,18 +85,10 @@ namespace Tetrifact.Core
             string targetDirectory = Path.GetDirectoryName(targetPath);
             string packagesDirectory = Path.Join(targetDirectory, "packages");
 
-            if (!Directory.Exists(targetDirectory))
-            {
-                // create both directories if the top one doesn't exist
-                Directory.CreateDirectory(targetDirectory);
-                Directory.CreateDirectory(packagesDirectory);
-            } else if (!Directory.Exists(packagesDirectory))
-                // create sub after checking
-                Directory.CreateDirectory(packagesDirectory);
+            Directory.CreateDirectory(packagesDirectory);
 
             bool onDisk = false;
             string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
-            
 
             if (!File.Exists(targetPath)) {
 
