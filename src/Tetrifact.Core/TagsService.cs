@@ -39,14 +39,11 @@ namespace Tetrifact.Core
 
             // write tag to fs
             string targetFolder = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
-            if (!Directory.Exists(targetFolder))
-                Directory.CreateDirectory(targetFolder);
-
+            Directory.CreateDirectory(targetFolder);
             
             string targetPath = Path.Combine(targetFolder, packageId);
             if (!File.Exists(targetPath))
                 File.WriteAllText(targetPath, string.Empty);
-                
 
             // flush in-memory tags
             _packageListCache.Clear();

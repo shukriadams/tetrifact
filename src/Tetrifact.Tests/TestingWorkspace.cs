@@ -77,7 +77,7 @@ namespace Tetrifact.Tests
             return Incoming.Select(r => r.Key);
         }
 
-        public void WriteFile(string fileInIncoming, string hash, string packageId)
+        public void WriteFile(string fileInIncoming, string hash, long size, string packageId)
         {
             // move file to public folder
             Repository.Add(fileInIncoming, Incoming[fileInIncoming]);
@@ -91,10 +91,11 @@ namespace Tetrifact.Tests
             this.Manifest.Hash = combinedHash;
         }
 
-        public string GetIncomingFileHash(string path)
+        public (string, long) GetIncomingFileHash(string path)
         {
             byte[] content = Incoming[path];
-            return HashServiceHelper.Instance().FromByteArray(content);
+            string hash = HashServiceHelper.Instance().FromByteArray(content);
+            return (hash, content.Length);
         }
 
         public void Dispose()

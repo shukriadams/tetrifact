@@ -211,6 +211,7 @@ namespace Tetrifact.Web
 
             try
             {
+                _log.LogInformation("Package upload request started");
 
                 // check if there is space available
                 DiskUseStats useStats = FileHelper.GetDiskUseSats();
@@ -273,7 +274,7 @@ namespace Tetrifact.Web
             }
             finally 
             {
-                _log.LogInformation($"Uploaded for package {post.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
+                _log.LogInformation($"Package request processed. {post.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
             }
         }
 

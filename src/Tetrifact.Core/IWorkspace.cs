@@ -48,7 +48,7 @@ namespace Tetrifact.Core
         /// <param name="hash"></param>
         /// <param name="packageId"></param>
         /// <param name="enableCompression"></param>
-        void WriteFile(string fileInIncoming, string hash, string packageId);
+        void WriteFile(string fileInIncoming, string hash, long fileSize, string packageId);
 
         /// <summary>
         /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file.
@@ -61,7 +61,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        string GetIncomingFileHash(string path);
+        (string, long) GetIncomingFileHash(string path);
 
         /// <summary>
         /// Cleans up workspace.

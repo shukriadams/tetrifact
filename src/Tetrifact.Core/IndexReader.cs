@@ -44,22 +44,15 @@ namespace Tetrifact.Core
 
         public void Initialize()
         {
-            if (!Directory.Exists(_settings.PackagePath))
-                Directory.CreateDirectory(_settings.PackagePath);
-
-            if (!Directory.Exists(_settings.ArchivePath))
-                Directory.CreateDirectory(_settings.ArchivePath);
-
             // wipe and recreate temp folder on app start
             if (Directory.Exists(_settings.TempPath))
                 Directory.Delete(_settings.TempPath, true);
+
+            Directory.CreateDirectory(_settings.PackagePath);
+            Directory.CreateDirectory(_settings.ArchivePath);
             Directory.CreateDirectory(_settings.TempPath);
-
-            if (!Directory.Exists(_settings.RepositoryPath))
-                Directory.CreateDirectory(_settings.RepositoryPath);
-
-            if (!Directory.Exists(_settings.TagsPath))
-                Directory.CreateDirectory(_settings.TagsPath);
+            Directory.CreateDirectory(_settings.RepositoryPath);
+            Directory.CreateDirectory(_settings.TagsPath);
         }
 
         public IEnumerable<string> GetAllPackageIds()
@@ -187,39 +180,21 @@ namespace Tetrifact.Core
             string[] files = files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
             List<string> missingFiles = new List<string>();
 
-            ManualResetEvent resetEvent = new ManualResetEvent(false);
-            int toProcess = files.Length;
-
             foreach (string filePath in files)
             {
-                new Thread(delegate ()
+                ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
+
+                string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                if (File.Exists(directFilePath))
                 {
-                    try
-                    {
-                        ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
-
-                        string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
-                        if (File.Exists(directFilePath))
-                        {
-                            hashes.Append(_hashService.FromString(manifestItem.Path));
-                            hashes.Append(_hashService.FromFile(directFilePath));
-                        }
-                        else
-                        {
-                            missingFiles.Add(directFilePath);
-                        }
-                    }
-                    finally 
-                    {
-                        if (Interlocked.Decrement(ref toProcess) == 0)
-                            resetEvent.Set();
-                    }
-
-                }).Start();
+                    hashes.Append(_hashService.FromString(manifestItem.Path));
+                    hashes.Append(_hashService.FromFile(directFilePath));
+                }
+                else
+                {
+                    missingFiles.Add(directFilePath);
+                }
             }
-
-            // Wait for threads to finish
-            resetEvent.WaitOne();
 
             if (missingFiles.Any())
                 return (false, $"Expected package files {string.Join(",", missingFiles)} not found ");

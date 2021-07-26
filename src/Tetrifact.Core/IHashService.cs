@@ -7,7 +7,7 @@
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        string FromFile(string filePath);
+        (string, long) FromFile(string filePath);
 
         /// <summary>
         /// Generates a SHA256 hash from a byte array.

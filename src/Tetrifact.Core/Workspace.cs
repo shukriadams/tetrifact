@@ -56,7 +56,6 @@ namespace Tetrifact.Core
             }
 
             // create all basic directories for a functional workspace
-            Directory.CreateDirectory(this.WorkspacePath);
             Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
         }
 
@@ -75,7 +74,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public void WriteFile(string filePath, string hash, string packageId)
+        public void WriteFile(string filePath, string hash, long fileSize, string packageId)
         {
             if (string.IsNullOrEmpty(hash))
                 throw new ArgumentException("Hash value is required");
@@ -99,7 +98,6 @@ namespace Tetrifact.Core
                         using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                         {
                             ZipArchiveEntry fileEntry = archive.CreateEntry(filePath);
-
                             using (Stream entryStream = fileEntry.Open())
                             {
                                 using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -123,10 +121,9 @@ namespace Tetrifact.Core
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
 
-            FileInfo fileInfo = new FileInfo(targetPath);
-            this.Manifest.Size += fileInfo.Length;
+            this.Manifest.Size += fileSize;
             if (onDisk)
-                this.Manifest.SizeOnDisk += fileInfo.Length;
+                this.Manifest.SizeOnDisk += fileSize;
         }
 
         public void WriteManifest(string packageId, string combinedHash)
@@ -151,33 +148,33 @@ namespace Tetrifact.Core
 
         public void AddArchiveContent(Stream file)
         {
-            _log.LogDebug("Writing archive content");
+            _log.LogInformation("Writing archive content");
 
-            using (var archive = new ZipArchive(file))
+            using (ZipArchive archive = new ZipArchive(file))
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    if (entry != null)
-                    {
-                        using (var unzippedEntryStream = entry.Open())
-                        {
-                            string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
-                            string targetDirectory = Path.GetDirectoryName(targetFile);
-                            if (!Directory.Exists(targetDirectory))
-                                Directory.CreateDirectory(targetDirectory);
+                    if (entry == null)
+                        continue;
 
-                            // if .Name is empty it's a directory
-                            if (!string.IsNullOrEmpty(entry.Name))
-                                entry.ExtractToFile(targetFile);
-                        }
+                    using (Stream unzippedEntryStream = entry.Open())
+                    {
+                        // if .Name is empty it's a directory
+                        if (string.IsNullOrEmpty(entry.Name))
+                            continue;
+
+                        string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
+                        string targetDirectory = Path.GetDirectoryName(targetFile);
+                        Directory.CreateDirectory(targetDirectory);
+                        entry.ExtractToFile(targetFile);
                     }
                 }
             }
 
-            _log.LogDebug("Achive content written");
+            _log.LogInformation("Achive content written");
         }
 
-        public string GetIncomingFileHash(string relativePath)
+        public (string, long) GetIncomingFileHash(string relativePath)
         {
             return _hashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
         }

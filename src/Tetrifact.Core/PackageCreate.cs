@@ -51,7 +51,7 @@ namespace Tetrifact.Core
 
             try
             {
-                _log.LogDebug("Package create started");
+                _log.LogInformation("Package create started");
 
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
@@ -87,40 +87,21 @@ namespace Tetrifact.Core
                 // prevent deletes of empty repository folders this package might need to write to
                 LinkLock.Instance.Lock(newPackage.Id);
 
-                ManualResetEvent resetEvent = new ManualResetEvent(false);
-                int toProcess = files.Length;
-
-                _log.LogDebug("Hashing package content");
+                _log.LogInformation("Hashing package content");
 
                 foreach (string filePath in files)
                 {
-                    new Thread(delegate ()
-                    {
-                        try
-                        {
-                            // get hash of incoming file
-                            string fileHash = _workspace.GetIncomingFileHash(filePath);
-                            hashes.Append(_hashService.FromString(filePath));
-                            hashes.Append(fileHash);
+                    // get hash of incoming file
+                    (string, long) fileHashData = _workspace.GetIncomingFileHash(filePath);
+                    hashes.Append(_hashService.FromString(filePath)+ fileHashData.Item1);
 
-                            // todo : this would be a good place to confirm that existingPackageId is actually valid
-                            _workspace.WriteFile(filePath, fileHash, newPackage.Id);
-                        }
-                        finally
-                        {
-                            if (Interlocked.Decrement(ref toProcess) == 0)
-                                resetEvent.Set();
-                        }
-
-                    }).Start();
+                    // todo : this would be a good place to confirm that existingPackageId is actually valid
+                    _workspace.WriteFile(filePath, fileHashData.Item1, fileHashData.Item2, newPackage.Id);
                 }
-
-                // Wait for threads to finish
-                resetEvent.WaitOne();
 
                 _workspace.Manifest.Description = newPackage.Description;
 
-                _log.LogDebug("Writing package manifest");
+                _log.LogInformation("Writing package manifest");
 
                 // calculate package hash from child hashes
                 _workspace.WriteManifest(newPackage.Id, _hashService.FromString(hashes.ToString()));

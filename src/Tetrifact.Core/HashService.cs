@@ -31,14 +31,14 @@ namespace Tetrifact.Core
         /// Generates a SHA256 hash of the file at the given path.
         /// </summary>
         /// <param name="filePath"></param>
-        /// <returns></returns>
-        public string FromFile(string filePath)
+        /// <returns>Tupple with file hash and file size (length)</returns>
+        public (string,long) FromFile(string filePath)
         {
             using (FileStream fs = File.OpenRead(filePath))
             using (HashAlgorithm hashAlgorithm = SHA256.Create())
             {
                 byte[] hash = hashAlgorithm.ComputeHash(fs);
-                return ToHex(hash);
+                return (ToHex(hash), fs.Length);
             }
         }
 
