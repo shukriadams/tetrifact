@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly ITetriSettings _settings;
 
-        private readonly ILogger<IWorkspace> _logger;
+        private readonly ILogger<IWorkspace> _log;
 
         private readonly IHashService _hashService;
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Core
         public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger, IHashService hashService)
         {
             _settings = settings;
-            _logger = logger;
+            _log = logger;
             _hashService = hashService;
         }
 
@@ -151,6 +151,8 @@ namespace Tetrifact.Core
 
         public void AddArchiveContent(Stream file)
         {
+            _log.LogDebug("Writing archive content");
+
             using (var archive = new ZipArchive(file))
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
@@ -171,6 +173,8 @@ namespace Tetrifact.Core
                     }
                 }
             }
+
+            _log.LogDebug("Achive content written");
         }
 
         public string GetIncomingFileHash(string relativePath)
@@ -187,7 +191,7 @@ namespace Tetrifact.Core
             }
             catch (IOException ex)
             {
-                _logger.LogWarning($"Failed to delete temp folder {this.WorkspacePath}", ex);
+                _log.LogWarning($"Failed to delete temp folder {this.WorkspacePath}", ex);
             }
         }
 

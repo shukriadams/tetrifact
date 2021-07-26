@@ -47,9 +47,12 @@ namespace Tetrifact.Core
         {
             List<string> transactionLog = new List<string>();
             StringBuilder hashes = new StringBuilder();
+            
 
             try
             {
+                _log.LogDebug("Package create started");
+
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
@@ -87,6 +90,8 @@ namespace Tetrifact.Core
                 ManualResetEvent resetEvent = new ManualResetEvent(false);
                 int toProcess = files.Length;
 
+                _log.LogDebug("Hashing package content");
+
                 foreach (string filePath in files)
                 {
                     new Thread(delegate ()
@@ -114,6 +119,8 @@ namespace Tetrifact.Core
                 resetEvent.WaitOne();
 
                 _workspace.Manifest.Description = newPackage.Description;
+
+                _log.LogDebug("Writing package manifest");
 
                 // calculate package hash from child hashes
                 _workspace.WriteManifest(newPackage.Id, _hashService.FromString(hashes.ToString()));
