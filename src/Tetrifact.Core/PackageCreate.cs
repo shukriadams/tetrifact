@@ -89,15 +89,15 @@ namespace Tetrifact.Core
 
                 _log.LogInformation("Hashing package content");
 
-                foreach (string filePath in files)
-                {
+
+                files.AsParallel().ForAll(delegate(String filePath) {
                     // get hash of incoming file
                     (string, long) fileHashData = _workspace.GetIncomingFileHash(filePath);
-                    hashes.Append(_hashService.FromString(filePath)+ fileHashData.Item1);
+                    hashes.Append(_hashService.FromString(filePath) + fileHashData.Item1);
 
                     // todo : this would be a good place to confirm that existingPackageId is actually valid
                     _workspace.WriteFile(filePath, fileHashData.Item1, fileHashData.Item2, newPackage.Id);
-                }
+                });
 
                 _workspace.Manifest.Description = newPackage.Description;
 
