@@ -148,7 +148,7 @@ namespace Tetrifact.Core
 
         public void AddArchiveContent(Stream file)
         {
-            _log.LogInformation("Writing archive content");
+            _log.LogInformation("Unpacking incoming archive");
 
             using (ZipArchive archive = new ZipArchive(file))
             {
@@ -157,17 +157,14 @@ namespace Tetrifact.Core
                     if (entry == null)
                         continue;
 
-                    using (Stream unzippedEntryStream = entry.Open())
-                    {
-                        // if .Name is empty it's a directory
-                        if (string.IsNullOrEmpty(entry.Name))
-                            continue;
+                    // if .Name is empty it's a directory
+                    if (string.IsNullOrEmpty(entry.Name))
+                        continue;
 
-                        string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
-                        string targetDirectory = Path.GetDirectoryName(targetFile);
-                        Directory.CreateDirectory(targetDirectory);
-                        entry.ExtractToFile(targetFile);
-                    }
+                    string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
+                    string targetDirectory = Path.GetDirectoryName(targetFile);
+                    Directory.CreateDirectory(targetDirectory);
+                    entry.ExtractToFile(targetFile);
                 }
             }
 
