@@ -44,10 +44,11 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Recursing method behind Clean() logic.
+        /// Recursing method behind Clean() logic. Wrap all FS interactions in try catches with IOException handlers as this method is very likely to throw exceptions when cascading deletes
+        /// remove directories from above while recursing.
         /// </summary>
         /// <param name="currentDirectory"></param>
-        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentFolderPackages)
+        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentDirectoryPackages)
         {
             // todo : add max sleep time to prevent permalock
             // wait if linklock is active, something more important is busy. 
@@ -57,17 +58,38 @@ namespace Tetrifact.Core
                 Thread.Sleep(_settings.LinkLockWaitTime);
             }
 
-            if(!Directory.Exists(currentDirectory))
-                return;
+            string[] files = null;
+            string[] directories = null;
 
-            string[] files = Directory.GetFiles(currentDirectory);
-            string[] directories = Directory.GetDirectories(currentDirectory);
+            try
+            {
+                files = Directory.GetFiles(currentDirectory);
+                directories = Directory.GetDirectories(currentDirectory);
+            }
+            catch (IOException ex)
+            {
+                if (Directory.Exists(currentDirectory)) { 
+                    _logger.LogError($"Failed to read content of directory ${currentDirectory} ", ex);
+                    return;
+                }
+            }
 
             // if no children at all, delete current node
-            if (!files.Any() && !directories.Any() && Directory.Exists(currentDirectory) && currentDirectory != _settings.RepositoryPath)
-                Directory.Delete(currentDirectory);
+            if (!files.Any() && !directories.Any() && currentDirectory != _settings.RepositoryPath)
+            {
+                try
+                {
+                    Directory.Delete(currentDirectory);
+                }
+                catch (IOException ex)
+                {
+                    if (Directory.Exists(currentDirectory))
+                        _logger.LogError($"Failed to delete directory ${currentDirectory} ", ex);
+                }
+            }
+                
 
-            if (isCurrentFolderPackages)
+            if (isCurrentDirectoryPackages)
             {
                 if (files.Any())
                 {
@@ -81,7 +103,7 @@ namespace Tetrifact.Core
                             }
                             catch (IOException ex)
                             {
-                                _logger.LogError($"Unexpected error deleting file ${file} ", ex);
+                                _logger.LogError($"Failed to delete file ${file} ", ex);
                             }
                         }
                     }
@@ -90,15 +112,31 @@ namespace Tetrifact.Core
                 {
                     // if this is a package folder with no packages, it is safe to delete it and it's parent bin file
                     string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
-                    if (File.Exists(binFilePath))
-                        File.Delete(binFilePath);
+                    try 
+                    {
+                        if (File.Exists(binFilePath))
+                            File.Delete(binFilePath);
+                    }
+                    catch (IOException ex)
+                    {
+                        _logger.LogError($"Error deleting bin file file ${binFilePath} ", ex);
+                    }
 
-                    if (Directory.Exists(currentDirectory))
-                        Directory.Delete(currentDirectory);
+                    try
+                    {
+                        if (Directory.Exists(currentDirectory))
+                            Directory.Delete(currentDirectory);
+                    }
+                    catch (IOException ex)
+                    {
+                        _logger.LogError($"Error deleting bin file file ${currentDirectory} ", ex);
+                    }
 
+                    // done - package directory is deleted, no need to continue
                     return;
                 }
             }
+
 
             bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");
             if (binFilePresent && !directories.Any())
