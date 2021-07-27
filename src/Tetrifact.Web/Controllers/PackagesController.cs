@@ -234,12 +234,12 @@ namespace Tetrifact.Web
                 if (result.Success)
                     _packageListCache.Clear();
 
-                sw.Stop();
-
                 if (result.Success)
                 {
                     // force flush in-memory list of packages
                     _packageListCache.Clear();
+
+                    sw.Stop();
 
                     return new JsonResult(new
                     {

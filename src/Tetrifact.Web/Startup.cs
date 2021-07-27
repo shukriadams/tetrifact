@@ -141,6 +141,33 @@ namespace Tetrifact.Web
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
+
+            ITetriSettings settings = serviceProvider.GetService<ITetriSettings>();
+            Console.WriteLine("*********************************************************************");
+            Console.WriteLine("TETRIFACT SERVER running");
+            Console.WriteLine("");
+            Console.WriteLine("Settings:");
+            Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
+            Console.WriteLine($"Archive path: {settings.ArchivePath}");
+            Console.WriteLine($"Archive wait timeout: {settings.ArchiveWaitTimeout}");
+            Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
+            Console.WriteLine($"Autocreate archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
+            Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
+            Console.WriteLine($"Daemon interval: {daemonInterval}");
+            Console.WriteLine($"Download archive compression: {settings.DownloadArchiveCompression}");
+            Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
+            Console.WriteLine($"Is storage compression enabled: {settings.IsStorageCompressionEnabled}");
+            Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
+            Console.WriteLine($"List page size: {settings.ListPageSize}");
+            Console.WriteLine($"Log path: {logPath}");
+            Console.WriteLine($"Max archives: {settings.MaxArchives}");
+            Console.WriteLine($"PackagePath: {settings.PackagePath}");
+            Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
+            Console.WriteLine($"Repository path: {settings.RepositoryPath}");
+            Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
+            Console.WriteLine($"Tags path: {settings.TagsPath}");
+            Console.WriteLine($"Temp path: {settings.TempPath}");
+            Console.WriteLine("*********************************************************************");
         }
     }
 }
