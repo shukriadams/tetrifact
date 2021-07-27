@@ -5,7 +5,7 @@ Note : if all you want is to build Tetrifact from source, check the /build folde
 ## Conventions
 
     - all file endings are LF, NOT CRLF.
-    - indent with 4 spaces, never use tabs.
+    - indent with 4 spaces.
 
 ## Vagrant
 
@@ -24,7 +24,7 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 
 To access your solution from another PC, open `<project root>/src/.vs/Tetrifact/config/applicationhost.config` and find all instances of `<binding protocol="http" bindingInformation="*:<PORT>:localhost" />` and replace `localhost` with `*`. There should be two instances, for ports `7313` and `8080`, but this might vary for your system.
 
-Note that when running from Visual Studio, Tetrifact has a maximum package size of about 2147483647 bytes (about 2 gigs), due to VS's IIS using an integer as its maximum size. In Docker Tetrifact is free of this restriction.
+Visual Studio performs poorly with large builds, most likely as a result of IISExpress. If you want to work with very large uploads (10's if K of files, 10+ gigs of data), try running Tetrifact from the command line instead.
 
 ## Running from command line 
 
