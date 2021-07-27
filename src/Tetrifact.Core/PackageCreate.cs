@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace Tetrifact.Core
 {
@@ -47,7 +46,6 @@ namespace Tetrifact.Core
         {
             List<string> transactionLog = new List<string>();
             StringBuilder hashes = new StringBuilder();
-            
 
             try
             {
@@ -108,8 +106,10 @@ namespace Tetrifact.Core
 
                 _workspace.Dispose();
 
-                if (_settings.AutoCreateArchiveOnPackageCreate)
-                    using(Stream stream = _indexReader.GetPackageAsArchive(newPackage.Id)){ }
+                if (_settings.AutoCreateArchiveOnPackageCreate){
+                    _log.LogInformation("Generating package archive");
+                    using (Stream stream = _indexReader.GetPackageAsArchive(newPackage.Id)){ }
+                }
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }
