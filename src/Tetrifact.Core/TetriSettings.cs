@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 
 namespace Tetrifact.Core
 {
@@ -50,6 +51,8 @@ namespace Tetrifact.Core
         public bool IsStorageCompressionEnabled { get; set; }
 
         public bool AutoCreateArchiveOnPackageCreate { get; set; }
+        
+        public CompressionLevel DownloadArchiveCompression { get; set; }
 
         #endregion
 
@@ -71,6 +74,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.AccessTokens = new List<string>();
             this.IsStorageCompressionEnabled = false;
+            this.DownloadArchiveCompression = CompressionLevel.Optimal;
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -84,6 +88,14 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
             this.AutoCreateArchiveOnPackageCreate = this.GetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
+
+            string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
+            if (!string.IsNullOrEmpty(downloadArchiveCompressionEnvVar)){ 
+                if (downloadArchiveCompressionEnvVar == "0")
+                    DownloadArchiveCompression = CompressionLevel.NoCompression;
+                if (downloadArchiveCompressionEnvVar == "1")
+                    DownloadArchiveCompression = CompressionLevel.Fastest;
+            }
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");

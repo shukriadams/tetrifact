@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO.Compression;
 
 namespace Tetrifact.Core
 {
@@ -93,5 +94,10 @@ namespace Tetrifact.Core
         /// If true, package data will be compressed on storage. This will consume less disk space, but required more CPU power to read packages.
         /// </summary>
         bool IsStorageCompressionEnabled { get; set; }
+
+        /// <summary>
+        /// Zip compression for downloadable builds. Set via Env var with values 0-2
+        /// </summary>
+        CompressionLevel DownloadArchiveCompression { get; set; }
     }
 }

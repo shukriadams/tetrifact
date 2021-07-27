@@ -279,6 +279,8 @@ namespace Tetrifact.Core
             string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
 
             // if temp archive exists, it's already building
+            // TODO : if archive generation failed at the temp stage, this will always exit and archive will never get
+            // built.
             if (File.Exists(archivePathTemp))
                 return;
 
@@ -296,7 +298,7 @@ namespace Tetrifact.Core
                 {
                     foreach (ManifestItem file in manifest.Files)
                     {
-                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path);
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, CompressionLevel.NoCompression);
 
                         using (Stream zipEntryStream = zipEntry.Open())
                         {
