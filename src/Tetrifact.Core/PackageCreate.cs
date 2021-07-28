@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Tetrifact.Core
 {
@@ -45,7 +44,6 @@ namespace Tetrifact.Core
         public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
-            StringBuilder hashes = new StringBuilder();
 
             try
             {
@@ -87,14 +85,23 @@ namespace Tetrifact.Core
 
                 _log.LogInformation("Hashing package content");
 
+                IDictionary<string, string> hashes = new Dictionary<string, string>();
+                foreach (string file in files)
+                    hashes.Add(file, null);
 
-                files.AsParallel().ForAll(delegate(String filePath) {
-                    // get hash of incoming file
-                    (string, long) fileProperties = _workspace.GetIncomingFileProperties(filePath);
-                    hashes.Append(_hashService.FromString(filePath) + fileProperties.Item1);
+                files.AsParallel().ForAll(delegate(string filePath) {
+                    try {
+                        // get hash of incoming file
+                        (string, long) fileProperties = _workspace.GetIncomingFileProperties(filePath);
+                        hashes[filePath] = (_hashService.FromString(filePath) + fileProperties.Item1);
 
-                    // todo : this would be a good place to confirm that existingPackageId is actually valid
-                    _workspace.WriteFile(filePath, fileProperties.Item1, fileProperties.Item2, newPackage.Id);
+                        // todo : this would be a good place to confirm that existingPackageId is actually valid
+                        _workspace.WriteFile(filePath, fileProperties.Item1, fileProperties.Item2, newPackage.Id);
+                    }
+                    catch (Exception ex){
+                        // give exception more context 
+                        throw new Exception($"Error processing hash for file {filePath}", ex);
+                    }
                 });
 
                 _workspace.Manifest.Description = newPackage.Description;
@@ -102,7 +109,7 @@ namespace Tetrifact.Core
                 _log.LogInformation("Writing package manifest");
 
                 // calculate package hash from child hashes
-                _workspace.WriteManifest(newPackage.Id, _hashService.FromString(hashes.ToString()));
+                _workspace.WriteManifest(newPackage.Id, _hashService.FromString(string.Join(string.Empty, hashes.Values)));
 
                 _workspace.Dispose();
 
@@ -115,7 +122,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, string.Empty);
+                _log.LogError(ex, "Unexpected error");
                 return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
             }
             finally
