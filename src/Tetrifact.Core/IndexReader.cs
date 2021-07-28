@@ -274,18 +274,26 @@ namespace Tetrifact.Core
 
         private void CreateArchive(string packageId)
         {
+            if (!this.DoesPackageExist(packageId))
+                throw new PackageNotFoundException(packageId);
+
             // store path with .tmp extension while building, this is used to detect if archiving has already started
             string archivePath = this.GetPackageArchivePath(packageId);
             string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
 
-            // if temp archive exists, it's already building
-            // TODO : if archive generation failed at the temp stage, this will always exit and archive will never get
-            // built.
-            if (File.Exists(archivePathTemp))
-                return;
-
-            if (!this.DoesPackageExist(packageId))
-                throw new PackageNotFoundException(packageId);
+            // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
+            // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
+            // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
+            if (File.Exists(archivePathTemp)){
+                try 
+                { 
+                    File.Delete(archivePathTemp);
+                } 
+                catch (IOException)
+                {
+                    return;
+                }
+            }
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
