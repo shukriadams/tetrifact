@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
@@ -24,6 +25,7 @@ namespace Tetrifact.Tests
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
+            
 
             Settings = new TetriSettings(new TestLogger<TetriSettings>())
             {
@@ -39,7 +41,7 @@ namespace Tetrifact.Tests
                 Settings,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            IndexReader = new Core.IndexReader(Settings, TagService, Logger, new FileSystem(), HashServiceHelper.Instance());
+            IndexReader = new Core.IndexReader(Settings, new Core.ThreadDefault(), TagService, Logger, new FileSystem(), HashServiceHelper.Instance());
             Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }

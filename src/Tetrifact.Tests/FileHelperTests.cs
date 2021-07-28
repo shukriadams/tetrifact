@@ -23,6 +23,9 @@ namespace Tetrifact.Tests
             Assert.True(stats.TotalBytes > 0);
         }
 
+        /// <summary>
+        /// Default behaviour
+        /// </summary>
         [Fact]
         public void RemovesFirstDirectoryFromPath() 
         {
@@ -30,15 +33,21 @@ namespace Tetrifact.Tests
             Assert.Equal("to/test", path);
         }
 
+        /// <summary>
+        /// Ensures that no leading slash is also handled
+        /// </summary>
         [Fact]
-        public void RemoveFirstDirectoryFromPath_NoSlashAtStart()
+        public void RemoveFirstDirectoryFromPath_NoLeadingSlash()
         {
             string path = FileHelper.RemoveFirstDirectoryFromPath("path/to/test");
             Assert.Equal("to/test", path);
         }
 
+        /// <summary>
+        /// Coverage. Handles a path with no slashes
+        /// </summary>
         [Fact]
-        public void RemoveFirstDirectoryFromPath_NoItems()
+        public void RemoveFirstDirectoryFromPath_NoSlashes()
         {
             string path = FileHelper.RemoveFirstDirectoryFromPath("no-slashes-string");
             Assert.Equal("no-slashes-string", path);

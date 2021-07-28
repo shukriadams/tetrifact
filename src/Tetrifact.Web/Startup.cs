@@ -55,6 +55,7 @@ namespace Tetrifact.Web
             services.AddTransient<IHashService, HashService>();
             services.AddTransient<IFileSystem, FileSystem>();
             services.AddTransient<Daemon, Daemon>();
+            services.AddTransient<IThread, ThreadDefault>();
 
             // register filterws
             services.AddScoped<ReadLevel>();

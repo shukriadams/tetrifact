@@ -46,6 +46,16 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
+        /// Converts a stream content to string.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static string StreamToString(Stream stream)
+        {
+            return Encoding.Default.GetString(StreamToByteArray(stream));
+        }
+
+        /// <summary>
         /// Converts item a archive stream to a dictionary, where keys are file paths of items in archive stream.
         /// </summary>
         /// <param name="archiveStream"></param>

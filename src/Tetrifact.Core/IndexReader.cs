@@ -25,17 +25,20 @@ namespace Tetrifact.Core
         
         private readonly IHashService _hashService;
 
+        private readonly IThread _thread;
         #endregion
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
+        public IndexReader(ITetriSettings settings, IThread thread, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
             _fileSystem = fileSystem;
             _hashService = hashService;
+            _thread = thread;
+
         }
 
         #endregion
@@ -133,20 +136,21 @@ namespace Tetrifact.Core
         {
             string archivePath = this.GetPackageArchivePath(packageId);
 
-            // create
+            // trigger archive creation
             if (!File.Exists(archivePath))
                 this.CreateArchive(packageId);
 
-            // is archive still building?
+            // wait for archive to be built
             string tempPath = this.GetPackageArchiveTempPath(packageId);
             DateTime start = DateTime.Now;
             TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
 
             while (File.Exists(tempPath))
             {
-                Thread.Sleep(this._settings.ArchiveAvailablePollInterval);
                 if (DateTime.Now - start > timeout)
-                    throw new TimeoutException($"Timeout waiting for package ${packageId} archive to build");
+                    throw new TimeoutException($"Timed out waiting for archive ${packageId} to build");
+
+                _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
             }
 
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
