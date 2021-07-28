@@ -51,6 +51,9 @@ namespace Tetrifact.Web
                 if (payload == null)
                     return Responses.NotFoundError(this, $"file {fileId} not found. Id is invalid, or has been deleted.");
 
+                if (payload.Content == null)
+                    throw new Exception($"File {fileId} has no content.");
+
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }
             catch (InvalidFileIdentifierException)

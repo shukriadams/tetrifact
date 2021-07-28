@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -80,7 +81,19 @@ namespace Tetrifact.Tests
         public void WriteFile(string fileInIncoming, string hash, long size, string packageId)
         {
             // move file to public folder
-            Repository.Add(fileInIncoming, Incoming[fileInIncoming]);
+            if (Repository.ContainsKey(fileInIncoming))
+                throw new Exception($"The file {fileInIncoming} has already been added");
+
+            byte[] incoming = Incoming[fileInIncoming];
+            try {
+                lock(Repository)
+                {
+                    Repository.Add(fileInIncoming, incoming);
+                }
+            } catch(Exception ex){ 
+                throw ex;
+            }
+
             Incoming.Remove(fileInIncoming);
             this.Manifest.Files.Add(new ManifestItem { Path = fileInIncoming, Hash = hash });
         }

@@ -117,6 +117,9 @@ namespace Tetrifact.Tests.Controlers
             };
 
             PackageCreateResult result = _packageService.CreatePackage(postArgs);
+            if (!result.Success)
+                throw new Exception(result.PublicError);
+
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
             Assert.Empty(TestingWorkspace.Incoming);
