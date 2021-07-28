@@ -148,8 +148,6 @@ namespace Tetrifact.Core
 
         public void AddArchiveContent(Stream file)
         {
-            _log.LogInformation("Unpacking incoming archive");
-
             using (ZipArchive archive = new ZipArchive(file))
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
@@ -167,8 +165,6 @@ namespace Tetrifact.Core
                     entry.ExtractToFile(targetFile);
                 }
             }
-
-            _log.LogInformation("Achive content written");
         }
 
         public (string, long) GetIncomingFileProperties(string relativePath)
