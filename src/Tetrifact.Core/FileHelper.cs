@@ -26,7 +26,9 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public static string RemoveFirstDirectoryFromPath(string path)
         {
+            // convert to unix format
             path = path.Replace("\\", "/");
+
             string[] items = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
             if (items.Length == 1)
                 return path;

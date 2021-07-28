@@ -24,10 +24,24 @@ namespace Tetrifact.Tests
         }
 
         [Fact]
-        public void RemoveFirstDirectoryFromPath() 
+        public void RemovesFirstDirectoryFromPath() 
         {
             string path = FileHelper.RemoveFirstDirectoryFromPath("/path/to/test");
             Assert.Equal("to/test", path);
+        }
+
+        [Fact]
+        public void RemoveFirstDirectoryFromPath_NoSlashAtStart()
+        {
+            string path = FileHelper.RemoveFirstDirectoryFromPath("path/to/test");
+            Assert.Equal("to/test", path);
+        }
+
+        [Fact]
+        public void RemoveFirstDirectoryFromPath_NoItems()
+        {
+            string path = FileHelper.RemoveFirstDirectoryFromPath("no-slashes-string");
+            Assert.Equal("no-slashes-string", path);
         }
     }
 }
