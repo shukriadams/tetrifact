@@ -91,7 +91,7 @@ namespace Tetrifact.Tests
             this.Manifest.Hash = combinedHash;
         }
 
-        public (string, long) GetIncomingFileHash(string path)
+        public (string, long) GetIncomingFileProperties(string path)
         {
             byte[] content = Incoming[path];
             string hash = HashServiceHelper.Instance().FromByteArray(content);

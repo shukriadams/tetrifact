@@ -90,11 +90,11 @@ namespace Tetrifact.Core
 
                 files.AsParallel().ForAll(delegate(String filePath) {
                     // get hash of incoming file
-                    (string, long) fileHashData = _workspace.GetIncomingFileHash(filePath);
-                    hashes.Append(_hashService.FromString(filePath) + fileHashData.Item1);
+                    (string, long) fileProperties = _workspace.GetIncomingFileProperties(filePath);
+                    hashes.Append(_hashService.FromString(filePath) + fileProperties.Item1);
 
                     // todo : this would be a good place to confirm that existingPackageId is actually valid
-                    _workspace.WriteFile(filePath, fileHashData.Item1, fileHashData.Item2, newPackage.Id);
+                    _workspace.WriteFile(filePath, fileProperties.Item1, fileProperties.Item2, newPackage.Id);
                 });
 
                 _workspace.Manifest.Description = newPackage.Description;

@@ -30,10 +30,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Workspace(ITetriSettings settings, ILogger<IWorkspace> logger, IHashService hashService)
+        public Workspace(ITetriSettings settings, ILogger<IWorkspace> log, IHashService hashService)
         {
             _settings = settings;
-            _log = logger;
+            _log = log;
             _hashService = hashService;
         }
 
@@ -171,7 +171,7 @@ namespace Tetrifact.Core
             _log.LogInformation("Achive content written");
         }
 
-        public (string, long) GetIncomingFileHash(string relativePath)
+        public (string, long) GetIncomingFileProperties(string relativePath)
         {
             return _hashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
         }

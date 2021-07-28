@@ -61,7 +61,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        (string, long) GetIncomingFileHash(string path);
+        (string, long) GetIncomingFileProperties(string path);
 
         /// <summary>
         /// Cleans up workspace.

@@ -12,6 +12,7 @@ namespace Tetrifact.Tests
         {
             Bind<ITetriSettings>().To<TetriSettings>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
+            Bind<ILogger<IWorkspace>>().To<TestLogger<IWorkspace>>();
             Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
             Bind<ILogger<ITetriSettings>>().To<TestLogger<ITetriSettings>>();
             Bind<IIndexReader>().To<TestIndexReader>();
