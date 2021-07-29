@@ -93,7 +93,11 @@ namespace Tetrifact.Core
                     try {
                         // get hash of incoming file
                         (string, long) fileProperties = _workspace.GetIncomingFileProperties(filePath);
-                        hashes[filePath] = (_hashService.FromString(filePath) + fileProperties.Item1);
+
+                        lock(hashes)
+                        {
+                            hashes[filePath] = (_hashService.FromString(filePath) + fileProperties.Item1);
+                        }
 
                         // todo : this would be a good place to confirm that existingPackageId is actually valid
                         _workspace.WriteFile(filePath, fileProperties.Item1, fileProperties.Item2, newPackage.Id);
