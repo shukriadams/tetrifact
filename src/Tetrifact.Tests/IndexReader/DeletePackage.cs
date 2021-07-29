@@ -35,7 +35,8 @@ namespace Tetrifact.Tests.IndexReader
             Assert.False(File.Exists(archivePath));
         }
 
-        // [Fact] disabled because this fails on travis
+        
+        [Fact (Skip = "fails consistently on travis")]  
         public void DeleteWithLockedArchive()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
@@ -59,6 +60,7 @@ namespace Tetrifact.Tests.IndexReader
                 Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
             }
         }
+        
 
         [Fact]
         public void InvalidPackage()

@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.PackageList
     {
         protected IPackageList PackageList { get; private set; }
         protected IPackageListCache PackageListCache { get; private set; }
-        protected ITagsService TagService { get; private set; }
+        protected new ITagsService TagService { get; private set; }
         protected TestLogger<IPackageList> PackageListLogger { get; private set; }
         protected TestLogger<ITagsService> TagServiceLogger { get; private set; }
 
