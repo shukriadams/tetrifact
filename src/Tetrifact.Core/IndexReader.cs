@@ -7,7 +7,6 @@ using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace Tetrifact.Core
 {
@@ -26,6 +25,7 @@ namespace Tetrifact.Core
         private readonly IHashService _hashService;
 
         private readonly IThread _thread;
+
         #endregion
 
         #region CTORS
@@ -38,7 +38,6 @@ namespace Tetrifact.Core
             _fileSystem = fileSystem;
             _hashService = hashService;
             _thread = thread;
-
         }
 
         #endregion
@@ -201,7 +200,7 @@ namespace Tetrifact.Core
             }
 
             if (missingFiles.Any())
-                return (false, $"Expected package files {string.Join(",", missingFiles)} not found ");
+                return (false, $"Expected package files missing : {string.Join(",", missingFiles)}");
 
             string finalHash = _hashService.FromString(hashes.ToString());
             if (finalHash != manifest.Hash)

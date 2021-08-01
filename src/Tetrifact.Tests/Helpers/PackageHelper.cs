@@ -34,7 +34,7 @@ namespace Tetrifact.Tests
         }
 
         /// <summary>
-        /// Creates a packge with some file data. 
+        /// Creates a package with some file data. 
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="packageName"></param>
@@ -42,12 +42,16 @@ namespace Tetrifact.Tests
         public static TestPackage CreatePackage(ITetriSettings settings, string packageName)
         {
             // create package, files folder and item location in one
+            byte[] content = Encoding.ASCII.GetBytes("some content");
             TestPackage testPackage = new TestPackage
             {
-                Content = Encoding.ASCII.GetBytes("some content"),
+                Content = content,
                 Path = $"path/to/{packageName}",
+                Hash = HashServiceHelper.Instance().FromByteArray(content),
                 Name = packageName
             };
+
+            string filePathHash = HashServiceHelper.Instance().FromString(testPackage.Path);
 
             // create via workspace writer. Note that workspace has no logic of its own to handle hashing, it relies on whatever
             // calls it to do that. We could use PackageCreate to do this, but as we want to test PackageCreate with this helper
@@ -55,10 +59,8 @@ namespace Tetrifact.Tests
             IWorkspace workspace = new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance());
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            string fileHash = HashServiceHelper.Instance().FromByteArray(testPackage.Content);
-            string filePathHash = HashServiceHelper.Instance().FromString(testPackage.Path);
-            workspace.WriteFile(testPackage.Path, fileHash, testPackage.Content.Length, testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, HashServiceHelper.Instance().FromString(filePathHash+fileHash));
+            workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Name);
+            workspace.WriteManifest(testPackage.Name, HashServiceHelper.Instance().FromString(filePathHash+ testPackage.Hash));
 
             return testPackage;
         }
