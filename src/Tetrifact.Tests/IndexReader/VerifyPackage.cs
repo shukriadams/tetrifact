@@ -9,7 +9,7 @@ namespace Tetrifact.Tests.IndexReader
         {
             PackageHelper.CreatePackage(Settings, "mypackage" );
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
-            //Assert.True(result.Item1);
+            Assert.True(result.Item1);
         }
     }
 }

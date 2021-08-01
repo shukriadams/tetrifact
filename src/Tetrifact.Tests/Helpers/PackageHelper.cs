@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -50,12 +49,16 @@ namespace Tetrifact.Tests
                 Name = packageName
             };
 
-            // create via workspace writter
+            // create via workspace writer. Note that workspace has no logic of its own to handle hashing, it relies on whatever
+            // calls it to do that. We could use PackageCreate to do this, but as we want to test PackageCreate with this helper
+            // we keep this as low-level as possible
             IWorkspace workspace = new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance());
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.WriteFile(testPackage.Path, "somehash", "somehash".Length, testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, "somehash2");
+            string fileHash = HashServiceHelper.Instance().FromByteArray(testPackage.Content);
+            string filePathHash = HashServiceHelper.Instance().FromString(testPackage.Path);
+            workspace.WriteFile(testPackage.Path, fileHash, testPackage.Content.Length, testPackage.Name);
+            workspace.WriteManifest(testPackage.Name, HashServiceHelper.Instance().FromString(filePathHash+fileHash));
 
             return testPackage;
         }

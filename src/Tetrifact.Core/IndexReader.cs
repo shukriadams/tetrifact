@@ -192,7 +192,7 @@ namespace Tetrifact.Core
                 if (File.Exists(directFilePath))
                 {
                     hashes.Append(_hashService.FromString(manifestItem.Path));
-                    hashes.Append(_hashService.FromFile(directFilePath));
+                    hashes.Append(_hashService.FromFile(directFilePath).Item1);
                 }
                 else
                 {
@@ -205,7 +205,7 @@ namespace Tetrifact.Core
 
             string finalHash = _hashService.FromString(hashes.ToString());
             if (finalHash != manifest.Hash)
-                return (false, $"Actual package hash {finalHash} does not match expected manifest hash ${manifest.Hash}");
+                return (false, $"Actual package hash {finalHash} does not match expected manifest hash {manifest.Hash}");
 
             return (true, string.Empty);
         }
