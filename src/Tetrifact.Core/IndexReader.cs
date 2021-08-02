@@ -291,7 +291,7 @@ namespace Tetrifact.Core
                 try 
                 { 
                     File.Delete(archivePathTemp);
-                } 
+                }
                 catch (IOException)
                 {
                     return;
@@ -301,9 +301,8 @@ namespace Tetrifact.Core
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
+                // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
                 Manifest manifest = this.GetManifest(packageId);
-                if (manifest == null)
-                    throw new PackageNotFoundException(packageId);
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
@@ -321,9 +320,6 @@ namespace Tetrifact.Core
 
                                 using (var storageArchive = new ZipArchive(fileLookup.Content))
                                 {
-                                    if (storageArchive.Entries.Count != 1)
-                                        throw new Exception($"Invalid storage of compressed file {file.Id} in package {packageId} - expected single entry, got {storageArchive.Entries.Count}");
-
                                     ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
                                     using (var storageArchiveStream = storageArchiveEntry.Open()) 
                                     {

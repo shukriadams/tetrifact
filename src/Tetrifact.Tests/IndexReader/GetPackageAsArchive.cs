@@ -129,5 +129,55 @@ namespace Tetrifact.Tests.IndexReader
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Fact]
+        public void GetArchiveCompressionEnabled()
+        {
+            base.Settings.IsStorageCompressionEnabled = true;
+
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            {
+                Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
+                Assert.Single(items);
+                Assert.Equal(testPackage.Content, items[testPackage.Path]);
+            }
+        }
+
+        /// <summary>
+        /// Tests that trying to build an archive with a missing package file throws expected exception
+        /// </summary>
+        [Fact]
+        public void GetArchive_Nocompress_FileMissing()
+        {
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+
+            // delete known package file via disk
+            File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
+
+            Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
+            Assert.Contains("Failed to find expected package file", ex.Message);
+        }
+
+        /// <summary>
+        /// Tests that trying to build an archive with a missing package file throws expected exception, compression of source files enabled. This
+        /// is for coverage.
+        /// </summary>
+        [Fact]
+        public void GetArchive_CompressEnabled_FileMissing()
+        {
+            base.Settings.IsStorageCompressionEnabled = true;
+
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+
+            // delete known package file via disk
+            File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
+
+            Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
+            Assert.Contains("Failed to find expected package file", ex.Message);
+        }
     }
 }
