@@ -120,7 +120,7 @@ namespace Tetrifact.Core
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
-
+            this.Manifest.Id = packageId;
             this.Manifest.Size += fileSize;
             if (onDisk)
                 this.Manifest.SizeOnDisk += fileSize;
