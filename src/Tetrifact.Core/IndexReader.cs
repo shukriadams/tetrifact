@@ -180,7 +180,7 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             StringBuilder hashes = new StringBuilder();
-            string[] files = files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+            string[] files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
             List<string> missingFiles = new List<string>();
 
             foreach (string filePath in files)

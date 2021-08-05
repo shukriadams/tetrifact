@@ -19,6 +19,11 @@ namespace Tetrifact.Core
         }
 
 
+        public static string ToUnixPath(string path)
+        {
+            return path.Replace("\\", "/");
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -27,7 +32,7 @@ namespace Tetrifact.Core
         public static string RemoveFirstDirectoryFromPath(string path)
         {
             // convert to unix format
-            path = path.Replace("\\", "/");
+            path = ToUnixPath(path)
 
             string[] items = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
             if (items.Length == 1)

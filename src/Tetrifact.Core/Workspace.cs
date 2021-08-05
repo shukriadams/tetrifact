@@ -142,7 +142,7 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetIncomingFileNames()
         {
             IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
-            string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
+            string relativeRoot = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming"));
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
         }
 

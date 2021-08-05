@@ -96,7 +96,7 @@ namespace Tetrifact.Core
 
                         lock(hashes)
                         {
-                            hashes[filePath] = (_hashService.FromString(filePath) + fileProperties.Item1);
+                            hashes[filePath] = _hashService.FromString(filePath) + fileProperties.Item1;
                         }
 
                         // todo : this would be a good place to confirm that existingPackageId is actually valid
