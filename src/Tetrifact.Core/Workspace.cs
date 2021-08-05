@@ -64,7 +64,7 @@ namespace Tetrifact.Core
             if (formFile.Length == 0)
                 return false;
             
-            string targetPath = Path.Join(this.WorkspacePath, "incoming", relativePath);
+            string targetPath = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", relativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
 
             using (var stream = new FileStream(targetPath, FileMode.Create))
@@ -142,7 +142,7 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetIncomingFileNames()
         {
             IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
-            string relativeRoot = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming"));
+            string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
         }
 
@@ -159,7 +159,7 @@ namespace Tetrifact.Core
                     if (string.IsNullOrEmpty(entry.Name))
                         continue;
 
-                    string targetFile = Path.Join(this.WorkspacePath, "incoming", entry.FullName);
+                    string targetFile = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", entry.FullName));
                     string targetDirectory = Path.GetDirectoryName(targetFile);
                     Directory.CreateDirectory(targetDirectory);
                     entry.ExtractToFile(targetFile);

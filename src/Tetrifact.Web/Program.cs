@@ -32,7 +32,6 @@ namespace Tetrifact.Web
                     options.Limits.MaxRequestBodySize = long.MaxValue;
                     options.Limits.MaxRequestBufferSize = long.MaxValue;
                     options.Limits.MaxRequestLineSize = int.MaxValue;
-
                 });
             }
 
