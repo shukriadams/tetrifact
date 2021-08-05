@@ -32,7 +32,7 @@ namespace Tetrifact.Core
         public static string RemoveFirstDirectoryFromPath(string path)
         {
             // convert to unix format
-            path = ToUnixPath(path)
+            path = ToUnixPath(path);
 
             string[] items = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
             if (items.Length == 1)
