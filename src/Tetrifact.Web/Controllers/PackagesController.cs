@@ -143,7 +143,6 @@ namespace Tetrifact.Web
             try
             {
                 (bool, string) result = _indexService.VerifyPackage(packageId);
-
                 return new JsonResult(new
                 {
                     success = new
@@ -152,6 +151,10 @@ namespace Tetrifact.Web
                         description = result.Item2
                     }
                 });
+            }
+            catch (PackageNotFoundException)
+            {
+                return Responses.NotFoundError(this, $"Package {packageId} does not exist");
             }
             catch (Exception ex)
             {
