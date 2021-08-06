@@ -16,6 +16,11 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 - Dotnetcore 3.1 SDK
 - Visual Studio 2019 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version. Visual Studio 2017 isn't supported.
 
+### Install on Fedora
+
+    sudo wget -q -O /etc/yum.repos.d/microsoft-prod.repo https://packages.microsoft.com/config/fedora/31/prod.repo
+    sudo dnf install dotnet-sdk-3.1 -y
+
 ## Running from Visual Studio
 
 - Start Visual Studio as administrator
