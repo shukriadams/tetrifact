@@ -16,7 +16,7 @@ namespace Tetrifact.DevUtils
 
             if (!commandArgs.Contains("run"))
             {
-                Console.WriteLine("Missing --run argument");
+                Console.WriteLine("Missing --run argument, check source code for options");
                 Environment.Exit(1);
             }
 
