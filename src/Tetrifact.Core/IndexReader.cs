@@ -181,7 +181,7 @@ namespace Tetrifact.Core
 
             StringBuilder hashes = new StringBuilder();
             string[] files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
-            List<string> missingFiles = new List<string>();
+            List<string> errors = new List<string>();
 
             foreach (string filePath in files)
             {
@@ -190,17 +190,20 @@ namespace Tetrifact.Core
                 string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
                 if (File.Exists(directFilePath))
                 {
-                    hashes.Append(_hashService.FromString(manifestItem.Path));
-                    hashes.Append(_hashService.FromFile(directFilePath).Item1);
+                    (string, long) fileOnDiskProperties = _hashService.FromFile(directFilePath);
+                    if (fileOnDiskProperties.Item1 != manifestItem.Hash)
+                        errors.Add($"Package file {manifestItem.Path} expects hash {manifestItem.Hash} but on-disk has {fileOnDiskProperties.Item1}");
+                    else 
+                        hashes.Append(_hashService.FromString(manifestItem.Path) + fileOnDiskProperties.Item1);
                 }
                 else
                 {
-                    missingFiles.Add(directFilePath);
+                    errors.Add($"Package file {directFilePath} could not be found.");
                 }
             }
 
-            if (missingFiles.Any())
-                return (false, $"Expected package files missing : {string.Join(",", missingFiles)}");
+            if (errors.Any())
+                return (false, string.Join(",", errors));
 
             string finalHash = _hashService.FromString(hashes.ToString());
             if (finalHash != manifest.Hash)
