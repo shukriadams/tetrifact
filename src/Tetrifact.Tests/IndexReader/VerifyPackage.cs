@@ -44,7 +44,8 @@ namespace Tetrifact.Tests.IndexReader
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
-            Assert.Contains("Expected package files missing", result.Item2);
+            Assert.Contains(package.Hash , result.Item2);
+            Assert.Contains("could not be found", result.Item2);
         }
 
         /// <summary>
