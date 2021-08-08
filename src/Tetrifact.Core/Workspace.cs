@@ -119,11 +119,16 @@ namespace Tetrifact.Core
             File.WriteAllText(Path.Join(packagesDirectory, packageId), string.Empty);
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
-            this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
-            this.Manifest.Id = packageId;
-            this.Manifest.Size += fileSize;
-            if (onDisk)
-                this.Manifest.SizeOnDisk += fileSize;
+
+            // this method is called from parallel threads, make thread safe
+            lock(this.Manifest)
+            {
+                this.Manifest.Files.Add(new ManifestItem { Path = filePath, Hash = hash, Id = pathAndHash });
+                this.Manifest.Id = packageId;
+                this.Manifest.Size += fileSize;
+                if (onDisk)
+                    this.Manifest.SizeOnDisk += fileSize;
+            }
         }
 
         public void WriteManifest(string packageId, string combinedHash)
