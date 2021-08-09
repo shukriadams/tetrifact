@@ -62,7 +62,7 @@ namespace Tetrifact.Tests.IndexReader
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
-            Assert.Contains("does not match expected manifest hash", result.Item2);
+            Assert.Contains("expects hash", result.Item2);
         }
     }
 }
