@@ -80,7 +80,7 @@ namespace Tetrifact.Core
                 try
                 {
                     Directory.Delete(currentDirectory);
-                    _logger.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
+                    _logger.LogInformation($"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
                 catch (IOException ex)
                 {
@@ -102,7 +102,7 @@ namespace Tetrifact.Core
                             try
                             {
                                 File.Delete(file);
-                                _logger.LogWarning($"CLEANUP : deleted file {file}, package not found.");
+                                _logger.LogInformation($"CLEANUP : deleted file {file}, package not found.");
                             }
                             catch (IOException ex)
                             {
@@ -121,7 +121,7 @@ namespace Tetrifact.Core
                     {
                         if (File.Exists(binFilePath)){
                             File.Delete(binFilePath);
-                            _logger.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
+                            _logger.LogInformation($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
                         }
                     }
                     catch (IOException ex)
@@ -134,7 +134,7 @@ namespace Tetrifact.Core
                         // delete this the package directory
                         if (Directory.Exists(currentDirectory)){
                             Directory.Delete(currentDirectory);
-                            _logger.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
+                            _logger.LogInformation($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                         }
                     }
                     catch (IOException ex)
@@ -157,7 +157,7 @@ namespace Tetrifact.Core
                 try
                 {
                     File.Delete(filePath);
-                    _logger.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
+                    _logger.LogInformation($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
                 }
                 catch (IOException ex)
                 {

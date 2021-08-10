@@ -82,9 +82,9 @@ namespace Tetrifact.Core
             // move file to public folder
             string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
             string targetDirectory = Path.GetDirectoryName(targetPath);
-            string packagesDirectory = Path.Join(targetDirectory, "packages");
+            string packagesSubscribeDirectory = Path.Join(targetDirectory, "packages");
 
-            Directory.CreateDirectory(packagesDirectory);
+            Directory.CreateDirectory(packagesSubscribeDirectory);
 
             bool onDisk = false;
             string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
@@ -103,6 +103,7 @@ namespace Tetrifact.Core
                                 using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                                 {
                                     itemStream.CopyTo(entryStream);
+                                    _log.LogInformation($"PACKAGE CREATE : placed compressed file {targetPath}");
                                 }
                             }
                         }
@@ -110,13 +111,15 @@ namespace Tetrifact.Core
 
                 } else {
                     File.Move(incomingPath,targetPath);
+                    _log.LogInformation($"PACKAGE CREATE : placed file {targetPath}");
                 }
 
                 onDisk = true;
             }
 
-            // write package id under hash, subscribing it to that hash
-            File.WriteAllText(Path.Join(packagesDirectory, packageId), string.Empty);
+            // write package id into package subscription directory, associating it with this hash 
+            File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
+            _log.LogInformation($"PACKAGE CREATE : subscribed package {packageId} to hash {packagesSubscribeDirectory} ");
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
 
