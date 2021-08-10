@@ -67,6 +67,9 @@ namespace Tetrifact.Core
                 // write attachments to work folder 
                 long size = newPackage.Files.Sum(f => f.Content.Length);
 
+                // prevent deletes of empty repository folders this package might need to write to
+                LinkLock.Instance.Lock(newPackage.Id);
+
                 _workspace.Initialize();
 
                 // if archive, unzip
@@ -79,9 +82,6 @@ namespace Tetrifact.Core
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 string[] files = _workspace.GetIncomingFileNames().ToArray();
                 files = _hashService.SortFileArrayForHashing(files);
-                
-                // prevent deletes of empty repository folders this package might need to write to
-                LinkLock.Instance.Lock(newPackage.Id);
 
                 _log.LogInformation("Hashing package content");
 

@@ -69,28 +69,30 @@ namespace Tetrifact.Core
             catch (IOException ex)
             {
                 if (Directory.Exists(currentDirectory)) { 
-                    _logger.LogError($"Failed to read content of directory ${currentDirectory} ", ex);
+                    _logger.LogError($"Failed to read content of directory {currentDirectory} ", ex);
                     return;
                 }
             }
 
-            // if no children at all, delete current node
+            // if directory is completely empty, we can safely delete it
             if (!files.Any() && !directories.Any() && currentDirectory != _settings.RepositoryPath)
             {
                 try
                 {
                     Directory.Delete(currentDirectory);
+                    _logger.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
                 catch (IOException ex)
                 {
                     if (Directory.Exists(currentDirectory))
-                        _logger.LogError($"Failed to delete directory ${currentDirectory} ", ex);
+                        _logger.LogError($"Failed to delete directory {currentDirectory} ", ex);
                 }
             }
                 
-
+            // packages directory is the directory next to "bin" file that contains subscriber files for each package that refererences the bin
             if (isCurrentDirectoryPackages)
             {
+                // package directory contains files only, ever directories, so we check files only
                 if (files.Any())
                 {
                     foreach (string file in files)
@@ -100,36 +102,44 @@ namespace Tetrifact.Core
                             try
                             {
                                 File.Delete(file);
+                                _logger.LogWarning($"CLEANUP : deleted file {file}, package not found.");
                             }
                             catch (IOException ex)
                             {
-                                _logger.LogError($"Failed to delete file ${file} ", ex);
+                                _logger.LogError($"Failed to delete file {file} ", ex);
                             }
                         }
                     }
                 }
                 else
                 {
-                    // if this is a package folder with no packages, it is safe to delete it and it's parent bin file
+                    // if reach here there are no packages in this packge directory, it is safe to attempt to delete it
+
+                    // find the bin file in the parent directory associated with this package dir, and try to delete that
                     string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
                     try 
                     {
-                        if (File.Exists(binFilePath))
+                        if (File.Exists(binFilePath)){
                             File.Delete(binFilePath);
+                            _logger.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
+                        }
                     }
                     catch (IOException ex)
                     {
-                        _logger.LogError($"Error deleting bin file file ${binFilePath} ", ex);
+                        _logger.LogError($"Error deleting bin file {binFilePath} ", ex);
                     }
 
                     try
                     {
-                        if (Directory.Exists(currentDirectory))
+                        // delete this the package directory
+                        if (Directory.Exists(currentDirectory)){
                             Directory.Delete(currentDirectory);
+                            _logger.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
+                        }
                     }
                     catch (IOException ex)
                     {
-                        _logger.LogError($"Error deleting bin file file ${currentDirectory} ", ex);
+                        _logger.LogError($"Error deleting bin file file {currentDirectory} ", ex);
                     }
 
                     // done - package directory is deleted, no need to continue
@@ -147,10 +157,11 @@ namespace Tetrifact.Core
                 try
                 {
                     File.Delete(filePath);
+                    _logger.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
                 }
                 catch (IOException ex)
                 {
-                    _logger.LogError($"Failed to delete file ${filePath} ", ex);
+                    _logger.LogError($"Failed to delete file {filePath} ", ex);
                 }
 
                 return;
