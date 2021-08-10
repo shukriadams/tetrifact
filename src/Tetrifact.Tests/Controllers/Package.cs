@@ -71,7 +71,6 @@ namespace Tetrifact.Tests.Controlers
             PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
-            Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -122,7 +121,6 @@ namespace Tetrifact.Tests.Controlers
 
             Assert.True(result.Success);
             Assert.Equal(2, TestingWorkspace.Repository.Count());
-            Assert.Empty(TestingWorkspace.Incoming);
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
