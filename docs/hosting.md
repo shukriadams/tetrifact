@@ -4,8 +4,6 @@ A common scenario when hosting docker-based sites in production is to expose the
 works well with Tetrifact, but you will likely need to tweak Nginx for this to work properly. Specfically, make sure you increase the
 maximum body size and timeouts so your Tetrifact server can handle larger files. For example
 
-
-
     server {
 
         listen 80;

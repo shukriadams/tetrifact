@@ -34,6 +34,9 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        /// <summary>
+        /// Starts clean process on repository. Process can be blocked while an existing upload is in progress.
+        /// </summary>
         public void Clean()
         {
             // get a list of existing packages at time of calling. It is vital that new packages not be created
@@ -43,6 +46,17 @@ namespace Tetrifact.Core
             this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
         }
 
+        private void WaitForLocks()
+        {
+            // todo : add max sleep time to prevent permalock
+            // wait if linklock is active, something more important is busy. 
+            while (LinkLock.Instance.IsLocked())
+            {
+                this.LockPasses++;
+                Thread.Sleep(_settings.LinkLockWaitTime);
+            }
+        }
+
         /// <summary>
         /// Recursing method behind Clean() logic. Wrap all FS interactions in try catches with IOException handlers as this method is very likely to throw exceptions when cascading deletes
         /// remove directories from above while recursing.
@@ -50,13 +64,7 @@ namespace Tetrifact.Core
         /// <param name="currentDirectory"></param>
         private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentDirectoryPackages)
         {
-            // todo : add max sleep time to prevent permalock
-            // wait if linklock is active, something more important is busy. 
-            while (LinkLock.Instance.IsLocked())
-            {
-                this.LockPasses ++;
-                Thread.Sleep(_settings.LinkLockWaitTime);
-            }
+            this.WaitForLocks();
 
             string[] files = null;
             string[] directories = null;
@@ -80,7 +88,7 @@ namespace Tetrifact.Core
                 try
                 {
                     Directory.Delete(currentDirectory);
-                    _logger.LogInformation($"CLEANUP : deleted directory {currentDirectory}, no children.");
+                    _logger.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
                 catch (IOException ex)
                 {
@@ -97,12 +105,14 @@ namespace Tetrifact.Core
                 {
                     foreach (string file in files)
                     {
+                        this.WaitForLocks();
+
                         if (!existingPackageIds.Contains(Path.GetFileName(file)))
                         {
                             try
                             {
                                 File.Delete(file);
-                                _logger.LogInformation($"CLEANUP : deleted file {file}, package not found.");
+                                _logger.LogWarning($"CLEANUP : deleted file {file}, package not found.");
                             }
                             catch (IOException ex)
                             {
@@ -119,9 +129,10 @@ namespace Tetrifact.Core
                     string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
                     try 
                     {
-                        if (File.Exists(binFilePath)){
+                        if (File.Exists(binFilePath))
+                        {
                             File.Delete(binFilePath);
-                            _logger.LogInformation($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
+                            _logger.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
                         }
                     }
                     catch (IOException ex)
@@ -132,9 +143,10 @@ namespace Tetrifact.Core
                     try
                     {
                         // delete this the package directory
-                        if (Directory.Exists(currentDirectory)){
+                        if (Directory.Exists(currentDirectory))
+                        {
                             Directory.Delete(currentDirectory);
-                            _logger.LogInformation($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
+                            _logger.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                         }
                     }
                     catch (IOException ex)
@@ -157,7 +169,7 @@ namespace Tetrifact.Core
                 try
                 {
                     File.Delete(filePath);
-                    _logger.LogInformation($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
+                    _logger.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
                 }
                 catch (IOException ex)
                 {

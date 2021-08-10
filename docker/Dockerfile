@@ -24,4 +24,4 @@ COPY ./.artefacts/. /var/tetrifact
 
 USER tetrifact
 
-CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll'
+CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll --Logging:LogLevel:Microsoft=Warning'
