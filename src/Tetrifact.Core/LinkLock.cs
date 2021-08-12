@@ -12,6 +12,8 @@ namespace Tetrifact.Core
 
         public static LinkLock Instance;
 
+        private readonly Dictionary<string, bool> _packageIds = new Dictionary<string, bool>();
+
         #endregion
 
         #region CTORS
@@ -33,32 +35,28 @@ namespace Tetrifact.Core
             Instance = new LinkLock();
         }
 
-        private readonly Dictionary<string, bool> _packageIds = new Dictionary<string, bool>();
-
-        private bool _isLocked;
-
-        private static readonly object _syncRoot = new object();
-
-        public bool IsLocked()
+        /// <summary>
+        /// Returns true if any package is locked.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsAnyLocked()
         {
-            return _isLocked;
+            return _packageIds.Any();
         }
 
         public void Lock(string packageId)
         {
-            lock (_syncRoot)
+            lock (_packageIds)
             {
                 _packageIds.Add(packageId, true);
-                _isLocked = true;
             }
         }
 
         public void Unlock(string packageId)
         {
-            lock (_syncRoot)
+            lock (_packageIds)
             {
                 _packageIds.Remove(packageId);
-                _isLocked = _packageIds.Any();
             }
         }
 

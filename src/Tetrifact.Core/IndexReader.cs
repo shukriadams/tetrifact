@@ -60,13 +60,13 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetAllPackageIds()
         {
             IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r));
+            return rawList.Select(r => Path.GetFileName(r));
         }
 
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             IEnumerable<string> rawList = Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetRelativePath(_settings.PackagePath, r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
+            return rawList.Select(r => Path.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string id)

@@ -13,14 +13,14 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void DefaultState()
         {
-            Assert.False(Core.LinkLock.Instance.IsLocked());
+            Assert.False(Core.LinkLock.Instance.IsAnyLocked());
         }
 
         [Fact]
         public void AnyPackageLocksAll()
         {
             Core.LinkLock.Instance.Lock("some package");
-            Assert.True(Core.LinkLock.Instance.IsLocked());
+            Assert.True(Core.LinkLock.Instance.IsAnyLocked());
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Tetrifact.Tests.LinkLock
         {
             Core.LinkLock.Instance.Lock("some package");
             Core.LinkLock.Instance.Unlock("some package");
-            Assert.False(Core.LinkLock.Instance.IsLocked());
+            Assert.False(Core.LinkLock.Instance.IsAnyLocked());
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.LinkLock
             Core.LinkLock.Instance.Lock("some package");
             Core.LinkLock.Instance.Lock("another package");
             Core.LinkLock.Instance.Unlock("some package");
-            Assert.True(Core.LinkLock.Instance.IsLocked());
+            Assert.True(Core.LinkLock.Instance.IsAnyLocked());
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Tetrifact.Tests.LinkLock
             Core.LinkLock.Instance.Lock("another package");
             Core.LinkLock.Instance.Unlock("another package");
             Core.LinkLock.Instance.Unlock("some package");
-            Assert.False(Core.LinkLock.Instance.IsLocked());
+            Assert.False(Core.LinkLock.Instance.IsAnyLocked());
         }
     }
 }

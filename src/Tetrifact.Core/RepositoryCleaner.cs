@@ -39,22 +39,35 @@ namespace Tetrifact.Core
         /// </summary>
         public void Clean()
         {
-            // get a list of existing packages at time of calling. It is vital that new packages not be created
-            // while clean running, they will be cleaned up as they are not on this list
-            IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds();
-            this.LockPasses = 0;
-            this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
+            try 
+            {
+                // get a list of existing packages at time of calling. It is vital that new packages not be created
+                // while clean running, they will be cleaned up as they are not on this list
+                IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds();
+                _logger.LogInformation($"CLEANUP started, existing packages : {string.Join(",", existingPackageIds)}.");
+                this.LockPasses = 0;
+                this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
+            }
+            catch(Exception ex)
+            { 
+                if (ex.Message.StartsWith("System currently locked"))
+                    _logger.LogInformation("Clean aborted, lock detected");
+                else
+                    throw ex;
+            }
+            finally
+            {
+                _logger.LogInformation($"CLEANUP complete");
+            }
         }
 
-        private void WaitForLocks()
+        /// <summary>
+        /// Call this before each destructive change for maximum resolution
+        /// </summary>
+        private void EnsureNoLock()
         {
-            // todo : add max sleep time to prevent permalock
-            // wait if linklock is active, something more important is busy. 
-            while (LinkLock.Instance.IsLocked())
-            {
-                this.LockPasses++;
-                Thread.Sleep(_settings.LinkLockWaitTime);
-            }
+            if (LinkLock.Instance.IsAnyLocked())
+                throw new Exception($"System currently locked, clear process aborting");
         }
 
         /// <summary>
@@ -64,7 +77,7 @@ namespace Tetrifact.Core
         /// <param name="currentDirectory"></param>
         private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentDirectoryPackages)
         {
-            this.WaitForLocks();
+            EnsureNoLock();
 
             string[] files = null;
             string[] directories = null;
@@ -87,6 +100,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
+                    EnsureNoLock();
                     Directory.Delete(currentDirectory);
                     _logger.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
@@ -105,12 +119,11 @@ namespace Tetrifact.Core
                 {
                     foreach (string file in files)
                     {
-                        this.WaitForLocks();
-
                         if (!existingPackageIds.Contains(Path.GetFileName(file)))
                         {
                             try
                             {
+                                EnsureNoLock();
                                 File.Delete(file);
                                 _logger.LogWarning($"CLEANUP : deleted file {file}, package not found.");
                             }
@@ -131,6 +144,7 @@ namespace Tetrifact.Core
                     {
                         if (File.Exists(binFilePath))
                         {
+                            EnsureNoLock();
                             File.Delete(binFilePath);
                             _logger.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
                         }
@@ -145,6 +159,7 @@ namespace Tetrifact.Core
                         // delete this the package directory
                         if (Directory.Exists(currentDirectory))
                         {
+                            EnsureNoLock();
                             Directory.Delete(currentDirectory);
                             _logger.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                         }
@@ -168,6 +183,7 @@ namespace Tetrifact.Core
 
                 try
                 {
+                    EnsureNoLock();
                     File.Delete(filePath);
                     _logger.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
                 }
