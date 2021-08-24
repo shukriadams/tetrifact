@@ -297,9 +297,12 @@ namespace Tetrifact.Core
                 }
                 catch (IOException)
                 {
+                    _logger.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
                     return;
                 }
             }
+
+            _logger.LogInformation($"Archive generation for package {packageId} started");
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
@@ -319,7 +322,7 @@ namespace Tetrifact.Core
                             {
                                 GetFileResponse fileLookup = this.GetFile(file.Id);
                                 if (fileLookup == null)
-                                    throw new Exception($"Failed to find expected package file {file.Id}. Repository is likely corrupt.");
+                                    throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
 
                                 using (var storageArchive = new ZipArchive(fileLookup.Content))
                                 {
@@ -334,13 +337,15 @@ namespace Tetrifact.Core
                             {
                                 GetFileResponse fileLookup = this.GetFile(file.Id);
                                 if (fileLookup == null)
-                                    throw new Exception($"Failed to find expected package file {file.Id}. Repository is likely corrupt.");
+                                    throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
                                 using (Stream fileStream = fileLookup.Content)
                                 {
                                     fileStream.CopyTo(zipEntryStream);
                                 }
                             }
+
+                            _logger.LogInformation($"Added file {file.Path} to archive");
                         }
                     }
                 }
@@ -348,6 +353,7 @@ namespace Tetrifact.Core
 
             // flip temp file to final path, it is ready for use only when this happens
             File.Move(archivePathTemp, archivePath);
+            _logger.LogInformation($"Archive generation for package {packageId} complete");
         }
 
         #endregion
