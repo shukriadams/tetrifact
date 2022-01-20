@@ -54,6 +54,22 @@ namespace Tetrifact.Core
         
         public CompressionLevel DownloadArchiveCompression { get; set; }
 
+        public bool Prune { get; set; }
+
+        public string PruneIgnoreTags { get; set; }
+
+        public int MonthPruneThreshold { get; set; }
+
+        public int MonthPruneKeep { get; set; }
+
+        public int WeeklyPruneThreshold { get; set; }
+
+        public int WeeklyPruneKeep { get; set; }
+
+        public int YearlyPruneThreshold { get; set; }
+
+        public int YearlyPruneKeep { get; set; }
+
         #endregion
 
         #region CTORS
@@ -75,6 +91,23 @@ namespace Tetrifact.Core
             this.AccessTokens = new List<string>();
             this.IsStorageCompressionEnabled = false;
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
+            this.PruneIgnoreTags = string.Empty;
+            this.WeeklyPruneThreshold = 20;
+            this.WeeklyPruneKeep = 7;
+            this.MonthPruneThreshold = 90;
+            this.MonthPruneThreshold = 4;
+            // cleanup
+            // enable
+            // keep tag
+            // monthly_threshhold
+            // monthly_keep
+
+            // weekly_threshhold
+            // weekly_keep
+
+            // yearly_threshhold
+            // yearly_keep
+
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");

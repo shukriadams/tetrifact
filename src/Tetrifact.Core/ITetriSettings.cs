@@ -99,5 +99,45 @@ namespace Tetrifact.Core
         /// Zip compression for downloadable builds. Set via Env var with values 0-2
         /// </summary>
         CompressionLevel DownloadArchiveCompression { get; set; }
+
+        /// <summary>
+        /// If true, package autoprune will run
+        /// </summary>
+        bool Prune { get; set; }
+
+        /// <summary>
+        /// optional, comma-separated list of several tags. If set, packages with this tag will never be pruned.
+        /// </summary>
+        string PruneIgnoreTags { get; set; }
+        
+        /// <summary>
+        /// Minimum age (in days) for a package to be applicable for monthly prune 
+        /// </summary>
+        int MonthPruneThreshold { get; set; }
+
+        /// <summary>
+        /// Number of packages to keep per month. 
+        /// </summary>
+        int MonthPruneKeep { get; set; }
+
+        /// <summary>
+        /// Minimum age (in days) for a package to be applicable for weekly prune 
+        /// </summary>
+        int WeeklyPruneThreshold { get; set; }
+
+        /// <summary>
+        /// Number of packages to keep per week.
+        /// </summary>
+        int WeeklyPruneKeep { get; set; }
+
+        /// <summary>
+        /// Minimum age (in days) for a package to be applicable for yearly prune 
+        /// </summary>
+        int YearlyPruneThreshold { get; set; }
+
+        /// <summary>
+        /// Number of packages to keep per year. 
+        /// </summary>
+        int YearlyPruneKeep { get; set; }
     }
 }

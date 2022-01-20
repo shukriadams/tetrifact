@@ -17,14 +17,16 @@ namespace Tetrifact.Web
         private bool _busy;
         private bool _running;
         private ILogger<Daemon> _log;
+        private IPackagePrune _packagePrune;
 
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, ILogger<Daemon> log)
+        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, IPackagePrune packagePrune, ILogger<Daemon> log)
         {
             _indexService = indexService;
+            _packagePrune = packagePrune;
             _repositoryCleaner = repositoryCleaner;
             _log = log;
         }
@@ -60,6 +62,7 @@ namespace Tetrifact.Web
 
                     _repositoryCleaner.Clean();
                     _indexService.PurgeOldArchives();
+                    _packagePrune.Prune();
                 }
                 finally
                 {
