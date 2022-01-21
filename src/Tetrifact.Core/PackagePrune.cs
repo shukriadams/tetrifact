@@ -63,12 +63,12 @@ namespace Tetrifact.Core
                 if (manifest == null)
                     continue;
 
-                if (weeklyPruneFloor != null && manifest.CreatedUtc < weeklyPruneFloor)
-                    weeklyPruneQueue.Add(packageId);
+                if (yearlyPrunedFloor != null && manifest.CreatedUtc < yearlyPrunedFloor)
+                    yearlyPruneQueue.Add(packageId);
                 else if (monthlyPruneFloor != null && manifest.CreatedUtc < monthlyPruneFloor)
                     monthlyPruneQueue.Add(packageId);
-                else if (yearlyPrunedFloor != null && manifest.CreatedUtc < yearlyPrunedFloor)
-                    yearlyPruneQueue.Add(packageId);
+                else if (weeklyPruneFloor != null && manifest.CreatedUtc < weeklyPruneFloor)
+                    weeklyPruneQueue.Add(packageId);
             }
 
             // weekly
@@ -85,7 +85,15 @@ namespace Tetrifact.Core
                 foreach (string packageId in prune)
                 {
                     _logger.LogInformation($"Pruning package {packageId}");
-                    //_indexReader.DeletePackage(packageId);
+
+                    try
+                    {
+                        _indexReader.DeletePackage(packageId);
+                    } 
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Prune failed for package {packageId}", ex);
+                    }
                 }
             }
         }
