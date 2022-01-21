@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
 using Tetrifact.Core;
 using Xunit;
 
@@ -52,7 +54,7 @@ namespace Tetrifact.Tests.IndexReader
         /// Verifies that hash mismatch between files on disk vs manifest hash returns error.
         /// </summary>
         [Fact]
-        public void HashInvalid()
+        public void FileHashInvalid()
         {
             // create package
             TestPackage package = PackageHelper.CreatePackage(Settings, "mypackage");
@@ -63,6 +65,27 @@ namespace Tetrifact.Tests.IndexReader
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
             Assert.Contains("expects hash", result.Item2);
+        }
+
+        /// <summary>
+        /// Verifies that hash mismatch between package and combined files in package returns error.
+        /// </summary>
+        [Fact]
+        public void PackageHashInvalid()
+        {
+            // create package
+            TestPackage package = PackageHelper.CreatePackage(Settings, "mypackage");
+
+            // corrupt the final hash in the manifest
+            string manifestPath = Path.Combine(this.Settings.PackagePath, package.Name, "manifest.json");
+            JObject json = JObject.Parse(File.ReadAllText(manifestPath));
+
+            json["Hash"] = "not-a-alid-hash";
+            File.WriteAllText(manifestPath, json.ToString());
+
+            (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
+            Assert.False(result.Item1);
+            Assert.Contains("does not match expected manifest hash", result.Item2);
         }
     }
 }

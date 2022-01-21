@@ -87,7 +87,11 @@ Unit test coverage is done with https://github.com/SteveGilham/altcover. To visu
 - after testing run 
 
     cd /src
-    reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./Tetrifact.Tests/coverage
+    reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./Tetrifact.Tests/coverage -assemblyfilters:+Tetrifact.*;-Tetrifact.Tests
+
+The HTML report is at
+
+    ./Tetrifact.Tests/coverage/index.html
 
 ## Architecture
 
