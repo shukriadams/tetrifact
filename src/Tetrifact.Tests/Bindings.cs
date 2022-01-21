@@ -30,6 +30,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<IThread>().To<ThreadDefault>();
+            Bind<IPackagePrune>().To<PackagePrune>();
         }
     }
 }

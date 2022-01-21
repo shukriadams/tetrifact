@@ -58,17 +58,17 @@ namespace Tetrifact.Core
 
         public string PruneIgnoreTags { get; set; }
 
-        public int MonthPruneThreshold { get; set; }
+        public int PruneMonthlyThreshold { get; set; }
 
-        public int MonthPruneKeep { get; set; }
+        public int PruneMonthlyKeep { get; set; }
 
-        public int WeeklyPruneThreshold { get; set; }
+        public int PruneWeeklyThreshold { get; set; }
 
-        public int WeeklyPruneKeep { get; set; }
+        public int PruneWeeklyKeep { get; set; }
 
-        public int YearlyPruneThreshold { get; set; }
+        public int PruneYearlyThreshold { get; set; }
 
-        public int YearlyPruneKeep { get; set; }
+        public int PruneYearlyKeep { get; set; }
 
         #endregion
 
@@ -92,22 +92,12 @@ namespace Tetrifact.Core
             this.IsStorageCompressionEnabled = false;
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
             this.PruneIgnoreTags = string.Empty;
-            this.WeeklyPruneThreshold = 20;
-            this.WeeklyPruneKeep = 7;
-            this.MonthPruneThreshold = 90;
-            this.MonthPruneThreshold = 4;
-            // cleanup
-            // enable
-            // keep tag
-            // monthly_threshhold
-            // monthly_keep
-
-            // weekly_threshhold
-            // weekly_keep
-
-            // yearly_threshhold
-            // yearly_keep
-
+            this.PruneWeeklyThreshold = 20;
+            this.PruneWeeklyKeep = 7;
+            this.PruneMonthlyThreshold = 90;
+            this.PruneMonthlyKeep = 4;
+            this.PruneYearlyKeep = 12;
+            this.PruneYearlyThreshold = 730;
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -116,6 +106,15 @@ namespace Tetrifact.Core
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
             this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
             this.IsStorageCompressionEnabled = this.GetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
+            this.Prune = this.GetSetting("PRUNE", this.Prune);
+            this.PruneIgnoreTags = this.GetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
+            this.PruneWeeklyThreshold = this.GetSetting("PRUNE_WEEKLY_THRESHOLD", this.PruneWeeklyThreshold);
+            this.PruneWeeklyKeep = this.GetSetting("PRUNE_WEEKLY_KEEP", this.PruneWeeklyKeep);
+            this.PruneMonthlyThreshold = this.GetSetting("PRUNE_MONTHLY_THRESHOLD", this.PruneMonthlyThreshold);
+            this.PruneMonthlyKeep = this.GetSetting("PRUNE_MONTHLY_KEEP", this.PruneMonthlyKeep);
+            this.PruneYearlyThreshold = this.GetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
+            this.PruneYearlyKeep = this.GetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
+
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);

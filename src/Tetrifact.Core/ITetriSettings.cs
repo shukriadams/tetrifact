@@ -113,31 +113,31 @@ namespace Tetrifact.Core
         /// <summary>
         /// Minimum age (in days) for a package to be applicable for monthly prune 
         /// </summary>
-        int MonthPruneThreshold { get; set; }
+        int PruneMonthlyThreshold { get; set; }
 
         /// <summary>
         /// Number of packages to keep per month. 
         /// </summary>
-        int MonthPruneKeep { get; set; }
+        int PruneMonthlyKeep { get; set; }
 
         /// <summary>
         /// Minimum age (in days) for a package to be applicable for weekly prune 
         /// </summary>
-        int WeeklyPruneThreshold { get; set; }
+        int PruneWeeklyThreshold { get; set; }
 
         /// <summary>
         /// Number of packages to keep per week.
         /// </summary>
-        int WeeklyPruneKeep { get; set; }
+        int PruneWeeklyKeep { get; set; }
 
         /// <summary>
         /// Minimum age (in days) for a package to be applicable for yearly prune 
         /// </summary>
-        int YearlyPruneThreshold { get; set; }
+        int PruneYearlyThreshold { get; set; }
 
         /// <summary>
         /// Number of packages to keep per year. 
         /// </summary>
-        int YearlyPruneKeep { get; set; }
+        int PruneYearlyKeep { get; set; }
     }
 }

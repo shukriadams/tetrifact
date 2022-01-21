@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 
@@ -60,9 +61,32 @@ namespace Tetrifact.Web
 
                     _busy = true;
 
-                    _repositoryCleaner.Clean();
-                    _indexService.PurgeOldArchives();
-                    _packagePrune.Prune();
+                    try 
+                    {
+                        _repositoryCleaner.Clean();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogError("Daemon repository clean error", ex);
+                    }
+
+                    try
+                    {
+                        _indexService.PurgeOldArchives();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogError("Daemon Purge archives error", ex);
+                    }
+
+                    try
+                    {
+                        _packagePrune.Prune();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogError("Daemon prune error", ex);
+                    }
                 }
                 finally
                 {
