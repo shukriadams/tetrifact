@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
@@ -54,6 +57,15 @@ namespace Tetrifact.Tests.PackageCreate
 
             // ensure that workspace has been cleaned up
             Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
+        }
+
+        /// <summary>
+        /// Ensure test coverage of default constructuro
+        /// </summary>
+        [Fact]
+        public void PackageCreateItem_DefaultConstructor_Cover()
+        { 
+            PackageCreateItem item = new PackageCreateItem();
         }
 
         /// <summary>
@@ -154,7 +166,6 @@ namespace Tetrifact.Tests.PackageCreate
 
             PackageCreate.CreatePackage(package);
             Assert.True(File.Exists(Path.Join(Settings.ArchivePath, "mypackage.zip")));
-
         }
     }
 }

@@ -40,5 +40,6 @@ namespace Tetrifact.Tests.PackageList
             Assert.Equal("tag1", tags.ElementAt(1));
 
         }
+
     }
 }

@@ -17,6 +17,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
+        /// <summary>
+        /// Default, for serialization support.
+        /// </summary>
         public PackageCreateItem()
         { }
 

@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Text;
-using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests

@@ -6,27 +6,26 @@ namespace Tetrifact.Tests.PackageList
 {
     public class Base : FileSystemBase, IDisposable
     {
-        protected IPackageList PackageList { get; private set; }
-        protected IPackageListCache PackageListCache { get; private set; }
-        protected new ITagsService TagService { get; private set; }
-        protected TestLogger<IPackageList> PackageListLogger { get; private set; }
-        protected TestLogger<ITagsService> TagServiceLogger { get; private set; }
-
-        private readonly IMemoryCache _memoryCache;
+        protected IPackageList PackageList { get; set; }
+        protected IPackageListCache PackageListCache { get; set; }
+        protected new ITagsService TagService { get; set; }
+        protected TestLogger<IPackageList> PackageListLogger { get; set; }
+        protected TestLogger<ITagsService> TagServiceLogger { get; set; }
+        protected IMemoryCache MemoryCache;
 
         public Base()
         {
-            _memoryCache = MemoryCacheHelper.GetInstance();
+            this.MemoryCache = MemoryCacheHelper.GetInstance();
             this.PackageListLogger = new TestLogger<IPackageList>();
             this.TagServiceLogger = new TestLogger<ITagsService>();
-            this.PackageListCache = new Core.PackageListCache(_memoryCache);
+            this.PackageListCache = new Core.PackageListCache(MemoryCache);
             this.TagService = new Core.TagsService(Settings, TagServiceLogger, PackageListCache);
-            this.PackageList = new Core.PackageList(_memoryCache, Settings, TagService, this.PackageListLogger);
+            this.PackageList = new Core.PackageList(MemoryCache, Settings, TagService, this.FileSystem, this.PackageListLogger);
         }
 
         public void Dispose()
         {
-            _memoryCache.Dispose();
+            MemoryCache.Dispose();
         }
     }
 }
