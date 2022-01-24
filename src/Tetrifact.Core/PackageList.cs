@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace Tetrifact.Core
@@ -19,6 +20,8 @@ namespace Tetrifact.Core
 
         private readonly IMemoryCache _cache;
 
+        private readonly IFileSystem _fileSystem;
+
         private readonly ITetriSettings _settings;
 
         private readonly ILogger<IPackageList> _logger;
@@ -31,12 +34,13 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ITagsService tagService, ILogger<IPackageList> logger)
+        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
+            _fileSystem = fileSystem;
         }
 
         #endregion
@@ -115,8 +119,7 @@ namespace Tetrifact.Core
         private IList<Package> GeneratePackageData()
         {
             IList<Package> packageData = new List<Package>();
-
-            DirectoryInfo dirInfo = new DirectoryInfo(_settings.PackagePath);
+            IDirectoryInfo dirInfo = this._fileSystem.DirectoryInfo.FromDirectoryName(_settings.PackagePath);
             IEnumerable<string> packageDirectories = dirInfo.EnumerateDirectories().Select(d => d.FullName);
             Dictionary<string, IEnumerable<string>> packagesThenTags = _tagService.GetPackagesThenTags();
 
@@ -129,7 +132,7 @@ namespace Tetrifact.Core
                     if (!File.Exists(manifestHeadPath))
                     {
                         string manifestPath = Path.Join(packageDirectory, "manifest.json");
-                        if (!File.Exists(manifestPath))
+                        if (!_fileSystem.File.Exists(manifestPath))
                             continue;
 
                         Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
