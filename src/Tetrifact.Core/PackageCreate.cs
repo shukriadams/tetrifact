@@ -124,11 +124,6 @@ namespace Tetrifact.Core
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Unexpected error");
-                return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError };
-            }
             finally
             {
                 if (!string.IsNullOrEmpty(newPackage.Id))
