@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -11,7 +13,7 @@ namespace Tetrifact.Web
 
         private readonly IIndexReader _indexService;
         private readonly IRepositoryCleaner _repositoryCleaner;
-
+        private readonly ILogger<CleanController> _log;
         #endregion
 
         #region CTORS
@@ -23,10 +25,11 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(IRepositoryCleaner repositoryCleaner, IIndexReader indexService)
+        public CleanController(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, ILogger<CleanController> log)
         {
             _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;
+            _log = log;
         }
 
         #endregion
@@ -41,15 +44,24 @@ namespace Tetrifact.Web
         [HttpGet("")]
         public ActionResult Clean()
         {
-            _repositoryCleaner.Clean();
-            _indexService.PurgeOldArchives();
-            return new JsonResult(new
+            try 
             {
-                success = new
+                _repositoryCleaner.Clean();
+                _indexService.PurgeOldArchives();
+
+                return new JsonResult(new
                 {
-                    description = "Clean complete"
-                }
-            });
+                    success = new
+                    {
+                        description = "Clean complete"
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError(ex.Message);
+            }
         }
 
         #endregion
