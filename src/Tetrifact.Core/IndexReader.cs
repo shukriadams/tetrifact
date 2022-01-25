@@ -294,6 +294,7 @@ namespace Tetrifact.Core
                 try 
                 { 
                     File.Delete(archivePathTemp);
+                    _logger.LogInformation($"Deleted abandoned temp archive for {packageId}");
                 }
                 catch (IOException)
                 {

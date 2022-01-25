@@ -25,5 +25,19 @@ namespace Tetrifact.Tests
         {
             LogEntries.Add($"{logLevel.ToString()}:{formatter(state, exception)}");
         }
+
+        /// <summary>
+        /// Helper method - returns true if any of the log entries contains the string fragment
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public bool ContainsFragment(string fragment)
+        { 
+            foreach (string logEntry in this.LogEntries)
+                if (!string.IsNullOrEmpty(logEntry) && logEntry.Contains(fragment))
+                    return true;
+
+            return false;
+        }
     }
 }

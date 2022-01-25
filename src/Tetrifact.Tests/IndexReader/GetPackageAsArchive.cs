@@ -179,5 +179,53 @@ namespace Tetrifact.Tests.IndexReader
             Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
             Assert.Contains("Failed to find expected package file", ex.Message);
         }
+
+        /// <summary>
+        /// Ensure that existing temp file is deleted if new archive is generated
+        /// </summary>
+        [Fact]
+        public void GetArchive_Preexisting_tempFile()
+        {
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+
+            // create abandoned tempfile for this package archive
+            string tempArchivePath = IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            Directory.CreateDirectory(Path.GetDirectoryName(tempArchivePath));
+            File.WriteAllText(tempArchivePath, string.Empty);
+
+            // remove wait time, 
+            Settings.ArchiveWaitTimeout = 0;
+
+            // attempt to start a new archive generation, this should exit immediately
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            {
+                Assert.True(Logger.ContainsFragment($"Deleted abandoned temp archive for {testPackage.Name}"));
+            }
+        }
+
+        /// <summary>
+        /// Ensure graceful handling of locked temp file from previous archive generating attempt
+        /// </summary>
+        [Fact]
+        public void GetArchive_Preexisting_locked_tempFile()
+        {
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+
+            // create and lock tempfile for this package archive
+            string tempArchivePath = IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            Directory.CreateDirectory(Path.GetDirectoryName(tempArchivePath));
+            File.WriteAllText(tempArchivePath, string.Empty);
+            
+            // remove wait time, 
+            Settings.ArchiveWaitTimeout = 0;
+
+            using (Stream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                // attempt to start a new archive generation, this should exit immediately
+                TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
+                Assert.NotNull(ex);
+                Assert.True(Logger.ContainsFragment("skipped, existing process detected"));
+            }
+        }
     }
 }
