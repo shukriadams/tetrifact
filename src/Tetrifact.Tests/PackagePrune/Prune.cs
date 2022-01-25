@@ -97,9 +97,9 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Missing_Manifest()
         {
-            MockRepository repository = new MockRepository(MockBehavior.Loose) { DefaultValue = DefaultValue.Mock, CallBase = true };
-
             Settings.PruneWeeklyKeep = 0;
+
+            MockRepository repository = new MockRepository(MockBehavior.Loose) { DefaultValue = DefaultValue.Mock, CallBase = true };
             Mock<Core.IndexReader> mockedIndexReader = repository.Create<Core.IndexReader>(Settings, ThreadDefault, TagService, Logger, FileSystem, HashServiceHelper.Instance());
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))

@@ -160,9 +160,6 @@ namespace Tetrifact.Core
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    if (entry == null)
-                        continue;
-
                     // if .Name is empty it's a directory
                     if (string.IsNullOrEmpty(entry.Name))
                         continue;

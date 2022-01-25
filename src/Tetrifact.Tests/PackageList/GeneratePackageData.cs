@@ -18,9 +18,14 @@ namespace Tetrifact.Tests.PackageList
 
             IFileSystem mockFileSystem = Mock.Of<IFileSystem>();
             // must have a directory of some kind
-            Mock.Get(mockFileSystem).Setup(f => f.DirectoryInfo.FromDirectoryName(It.IsAny<string>()).EnumerateDirectories()).Returns(new List<IDirectoryInfo> { FileSystem.DirectoryInfo.FromDirectoryName("/some/path"), FileSystem.DirectoryInfo.FromDirectoryName("/some/path2") });
+            Mock.Get(mockFileSystem)
+                .Setup(f => f.DirectoryInfo.FromDirectoryName(It.IsAny<string>()).EnumerateDirectories())
+                .Returns(new List<IDirectoryInfo> { FileSystem.DirectoryInfo.FromDirectoryName("/some/path"), FileSystem.DirectoryInfo.FromDirectoryName("/some/path2") });
+
             // force manifest file lookup to find nothing
-            Mock.Get(mockFileSystem).Setup(f => f.File.Exists(It.IsAny<string>())).Returns(false);
+            Mock.Get(mockFileSystem)
+                .Setup(f => f.File.Exists(It.IsAny<string>()))
+                .Returns(false);
 
             // do something to cover manifest file lookup
             this.PackageList = new Core.PackageList(this.MemoryCache, Settings, TagService, mockFileSystem, this.PackageListLogger);
