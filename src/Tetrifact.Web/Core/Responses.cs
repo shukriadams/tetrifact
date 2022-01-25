@@ -51,6 +51,18 @@ namespace Tetrifact.Web
             });
         }
 
+        public static BadRequestObjectResult UnexpectedError(string message)
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 101,
+                    description = message
+                }
+            });
+        }
+
         /// <summary>
         /// 
         /// </summary>
