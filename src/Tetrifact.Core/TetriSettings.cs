@@ -92,12 +92,12 @@ namespace Tetrifact.Core
             this.IsStorageCompressionEnabled = false;
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
             this.PruneIgnoreTags = string.Empty;
-            this.PruneWeeklyThreshold = 20;
-            this.PruneWeeklyKeep = 7;
-            this.PruneMonthlyThreshold = 90;
+            this.PruneWeeklyKeep = 7; 
             this.PruneMonthlyKeep = 4;
             this.PruneYearlyKeep = 12;
-            this.PruneYearlyThreshold = 730;
+            this.PruneWeeklyThreshold = 21; // 3 weeks for weekly prune to kick in
+            this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
+            this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");

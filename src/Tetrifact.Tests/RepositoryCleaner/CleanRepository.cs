@@ -6,6 +6,9 @@ using System;
 
 namespace Tetrifact.Tests.repositoryCleaner
 {
+    /// <summary>
+    /// Note : renaming this class to just "clean" consistently produces race condition errors
+    /// </summary>
     public class CleanRepository : FileSystemBase
     {
         private readonly IRepositoryCleaner _respositoryCleaner;
@@ -77,36 +80,49 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Callback(() => {
                     throw new Exception("!unhandled!");
                 });
-            RepositoryCleaner respositoryCleaner = new RepositoryCleaner(mockIndexReader, Settings, _logger);
+            RepositoryCleaner mockedCleaner = new RepositoryCleaner(mockIndexReader, Settings, _logger);
 
             Exception ex = Assert.Throws<Exception>(() => {
-                respositoryCleaner.Clean();
+                mockedCleaner.Clean();
             });
 
             Assert.Equal("!unhandled!", ex.Message);
         }
 
-        /*
+        /// <summary>
+        /// Coverage test to ensure EnsureNoLock() method is walked
+        /// </summary>
         [Fact]
-        public void LinkLocked()
+        public void EnsureNoLock_Coverage()
         {
-            TestPackage package = base.CreatePackage();
-            Core.LinkLock.Instance.Lock(package.Name);
-            Settings.LinkLockWaitTime = 1; // millisecond
-            int ticks = 0;
-
-
-            Task.Run(() =>
-            {
-                _respositoryCleaner.Clean();
-            });
-            
-            while(ticks < 10){
-                ticks ++;    
-                Thread.Sleep(10);
-            }
-            Core.LinkLock.Instance.Lock(package.Name);            
+            Core.LinkLock.Instance.Lock("some-package");
+            _respositoryCleaner.Clean();
+            Assert.True(_logger.ContainsFragment("Clean aborted, lock detected"));
         }
-        */
-    }
+
+
+
+        /*
+            [Fact]
+            public void LinkLocked()
+            {
+                TestPackage package = base.CreatePackage();
+                Core.LinkLock.Instance.Lock(package.Name);
+                Settings.LinkLockWaitTime = 1; // millisecond
+                int ticks = 0;
+
+
+                Task.Run(() =>
+                {
+                    _respositoryCleaner.Clean();
+                });
+
+                while(ticks < 10){
+                    ticks ++;    
+                    Thread.Sleep(10);
+                }
+                Core.LinkLock.Instance.Lock(package.Name);            
+            }
+            */
+        }
 }

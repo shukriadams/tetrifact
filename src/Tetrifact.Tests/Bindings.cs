@@ -22,7 +22,7 @@ namespace Tetrifact.Tests
             Bind<IPackageCreate>().To<Core.PackageCreate>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<IThread>().To<ThreadDefault>();
-            Bind<IPackagePrune>().To<PackagePrune>();
+            Bind<IPackagePrune>().To<Core.PackagePrune>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
             Bind<ILogger<CleanController>>().To<TestLogger<CleanController>>();
             Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();

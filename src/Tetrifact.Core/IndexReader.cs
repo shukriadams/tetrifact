@@ -75,7 +75,7 @@ namespace Tetrifact.Core
             return Directory.Exists(packagePath);
         }
 
-        public Manifest GetManifest(string packageId)
+        public virtual Manifest GetManifest(string packageId)
         {
             string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
             if (!File.Exists(filePath))
@@ -212,7 +212,7 @@ namespace Tetrifact.Core
             return (true, string.Empty);
         }
 
-        public void DeletePackage(string packageId)
+        public virtual void DeletePackage(string packageId)
         {
             Manifest manifest = this.GetManifest(packageId);
             if (manifest == null)

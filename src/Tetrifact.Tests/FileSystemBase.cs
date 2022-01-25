@@ -17,6 +17,7 @@ namespace Tetrifact.Tests
         protected IIndexReader IndexReader;
         protected ITagsService TagService;
         protected IFileSystem FileSystem;
+        protected ThreadDefault ThreadDefault;
 
         public FileSystemBase()
         {
@@ -43,7 +44,9 @@ namespace Tetrifact.Tests
                 Settings,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            IndexReader = new Core.IndexReader(Settings, new Core.ThreadDefault(), TagService, Logger, FileSystem, HashServiceHelper.Instance());
+            ThreadDefault = new Core.ThreadDefault();
+
+            IndexReader = new Core.IndexReader(Settings, ThreadDefault, TagService, Logger, FileSystem, HashServiceHelper.Instance());
             Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }

@@ -8,6 +8,11 @@ namespace Tetrifact.Tests
 {
     public class PackageHelper
     {
+        public static string GetManifestPath(ITetriSettings settings, string packageName)
+        {
+            return Path.Combine(settings.PackagePath, packageName, "manifest.json");
+        }
+
         /// <summary>
         /// Writes a manifest directly. does not generate files. Use this for manifest tests only where you need control of the manifest.
         /// </summary>

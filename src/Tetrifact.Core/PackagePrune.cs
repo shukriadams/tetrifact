@@ -17,6 +17,8 @@ namespace Tetrifact.Core
 
         #endregion
 
+        #region CTORS
+
         public PackagePrune(ITetriSettings settings, IIndexReader indexReader, ILogger<IPackagePrune> logger)
         {
             _settings = settings;
@@ -24,23 +26,9 @@ namespace Tetrifact.Core
             _logger = logger;
         }
 
-        private void CalculatePrune(IList<string> queue, ref IEnumerable<string> prune, int keep, string context)
-        {
-            if (queue.Count < keep || keep == 0)
-                return;
+        #endregion
 
-            IEnumerable<string> take = queue
-                // randomize
-                .OrderBy(n => Guid.NewGuid())
-                // take excess
-                .Take(queue.Count - keep);
-
-            if (take.Count() > 0)
-            { 
-                _logger.LogInformation($"Found {take.Count()} packages for {context} prune.");
-                prune = prune.Concat(take);
-            }
-        }
+        #region METHODS
 
         public void Prune()
         { 
@@ -60,8 +48,10 @@ namespace Tetrifact.Core
             foreach (string packageId in packageIds)
             {
                 Manifest manifest = _indexReader.GetManifest(packageId);
-                if (manifest == null)
+                if (manifest == null){
+                    _logger.LogWarning($"Expected manifest for package {packageId} was not found, skipping.");
                     continue;
+                }
 
                 if (yearlyPrunedFloor != null && manifest.CreatedUtc < yearlyPrunedFloor)
                     yearlyPruneQueue.Add(packageId);
@@ -97,5 +87,25 @@ namespace Tetrifact.Core
                 }
             }
         }
+
+        private void CalculatePrune(IList<string> queue, ref IEnumerable<string> prune, int keep, string context)
+        {
+            if (queue.Count < keep || keep == 0)
+                return;
+
+            IEnumerable<string> take = queue
+                // randomize
+                .OrderBy(n => Guid.NewGuid())
+                // take excess
+                .Take(queue.Count - keep);
+
+            if (take.Count() > 0)
+            {
+                _logger.LogInformation($"Found {take.Count()} packages for {context} prune.");
+                prune = prune.Concat(take);
+            }
+        }
+
+        #endregion
     }
 }
