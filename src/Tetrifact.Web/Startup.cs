@@ -127,27 +127,16 @@ namespace Tetrifact.Web
             app.UseRouting();
             app.UseResponseCompression();
 
-            // initialize indexes
             IServiceProvider serviceProvider = app.ApplicationServices;
-            IEnumerable<IIndexReader> indexReaders = serviceProvider.GetServices<IIndexReader>();
-            foreach (IIndexReader indexReader in indexReaders)
-                indexReader.Initialize();
-
-            Daemon daemon = serviceProvider.GetService<Daemon>();
-            int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
-                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
-
-            daemon.Start(daemonInterval);
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
+            int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
 
             ITetriSettings settings = serviceProvider.GetService<ITetriSettings>();
             Console.WriteLine("*********************************************************************");
-            Console.WriteLine("TETRIFACT SERVER running");
+            Console.WriteLine("TETRIFACT SERVER starting");
             Console.WriteLine("");
             Console.WriteLine("Settings:");
             Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
@@ -171,6 +160,20 @@ namespace Tetrifact.Web
             Console.WriteLine($"Tags path: {settings.TagsPath}");
             Console.WriteLine($"Temp path: {settings.TempPath}");
             Console.WriteLine("*********************************************************************");
+
+            // initialize indexes
+            IEnumerable<IIndexReader> indexReaders = serviceProvider.GetServices<IIndexReader>();
+            foreach (IIndexReader indexReader in indexReaders)
+                indexReader.Initialize();
+            Console.WriteLine("Indexes initialized");
+
+            // start daemon
+            Daemon daemon = serviceProvider.GetService<Daemon>();
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
+                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+
+            daemon.Start(daemonInterval);
+            Console.WriteLine("Daemon started");
         }
     }
 }
