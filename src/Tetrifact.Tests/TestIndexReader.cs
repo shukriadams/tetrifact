@@ -113,6 +113,11 @@ namespace Tetrifact.Tests
             return (false, string.Empty);
         }
 
+        public Manifest GetExpectedManifest(string packageId)
+        {
+            return this.Test_Manifest;
+        }
+
         #endregion
     }
 }

@@ -28,6 +28,8 @@ namespace Tetrifact.Web
         private readonly IPackageList _packageList;
         private readonly ITetriSettings _settings;
         private readonly IPackageListCache _packageListCache;
+        private readonly IPackageDiffService _packageDiffService;
+
         #endregion
 
         #region CTORS
@@ -40,13 +42,14 @@ namespace Tetrifact.Web
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, IPackageListCache packageListCache, IIndexReader indexService, ITetriSettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageList packageList, IPackageListCache packageListCache, IIndexReader indexService, IPackageDiffService packageDiffService, ITetriSettings settings, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;
             _packageListCache = packageListCache;
             _indexService = indexService;
             _settings = settings;
+            _packageDiffService = packageDiffService;
             _log = log;
         }
 
@@ -117,6 +120,37 @@ namespace Tetrifact.Web
 
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        [ServiceFilter(typeof(ReadLevel))]
+        [HttpGet("diff/{packageA}/{packageB}")]
+        public ActionResult GetPackagesDiff(string packageA, string packageB)
+        {
+            try
+            {
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        packagesDiff = _packageDiffService.GetDifference(packageA, packageB)
+                    }
+                });
+            }
+            catch (PackageNotFoundException ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.NotFoundError(this, $"Package {ex.PackageId} does not exist");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError();
+            }
+        }
+
+        /// <summary>
         /// Get rid of this, use GetPackage instead
         /// Returns 1 if the package exists, 0 if not
         /// </summary>
@@ -134,7 +168,6 @@ namespace Tetrifact.Web
                 }
             });
         }
-
 
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("{packageId}/verify")]

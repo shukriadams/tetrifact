@@ -46,6 +46,13 @@ namespace Tetrifact.Core
         Manifest GetManifest(string packageId);
 
         /// <summary>
+        /// Returns a manifest. Throws exception if manifest not found.
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        Manifest GetExpectedManifest(string packageId);
+
+        /// <summary>
         /// Gets a file from a package, as a binary array. Returns null if the package or file is invalid.
         /// file fileIdentifier is file path + "::" + file hash, base64 encoded.
         /// </summary>

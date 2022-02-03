@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.IO.Abstractions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests.TagsService

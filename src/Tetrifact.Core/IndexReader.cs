@@ -55,6 +55,7 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(_settings.TempPath);
             Directory.CreateDirectory(_settings.RepositoryPath);
             Directory.CreateDirectory(_settings.TagsPath);
+            Directory.CreateDirectory(_settings.PackageDiffsPath);
         }
 
         public IEnumerable<string> GetAllPackageIds()
@@ -73,6 +74,15 @@ namespace Tetrifact.Core
         {
             string packagePath = Path.Join(_settings.PackagePath, id);
             return Directory.Exists(packagePath);
+        }
+
+        public virtual Manifest GetExpectedManifest(string packageId)
+        { 
+            Manifest manifest = this.GetManifest(packageId);
+            if (manifest == null)
+                throw new PackageNotFoundException(packageId);
+
+            return manifest;
         }
 
         public virtual Manifest GetManifest(string packageId)

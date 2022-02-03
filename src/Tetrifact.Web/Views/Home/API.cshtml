@@ -4,12 +4,34 @@
 }
 
 <div>
-    <p>
-        <ul>
-            <li><a href="/v1/packages">get list of package ids</a></li>
-            <li><a href="/v1/packages/latest/myTag">Gets the latest package with a given tag</a></li>
-            <li><a href="/v1/packages?isFull=true">get detailed list of packages</a></li>
-            <li><a href="/v1/packages/myPackage/exists">Check if package exists</a></li>
-        </ul>
-    </p>
+    <ul>
+        <li>
+            <p>
+                Gets a list of all package ids
+            </p>
+            <a href="/v1/packages">/v1/packages</a>
+            <hr />
+        </li>
+        <li>
+            <p>
+                Get a detailed list of packages
+            </p>
+            <a href="/v1/packages?isFull=true">/v1/packages?isFull=true</a>
+            <hr />
+        </li>
+        <li>
+            <p>
+                Gets the latest package with a given tag
+            </p>
+            <a href="/v1/packages/latest/myTag">/v1/packages/latest/myTag</a>
+            <hr />
+        </li>
+        <li>
+            <p>
+                Gets if package exists
+            </p>
+            <a href="/v1/packages/myPackage/exists">/v1/packages/myPackage/exists</a>
+            <hr />
+        </li>
+    </ul>
 </div>

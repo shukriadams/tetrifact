@@ -26,6 +26,8 @@ namespace Tetrifact.Core
 
         public string TagsPath { get; set; }
 
+        public string PackageDiffsPath { get; set; }
+
         public int ArchiveAvailablePollInterval { get; set; }
 
         public int ArchiveWaitTimeout { get; set; }
@@ -105,6 +107,8 @@ namespace Tetrifact.Core
             this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
             this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
+            this.PackageDiffsPath = Environment.GetEnvironmentVariable("PACKAGE_DIFFS_PATH");
+
             this.IsStorageCompressionEnabled = this.GetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
             this.Prune = this.GetSetting("PRUNE", this.Prune);
             this.PruneIgnoreTags = this.GetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
@@ -133,6 +137,9 @@ namespace Tetrifact.Core
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
 
             // fall back to defaults
+            if (string.IsNullOrEmpty(PackageDiffsPath))
+                PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
+
             if (string.IsNullOrEmpty(PackagePath))
                 PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
 

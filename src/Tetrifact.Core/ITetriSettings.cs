@@ -31,6 +31,11 @@ namespace Tetrifact.Core
         string TagsPath { get; set; }
 
         /// <summary>
+        /// Folder where diffs between packages are written to.
+        /// </summary>
+        string PackageDiffsPath { get; set; }
+
+        /// <summary>
         /// Interval at which archive's existence will be polled. In milliseconds.
         /// </summary>
         int ArchiveAvailablePollInterval { get; set; }

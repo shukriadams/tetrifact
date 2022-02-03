@@ -58,6 +58,7 @@ namespace Tetrifact.Web
             services.AddTransient<Daemon, Daemon>();
             services.AddTransient<IThread, ThreadDefault>();
             services.AddTransient<IPackagePrune, PackagePrune>();
+            services.AddTransient<IPackageDiffService, PackageDiffService>();
 
             // register filterws
             services.AddScoped<ReadLevel>();
