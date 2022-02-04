@@ -19,7 +19,7 @@ namespace Tetrifact.Tests.IndexReader
         public void GetDefault()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
-            Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
+            Assert.Equal(0, this.IndexReader.GetPackageArchiveStatus(testPackage.Id));
         }
 
         [Fact]
@@ -28,9 +28,9 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
             
             // mock temp archive
-            File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath(testPackage.Name), string.Empty);
+            File.WriteAllText(this.IndexReader.GetPackageArchiveTempPath(testPackage.Id), string.Empty);
 
-            Assert.Equal(1, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
+            Assert.Equal(1, this.IndexReader.GetPackageArchiveStatus(testPackage.Id));
         }
 
         [Fact]
@@ -40,9 +40,9 @@ namespace Tetrifact.Tests.IndexReader
 
             // mock temp archive
 
-            File.WriteAllText(this.IndexReader.GetPackageArchivePath(testPackage.Name), string.Empty);
+            File.WriteAllText(this.IndexReader.GetPackageArchivePath(testPackage.Id), string.Empty);
 
-            Assert.Equal(2, this.IndexReader.GetPackageArchiveStatus(testPackage.Name));
+            Assert.Equal(2, this.IndexReader.GetPackageArchiveStatus(testPackage.Id));
         }
     }
 }

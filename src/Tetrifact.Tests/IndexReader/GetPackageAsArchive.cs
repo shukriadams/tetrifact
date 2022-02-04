@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.IndexReader
         public void GetBasic()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
-            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
                 Assert.Single(items);
@@ -35,10 +35,10 @@ namespace Tetrifact.Tests.IndexReader
         public void GetExistingArchive()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
-            using (Stream testContent1 = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            using (Stream testContent1 = this.IndexReader.GetPackageAsArchive(testPackage.Id))
             {
                 // get again
-                using (Stream testContent2 = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+                using (Stream testContent2 = this.IndexReader.GetPackageAsArchive(testPackage.Id))
                 {
                     Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
                     Assert.Single(items);
@@ -76,13 +76,13 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock a temp archive file and lock it to simulate an ongoing zip
-            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath(testPackage.Id);
             File.WriteAllText(tempArchivePath, string.Empty);
 
             using (Stream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 Assert.Throws<TimeoutException>(() => {
-                    using (Stream zipStream = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+                    using (Stream zipStream = this.IndexReader.GetPackageAsArchive(testPackage.Id))
                     {
                         // do nothing, exception expected
                     }
@@ -100,11 +100,11 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // create a fake archive temp file so GetPackageAsArchive() goes into wait state
-            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            string tempArchivePath = this.IndexReader.GetPackageArchiveTempPath(testPackage.Id);
             File.WriteAllText(tempArchivePath, string.Empty);
 
             // seeing as our fake temp archive bypasses archive creation, we should make a fake archive too, it should just be a file
-            string archivePath = this.IndexReader.GetPackageArchivePath(testPackage.Name);
+            string archivePath = this.IndexReader.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, "some-fake-archive-content");
 
             // lock the temp archive so it doesn't get auto-clobbered
@@ -122,7 +122,7 @@ namespace Tetrifact.Tests.IndexReader
                 // make a custom reader with our mocked Thread
                 IIndexReader indexReader = new Core.IndexReader(this.Settings, mockThread, this.TagService, this.Logger, new FileSystem(), HashServiceHelper.Instance());
 
-                using (Stream zipStream = indexReader.GetPackageAsArchive(testPackage.Name))
+                using (Stream zipStream = indexReader.GetPackageAsArchive(testPackage.Id))
                 {
                     // confirm we got our fake archive content back
                     Assert.Equal("some-fake-archive-content", StreamsHelper.StreamToString(zipStream));
@@ -139,7 +139,7 @@ namespace Tetrifact.Tests.IndexReader
             base.Settings.IsStorageCompressionEnabled = true;
 
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
-            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
                 Assert.Single(items);
@@ -158,7 +158,7 @@ namespace Tetrifact.Tests.IndexReader
             // delete known package file via disk
             File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
-            Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
+            Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Id); });
             Assert.Contains("Failed to find expected package file", ex.Message);
         }
 
@@ -176,7 +176,7 @@ namespace Tetrifact.Tests.IndexReader
             // delete known package file via disk
             File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
-            Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
+            Exception ex = Assert.Throws<Exception>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Id); });
             Assert.Contains("Failed to find expected package file", ex.Message);
         }
 
@@ -189,7 +189,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // create abandoned tempfile for this package archive
-            string tempArchivePath = IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            string tempArchivePath = IndexReader.GetPackageArchiveTempPath(testPackage.Id);
             Directory.CreateDirectory(Path.GetDirectoryName(tempArchivePath));
             File.WriteAllText(tempArchivePath, string.Empty);
 
@@ -197,9 +197,9 @@ namespace Tetrifact.Tests.IndexReader
             Settings.ArchiveWaitTimeout = 0;
 
             // attempt to start a new archive generation, this should exit immediately
-            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Name))
+            using (Stream testContent = this.IndexReader.GetPackageAsArchive(testPackage.Id))
             {
-                Assert.True(Logger.ContainsFragment($"Deleted abandoned temp archive for {testPackage.Name}"));
+                Assert.True(Logger.ContainsFragment($"Deleted abandoned temp archive for {testPackage.Id}"));
             }
         }
 
@@ -212,7 +212,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // create and lock tempfile for this package archive
-            string tempArchivePath = IndexReader.GetPackageArchiveTempPath(testPackage.Name);
+            string tempArchivePath = IndexReader.GetPackageArchiveTempPath(testPackage.Id);
             Directory.CreateDirectory(Path.GetDirectoryName(tempArchivePath));
             File.WriteAllText(tempArchivePath, string.Empty);
             
@@ -222,7 +222,7 @@ namespace Tetrifact.Tests.IndexReader
             using (Stream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // attempt to start a new archive generation, this should exit immediately
-                TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Name); });
+                TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.IndexReader.GetPackageAsArchive(testPackage.Id); });
                 Assert.NotNull(ex);
                 Assert.True(Logger.ContainsFragment("skipped, existing process detected"));
             }

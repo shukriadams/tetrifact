@@ -53,7 +53,7 @@ namespace Tetrifact.Tests
                 Content = content,
                 Path = $"path/to/{packageName}",
                 Hash = HashServiceHelper.Instance().FromByteArray(content),
-                Name = packageName
+                Id = packageName
             };
 
             string filePathHash = HashServiceHelper.Instance().FromString(testPackage.Path);
@@ -64,8 +64,8 @@ namespace Tetrifact.Tests
             IWorkspace workspace = new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance());
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
-            workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Name);
-            workspace.WriteManifest(testPackage.Name, HashServiceHelper.Instance().FromString(filePathHash+ testPackage.Hash));
+            workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);
+            workspace.WriteManifest(testPackage.Id, HashServiceHelper.Instance().FromString(filePathHash+ testPackage.Hash));
 
             return testPackage;
         }

@@ -23,6 +23,6 @@
         /// <summary>
         /// Name of package
         /// </summary>
-        public string Name;
+        public string Id;
     }
 }

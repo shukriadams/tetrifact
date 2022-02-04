@@ -13,8 +13,8 @@ namespace Tetrifact.Tests.TagsService
             string[] tags = new[] { "mytag" };
 
             foreach (string tag in tags) {
-                base.TagsService.AddTag(package.Name, tag);
-                base.TagsService.RemoveTag(package.Name, tag);
+                base.TagsService.AddTag(package.Id, tag);
+                base.TagsService.RemoveTag(package.Id, tag);
             }
 
             IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);

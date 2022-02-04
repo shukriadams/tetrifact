@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.TagsService
             string[] tags = new[] { "mytag", "mytag3" };
 
             foreach (string tag in tags){
-                base.TagsService.AddTag(package.Name, tag);
+                base.TagsService.AddTag(package.Id, tag);
             }
 
             IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);

@@ -15,7 +15,7 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
-            this.IndexReader.DeletePackage(testPackage.Name);
+            this.IndexReader.DeletePackage(testPackage.Id);
 
             Assert.False(File.Exists(Path.Combine(this.Settings.PackagePath, "manifest.json" )));
         }
@@ -29,10 +29,10 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock archive
-            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Name);
+            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
-            this.IndexReader.DeletePackage(testPackage.Name);
+            this.IndexReader.DeletePackage(testPackage.Id);
 
             Assert.False(File.Exists(archivePath));
         }
@@ -44,7 +44,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock archive
-            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Name);
+            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // force create dummy zip file in archive folder
@@ -56,7 +56,7 @@ namespace Tetrifact.Tests.IndexReader
                 // force write something to stream to ensure it locks
                 fs.Write(Encoding.ASCII.GetBytes("random"));
 
-                this.IndexReader.DeletePackage(testPackage.Name);
+                this.IndexReader.DeletePackage(testPackage.Id);
 
                 Assert.Single(base.Logger.LogEntries);
                 Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
@@ -81,14 +81,14 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock its archive
-            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Name);
+            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // lock the archive by opening a read stream on it
             using(new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // no need to assert, this test is for coverage, and all we want is no exception to be thrown here
-                this.IndexReader.DeletePackage(testPackage.Name);
+                this.IndexReader.DeletePackage(testPackage.Id);
             }
         }
 
@@ -104,7 +104,7 @@ namespace Tetrifact.Tests.IndexReader
             PackageListCache PackageListCache = new PackageListCache(_memoryCache);
             ITagsService tagsService = new Core.TagsService(this.Settings, new TestLogger<ITagsService>(), PackageListCache);
             
-            tagsService.AddTag(testPackage.Name, "mytag");
+            tagsService.AddTag(testPackage.Id, "mytag");
 
             string[] tagDirectories = Directory.GetDirectories(Path.Join(this.Settings.TagsPath));
             Assert.Single(tagDirectories); // should be 1 only
@@ -116,7 +116,7 @@ namespace Tetrifact.Tests.IndexReader
             using (new FileStream(tagSubscribers.First(), FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // no need to assert, this test is for coverage, and all we want is no exception to be thrown here
-                this.IndexReader.DeletePackage(testPackage.Name);
+                this.IndexReader.DeletePackage(testPackage.Id);
             }
         }
     }

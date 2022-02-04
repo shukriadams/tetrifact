@@ -13,8 +13,8 @@ namespace Tetrifact.Tests.TagsService
             TestPackage package1 = PackageHelper.CreatePackage(this.Settings, "package1");
             TestPackage package2 = PackageHelper.CreatePackage(this.Settings, "package2");
             foreach (string tag in tags) {
-                base.TagsService.AddTag(package1.Name, tag);
-                base.TagsService.AddTag(package2.Name, tag);
+                base.TagsService.AddTag(package1.Id, tag);
+                base.TagsService.AddTag(package2.Id, tag);
             }
 
             IEnumerable<string> packageIds = base.TagsService.GetPackageIdsWithTags(tags);

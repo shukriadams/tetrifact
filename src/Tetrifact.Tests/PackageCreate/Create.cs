@@ -65,7 +65,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void PackageCreateItem_DefaultConstructor_Cover()
         { 
-            PackageCreateItem item = new PackageCreateItem();
+            new PackageCreateItem();
         }
 
         /// <summary>

@@ -17,10 +17,10 @@ namespace Tetrifact.Tests.TagsService
             string[] tags = new[] { "mytag" };
 
             foreach (string tag in tags) { 
-               base.TagsService.AddTag(package.Name, tag);
+               base.TagsService.AddTag(package.Id, tag);
             }
 
-            base.IndexReader.DeletePackage(package.Name);
+            base.IndexReader.DeletePackage(package.Id);
             IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }

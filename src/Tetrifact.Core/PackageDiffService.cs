@@ -24,13 +24,6 @@ namespace Tetrifact.Core
             _logger = logger;
         }
 
-        private Tuple<string, string> Sort(string packageA, string packageB)
-        {
-            List<string> test = new string[] { packageA, packageB }.ToList();
-            test.Sort();
-            return new Tuple<string, string>(test[0], test[1]);
-        }
-
         public PackageDiff GetDifference (string upstreamPackageId, string downstreamPackageId)
         {
             string diffFilePath = Path.Join( _settings.PackageDiffsPath, Obfuscator.Cloak(downstreamPackageId), Obfuscator.Cloak(upstreamPackageId));
