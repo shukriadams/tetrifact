@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading;
 
 namespace Tetrifact.Core
 {
@@ -58,12 +59,49 @@ namespace Tetrifact.Core
             { 
                 Manifest manifestA = _indexReader.GetExpectedManifest(packageA);
                 Manifest manifestB = _indexReader.GetExpectedManifest(packageB);
+                List<ManifestItem> diffs = new List<ManifestItem>();
+                int nrOfThreads = 10;
+                int threadCap = nrOfThreads;
+                int blockSize = manifestB.Files.Count / nrOfThreads;
+
+                ManualResetEvent resetEvent = new ManualResetEvent(false);
+
+                for(int thread = 0 ; thread < nrOfThreads; thread ++)
+                {
+                    new Thread(delegate ()
+                    {
+                        try
+                        {
+                            int startIndex = thread * blockSize;
+                            int limit = blockSize;
+                            if (thread == nrOfThreads)
+                                limit = manifestB.Files.Count % nrOfThreads;
+
+                            for (int i = 0 ; i < limit; i ++)
+                            { 
+                                ManifestItem bItem = manifestB.Files[i + startIndex];
+                                if (!manifestA.Files.Any(r => r.Hash.Equals(bItem.Hash)))
+                                    diffs.Add(bItem);
+                            }
+                        }
+                        finally
+                        {
+                            if (Interlocked.Decrement(ref threadCap) == 0)
+                                resetEvent.Set();
+                        }
+                    }).Start();
+                }
+
+                // Wait for threads to finish
+                resetEvent.WaitOne();
+
 
                 diff = new PackageDiff
-                { 
+                {
+                    GeneratedOnUTC = DateTime.UtcNow,
                     PackageA = packageA,
                     PackageB = packageB,
-                    Files = manifestA.Files.Where(p => manifestB.Files.All(p2 => p2.Hash != p.Hash)).ToList()
+                    Files = diffs
                 };
 
                 try
