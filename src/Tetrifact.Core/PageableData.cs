@@ -15,7 +15,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Page of objects on current page
         /// </summary>
-        public IEnumerable<U> Page { get; set; }
+        public IEnumerable<U> Items { get; set; }
 
         /// <summary>
         /// Total number of objects in source collection that can be paged through
@@ -41,9 +41,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PageableData(IEnumerable<U> page, int pageIndex, int pageSize, long virtualItemCount)
+        public PageableData(IEnumerable<U> items, int pageIndex, int pageSize, long virtualItemCount)
         {
-            this.Page = page;
+            this.Items = items;
             this.PageSize = pageSize;
             this.PageIndex = pageIndex;
             this.VirtualItemCount = virtualItemCount;

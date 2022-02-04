@@ -9,24 +9,24 @@
 }
 
 <div>
-    @if (packages.Page.Any())
+    @if (packages.Items.Any())
     {
         @Html.Raw(pager)
 
         <ul>
 
-            @foreach (Package package in packages.Page)
+            @foreach (Package package in packages.Items)
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
                     <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize() )</div>
                     <ul class="tags">
-                        @foreach (string tag in package.Tags)
-                        {
-                            <li class="tags-tag">
-                                <a class="tags-link" href="/packagesWithTag/@tag">@tag</a>
-                            </li>
-                        }
+                    @foreach (string tag in package.Tags)
+                    {
+                        <li class="tags-tag">
+                            <a class="tags-link" href="/packagesWithTag/@tag">@tag</a>
+                        </li>
+                    }
                     </ul>
                 </li>
             }

@@ -19,9 +19,9 @@ namespace Tetrifact.Tests.PackageList
             File.WriteAllText(Path.Combine(Settings.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
             File.WriteAllText(Path.Combine(Settings.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
 
-            Assert.Equal("package2001", this.PackageList.GetPage(0, 1).Page.First().Id);
-            Assert.Equal("package2002", this.PackageList.GetPage(1, 1).Page.First().Id);
-            Assert.Equal("package2003", this.PackageList.GetPage(2, 1).Page.First().Id);
+            Assert.Equal("package2001", this.PackageList.GetPage(0, 1).Items.First().Id);
+            Assert.Equal("package2002", this.PackageList.GetPage(1, 1).Items.First().Id);
+            Assert.Equal("package2003", this.PackageList.GetPage(2, 1).Items.First().Id);
 
             PageableData<Package> page = this.PackageList.GetPage(0, 1);
             Assert.Equal(3, page.VirtualItemCount);

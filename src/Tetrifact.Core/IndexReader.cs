@@ -125,7 +125,9 @@ namespace Tetrifact.Core
         {
             DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
 
-            IEnumerable<FileInfo> files = info.GetFiles().OrderByDescending(p => p.CreationTime).Skip(_settings.MaxArchives);
+            IEnumerable<FileInfo> files = info.GetFiles()
+                .OrderByDescending(p => p.CreationTime)
+                .Skip(_settings.MaxArchives);
 
             foreach (FileInfo file in files)
             {
