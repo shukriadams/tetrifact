@@ -16,7 +16,7 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IPackageCreate> _log;
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly IHashService _hashService;
 
@@ -24,7 +24,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ITetriSettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
+        public PackageCreate(IIndexReader indexReader, ISettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;

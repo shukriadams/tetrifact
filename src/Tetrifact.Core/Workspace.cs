@@ -12,7 +12,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IWorkspace> _log;
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Workspace(ITetriSettings settings, ILogger<IWorkspace> log, IHashService hashService)
+        public Workspace(ISettings settings, ILogger<IWorkspace> log, IHashService hashService)
         {
             _settings = settings;
             _log = log;

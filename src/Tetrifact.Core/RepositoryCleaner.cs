@@ -11,7 +11,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IRepositoryCleaner> _logger;
 
@@ -25,7 +25,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleaner(IIndexReader indexReader, ITetriSettings settings, IFileSystem fileSystem, ILogger<IRepositoryCleaner> logger)
+        public RepositoryCleaner(IIndexReader indexReader, ISettings settings, IFileSystem fileSystem, ILogger<IRepositoryCleaner> logger)
         {
             _settings = settings;
             _fileSystem = fileSystem;

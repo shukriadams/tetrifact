@@ -22,7 +22,7 @@ namespace Tetrifact.Core
 
         private readonly IFileSystem _fileSystem;
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IPackageList> _logger;
 
@@ -34,7 +34,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, ITetriSettings settings, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageList> logger)
+        public PackageList(IMemoryCache memoryCache, ISettings settings, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageList> logger)
         {
             _cache = memoryCache;
             _settings = settings;

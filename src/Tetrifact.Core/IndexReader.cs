@@ -14,7 +14,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<IIndexReader> _logger;
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReader(ITetriSettings settings, IThread thread, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
+        public IndexReader(ISettings settings, IThread thread, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;

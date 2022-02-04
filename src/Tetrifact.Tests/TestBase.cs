@@ -9,7 +9,7 @@ namespace Tetrifact.Tests
     public abstract class TestBase
     {
         protected StandardKernel Kernel;
-        protected ITetriSettings Settings;
+        protected ISettings Settings;
 
         /// <summary>
         /// Common method for convert JsonResult from API endjoing to dynamic object
@@ -28,7 +28,7 @@ namespace Tetrifact.Tests
         {
             this.Kernel = new StandardKernel();
             this.Kernel.Load(Assembly.GetExecutingAssembly());
-            this.Settings = Kernel.Get<ITetriSettings>();
+            this.Settings = Kernel.Get<ISettings>();
         }
     }
 }

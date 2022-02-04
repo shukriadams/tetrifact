@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace Tetrifact.Core
 {
-    public interface ITetriSettings
+    public interface ISettings
     {
         /// <summary>
         /// Path where packages are stored. Each package lives in its own folder.

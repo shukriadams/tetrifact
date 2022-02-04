@@ -11,7 +11,7 @@ namespace Tetrifact.Tests
     /// </summary>
     public abstract class FileSystemBase
     {
-        protected ITetriSettings Settings;
+        protected ISettings Settings;
         protected TestLogger<IIndexReader> Logger;
         protected TestLogger<IWorkspace> WorkspaceLogger;
         protected IIndexReader IndexReader;
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
             // pass in real file system for all tests, we use this most of the time, individual tests must override this on their own
             FileSystem = new FileSystem();
 
-            Settings = new TetriSettings(new TestLogger<TetriSettings>())
+            Settings = new Settings(new TestLogger<Settings>())
             {
                 RepositoryPath = Path.Join(testFolder, "repository"),
                 PackagePath = Path.Join(testFolder, "packages"),

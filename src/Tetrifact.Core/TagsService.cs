@@ -10,7 +10,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
         private readonly ILogger<ITagsService> _logger;
 
@@ -20,7 +20,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TagsService(ITetriSettings settings, ILogger<ITagsService> logger, IPackageListCache packageListCache)
+        public TagsService(ISettings settings, ILogger<ITagsService> logger, IPackageListCache packageListCache)
         {
             _settings = settings;
             _logger = logger;

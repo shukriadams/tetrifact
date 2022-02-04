@@ -10,7 +10,7 @@ namespace Tetrifact.Tests
     {
         public override void Load()
         {
-            Bind<ITetriSettings>().To<TetriSettings>();
+            Bind<ISettings>().To<Settings>();
             Bind<IIndexReader>().To<TestIndexReader>();
             Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
             Bind<IWorkspace>().To<TestingWorkspace>();
@@ -31,7 +31,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
             Bind<ILogger<IWorkspace>>().To<TestLogger<IWorkspace>>();
             Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
-            Bind<ILogger<ITetriSettings>>().To<TestLogger<ITetriSettings>>();
+            Bind<ILogger<ISettings>>().To<TestLogger<ISettings>>();
             Bind<ILogger<IPackageDiffService>>().To<TestLogger<PackageDiffService>>();
         }
     }

@@ -9,7 +9,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS 
 
-        ITetriSettings _settings;
+        ISettings _settings;
 
         IIndexReader _indexReader;
 
@@ -19,7 +19,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackagePrune(ITetriSettings settings, IIndexReader indexReader, ILogger<IPackagePrune> logger)
+        public PackagePrune(ISettings settings, IIndexReader indexReader, ILogger<IPackagePrune> logger)
         {
             _settings = settings;
             _indexReader = indexReader;

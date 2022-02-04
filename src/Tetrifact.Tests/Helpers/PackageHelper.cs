@@ -8,7 +8,7 @@ namespace Tetrifact.Tests
 {
     public class PackageHelper
     {
-        public static string GetManifestPath(ITetriSettings settings, string packageName)
+        public static string GetManifestPath(ISettings settings, string packageName)
         {
             return Path.Combine(settings.PackagePath, packageName, "manifest.json");
         }
@@ -18,7 +18,7 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="manifest"></param>
-        public static void WriteManifest(ITetriSettings settings, Manifest manifest)
+        public static void WriteManifest(ISettings settings, Manifest manifest)
         {
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, manifest.Id));
             File.WriteAllText(Path.Combine(settings.PackagePath, manifest.Id, "manifest.json"), JsonConvert.SerializeObject(manifest));
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests
         /// Generates a valid package, returns its unique id.
         /// </summary>
         /// <returns></returns>
-        public static TestPackage CreatePackage(ITetriSettings settings)
+        public static TestPackage CreatePackage(ISettings settings)
         {
             return CreatePackage(settings, "somepackage");
         }
@@ -44,7 +44,7 @@ namespace Tetrifact.Tests
         /// <param name="settings"></param>
         /// <param name="packageName"></param>
         /// <returns></returns>
-        public static TestPackage CreatePackage(ITetriSettings settings, string packageName)
+        public static TestPackage CreatePackage(ISettings settings, string packageName)
         {
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");

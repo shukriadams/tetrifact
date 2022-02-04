@@ -6,11 +6,11 @@ using System.IO.Compression;
 
 namespace Tetrifact.Core
 {
-    public class TetriSettings : ITetriSettings
+    public class Settings : ISettings
     {
         #region FIELDS
 
-        private readonly ILogger<ITetriSettings> _log;
+        private readonly ILogger<ISettings> _log;
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TetriSettings(ILogger<ITetriSettings> log)
+        public Settings(ILogger<ISettings> log)
         {
             _log = log;
 

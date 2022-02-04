@@ -11,7 +11,7 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="testTypeContext"></param>
         /// <returns></returns>
-        public static ITetriSettings GetSettings(string testTypeContext)
+        public static ISettings GetSettings(string testTypeContext)
         {
             string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, testTypeContext);
             if (Directory.Exists(testFolder))
@@ -19,7 +19,7 @@ namespace Tetrifact.Tests
 
             Directory.CreateDirectory(testFolder);
 
-            return new TetriSettings(new TestLogger<TetriSettings>())
+            return new Settings(new TestLogger<Settings>())
             {
                 RepositoryPath = Path.Join(testFolder, "repository"),
                 PackagePath = Path.Join(testFolder, "packages"),

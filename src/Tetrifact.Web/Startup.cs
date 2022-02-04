@@ -45,7 +45,7 @@ namespace Tetrifact.Web
             });
 
             // register type injections here
-            services.AddTransient<ITetriSettings, TetriSettings>();
+            services.AddTransient<ISettings, Settings>();
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IRepositoryCleaner, RepositoryCleaner>();
             services.AddTransient<IWorkspace, Workspace>();
@@ -135,7 +135,7 @@ namespace Tetrifact.Web
             });
             int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
 
-            ITetriSettings settings = serviceProvider.GetService<ITetriSettings>();
+            ISettings settings = serviceProvider.GetService<ISettings>();
             Console.WriteLine("*********************************************************************");
             Console.WriteLine("TETRIFACT SERVER starting");
             Console.WriteLine("");

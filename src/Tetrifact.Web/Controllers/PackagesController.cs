@@ -26,7 +26,7 @@ namespace Tetrifact.Web
         private readonly ILogger<PackagesController> _log;
         private readonly IPackageCreate _packageService;
         private readonly IPackageList _packageList;
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
         private readonly IPackageListCache _packageListCache;
         private readonly IPackageDiffService _packageDiffService;
 
@@ -42,7 +42,7 @@ namespace Tetrifact.Web
         /// <param name="indexService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, IPackageListCache packageListCache, IIndexReader indexService, IPackageDiffService packageDiffService, ITetriSettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreate packageService, IPackageList packageList, IPackageListCache packageListCache, IIndexReader indexService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
         {
             _packageList = packageList;
             _packageService = packageService;

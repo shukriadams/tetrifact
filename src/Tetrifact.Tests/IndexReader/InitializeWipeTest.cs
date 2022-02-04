@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.IndexReader
 
             Directory.CreateDirectory(testFolder);
 
-            Core.ITetriSettings settings = new Core.TetriSettings(new TestLogger<Core.TetriSettings>())
+            Core.ISettings settings = new Core.Settings(new TestLogger<Core.Settings>())
             {
                 TempPath = Path.Join(testFolder, "Temp")
             };

@@ -13,12 +13,12 @@ namespace Tetrifact.DevUtils
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IPackageCreate>().To<PackageCreate>();
             Bind<IIndexReader>().To<IndexReader>();
-            Bind<ITetriSettings>().To<TetriSettings>();
+            Bind<ISettings>().To<Settings>();
             Bind<IWorkspace>().To<Workspace>();
             Bind<IMemoryCache>().To<MemcacheShim>();
             Bind<IPackageListCache>().To<PackageListCache>();
             Bind<ILogger<IWorkspace>>().To<FileLogger<Workspace>>();
-            Bind<ILogger<ITetriSettings>>().To<FileLogger<ITetriSettings>>();
+            Bind<ILogger<ISettings>>().To<FileLogger<ISettings>>();
             Bind<ILogger<IPackageCreate>>().To<FileLogger<IPackageCreate>>();
             Bind<ILogger<IPackageDiffService>>().To<FileLogger<IPackageDiffService>>();
             Bind<ILogger<IIndexReader>>().To<FileLogger<IIndexReader>>();

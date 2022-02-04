@@ -8,9 +8,9 @@ namespace Tetrifact.Web
 {
     public class ReadLevel : IActionFilter
     {
-        private readonly ITetriSettings _settings;
+        private readonly ISettings _settings;
 
-        public ReadLevel(ITetriSettings settings)
+        public ReadLevel(ISettings settings)
         {
             _settings = settings;
         }
