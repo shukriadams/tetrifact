@@ -5,9 +5,11 @@ namespace Tetrifact.Core
 {
     public class PackageDiff
     {
-        public string PackageA {get ; set; }
+        public string UpstreamPackageId {get ; set; }
 
-        public string PackageB { get; set; }
+        public double Taken { get;set; }
+        
+        public string DownstreamPackageId { get; set; }
 
         public DateTime GeneratedOnUTC { get; set; }
 

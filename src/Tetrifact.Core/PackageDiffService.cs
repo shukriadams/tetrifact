@@ -31,13 +31,9 @@ namespace Tetrifact.Core
             return new Tuple<string, string>(test[0], test[1]);
         }
 
-        public PackageDiff GetDifference (string packageA, string packageB)
+        public PackageDiff GetDifference (string upstreamPackageId, string downstreamPackageId)
         {
-            Tuple<string, string> sorted = this.Sort(packageA, packageB);
-            packageA = sorted.Item1;
-            packageB = sorted.Item2;
-           
-            string diffFilePath = Path.Join( _settings.PackageDiffsPath, Obfuscator.Cloak(packageA), Obfuscator.Cloak(packageB));
+            string diffFilePath = Path.Join( _settings.PackageDiffsPath, Obfuscator.Cloak(downstreamPackageId), Obfuscator.Cloak(upstreamPackageId));
 
             PackageDiff diff = null;
 
@@ -57,16 +53,20 @@ namespace Tetrifact.Core
             }
             else
             { 
-                Manifest manifestA = _indexReader.GetExpectedManifest(packageA);
-                Manifest manifestB = _indexReader.GetExpectedManifest(packageB);
+                Manifest downstreamPackage = _indexReader.GetExpectedManifest(downstreamPackageId);
+                Manifest upstreamPackage = _indexReader.GetExpectedManifest(upstreamPackageId);
+
                 List<ManifestItem> diffs = new List<ManifestItem>();
-                int nrOfThreads = 10;
+
+                DateTime start = DateTime.UtcNow;
+
+                int nrOfThreads = _settings.WorkerThreadCount;
                 int threadCap = nrOfThreads;
-                int blockSize = manifestB.Files.Count / nrOfThreads;
+                int blockSize = downstreamPackage.Files.Count / nrOfThreads;
 
                 ManualResetEvent resetEvent = new ManualResetEvent(false);
 
-                for(int thread = 0 ; thread < nrOfThreads; thread ++)
+                for (int thread = 0; thread < nrOfThreads; thread++)
                 {
                     new Thread(delegate ()
                     {
@@ -75,13 +75,16 @@ namespace Tetrifact.Core
                             int startIndex = thread * blockSize;
                             int limit = blockSize;
                             if (thread == nrOfThreads)
-                                limit = manifestB.Files.Count % nrOfThreads;
+                                limit = downstreamPackage.Files.Count % nrOfThreads;
 
-                            for (int i = 0 ; i < limit; i ++)
-                            { 
-                                ManifestItem bItem = manifestB.Files[i + startIndex];
-                                if (!manifestA.Files.Any(r => r.Hash.Equals(bItem.Hash)))
-                                    diffs.Add(bItem);
+                            for (int i = 0; i < limit; i++)
+                            {
+                                ManifestItem bItem = downstreamPackage.Files[i + startIndex];
+                                if (!upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
+                                {
+                                    lock (diffs)
+                                        diffs.Add(bItem);
+                                }
                             }
                         }
                         finally
@@ -95,13 +98,13 @@ namespace Tetrifact.Core
                 // Wait for threads to finish
                 resetEvent.WaitOne();
 
-
                 diff = new PackageDiff
                 {
                     GeneratedOnUTC = DateTime.UtcNow,
-                    PackageA = packageA,
-                    PackageB = packageB,
-                    Files = diffs
+                    Taken = (DateTime.UtcNow - start).TotalSeconds,
+                    UpstreamPackageId = upstreamPackageId,
+                    DownstreamPackageId = downstreamPackageId,
+                    Files = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
                 };
 
                 try
@@ -112,7 +115,7 @@ namespace Tetrifact.Core
                 }
                 catch(Exception ex)
                 { 
-                    _logger.LogError($"Unexpected error writing diff between packages {packageA} and {packageB}", ex);
+                    _logger.LogError($"Unexpected error writing diff between packages {upstreamPackageId} and {downstreamPackageId}", ex);
                 }
 
             }

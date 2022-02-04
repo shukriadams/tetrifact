@@ -125,8 +125,8 @@ namespace Tetrifact.Web
         /// <param name="packageId"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("diff/{packageA}/{packageB}")]
-        public ActionResult GetPackagesDiff(string packageA, string packageB)
+        [HttpGet("diff/{upstreamPackageId}/{downstreamPackageId}")]
+        public ActionResult GetPackagesDiff(string upstreamPackageId, string downstreamPackageId)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace Tetrifact.Web
                 {
                     success = new
                     {
-                        packagesDiff = _packageDiffService.GetDifference(packageA, packageB)
+                        packagesDiff = _packageDiffService.GetDifference(upstreamPackageId, downstreamPackageId)
                     }
                 });
             }

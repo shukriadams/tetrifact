@@ -72,6 +72,8 @@ namespace Tetrifact.Core
 
         public int PruneYearlyKeep { get; set; }
 
+        public int WorkerThreadCount { get; set; }
+
         #endregion
 
         #region CTORS
@@ -100,6 +102,7 @@ namespace Tetrifact.Core
             this.PruneWeeklyThreshold = 21; // 3 weeks for weekly prune to kick in
             this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
             this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
+            this.WorkerThreadCount = 8;
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -118,7 +121,8 @@ namespace Tetrifact.Core
             this.PruneMonthlyKeep = this.GetSetting("PRUNE_MONTHLY_KEEP", this.PruneMonthlyKeep);
             this.PruneYearlyThreshold = this.GetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
             this.PruneYearlyKeep = this.GetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
-
+            
+            this.WorkerThreadCount = this.GetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);

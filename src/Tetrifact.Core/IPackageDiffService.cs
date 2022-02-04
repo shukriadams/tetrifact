@@ -3,11 +3,11 @@
     public interface IPackageDiffService
     {
         /// <summary>
-        /// Gets an object representing the file differences between two packages.
+        /// Compares downstream package to an upstream package and finds files that the downstream has that is not no in the upstream. Does not compare the other way.
         /// </summary>
         /// <param name="packageA"></param>
         /// <param name="packageB"></param>
         /// <returns></returns>
-        PackageDiff GetDifference(string packageA, string packageB);
+        PackageDiff GetDifference(string upstreamPackageId, string downstreamPackageId);
     }
 }

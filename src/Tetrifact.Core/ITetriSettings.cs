@@ -144,5 +144,10 @@ namespace Tetrifact.Core
         /// Number of packages to keep per year. 
         /// </summary>
         int PruneYearlyKeep { get; set; }
+
+        /// <summary>
+        /// Nr of threads to spread worker processes over where possible
+        /// </summary>
+        int WorkerThreadCount { get; set; }
     }
 }
