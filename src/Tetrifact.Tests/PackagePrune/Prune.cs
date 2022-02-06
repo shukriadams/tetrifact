@@ -17,9 +17,13 @@ namespace Tetrifact.Tests.PackagePrune
         {
             _logger = new TestLogger<IPackagePrune>();
             Settings.Prune = true;
+            Settings.PruneWeeklyThreshold = 7;
+            Settings.PruneMonthlyThreshold = 31;
+            Settings.PruneYearlyThreshold = 364;
             Settings.PruneWeeklyKeep = 1;
             Settings.PruneMonthlyKeep = 1;
             Settings.PruneYearlyKeep = 1;
+            Settings.PruneProtectectedTags = new string[] { "keep" };
 
             _packagePrune = new Core.PackagePrune(this.Settings, this.IndexReader, _logger);
         }
@@ -135,6 +139,26 @@ namespace Tetrifact.Tests.PackagePrune
 
             IPackagePrune mockedPruner = new Core.PackagePrune(this.Settings, mockedIndexReader.Object, _logger);
             mockedPruner.Prune();
+        }
+
+        [Fact]
+        public void Prune_Protected_Tag()
+        {
+            // two packages above week threshold, one of these should be deleted, but protect both with tags
+            PackageHelper.CreatePackage(Settings, "above-week-1");
+            PackageHelper.CreatePackage(Settings, "above-week-2");
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
+
+            TagHelper.TagPackage(Settings, "keep", "above-week-1");
+            TagHelper.TagPackage(Settings, "keep", "above-week-2");
+            _packagePrune.Prune();
+
+            IEnumerable<string> packages = IndexReader.GetAllPackageIds();
+
+            Assert.Equal(2, packages.Count());
+            Assert.Contains("above-week-1", packages);
+            Assert.Contains("above-week-2", packages);
         }
     }
 }

@@ -74,6 +74,8 @@ namespace Tetrifact.Core
 
         public int WorkerThreadCount { get; set; }
 
+        public IEnumerable<string> PruneProtectectedTags { get; set; }
+
         #endregion
 
         #region CTORS
@@ -103,6 +105,7 @@ namespace Tetrifact.Core
             this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
             this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
             this.WorkerThreadCount = 8;
+            this.PruneProtectectedTags = new string[] { };
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -128,6 +131,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
             this.AutoCreateArchiveOnPackageCreate = this.GetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
+            this.PruneProtectectedTags = this.GetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (!string.IsNullOrEmpty(downloadArchiveCompressionEnvVar)){ 
@@ -207,6 +211,21 @@ namespace Tetrifact.Core
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
 
             return defaultValue;
+        }
+
+        /// <summary>
+        /// Gets an array of values from comma-separated string
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private IEnumerable<string> GetSetting(string settingsName, IEnumerable<string> defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (string.IsNullOrEmpty(settingsRawVariable))
+                return defaultValue;
+
+            return settingsRawVariable.Split(",",StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>

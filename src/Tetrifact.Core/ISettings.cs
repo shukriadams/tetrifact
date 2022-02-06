@@ -149,5 +149,10 @@ namespace Tetrifact.Core
         /// Nr of threads to spread worker processes over where possible
         /// </summary>
         int WorkerThreadCount { get; set; }
+
+        /// <summary>
+        /// Comma-separated list of tags which will not be pruned.
+        /// </summary>
+        IEnumerable<string> PruneProtectectedTags { get; set; }
     }
 }

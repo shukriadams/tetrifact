@@ -41,17 +41,27 @@ namespace Tetrifact.Core
             IEnumerable<string> prune = new List<string>();
 
             IEnumerable<string> packageIds = _indexReader.GetAllPackageIds();
+
+            // calculate periods for weekly, monthly and year pruning - weekly happens first, and after some time from NOW passes. Monthly starts at some point after weekly starts
+            // and yearl starst some point after that and runs indefinitely.
             DateTime? weeklyPruneFloor = _settings.PruneWeeklyThreshold != 0 ? DateTime.UtcNow.AddDays(-1 *_settings.PruneWeeklyThreshold) : (DateTime?)null;
             DateTime? monthlyPruneFloor = _settings.PruneMonthlyThreshold != 0 ? DateTime.UtcNow.AddDays(-1 * _settings.PruneMonthlyThreshold) : (DateTime?)null;
             DateTime? yearlyPrunedFloor = _settings.PruneYearlyThreshold != 0 ? DateTime.UtcNow.AddDays(-1 * _settings.PruneYearlyThreshold) : (DateTime?)null;
 
+            // assign all existing packages to either a yearly, monthly or weekly group.
+            // Packages that are more recent than the weekly prune period are igored.
+            // Packages with safe tags are ignored.
             foreach (string packageId in packageIds)
             {
                 Manifest manifest = _indexReader.GetManifest(packageId);
+
                 if (manifest == null){
                     _logger.LogWarning($"Expected manifest for package {packageId} was not found, skipping.");
                     continue;
                 }
+
+                if (manifest.Tags.Any(tag => _settings.PruneProtectectedTags.Any(protectedTag => protectedTag.Equals(tag))))
+                    continue;
 
                 if (yearlyPrunedFloor != null && manifest.CreatedUtc < yearlyPrunedFloor)
                     yearlyPruneQueue.Add(packageId);
@@ -90,7 +100,11 @@ namespace Tetrifact.Core
 
         private void CalculatePrune(IList<string> queue, ref IEnumerable<string> prune, int keep, string context)
         {
-            if (queue.Count < keep || keep == 0)
+            // keeping no builds is not supported - if set to zero, no pruning will be done for this period
+            if (keep == 0)
+                return;
+
+            if (queue.Count < keep)
                 return;
 
             IEnumerable<string> take = queue
