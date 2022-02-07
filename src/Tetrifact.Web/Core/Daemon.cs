@@ -13,21 +13,30 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private int _tickInterval;
+
         private readonly IRepositoryCleaner _repositoryCleaner;
+
         private readonly IIndexReader _indexService;
+
+        private readonly IArchiveService _archiveService;
+
         private bool _busy;
+
         private bool _running;
+
         private ILogger<Daemon> _log;
+
         private IPackagePrune _packagePrune;
 
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, IPackagePrune packagePrune, ILogger<Daemon> log)
+        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, IArchiveService archiveService, IPackagePrune packagePrune, ILogger<Daemon> log)
         {
             _indexService = indexService;
             _packagePrune = packagePrune;
+            _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
             _log = log;
         }
@@ -72,7 +81,7 @@ namespace Tetrifact.Web
 
                     try
                     {
-                        _indexService.PurgeOldArchives();
+                        _archiveService.PurgeOldArchives();
                     }
                     catch (Exception ex)
                     {

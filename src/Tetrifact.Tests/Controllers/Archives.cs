@@ -30,7 +30,8 @@ namespace Tetrifact.Tests.Controlers
         public void GetArchiveStatus()
         { 
             dynamic result = this.ToDynamic(_controller.GetArchiveStatus("invalid-package"));
-            Assert.NotNull(result.success);
+            Assert.Null(result.success);
+            Assert.NotNull(result.error);
         }
     }
 }

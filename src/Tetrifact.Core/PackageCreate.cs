@@ -20,14 +20,17 @@ namespace Tetrifact.Core
 
         private readonly IHashService _hashService;
 
+        private readonly IArchiveService _archiveService;
+
         #endregion
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, ISettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
+        public PackageCreate(IIndexReader indexReader, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;
+            _archiveService = archiveService;
             _workspace = workspace;
             _settings = settings;
             _hashService = hashService;
@@ -119,7 +122,7 @@ namespace Tetrifact.Core
 
                 if (_settings.AutoCreateArchiveOnPackageCreate){
                     _log.LogInformation("Generating package archive");
-                    using (Stream stream = _indexReader.GetPackageAsArchive(newPackage.Id)){ }
+                    using (Stream stream = _archiveService.GetPackageAsArchive(newPackage.Id)){ }
                 }
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };

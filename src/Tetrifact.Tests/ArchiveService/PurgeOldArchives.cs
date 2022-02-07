@@ -20,7 +20,7 @@ namespace Tetrifact.Tests.IndexReader
             Assert.True(archives.Length > this.Settings.MaxArchives);
 
             // purge then ensure one has been deleted, as no more than max
-            base.IndexReader.PurgeOldArchives();
+            base.ArchiveService.PurgeOldArchives();
             archives = Directory.GetFiles(this.Settings.ArchivePath);
             Assert.Equal(this.Settings.MaxArchives, archives.Length);
         }
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact(Skip = "fails consistently on travis")] 
         public void PurgeLockedArchive()
         {
-            Assert.Empty(base.Logger.LogEntries);
+            Assert.Empty(base.IndexReaderLogger.LogEntries);
 
             this.Settings.MaxArchives = 0;
             string path = Path.Join(Settings.ArchivePath, "dummy.zip");
@@ -45,10 +45,10 @@ namespace Tetrifact.Tests.IndexReader
             using (FileStream fs = File.OpenWrite(path))
             {
                 // attempt to purge content of archive folder
-                base.IndexReader.PurgeOldArchives();
+                base.ArchiveService.PurgeOldArchives();
 
-                Assert.Single(base.Logger.LogEntries);
-                Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
+                Assert.Single(base.IndexReaderLogger.LogEntries);
+                Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
             }
         }
         
@@ -61,13 +61,13 @@ namespace Tetrifact.Tests.IndexReader
         {
             IFileSystem fileSystem = Mock.Of<IFileSystem>();
             Mock.Get(fileSystem).Setup(f => f.File.Delete(It.IsAny<string>())).Throws<IOException>();
-            IIndexReader indexReader = new Core.IndexReader(Settings, new ThreadDefault(), TagService, Logger, fileSystem, HashServiceHelper.Instance());
+            IArchiveService archiveService = new ArchiveService(IndexReader, new ThreadDefault(), fileSystem, ArchiveLogger , Settings);
 
             // force an archive and ensure that all archives will be purged
             Settings.MaxArchives = 0;
             File.WriteAllText(Path.Join(Settings.ArchivePath, "test"), string.Empty);
 
-            indexReader.PurgeOldArchives();
+            archiveService.PurgeOldArchives();
             // no assert! exception is throttled internally, we just need coverage here
         }
         

@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock archive
-            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Id);
+            string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             this.IndexReader.DeletePackage(testPackage.Id);
@@ -44,7 +44,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock archive
-            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Id);
+            string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // force create dummy zip file in archive folder
@@ -58,8 +58,8 @@ namespace Tetrifact.Tests.IndexReader
 
                 this.IndexReader.DeletePackage(testPackage.Id);
 
-                Assert.Single(base.Logger.LogEntries);
-                Assert.Contains("Failed to purge archive", base.Logger.LogEntries[0]);
+                Assert.Single(base.IndexReaderLogger.LogEntries);
+                Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
             }
         }
         
@@ -81,7 +81,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
 
             // mock its archive
-            string archivePath = base.IndexReader.GetPackageArchivePath(testPackage.Id);
+            string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // lock the archive by opening a read stream on it

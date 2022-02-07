@@ -18,8 +18,18 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public dynamic ToDynamic(ActionResult actionResult)
         {
-            JsonResult jsonResult = (JsonResult)actionResult;
-            string jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
+            string jrawJson;
+            if (actionResult is NotFoundObjectResult)
+            {
+                NotFoundObjectResult notFound = actionResult as NotFoundObjectResult;
+                jrawJson = JsonConvert.SerializeObject(notFound.Value);
+            } 
+            else 
+            {
+                JsonResult jsonResult = actionResult as JsonResult;
+                jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
+            }
+
             dynamic obj = JsonConvert.DeserializeObject(jrawJson);
             return obj;
         }

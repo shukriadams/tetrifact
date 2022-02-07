@@ -27,6 +27,7 @@ namespace Tetrifact.DevUtils
             Bind<ITagsService>().To<TagsService>();
             Bind<IFileSystem>().To<FileSystem>();
             Bind<IHashService>().To<HashService>();
+            Bind<IArchiveService>().To<ArchiveService>();
         }
     }
 }

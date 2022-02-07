@@ -39,7 +39,7 @@ namespace Tetrifact.Tests.IndexReader
             Assert.Null(testManifest);
 
             // should not generate a log message
-            Assert.Empty(((TestLogger<IIndexReader>)this.Logger).LogEntries);
+            Assert.Empty(((TestLogger<IIndexReader>)this.IndexReaderLogger).LogEntries);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Tetrifact.Tests.IndexReader
             Assert.Null(testManifest);
 
             // should generate a error
-            Assert.Single(this.Logger.LogEntries);
+            Assert.Single(this.IndexReaderLogger.LogEntries);
         }
     }
 }

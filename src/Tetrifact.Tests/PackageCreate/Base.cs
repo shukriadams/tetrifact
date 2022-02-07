@@ -15,6 +15,7 @@ namespace Tetrifact.Tests.PackageCreate
 
             PackageCreate = new Core.PackageCreate(
                 IndexReader, 
+                ArchiveService,
                 Settings,
                 Logger,
                 Workspace, 
