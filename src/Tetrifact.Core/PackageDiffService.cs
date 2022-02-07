@@ -50,6 +50,7 @@ namespace Tetrifact.Core
                 Manifest upstreamPackage = _indexReader.GetExpectedManifest(upstreamPackageId);
 
                 List<ManifestItem> diffs = new List<ManifestItem>();
+                List<ManifestItem> common = new List<ManifestItem>();
 
                 DateTime start = DateTime.UtcNow;
 
@@ -73,8 +74,13 @@ namespace Tetrifact.Core
                             for (int i = 0; i < limit; i++)
                             {
                                 ManifestItem bItem = downstreamPackage.Files[i + startIndex];
-                                if (!upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
+                                if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
                                 {
+                                    lock (common)
+                                        common.Add(bItem);
+                                }
+                                else 
+                                { 
                                     lock (diffs)
                                         diffs.Add(bItem);
                                 }
@@ -94,11 +100,13 @@ namespace Tetrifact.Core
                 diff = new PackageDiff
                 {
                     GeneratedOnUTC = DateTime.UtcNow,
-                    Taken = (DateTime.UtcNow - start).TotalSeconds,
+                    Common = common,
                     UpstreamPackageId = upstreamPackageId,
                     DownstreamPackageId = downstreamPackageId,
-                    Files = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
+                    Difference = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
                 };
+
+                _logger.LogInformation($"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
 
                 try
                 {

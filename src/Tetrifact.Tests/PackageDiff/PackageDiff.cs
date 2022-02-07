@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Tetrifact.Core;
+﻿using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.PackageDiff
@@ -9,7 +6,7 @@ namespace Tetrifact.Tests.PackageDiff
     public class PackageDiff : FileSystemBase
     {
         IPackageDiffService PackageDiffService;
-        TestLogger<IPackageDiffService> Logger;
+        new TestLogger<IPackageDiffService> Logger;
 
         public PackageDiff()
         { 
@@ -20,18 +17,22 @@ namespace Tetrifact.Tests.PackageDiff
         [Fact]
         public void HappyPath()
         { 
-            TestPackage upstreamPackage = PackageHelper.CreatePackage(Settings);
-            TestPackage downstreaPackage = PackageHelper.CreatePackage(Settings);
+            string upstreamPackageId = PackageHelper.CreatePackage(Settings, new string[]{ "same content", "packege 1 content" } );
+            string downstreamPackageId = PackageHelper.CreatePackage(Settings, new string[] { "same content", "packege 2 content" });
 
             // force delete cached diff 
             CleanupHelper.ClearDirectory(Settings.PackageDiffsPath);
 
+            // get diff
+            Core.PackageDiff diff = this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
+            
+            // get diff again, to hit cached version too. This is for coverage.
+            diff = this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
 
-            Core.PackageDiff diff = this.PackageDiffService.GetDifference(upstreamPackage.Id, downstreaPackage.Id);
-            // get twice to hit cached version too
-            diff = this.PackageDiffService.GetDifference(upstreamPackage.Id, downstreaPackage.Id);
-            Assert.Equal(downstreaPackage.Id, diff.DownstreamPackageId);
-            Assert.Equal(upstreamPackage.Id, diff.UpstreamPackageId);
+            Assert.Equal(downstreamPackageId, diff.DownstreamPackageId);
+            Assert.Equal(upstreamPackageId, diff.UpstreamPackageId);
+            Assert.Single(diff.Difference);
+            Assert.Single(diff.Common);
         }
     }
 }

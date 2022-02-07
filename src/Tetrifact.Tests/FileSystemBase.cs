@@ -22,6 +22,8 @@ namespace Tetrifact.Tests
         public FileSystemBase()
         {
             string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
+
+            // this is the "teardown" in our tests - force delete target directory that will contain all disk state for a test run. Requires of course that tests inherit from this class.
             if (Directory.Exists(testFolder))
                 Directory.Delete(testFolder, true);
 
@@ -47,7 +49,7 @@ namespace Tetrifact.Tests
             ThreadDefault = new Core.ThreadDefault();
 
             IndexReader = new Core.IndexReader(Settings, ThreadDefault, TagService, Logger, FileSystem, HashServiceHelper.Instance());
-            Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
+            Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }
     }

@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
 using System.Text;
 using Tetrifact.Core;
 
@@ -30,7 +33,47 @@ namespace Tetrifact.Tests
         }
 
         /// <summary>
-        /// Generates a valid package, returns its unique id.
+        /// Creates a package with custom file content - use this to test complex packages with difference content. Files have fixed paths in package, iterated by position in content array.
+        /// </summary>
+        /// <returns>New package id</returns>
+        public static string CreatePackage(ISettings settings, IEnumerable<string> filesContent)
+        {
+            IIndexReader indexReader = new Core.IndexReader(settings, 
+                new Core.ThreadDefault(), 
+                new Core.TagsService(settings, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())), 
+                new TestLogger<IIndexReader>(),
+                new FileSystem(), 
+                HashServiceHelper.Instance());
+
+            IPackageCreate PackageCreate = new Core.PackageCreate(
+                indexReader,
+                settings,
+                new TestLogger<IPackageCreate>(),
+                new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance()),
+                HashServiceHelper.Instance());
+
+            List<PackageCreateItem> files = new List<PackageCreateItem>();
+            string packageId = Guid.NewGuid().ToString();
+
+            for (int i = 0; i < filesContent.Count(); i++)
+            {
+                string fileContent = filesContent.ElementAt(i);
+                Stream fileContentStream = StreamsHelper.StreamFromString(fileContent);
+                files.Add(new PackageCreateItem(fileContentStream, $"folder{i}/file{i}"));
+            }
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = packageId,
+                Files = files
+            };
+
+            PackageCreate.CreatePackage(package);
+            return packageId;
+        }
+
+        /// <summary>
+        /// Generates a single-file package, returns its unique id.
         /// </summary>
         /// <returns></returns>
         public static TestPackage CreatePackage(ISettings settings)
