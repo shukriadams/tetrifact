@@ -57,23 +57,27 @@ namespace Tetrifact.Core
                 int nrOfThreads = _settings.WorkerThreadCount;
                 int threadCap = nrOfThreads;
                 int blockSize = downstreamPackage.Files.Count / nrOfThreads;
+                if (downstreamPackage.Files.Count % nrOfThreads != 0)
+                    blockSize ++;
 
                 ManualResetEvent resetEvent = new ManualResetEvent(false);
 
-                for (int thread = 0; thread < nrOfThreads; thread++)
+                for (int thread = 0; thread < nrOfThreads; thread ++)
                 {
-                    new Thread(delegate ()
+                    new Thread(delegate (object th)
                     {
                         try
                         {
+                            int thread = (int)th;
                             int startIndex = thread * blockSize;
-                            int limit = blockSize;
-                            if (thread == nrOfThreads)
-                                limit = downstreamPackage.Files.Count % nrOfThreads;
 
-                            for (int i = 0; i < limit; i++)
+                            for (int i = 0; i < blockSize; i++)
                             {
+                                if (i + startIndex >= downstreamPackage.Files.Count)
+                                    break;
+
                                 ManifestItem bItem = downstreamPackage.Files[i + startIndex];
+
                                 if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
                                 {
                                     lock (common)
@@ -91,7 +95,7 @@ namespace Tetrifact.Core
                             if (Interlocked.Decrement(ref threadCap) == 0)
                                 resetEvent.Set();
                         }
-                    }).Start();
+                    }).Start(thread);
                 }
 
                 // Wait for threads to finish
