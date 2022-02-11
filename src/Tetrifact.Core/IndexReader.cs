@@ -155,6 +155,9 @@ namespace Tetrifact.Core
 
         public virtual void DeletePackage(string packageId)
         {
+            if (!_settings.AllowPackageDelete)
+                throw new OperationNowAllowedException();
+
             Manifest manifest = this.GetManifest(packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
@@ -202,8 +205,6 @@ namespace Tetrifact.Core
                 }
             }
         }
-
-
 
         #endregion
     }

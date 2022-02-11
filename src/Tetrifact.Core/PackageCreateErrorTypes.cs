@@ -6,6 +6,7 @@
         PackageExists,
         InvalidFileCount,
         InvalidArchiveFormat,
-        UnexpectedError
+        UnexpectedError,
+        CreateNotAllowed
     }
 }

@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
 using Xunit;
@@ -82,6 +78,9 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Equal("Files collection is empty.", result.PublicError);
         }
 
+        /// <summary>
+        /// Ensure that 
+        /// </summary>
         [Fact]
         public void CreateWithEmptyFiles(){
 
@@ -154,18 +153,33 @@ namespace Tetrifact.Tests.PackageCreate
         public void CreateWithAutoArchive()
         {
             this.Settings.AutoCreateArchiveOnPackageCreate = true;
-            Stream fileStream = StreamsHelper.StreamFromString("some text");
-
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
-                Files = new List<PackageCreateItem>() {
-                    new PackageCreateItem(fileStream, "folder/file")
+                Files = new List<PackageCreateItem> {
+                    new PackageCreateItem(StreamsHelper.StreamFromString("some text"), "folder/file")
                 }
             };
 
             PackageCreate.CreatePackage(package);
             Assert.True(File.Exists(Path.Join(Settings.ArchivePath, "mypackage.zip")));
+        }
+
+        [Fact]
+        public void CreateDisabled()
+        {
+            this.Settings.AllowPackageCreate = false;
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = "mypackage",
+                Files = new List<PackageCreateItem> {
+                    new PackageCreateItem(StreamsHelper.StreamFromString("some text"), "folder/file")
+                }
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.CreateNotAllowed, result.ErrorType);
         }
     }
 }

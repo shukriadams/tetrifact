@@ -52,6 +52,9 @@ namespace Tetrifact.Core
             {
                 _log.LogInformation("Package create started");
 
+                if (!_settings.AllowPackageCreate)
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };
+
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };

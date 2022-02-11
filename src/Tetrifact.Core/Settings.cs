@@ -76,6 +76,10 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> PruneProtectectedTags { get; set; }
 
+        public  bool AllowPackageDelete { get; set; }
+
+        public  bool AllowPackageCreate { get; set; }
+
         #endregion
 
         #region CTORS
@@ -85,6 +89,8 @@ namespace Tetrifact.Core
             _log = log;
 
             // defaults
+            this.AllowPackageDelete = true;
+            this.AllowPackageCreate = true;
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.LinkLockWaitTime = 1000;               // 1 second
@@ -115,6 +121,8 @@ namespace Tetrifact.Core
             this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
             this.PackageDiffsPath = Environment.GetEnvironmentVariable("PACKAGE_DIFFS_PATH");
 
+            this.AllowPackageDelete = this.GetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
+            this.AllowPackageCreate = this.GetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
             this.IsStorageCompressionEnabled = this.GetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
             this.Prune = this.GetSetting("PRUNE", this.Prune);
             this.PruneIgnoreTags = this.GetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);

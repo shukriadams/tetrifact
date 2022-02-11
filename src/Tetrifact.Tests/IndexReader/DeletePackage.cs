@@ -11,15 +11,26 @@ namespace Tetrifact.Tests.IndexReader
     {
 
         [Fact]
-        public void BasicDelete()
+        public void HappyPath()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            Assert.True(File.Exists(Path.Combine(this.Settings.PackagePath, testPackage.Id, "manifest.json")));
 
             this.IndexReader.DeletePackage(testPackage.Id);
 
             Assert.False(File.Exists(Path.Combine(this.Settings.PackagePath, "manifest.json" )));
         }
-    
+
+        
+        [Fact]
+        public void DeleteDisabled()
+        {
+            this.Settings.AllowPackageDelete = false;
+            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
+            Assert.True(File.Exists(Path.Combine(this.Settings.PackagePath, testPackage.Id, "manifest.json")));
+        }
+
         /// <summary>
         /// Same as BasicDelete(), but handles archive deleting too
         /// </summary>

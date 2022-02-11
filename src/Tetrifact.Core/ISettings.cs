@@ -154,5 +154,15 @@ namespace Tetrifact.Core
         /// Comma-separated list of tags which will not be pruned.
         /// </summary>
         IEnumerable<string> PruneProtectectedTags { get; set; }
+
+        /// <summary>
+        /// If false, existing packages cannot be deleted from UI or API.
+        /// </summary>
+        bool AllowPackageDelete { get; set; }
+
+        /// <summary>
+        /// If false, package uploads from UI or API will not be allowed.
+        /// </summary>
+        bool AllowPackageCreate { get; set; }
     }
 }
