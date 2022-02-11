@@ -4,11 +4,11 @@ namespace Tetrifact.Tests.Workspace
 {
     public class Base : FileSystemBase
     {
-        protected IWorkspace Workspace;
+        protected IPackageCreateWorkspace Workspace;
 
         public Base()
         {
-            Workspace = new Core.Workspace(Settings, base.WorkspaceLogger, HashServiceHelper.Instance());
+            Workspace = new Core.PackageCreateWorkspace(Settings, base.WorkspaceLogger, HashServiceHelper.Instance());
             Workspace.Initialize();
         }
     }

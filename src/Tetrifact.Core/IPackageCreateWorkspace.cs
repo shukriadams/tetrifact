@@ -6,7 +6,7 @@ namespace Tetrifact.Core
     /// <summary>
     /// Wraps the placement of an incoming package. This can be either a folder on a file system, or for testing purposes, in-memory collections.
     /// </summary>
-    public interface IWorkspace
+    public interface IPackageCreateWorkspace
     {
         /// <summary>
         /// Starts workspace. Must be called before anything can be added to workspace.

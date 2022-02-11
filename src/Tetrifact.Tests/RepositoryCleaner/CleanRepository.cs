@@ -36,10 +36,9 @@ namespace Tetrifact.Tests.repositoryCleaner
         }
 
         [Fact]
-        public void BasicClean()
+        public void HappyPAth()
         {
-            // create a file and write to repository using path convention of path/to/file/bin. File is 
-            // not linked to any package
+            // create a file and write to repository using path convention of path/to/file/bin. File is  not linked to any package
             string contentPath = CreateRepoContent();
 
             // ensure file exists
@@ -107,7 +106,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         /// Test coverage
         /// </summary>
         [Fact]
-        public void Directory_Exception_GetDirecries()
+        public void Directory_Exception_GetDirectories()
         { 
             IFileSystem mockedFilesystem = Mock.Of<IFileSystem>();
             Mock.Get(mockedFilesystem)

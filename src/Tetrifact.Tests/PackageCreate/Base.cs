@@ -5,12 +5,12 @@ namespace Tetrifact.Tests.PackageCreate
     public abstract class Base : FileSystemBase
     {
         protected IPackageCreate PackageCreate;
-        protected IWorkspace Workspace;
+        protected IPackageCreateWorkspace Workspace;
         protected new TestLogger<IPackageCreate> Logger;
 
         public Base()
         {
-            Workspace = new Core.Workspace(Settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance());
+            Workspace = new Core.PackageCreateWorkspace(Settings, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             Logger = new TestLogger<IPackageCreate>();
 
             PackageCreate = new Core.PackageCreate(

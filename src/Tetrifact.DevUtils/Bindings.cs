@@ -14,10 +14,10 @@ namespace Tetrifact.DevUtils
             Bind<IPackageCreate>().To<PackageCreate>();
             Bind<IIndexReader>().To<IndexReader>();
             Bind<ISettings>().To<Settings>();
-            Bind<IWorkspace>().To<Workspace>();
+            Bind<IPackageCreateWorkspace>().To<PackageCreateWorkspace>();
             Bind<IMemoryCache>().To<MemcacheShim>();
             Bind<IPackageListCache>().To<PackageListCache>();
-            Bind<ILogger<IWorkspace>>().To<FileLogger<Workspace>>();
+            Bind<ILogger<IPackageCreateWorkspace>>().To<FileLogger<PackageCreateWorkspace>>();
             Bind<ILogger<ISettings>>().To<FileLogger<ISettings>>();
             Bind<ILogger<IPackageCreate>>().To<FileLogger<IPackageCreate>>();
             Bind<ILogger<IPackageDiffService>>().To<FileLogger<IPackageDiffService>>();

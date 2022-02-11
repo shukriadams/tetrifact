@@ -8,13 +8,13 @@ using System.Linq;
 
 namespace Tetrifact.Core
 {
-    public class Workspace : IWorkspace
+    public class PackageCreateWorkspace : IPackageCreateWorkspace
     {
         #region FIELDS
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IWorkspace> _log;
+        private readonly ILogger<IPackageCreateWorkspace> _log;
 
         private readonly IHashService _hashService;
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Workspace(ISettings settings, ILogger<IWorkspace> log, IHashService hashService)
+        public PackageCreateWorkspace(ISettings settings, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
         {
             _settings = settings;
             _log = log;

@@ -17,7 +17,7 @@ namespace Tetrifact.Tests
         
         protected TestLogger<IIndexReader> IndexReaderLogger;
         
-        protected TestLogger<IWorkspace> WorkspaceLogger;
+        protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
         
         protected TestLogger<IArchiveService> ArchiveLogger;
         

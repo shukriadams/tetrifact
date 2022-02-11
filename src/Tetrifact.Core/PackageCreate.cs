@@ -12,7 +12,7 @@ namespace Tetrifact.Core
 
         private readonly IIndexReader _indexReader;
 
-        private readonly IWorkspace _workspace;
+        private readonly IPackageCreateWorkspace _workspace;
 
         private readonly ILogger<IPackageCreate> _log;
 
@@ -26,7 +26,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreate> log, IWorkspace workspace, IHashService hashService)
+        public PackageCreate(IIndexReader indexReader, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreate> log, IPackageCreateWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;

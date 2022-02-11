@@ -7,7 +7,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
-    public class TestingWorkspace : IWorkspace
+    public class TestingWorkspace : IPackageCreateWorkspace
     {
         private static Manifest _manifest = new Manifest();
 

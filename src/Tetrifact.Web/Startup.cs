@@ -48,7 +48,7 @@ namespace Tetrifact.Web
             services.AddTransient<ISettings, Settings>();
             services.AddTransient<IIndexReader, IndexReader>();
             services.AddTransient<IRepositoryCleaner, RepositoryCleaner>();
-            services.AddTransient<IWorkspace, Workspace>();
+            services.AddTransient<IPackageCreateWorkspace, PackageCreateWorkspace>();
             services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IPackageCreate, PackageCreate>();
             services.AddTransient<IPackageList, PackageList>();

@@ -56,7 +56,7 @@ namespace Tetrifact.Tests
                 archiveService,
                 settings,
                 new TestLogger<IPackageCreate>(),
-                new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance()),
+                new Core.PackageCreateWorkspace(settings, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance()),
                 HashServiceHelper.Instance());
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
@@ -111,7 +111,7 @@ namespace Tetrifact.Tests
             // create via workspace writer. Note that workspace has no logic of its own to handle hashing, it relies on whatever
             // calls it to do that. We could use PackageCreate to do this, but as we want to test PackageCreate with this helper
             // we keep this as low-level as possible
-            IWorkspace workspace = new Core.Workspace(settings, new TestLogger<IWorkspace>(), HashServiceHelper.Instance());
+            IPackageCreateWorkspace workspace = new Core.PackageCreateWorkspace(settings, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);
