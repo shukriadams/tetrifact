@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Tetrifact.Core
 {
@@ -10,6 +11,12 @@ namespace Tetrifact.Core
         bool DirectoryExists(string path);
         bool FileExists(string path);
         IEnumerable<string> GetDirectories(string path);
+        IEnumerable<string> GetFiles(string path);
+        IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption);
+
         string ReadAllText(string path);
+
+        Stream GetFileReadStream(string path);
+        void FileDelete(string path);
     }
 }

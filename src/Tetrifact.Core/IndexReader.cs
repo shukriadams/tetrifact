@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
@@ -18,8 +17,6 @@ namespace Tetrifact.Core
         private readonly ILogger<IIndexReader> _logger;
 
         private readonly ITagsService _tagService;
-
-        private readonly IFileSystem _fileSystem;
         
         private readonly IHashService _hashService;
 
@@ -29,13 +26,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IManagedFileSystem threadSafeFileSystem, IHashService hashService)
+        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IManagedFileSystem threadSafeFileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
             _threadSafeFileSystem = threadSafeFileSystem;
-            _fileSystem = fileSystem;
             _hashService = hashService;
         }
 
@@ -111,8 +107,8 @@ namespace Tetrifact.Core
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
             string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
             
-            if (_fileSystem.File.Exists(directFilePath))
-                return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));
+            if (_threadSafeFileSystem.FileExists(directFilePath))
+                return new GetFileResponse(_threadSafeFileSystem.GetFileReadStream(directFilePath), Path.GetFileName(fileIdentifier.Path));
 
             return null;
         }
@@ -132,7 +128,7 @@ namespace Tetrifact.Core
                 ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
 
                 string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
-                if (_fileSystem.File.Exists(directFilePath))
+                if (_threadSafeFileSystem.FileExists(directFilePath))
                 {
                     (string, long) fileOnDiskProperties = _hashService.FromFile(directFilePath);
                     if (fileOnDiskProperties.Item1 != manifestItem.Hash)
@@ -169,22 +165,22 @@ namespace Tetrifact.Core
             foreach (ManifestItem item in manifest.Files)
             {
                 string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
-                if (_fileSystem.File.Exists(targetPath))
-                    _fileSystem.File.Delete(targetPath);
+                if (_threadSafeFileSystem.FileExists(targetPath))
+                    _threadSafeFileSystem.FileDelete(targetPath);
             }
 
             // delete package folder
             string packageFolder = Path.Combine(_settings.PackagePath, packageId);
-            if (_fileSystem.Directory.Exists(packageFolder))
-                _fileSystem.Directory.Delete(packageFolder, true);
+            if (_threadSafeFileSystem.DirectoryExists(packageFolder))
+                _threadSafeFileSystem.DirectoryDelete(packageFolder, true);
 
             // delete archives for package
             string archivePath = Path.Combine(_settings.ArchivePath, packageId + ".zip");
-            if (_fileSystem.File.Exists(archivePath))
+            if (_threadSafeFileSystem.FileExists(archivePath))
             {
                 try
                 {
-                    _fileSystem.File.Delete(archivePath);
+                    _threadSafeFileSystem.FileDelete(archivePath);
                 }
                 catch (IOException ex)
                 {
@@ -194,12 +190,12 @@ namespace Tetrifact.Core
             }
 
             // delete tag links for package
-            string[] tagFiles = _fileSystem.Directory.GetFiles(_settings.TagsPath, packageId, SearchOption.AllDirectories);
+            IEnumerable<string> tagFiles = _threadSafeFileSystem.GetFiles(_settings.TagsPath, packageId, SearchOption.AllDirectories);
             foreach (string tagFile in tagFiles)
             {
                 try
                 {
-                    _fileSystem.File.Delete(tagFile);
+                    _threadSafeFileSystem.FileDelete(tagFile);
                 }
                 catch (IOException ex)
                 {

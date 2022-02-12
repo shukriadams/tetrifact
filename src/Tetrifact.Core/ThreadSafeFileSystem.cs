@@ -25,6 +25,14 @@ namespace Tetrifact.Core
             }
         }
 
+        public void FileDelete(string path)
+        {
+            lock (_changeLock)
+            {
+                File.Delete(path);
+            }
+        }
+
         public void DirectoryDelete(string path, bool recurse)
         {
             lock (_changeLock)
@@ -49,6 +57,22 @@ namespace Tetrifact.Core
             }
         }
 
+        public IEnumerable<string> GetFiles(string path)
+        {
+            lock (_readLock)
+            {
+                return Directory.GetFiles(path);
+            }
+        }
+
+        public IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption)
+        {
+            lock (_readLock)
+            {
+                return Directory.GetFiles(path, searchPattern, searchOption);
+            }
+        }
+
         public bool FileExists(string path)
         {
             lock (_readLock)
@@ -65,9 +89,9 @@ namespace Tetrifact.Core
             }
         }
 
-        public Stream GetFileStream()
-        { 
-
+        public Stream GetFileReadStream(string path)
+        {
+            return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
     }
 }
