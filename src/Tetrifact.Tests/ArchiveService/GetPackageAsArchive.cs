@@ -6,7 +6,7 @@ using System.IO.Abstractions;
 using Tetrifact.Core;
 using Xunit;
 
-namespace Tetrifact.Tests.IndexReader
+namespace Tetrifact.Tests.ArchiveService
 {
     public class GetPackageAsArchive : FileSystemBase
     {
@@ -81,9 +81,6 @@ namespace Tetrifact.Tests.IndexReader
 
             using (FileStream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                // lock the entire file
-                lockStream.Lock(0, lockStream.Length);
-
                 Assert.Throws<TimeoutException>(() => {
                     using (Stream zipStream = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
                     {
@@ -224,9 +221,6 @@ namespace Tetrifact.Tests.IndexReader
 
             using (FileStream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                // lock the entire file
-                lockStream.Lock(0, lockStream.Length);
-
                 // attempt to start a new archive generation, this should exit immediately
                 TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
                 Assert.NotNull(ex);

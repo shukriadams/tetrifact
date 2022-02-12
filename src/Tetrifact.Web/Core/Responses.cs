@@ -27,9 +27,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        public static NotFoundObjectResult PackageNotExistError(string packageId)
+        public static NotFoundObjectResult PackageNotExistError(Controller controller, string packageId)
         {
-            return new NotFoundObjectResult(new
+            return controller.NotFound(new
             {
                 error = new
                 {

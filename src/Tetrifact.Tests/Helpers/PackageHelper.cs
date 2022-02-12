@@ -44,7 +44,7 @@ namespace Tetrifact.Tests
                 new FileSystem(), 
                 HashServiceHelper.Instance());
 
-            IArchiveService archiveService = new ArchiveService(
+            IArchiveService archiveService = new Core.ArchiveService(
                 indexReader, 
                 new ThreadDefault(), 
                 new FileSystem(), 

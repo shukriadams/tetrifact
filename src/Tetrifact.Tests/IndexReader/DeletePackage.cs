@@ -64,9 +64,6 @@ namespace Tetrifact.Tests.IndexReader
             // open stream in write mode to lock it, then attempt to purge archives
             using (FileStream lockStream = File.OpenWrite(archivePath))
             {
-                // lock the entire file
-                lockStream.Lock(0, lockStream.Length);
-
                 this.IndexReader.DeletePackage(testPackage.Id);
 
                 Assert.Single(base.IndexReaderLogger.LogEntries);
