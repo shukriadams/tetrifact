@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+/*
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
+*/
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -20,13 +22,13 @@ namespace Tetrifact.Core
         
         private readonly ILogger<IArchiveService> _logger;
         
-        private readonly IFileSystem _fileSystem;
+        private readonly IManagedFileSystem _fileSystem;
 
         #endregion
 
         #region CTORS
 
-        public ArchiveService(IIndexReader indexReader, IThread thread, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReader indexReader, IThread thread, IManagedFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
             _thread = thread;
@@ -96,10 +98,10 @@ namespace Tetrifact.Core
             string temptPath = this.GetPackageArchiveTempPath(packageId);
 
             // archive doesn't exist and isn't being created
-            if (!_fileSystem.File.Exists(archivePath) && !_fileSystem.File.Exists(temptPath))
+            if (!_fileSystem.FileExists(archivePath) && !_fileSystem.FileExists(temptPath))
                 return 0;
 
-            if (_fileSystem.File.Exists(temptPath))
+            if (_fileSystem.FileExists(temptPath))
                 return 1;
 
             return 2;
@@ -110,7 +112,7 @@ namespace Tetrifact.Core
         /// </summary>
         public void PurgeOldArchives()
         {
-            DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
+            DirectoryInfo info = _fileSystem.GetDirectory(_settings.ArchivePath);
 
             // get all existing archives, sorted by create date
             IEnumerable<FileInfo> files = info.GetFiles()
@@ -143,11 +145,11 @@ namespace Tetrifact.Core
             // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
             // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
-            if (_fileSystem.File.Exists(archivePathTemp))
+            if (_fileSystem.FileExists(archivePathTemp))
             {
                 try
                 {
-                    _fileSystem.File.Delete(archivePathTemp);
+                    _fileSystem.FileDelete(archivePathTemp);
                     _logger.LogInformation($"Deleted abandoned temp archive for {packageId}");
                 }
                 catch (IOException)
@@ -207,7 +209,7 @@ namespace Tetrifact.Core
             }
 
             // flip temp file to final path, it is ready for use only when this happens
-            _fileSystem.File.Move(archivePathTemp, archivePath);
+            _fileSystem.FileMove(archivePathTemp, archivePath);
             _logger.LogInformation($"Archive generation for package {packageId} complete");
         }
 

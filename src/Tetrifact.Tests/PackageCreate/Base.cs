@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.PackageCreate
 
         public Base()
         {
-            Workspace = new Core.PackageCreateWorkspace(Settings, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
+            Workspace = new Core.PackageCreateWorkspace(Settings, new ThreadSafeFileSystem(), new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             Logger = new TestLogger<IPackageCreate>();
 
             PackageCreate = new Core.PackageCreate(

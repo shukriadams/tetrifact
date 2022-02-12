@@ -18,6 +18,8 @@ namespace Tetrifact.Core
 
         private readonly IHashService _hashService;
 
+        private readonly IManagedFileSystem _filesystem;
+
         #endregion
 
         #region PROPERTIES
@@ -30,10 +32,11 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateWorkspace(ISettings settings, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
+        public PackageCreateWorkspace(ISettings settings, IManagedFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
         {
             _settings = settings;
             _log = log;
+            _filesystem = filesystem;
             _hashService = hashService;
         }
 
@@ -51,21 +54,21 @@ namespace Tetrifact.Core
             while (true)
             {
                 this.WorkspacePath = Path.Join(_settings.TempPath, Guid.NewGuid().ToString());
-                if (!Directory.Exists(this.WorkspacePath))
+                if (!_filesystem.DirectoryExists(this.WorkspacePath))
                     break;
             }
 
             // create all basic directories for a functional workspace
-            Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
+            _filesystem.DirectoryCreate(Path.Join(this.WorkspacePath, "incoming"));
         }
 
-        public bool AddIncomingFile(Stream formFile, string relativePath)
+        public bool AddIncomingFile(System.IO.Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
                 return false;
             
             string targetPath = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", relativePath));
-            Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+            _filesystem.DirectoryCreate(Path.GetDirectoryName(targetPath));
 
             using (var stream = new FileStream(targetPath, FileMode.Create))
             {
@@ -80,16 +83,16 @@ namespace Tetrifact.Core
                 throw new ArgumentException("Hash value is required");
 
             // move file to public folder
-            string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
+            string targetPath = Path.Join(_settings.RepositoryPath, filePath, hash, "bin");
             string targetDirectory = Path.GetDirectoryName(targetPath);
             string packagesSubscribeDirectory = Path.Join(targetDirectory, "packages");
 
-            Directory.CreateDirectory(packagesSubscribeDirectory);
+            _filesystem.DirectoryCreate(packagesSubscribeDirectory);
 
             bool onDisk = false;
             string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
 
-            if (!File.Exists(targetPath)) {
+            if (!_filesystem.FileExists(targetPath)) {
 
                 if (this.Manifest.IsCompressed){
 
@@ -110,7 +113,7 @@ namespace Tetrifact.Core
                     }
 
                 } else {
-                    File.Move(incomingPath,targetPath);
+                    _filesystem.FileMove(incomingPath,targetPath);
                     _log.LogInformation($"PACKAGE CREATE : placed file {targetPath}");
                 }
 
@@ -118,7 +121,7 @@ namespace Tetrifact.Core
             }
 
             // write package id into package subscription directory, associating it with this hash 
-            File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
+            _filesystem.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
             _log.LogInformation($"PACKAGE CREATE : subscribed package {packageId} to hash {packagesSubscribeDirectory} ");
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
@@ -139,17 +142,17 @@ namespace Tetrifact.Core
             // calculate package hash from child hashes
             this.Manifest.Hash = combinedHash;
             string targetFolder = Path.Join(_settings.PackagePath, packageId);
-            Directory.CreateDirectory(targetFolder);
-            File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
+            _filesystem.DirectoryCreate(targetFolder);
+            _filesystem.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
 
             Manifest headCopy = JsonConvert.DeserializeObject<Manifest>(JsonConvert.SerializeObject(this.Manifest));
             headCopy.Files = new List<ManifestItem>();
-            File.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
+            _filesystem.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
         }
 
         public IEnumerable<string> GetIncomingFileNames()
         {
-            IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
+            IEnumerable<string> rawPaths = _filesystem.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
             string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
             return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
         }
@@ -166,7 +169,7 @@ namespace Tetrifact.Core
 
                     string targetFile = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", entry.FullName));
                     string targetDirectory = Path.GetDirectoryName(targetFile);
-                    Directory.CreateDirectory(targetDirectory);
+                    _filesystem.DirectoryCreate(targetDirectory);
                     entry.ExtractToFile(targetFile);
                 }
             }
@@ -181,8 +184,8 @@ namespace Tetrifact.Core
         {
             try
             {
-                if (Directory.Exists(this.WorkspacePath))
-                    Directory.Delete(this.WorkspacePath, true);
+                if (_filesystem.DirectoryExists(this.WorkspacePath))
+                    _filesystem.DirectoryDelete(this.WorkspacePath, true);
             }
             catch (IOException ex)
             {

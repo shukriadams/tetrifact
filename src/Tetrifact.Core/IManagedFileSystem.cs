@@ -5,11 +5,8 @@ namespace Tetrifact.Core
 {
     public interface IManagedFileSystem
     {
-        string GetFileName(string name);
-        string Join(string name1, string name2);
-        string Join(string name1, string name2, string name3);
-        string Join(string name1, string name2, string name3, string name4);
-        string Join(string name1, string name2, string name3, string name4, string name5);
+        DirectoryInfo GetDirectory(string path);
+        void FileMove(string source, string destination);
 
         void DirectoryCreate(string path);
         void DirectoryDelete(string path,bool recurse);
@@ -21,7 +18,7 @@ namespace Tetrifact.Core
         IEnumerable<string> GetFiles(string path, string searchPattern, SearchOption searchOption);
 
         string ReadAllText(string path);
-
+        void WriteAllText(string path, string text);
         Stream GetFileReadStream(string path);
         void FileDelete(string path);
     }

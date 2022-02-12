@@ -31,6 +31,8 @@ namespace Tetrifact.Tests
         
         protected IArchiveService ArchiveService;
 
+        protected IManagedFileSystem ManagedFS;
+
         #endregion
 
         #region CTORS
@@ -49,6 +51,7 @@ namespace Tetrifact.Tests
             FileSystem = new FileSystem();
             IndexReaderLogger = new TestLogger<IIndexReader>();
             ArchiveLogger = new TestLogger<IArchiveService>();
+            ManagedFS = new ThreadSafeFileSystem();
 
             Settings = new Settings(new TestLogger<Settings>())
             {
@@ -65,7 +68,7 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new Core.ThreadDefault();
 
-            IndexReader = new Core.IndexReader(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            IndexReader = new Core.IndexReader(Settings, TagService, IndexReaderLogger, ManagedFS, HashServiceHelper.Instance());
             ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, FileSystem, ArchiveLogger, Settings);
 
             Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests

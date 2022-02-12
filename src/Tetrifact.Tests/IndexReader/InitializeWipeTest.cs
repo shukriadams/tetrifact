@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.IO.Abstractions;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.IndexReader
                 settings, 
                 new TestLogger<Core.ITagsService>(),new Core.PackageListCache(MemoryCacheHelper.GetInstance())); 
 
-            Core.IIndexReader reader = new Core.IndexReader(settings, tagService, new TestLogger<Core.IIndexReader>(), new FileSystem(), HashServiceHelper.Instance());
+            Core.IIndexReader reader = new Core.IndexReader(settings, tagService, new TestLogger<Core.IIndexReader>(), new ThreadSafeFileSystem(), HashServiceHelper.Instance());
             reader.Initialize();
 
             Assert.False(File.Exists(testFilePath));

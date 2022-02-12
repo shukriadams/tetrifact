@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Tetrifact.Core
 {
@@ -55,18 +56,18 @@ namespace Tetrifact.Core
         public IEnumerable<string> GetAllPackageIds()
         {
             IEnumerable<string> rawList = _filesystem.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => _filesystem.GetFileName(r));
+            return rawList.Select(r => Path.GetFileName(r));
         }
 
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
             IEnumerable<string> rawList = _filesystem.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => _filesystem.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
+            return rawList.Select(r => Path.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string id)
         {
-            string packagePath = _filesystem.Join(_settings.PackagePath, id);
+            string packagePath = Path.Join(_settings.PackagePath, id);
             return _filesystem.DirectoryExists(packagePath);
         }
 
@@ -81,7 +82,7 @@ namespace Tetrifact.Core
 
         public virtual Manifest GetManifest(string packageId)
         {
-            string filePath = _filesystem.Join(_settings.PackagePath, packageId, "manifest.json");
+            string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
             if (!_filesystem.FileExists(filePath))
                 return null;
 
@@ -104,10 +105,10 @@ namespace Tetrifact.Core
         public GetFileResponse GetFile(string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-            string directFilePath = _filesystem.Join(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
+            string directFilePath = Path.Join(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
             
             if (_filesystem.FileExists(directFilePath))
-                return new GetFileResponse(_filesystem.GetFileReadStream(directFilePath), _filesystem.GetFileName(fileIdentifier.Path));
+                return new GetFileResponse(_filesystem.GetFileReadStream(directFilePath), Path.GetFileName(fileIdentifier.Path));
 
             return null;
         }
@@ -126,7 +127,7 @@ namespace Tetrifact.Core
             {
                 ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
 
-                string directFilePath = _filesystem.Join(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                string directFilePath = Path.Join(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
                 if (_filesystem.FileExists(directFilePath))
                 {
                     (string, long) fileOnDiskProperties = _hashService.FromFile(directFilePath);
@@ -163,18 +164,18 @@ namespace Tetrifact.Core
             // delete repo entries for this package, the binary will be removed by a cleanup job
             foreach (ManifestItem item in manifest.Files)
             {
-                string targetPath = _filesystem.Join(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
+                string targetPath = Path.Join(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
                 if (_filesystem.FileExists(targetPath))
                     _filesystem.FileDelete(targetPath);
             }
 
             // delete package folder
-            string packageFolder = _filesystem.Join(_settings.PackagePath, packageId);
+            string packageFolder = Path.Join(_settings.PackagePath, packageId);
             if (_filesystem.DirectoryExists(packageFolder))
                 _filesystem.DirectoryDelete(packageFolder, true);
 
             // delete archives for package
-            string archivePath = _filesystem.Join(_settings.ArchivePath, packageId + ".zip");
+            string archivePath = Path.Join(_settings.ArchivePath, packageId + ".zip");
             if (_filesystem.FileExists(archivePath))
             {
                 try
