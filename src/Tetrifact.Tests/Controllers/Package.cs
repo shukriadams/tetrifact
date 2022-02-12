@@ -8,7 +8,7 @@ using System.IO;
 using System;
 using System.IO.Compression;
 
-namespace Tetrifact.Tests.Controlers
+namespace Tetrifact.Tests.Controllers
 {
     public class Package : TestBase
     {

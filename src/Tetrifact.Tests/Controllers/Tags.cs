@@ -1,7 +1,7 @@
 using Xunit;
 using Ninject;
 
-namespace Tetrifact.Tests.Controlers
+namespace Tetrifact.Tests.Controllers
 {
     public class Tags : TestBase
     {

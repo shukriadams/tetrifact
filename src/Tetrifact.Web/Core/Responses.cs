@@ -46,7 +46,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 101,
-                    description = "An internal server occurred. You didn't do anything wrong."
+                    description = "An internal error occurred. Please check server logs for more info."
                 }
             });
         }
