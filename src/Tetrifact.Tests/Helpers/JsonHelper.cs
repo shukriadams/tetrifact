@@ -33,8 +33,7 @@ namespace Tetrifact.Tests
             else 
                 throw new Exception($"actionResult type ${actionResult.GetType().FullName} is not supported here");
 
-            dynamic obj = JsonConvert.DeserializeObject(jrawJson);
-            return obj;
+            return JsonConvert.DeserializeObject(jrawJson);
         }
 
         /// <summary>

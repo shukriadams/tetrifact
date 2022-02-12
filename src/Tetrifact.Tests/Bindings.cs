@@ -23,8 +23,8 @@ namespace Tetrifact.Tests
             Bind<IThread>().To<ThreadDefault>();
             Bind<IPackagePrune>().To<Core.PackagePrune>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
-            Bind<IArchiveService>().To<ArchiveService>();
             Bind<IManagedFileSystem>().To<ThreadSafeFileSystem>();
+            Bind<IArchiveService>().To<Core.ArchiveService>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
             Bind<ILogger<CleanController>>().To<TestLogger<CleanController>>();
             Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();

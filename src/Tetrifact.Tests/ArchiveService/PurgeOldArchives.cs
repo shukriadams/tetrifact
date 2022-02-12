@@ -4,7 +4,7 @@ using System.IO.Abstractions;
 using Tetrifact.Core;
 using Xunit;
 
-namespace Tetrifact.Tests.IndexReader
+namespace Tetrifact.Tests.ArchiveService
 {
     public class PurgeOldArchives : FileSystemBase
     {
@@ -44,9 +44,6 @@ namespace Tetrifact.Tests.IndexReader
             // open dummy zip in write mode to lock it 
             using (FileStream lockStream = File.OpenWrite(path))
             {
-                // lock the entire file
-                lockStream.Lock(0, lockStream.Length);
-
                 // attempt to purge content of archive folder
                 base.ArchiveService.PurgeOldArchives();
 
@@ -64,7 +61,7 @@ namespace Tetrifact.Tests.IndexReader
         {
             IFileSystem fileSystem = Mock.Of<IFileSystem>();
             Mock.Get(fileSystem).Setup(f => f.File.Delete(It.IsAny<string>())).Throws<IOException>();
-            IArchiveService archiveService = new ArchiveService(IndexReader, new ThreadDefault(), fileSystem, ArchiveLogger , Settings);
+            IArchiveService archiveService = new Core.ArchiveService(IndexReader, new ThreadDefault(), fileSystem, ArchiveLogger , Settings);
 
             // force an archive and ensure that all archives will be purged
             Settings.MaxArchives = 0;

@@ -104,6 +104,7 @@ namespace Tetrifact.Core
         {
             DirectoryInfo info = new DirectoryInfo(_settings.ArchivePath);
 
+            // get all existing archives, sorted by create date
             IEnumerable<FileInfo> files = info.GetFiles()
                 .OrderByDescending(p => p.CreationTime)
                 .Skip(_settings.MaxArchives);

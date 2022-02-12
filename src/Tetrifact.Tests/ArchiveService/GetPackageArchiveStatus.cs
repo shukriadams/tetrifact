@@ -2,7 +2,7 @@
 using Tetrifact.Core;
 using Xunit;
 
-namespace Tetrifact.Tests.IndexReader
+namespace Tetrifact.Tests.ArchiveService
 {
     public class GetPackageArchiveStatus : FileSystemBase
     {

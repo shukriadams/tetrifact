@@ -66,7 +66,7 @@ namespace Tetrifact.Tests
             ThreadDefault = new Core.ThreadDefault();
 
             IndexReader = new Core.IndexReader(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
-            ArchiveService = new ArchiveService(IndexReader, ThreadDefault, FileSystem, ArchiveLogger, Settings);
+            ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, FileSystem, ArchiveLogger, Settings);
 
             Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();

@@ -27,9 +27,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        public static NotFoundObjectResult PackageNotExistError(string packageId)
+        public static NotFoundObjectResult PackageNotExistError(Controller controller, string packageId)
         {
-            return new NotFoundObjectResult(new
+            return controller.NotFound(new
             {
                 error = new
                 {
@@ -46,7 +46,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 101,
-                    description = "An internal server occurred. You didn't do anything wrong."
+                    description = "An internal error occurred. Please check server logs for more info."
                 }
             });
         }
