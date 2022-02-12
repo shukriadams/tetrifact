@@ -4,6 +4,7 @@ using Tetrifact.Core;
 using Moq;
 using System;
 using System.IO.Abstractions;
+using System.Threading;
 
 namespace Tetrifact.Tests.repositoryCleaner
 {
@@ -46,6 +47,7 @@ namespace Tetrifact.Tests.repositoryCleaner
 
             // assert file is gone after cleaning repo
             _respositoryCleaner.Clean();
+            Thread.Sleep(50); // wait for slow fs to catch up
             Assert.False(File.Exists(contentPath));
         }
 

@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.IndexReader
         }
 
         
-        [Fact (Skip = "fails consistently on travis")]  
+        [Fact/* (Skip = "fails consistently on travis")*/]  
         public void DeleteWithLockedArchive()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
@@ -62,10 +62,10 @@ namespace Tetrifact.Tests.IndexReader
             File.WriteAllText(archivePath, "dummy content");
 
             // open stream in write mode to lock it, then attempt to purge archives
-            using (FileStream fs = File.OpenWrite(archivePath))
+            using (FileStream lockStream = File.OpenWrite(archivePath))
             {
-                // force write something to stream to ensure it locks
-                fs.Write(Encoding.ASCII.GetBytes("random"));
+                // lock the entire file
+                lockStream.Lock(0, lockStream.Length);
 
                 this.IndexReader.DeletePackage(testPackage.Id);
 

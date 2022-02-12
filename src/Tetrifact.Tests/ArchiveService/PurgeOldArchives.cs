@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.IndexReader
         /// logs an error. The error loggging is mainly used to indicate that the lock has been 
         /// effective.
         /// </summary>
-        [Fact(Skip = "fails consistently on travis")] 
+        [Fact/*(Skip = "fails consistently on travis")*/] 
         public void PurgeLockedArchive()
         {
             Assert.Empty(base.IndexReaderLogger.LogEntries);
@@ -42,13 +42,16 @@ namespace Tetrifact.Tests.IndexReader
             File.WriteAllText(path, "dummy content");
 
             // open dummy zip in write mode to lock it 
-            using (FileStream fs = File.OpenWrite(path))
+            using (FileStream lockStream = File.OpenWrite(path))
             {
+                // lock the entire file
+                lockStream.Lock(0, lockStream.Length);
+
                 // attempt to purge content of archive folder
                 base.ArchiveService.PurgeOldArchives();
 
-                Assert.Single(base.IndexReaderLogger.LogEntries);
-                Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
+                Assert.Single(base.ArchiveLogger.LogEntries);
+                Assert.Contains("Failed to purge archive", base.ArchiveLogger.LogEntries[0]);
             }
         }
         
