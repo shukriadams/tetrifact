@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using Tetrifact.Core;
@@ -110,7 +111,7 @@ namespace Tetrifact.Tests.IndexReader
 
             IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
             PackageListCache PackageListCache = new PackageListCache(_memoryCache);
-            ITagsService tagsService = new Core.TagsService(this.Settings, new TestLogger<ITagsService>(), PackageListCache);
+            ITagsService tagsService = new Core.TagsService(this.Settings, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
             
             tagsService.AddTag(testPackage.Id, "mytag");
 

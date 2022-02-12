@@ -54,6 +54,11 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(_settings.PackageDiffsPath);
         }
 
+        public bool PackageExists(string packageId)
+        {
+            return this.GetManifest(packageId) != null;
+        }
+
         public IEnumerable<string> GetAllPackageIds()
         {
             IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);

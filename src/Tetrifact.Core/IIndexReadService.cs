@@ -9,6 +9,13 @@ namespace Tetrifact.Core
     public interface IIndexReadService
     {
         /// <summary>
+        /// Returns true if package with given id currently exists
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
+        bool PackageExists(string packageId);
+
+        /// <summary>
         /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
         /// </summary>
         /// <returns></returns>

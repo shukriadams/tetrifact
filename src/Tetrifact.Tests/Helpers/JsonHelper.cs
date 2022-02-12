@@ -31,7 +31,7 @@ namespace Tetrifact.Tests
                 jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
             }
             else 
-                throw new Exception($"actionResult type ${actionResult.GetType().FullName} is not supported here");
+                throw new Exception($"actionResult ${actionResult} is not expected here, likely internal error");
 
             return JsonConvert.DeserializeObject(jrawJson);
         }

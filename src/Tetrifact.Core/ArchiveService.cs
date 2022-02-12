@@ -39,6 +39,14 @@ namespace Tetrifact.Core
 
         #region METHODs
 
+        public void EnsurePackageArchive(string packageId)
+        {
+            using (Stream stream = this.GetPackageAsArchive(packageId))
+            {
+                // createa and immediately dispose of stream
+            }
+        }
+
         public string GetPackageArchivePath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip");
@@ -47,12 +55,6 @@ namespace Tetrifact.Core
         public string GetPackageArchiveTempPath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
-        }
-
-        private bool DoesPackageExist(string packageId)
-        {
-            Manifest manifest = _indexReader.GetManifest(packageId);
-            return manifest != null;
         }
 
         public Stream GetPackageAsArchive(string packageId)
@@ -81,7 +83,7 @@ namespace Tetrifact.Core
 
         public int GetPackageArchiveStatus(string packageId)
         {
-            if (!this.DoesPackageExist(packageId))
+            if (!_indexReader.PackageExists(packageId))
                 throw new PackageNotFoundException(packageId);
 
             string archivePath = this.GetPackageArchivePath(packageId);
@@ -125,7 +127,7 @@ namespace Tetrifact.Core
 
         private void CreateArchive(string packageId)
         {
-            if (!this.DoesPackageExist(packageId))
+            if (!_indexReader.PackageExists(packageId))
                 throw new PackageNotFoundException(packageId);
 
             // store path with .tmp extension while building, this is used to detect if archiving has already started

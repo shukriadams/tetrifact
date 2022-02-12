@@ -24,6 +24,8 @@ namespace Tetrifact.Tests
 
         public Stream Test_PackageArchive { get; set; }
 
+        public bool Package_Exists { get; set; }
+
         #endregion
 
         #region METHODS
@@ -116,6 +118,11 @@ namespace Tetrifact.Tests
         public Manifest GetExpectedManifest(string packageId)
         {
             return this.Test_Manifest;
+        }
+
+        public bool PackageExists(string packageId)
+        {
+            return this.Package_Exists;
         }
 
         #endregion

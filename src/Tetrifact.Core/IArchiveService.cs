@@ -5,6 +5,12 @@ namespace Tetrifact.Core
     public interface IArchiveService
     {
         /// <summary>
+        /// Creates a package archive without locking up package stream
+        /// </summary>
+        /// <param name="packageId"></param>
+        void EnsurePackageArchive(string packageId);
+
+        /// <summary>
         /// Cleans out trash in archives folder.
         /// </summary>
         void PurgeOldArchives();

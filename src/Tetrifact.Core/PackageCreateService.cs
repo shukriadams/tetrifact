@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Tetrifact.Core
@@ -125,7 +124,7 @@ namespace Tetrifact.Core
 
                 if (_settings.AutoCreateArchiveOnPackageCreate){
                     _log.LogInformation("Generating package archive");
-                    using (Stream stream = _archiveService.GetPackageAsArchive(newPackage.Id)){ }
+                    _archiveService.EnsurePackageArchive(newPackage.Id);
                 }
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };

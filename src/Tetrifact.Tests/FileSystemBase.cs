@@ -61,6 +61,7 @@ namespace Tetrifact.Tests
 
             TagService = new Core.TagsService(
                 Settings,
+                FileSystem,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
             ThreadDefault = new Core.ThreadDefault();

@@ -27,14 +27,17 @@ namespace Tetrifact.Tests.IndexReader
                 TempPath = Path.Join(testFolder, "Temp")
             };
 
+            IFileSystem filesystem = new FileSystem();
+
             Directory.CreateDirectory(settings.TempPath);
             string testFilePath = Path.Join(settings.TempPath, "test");
             File.WriteAllText(testFilePath, string.Empty);
             Core.ITagsService tagService = new Core.TagsService(
-                settings, 
+                settings,
+                filesystem,
                 new TestLogger<Core.ITagsService>(),new Core.PackageListCache(MemoryCacheHelper.GetInstance())); 
 
-            Core.IIndexReadService reader = new Core.IndexReadService(settings, tagService, new TestLogger<Core.IIndexReadService>(), new FileSystem(), HashServiceHelper.Instance());
+            Core.IIndexReadService reader = new Core.IndexReadService(settings, tagService, new TestLogger<Core.IIndexReadService>(), filesystem, HashServiceHelper.Instance());
             reader.Initialize();
 
             Assert.False(File.Exists(testFilePath));
