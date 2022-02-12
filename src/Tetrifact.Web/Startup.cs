@@ -60,6 +60,7 @@ namespace Tetrifact.Web
             services.AddTransient<IPackagePrune, PackagePrune>();
             services.AddTransient<IPackageDiffService, PackageDiffService>();
             services.AddTransient<IArchiveService, ArchiveService>();
+            services.AddTransient<IManagedFileSystem, ThreadSafeFileSystem>();
 
             // register filterws
             services.AddScoped<ReadLevel>();

@@ -24,6 +24,7 @@ namespace Tetrifact.Tests
             Bind<IPackagePrune>().To<Core.PackagePrune>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<ArchiveService>();
+            Bind<IManagedFileSystem>().To<ThreadSafeFileSystem>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
             Bind<ILogger<CleanController>>().To<TestLogger<CleanController>>();
             Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();
@@ -35,6 +36,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IPackageDiffService>>().To<TestLogger<IPackageDiffService>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
+            Bind<ILogger<IManagedFileSystem>>().To<TestLogger<ThreadSafeFileSystem>>();
         }
     }
 }

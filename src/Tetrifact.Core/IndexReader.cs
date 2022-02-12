@@ -23,15 +23,18 @@ namespace Tetrifact.Core
         
         private readonly IHashService _hashService;
 
+        private readonly IManagedFileSystem _threadSafeFileSystem;
+
         #endregion
 
         #region CTORS
 
-        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
+        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IManagedFileSystem threadSafeFileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
+            _threadSafeFileSystem = threadSafeFileSystem;
             _fileSystem = fileSystem;
             _hashService = hashService;
         }
@@ -43,33 +46,33 @@ namespace Tetrifact.Core
         public void Initialize()
         {
             // wipe and recreate temp folder on app start
-            if (Directory.Exists(_settings.TempPath))
-                Directory.Delete(_settings.TempPath, true);
+            if (_threadSafeFileSystem.DirectoryExists(_settings.TempPath))
+                _threadSafeFileSystem.DirectoryDelete(_settings.TempPath, true);
 
-            Directory.CreateDirectory(_settings.PackagePath);
-            Directory.CreateDirectory(_settings.ArchivePath);
-            Directory.CreateDirectory(_settings.TempPath);
-            Directory.CreateDirectory(_settings.RepositoryPath);
-            Directory.CreateDirectory(_settings.TagsPath);
-            Directory.CreateDirectory(_settings.PackageDiffsPath);
+            _threadSafeFileSystem.DirectoryCreate(_settings.PackagePath);
+            _threadSafeFileSystem.DirectoryCreate(_settings.ArchivePath);
+            _threadSafeFileSystem.DirectoryCreate(_settings.TempPath);
+            _threadSafeFileSystem.DirectoryCreate(_settings.RepositoryPath);
+            _threadSafeFileSystem.DirectoryCreate(_settings.TagsPath);
+            _threadSafeFileSystem.DirectoryCreate(_settings.PackageDiffsPath);
         }
 
         public IEnumerable<string> GetAllPackageIds()
         {
-            IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);
+            IEnumerable<string> rawList = _threadSafeFileSystem.GetDirectories(_settings.PackagePath);
             return rawList.Select(r => Path.GetFileName(r));
         }
 
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
-            IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);
+            IEnumerable<string> rawList = _threadSafeFileSystem.GetDirectories(_settings.PackagePath);
             return rawList.Select(r => Path.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string id)
         {
             string packagePath = Path.Join(_settings.PackagePath, id);
-            return _fileSystem.Directory.Exists(packagePath);
+            return _threadSafeFileSystem.DirectoryExists(packagePath);
         }
 
         public virtual Manifest GetExpectedManifest(string packageId)
@@ -84,12 +87,12 @@ namespace Tetrifact.Core
         public virtual Manifest GetManifest(string packageId)
         {
             string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
-            if (!_fileSystem.File.Exists(filePath))
+            if (!_threadSafeFileSystem.FileExists(filePath))
                 return null;
 
             try
             {
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(_fileSystem.File.ReadAllText(filePath));
+                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(_threadSafeFileSystem.ReadAllText(filePath));
                 var allTags = _tagService.GetPackagesThenTags();
                 if (allTags.ContainsKey(packageId))
                     manifest.Tags = allTags[packageId].ToHashSet();
