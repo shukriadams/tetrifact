@@ -65,7 +65,7 @@ namespace Tetrifact.Tests.IndexReader
         /// <summary>
         /// Confirms that a timeout exception is thrown if package creation takes too long.
         /// </summary>
-        [Fact (Skip = "locking file doesn't work on linux, find cross-platform solution")]
+        [Fact/* (Skip = "locking file doesn't work on linux, find cross-platform solution")*/]
         public void GetTimesOut()
         {
             // zero wait times to speed up test, this should trigger an instant timeout
@@ -79,7 +79,7 @@ namespace Tetrifact.Tests.IndexReader
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
             File.WriteAllText(tempArchivePath, string.Empty);
 
-            using (FileStream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (FileStream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 // lock the entire file
                 lockStream.Lock(0, lockStream.Length);

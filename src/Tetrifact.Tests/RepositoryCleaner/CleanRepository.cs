@@ -16,6 +16,10 @@ namespace Tetrifact.Tests.repositoryCleaner
         private readonly IRepositoryCleaner _respositoryCleaner;
         private readonly TestLogger<IRepositoryCleaner> _logger;
 
+        /// <summary>
+        /// Creates 
+        /// </summary>
+        /// <returns></returns>
         private string CreateRepoContent()
         {
             string hash = "somehash";
@@ -39,15 +43,17 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void HappyPAth()
         {
-            // create a file and write to repository using path convention of path/to/file/bin. File is  not linked to any package
+            // create a file and write to repository using path convention of path/to/file/bin. File is not linked to any package
             string contentPath = CreateRepoContent();
 
-            // ensure file exists
+            // ensure content exists
             Assert.True(File.Exists(contentPath));
 
-            // assert file is gone after cleaning repo
             _respositoryCleaner.Clean();
-            Thread.Sleep(500); // wait for slow fs to catch up
+
+            // content must be gone after cleaning repo
+            Thread.Sleep(1500); // wait for slow fs to catch up, todo : rewrite this
+
             Assert.False(File.Exists(contentPath));
         }
 
