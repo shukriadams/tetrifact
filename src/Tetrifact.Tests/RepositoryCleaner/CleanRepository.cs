@@ -47,7 +47,7 @@ namespace Tetrifact.Tests.repositoryCleaner
 
             // assert file is gone after cleaning repo
             _respositoryCleaner.Clean();
-            Thread.Sleep(50); // wait for slow fs to catch up
+            Thread.Sleep(500); // wait for slow fs to catch up
             Assert.False(File.Exists(contentPath));
         }
 

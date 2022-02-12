@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.Controlers
         {
             // inject 3 indices
             TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
-            dynamic json = this.ToDynamic(_controller.ListPackages(false, 0, 10));
+            dynamic json = JsonHelper.ToDynamic(_controller.ListPackages(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();
             Assert.Equal(3, ids.Count());
         }
@@ -39,7 +39,7 @@ namespace Tetrifact.Tests.Controlers
         {
             // inject 3 objects
             TestPackageList.Packages = new List<Core.Package>() { new Core.Package(), new Core.Package(), new Core.Package() };
-            dynamic json = this.ToDynamic(_controller.ListPackages(true, 0, 10));
+            dynamic json = JsonHelper.ToDynamic(_controller.ListPackages(true, 0, 10));
             Core.Package[] packages = json.success.packages.ToObject<Core.Package[]>();
             Assert.Equal(3, packages.Count());
         }

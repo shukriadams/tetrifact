@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.Controlers
         [Fact]
         public void GetArchiveStatus()
         { 
-            dynamic result = this.ToDynamic(_controller.GetArchiveStatus("invalid-package"));
+            dynamic result = JsonHelper.ToDynamic(_controller.GetArchiveStatus("invalid-package"));
             Assert.Null(result.success);
             Assert.NotNull(result.error);
         }
