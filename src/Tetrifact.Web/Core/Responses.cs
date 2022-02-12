@@ -27,9 +27,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        public static BadRequestObjectResult PackageExistsError(string packageId)
+        public static NotFoundObjectResult PackageNotExistError(string packageId)
         {
-            return new BadRequestObjectResult(new
+            return new NotFoundObjectResult(new
             {
                 error = new
                 {

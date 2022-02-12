@@ -104,7 +104,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException)
             {
-                return Responses.NotFoundError(this, $"Package {packageId} not found.");
+                return Responses.PackageNotExistError(packageId);
             }
             catch (Exception ex)
             {

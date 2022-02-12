@@ -296,7 +296,7 @@ namespace Tetrifact.Web
                     return Responses.InvalidArchiveContent();
 
                 if (result.ErrorType == PackageCreateErrorTypes.PackageExists)
-                    return Responses.PackageExistsError(post.Id);
+                    return Responses.PackageNotExistError(post.Id);
 
                 if (result.ErrorType == PackageCreateErrorTypes.MissingValue)
                     return Responses.MissingInputError(result.PublicError);

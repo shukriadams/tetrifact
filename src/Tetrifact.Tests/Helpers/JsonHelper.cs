@@ -29,7 +29,7 @@ namespace Tetrifact.Tests
             {
                 JsonResult jsonResult = actionResult as JsonResult;
                 jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
-            } 
+            }
             else 
                 throw new Exception($"actionResult type ${actionResult.GetType().FullName} is not supported here");
 

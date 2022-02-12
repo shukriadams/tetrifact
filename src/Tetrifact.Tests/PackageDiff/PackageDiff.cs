@@ -6,7 +6,8 @@ namespace Tetrifact.Tests.PackageDiff
     public class PackageDiff : FileSystemBase
     {
         IPackageDiffService PackageDiffService;
-        new TestLogger<IPackageDiffService> Logger;
+
+        readonly TestLogger<IPackageDiffService> Logger;
 
         public PackageDiff()
         { 
