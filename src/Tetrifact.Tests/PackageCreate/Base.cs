@@ -4,18 +4,18 @@ namespace Tetrifact.Tests.PackageCreate
 {
     public abstract class Base : FileSystemBase
     {
-        protected IPackageCreate PackageCreate;
+        protected IPackageCreateService PackageCreate;
 
         protected IPackageCreateWorkspace Workspace;
 
-        protected TestLogger<IPackageCreate> Logger;
+        protected TestLogger<IPackageCreateService> Logger;
 
         public Base()
         {
             Workspace = new Core.PackageCreateWorkspace(Settings, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
-            Logger = new TestLogger<IPackageCreate>();
+            Logger = new TestLogger<IPackageCreateService>();
 
-            PackageCreate = new Core.PackageCreate(
+            PackageCreate = new Core.PackageCreateService(
                 IndexReader, 
                 ArchiveService,
                 Settings,

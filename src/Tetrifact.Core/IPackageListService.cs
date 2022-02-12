@@ -6,7 +6,7 @@ namespace Tetrifact.Core
     /// Defines a type which lists available packages on system. Listing includes paging logic. Note that there is some overlap between this
     /// and ITagServices, this should be refactored out, ITagServices' has no paging logic though.
     /// </summary>
-    public interface IPackageList
+    public interface IPackageListService
     {
         /// <summary>
         /// Gets a list of size count of the most popular tags

@@ -13,8 +13,8 @@ namespace Tetrifact.Tests.repositoryCleaner
     /// </summary>
     public class CleanRepository : FileSystemBase
     {
-        private readonly IRepositoryCleaner _respositoryCleaner;
-        private readonly TestLogger<IRepositoryCleaner> _logger;
+        private readonly IRepositoryCleanService _respositoryCleaner;
+        private readonly TestLogger<IRepositoryCleanService> _logger;
 
         /// <summary>
         /// Creates 
@@ -36,8 +36,8 @@ namespace Tetrifact.Tests.repositoryCleaner
 
         public CleanRepository()
         {
-            _logger = new TestLogger<IRepositoryCleaner>();
-            _respositoryCleaner = new RepositoryCleaner(this.IndexReader, this.Settings, this.FileSystem, _logger);
+            _logger = new TestLogger<IRepositoryCleanService>();
+            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, this.Settings, this.FileSystem, _logger);
         }
 
         [Fact]
@@ -64,14 +64,14 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_Locked_System()
         {
             // mock out GetAllPackageIds method to force throw exception
-            IIndexReader mockIndexReader = Mock.Of<IIndexReader>();
+            IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();
             Mock.Get(mockIndexReader)
                 .Setup(r => r.GetAllPackageIds())
                 .Callback(() => {
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleaner respositoryCleaner = new RepositoryCleaner(mockIndexReader, Settings, this.FileSystem, _logger);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.FileSystem, _logger);
             respositoryCleaner.Clean();
             Assert.True(_logger.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -83,14 +83,14 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_Unhandled_Exception()
         {
             // mock out GetAllPackageIds method to force throw exception
-            IIndexReader mockIndexReader = Mock.Of<IIndexReader>();
+            IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();
             Mock.Get(mockIndexReader)
                 .Setup(r => r.GetAllPackageIds())
                 .Callback(() => {
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleaner mockedCleaner = new RepositoryCleaner(mockIndexReader, Settings, this.FileSystem, _logger);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.FileSystem, _logger);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();
@@ -121,7 +121,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Directory.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            RepositoryCleaner mockedCleaner = new RepositoryCleaner(IndexReader, Settings, mockedFilesystem, _logger);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, Settings, mockedFilesystem, _logger);
             mockedCleaner.Clean();
             Assert.True(_logger.ContainsFragment("Failed to read content of directory"));
         }

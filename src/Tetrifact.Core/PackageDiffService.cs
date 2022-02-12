@@ -13,10 +13,10 @@ namespace Tetrifact.Core
     {
         private readonly ISettings _settings;
         private readonly IFileSystem _fileSystem;
-        private readonly IIndexReader _indexReader;
+        private readonly IIndexReadService _indexReader;
         private readonly ILogger<IPackageDiffService> _logger;
 
-        public PackageDiffService(ISettings settings, IFileSystem fileSystem, IIndexReader indexReader, ILogger<IPackageDiffService> logger)
+        public PackageDiffService(ISettings settings, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<IPackageDiffService> logger)
         {
             _settings = settings;
             _fileSystem = fileSystem;

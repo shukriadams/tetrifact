@@ -3,7 +3,7 @@
     /// <summary>
     /// Defines a type that creates a package.
     /// </summary>
-    public interface IPackageCreate
+    public interface IPackageCreateService
     {
         /// <summary>
         /// Creates a package

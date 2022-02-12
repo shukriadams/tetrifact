@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.TagsService
     {
         protected ITagsService TagsService { get; private set; }
         protected IPackageListCache PackageListCache { get; private set; }
-        protected IPackageList PackageList { get; private set; }
+        protected IPackageListService PackageList { get; private set; }
 
         private readonly IMemoryCache _memoryCache;
 
@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.TagsService
 
             this.PackageListCache = new PackageListCache(_memoryCache);
             this.TagsService = new Core.TagsService(this.Settings, new TestLogger<ITagsService>(), this.PackageListCache);
-            this.PackageList = new Core.PackageList(MemoryCacheHelper.GetInstance(), this.Settings, this.TagsService, this.FileSystem, new TestLogger<IPackageList>());
+            this.PackageList = new Core.PackageListService(MemoryCacheHelper.GetInstance(), this.Settings, this.TagsService, this.FileSystem, new TestLogger<IPackageListService>());
         }
 
         public void Dispose()

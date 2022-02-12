@@ -14,7 +14,7 @@ namespace Tetrifact.Core
     /// Package list logic ; implements in-memory caching to save on expensive read operations, as generating a list of packages requires 
     /// loading the JSON manifest of each package. 
     /// </summary>
-    public class PackageList : IPackageList
+    public class PackageListService : IPackageListService
     {
         #region FIELDS
 
@@ -24,7 +24,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IPackageList> _logger;
+        private readonly ILogger<IPackageListService> _logger;
 
         private readonly ITagsService _tagService;
 
@@ -34,7 +34,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageList(IMemoryCache memoryCache, ISettings settings, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageList> logger)
+        public PackageListService(IMemoryCache memoryCache, ISettings settings, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> logger)
         {
             _cache = memoryCache;
             _settings = settings;

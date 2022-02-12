@@ -10,9 +10,9 @@ namespace Tetrifact.DevUtils
 {
     public class PackageGenerator
     {
-        IPackageCreate _packageServices;
+        IPackageCreateService _packageServices;
 
-        public PackageGenerator(IPackageCreate packageServices)
+        public PackageGenerator(IPackageCreateService packageServices)
         {
             _packageServices = packageServices;
         }

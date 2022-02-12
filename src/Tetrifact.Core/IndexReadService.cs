@@ -9,13 +9,13 @@ using System.Text;
 
 namespace Tetrifact.Core
 {
-    public class IndexReader : IIndexReader
+    public class IndexReadService : IIndexReadService
     {
         #region FIELDS
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IIndexReader> _logger;
+        private readonly ILogger<IIndexReadService> _logger;
 
         private readonly ITagsService _tagService;
 
@@ -27,7 +27,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IFileSystem fileSystem, IHashService hashService)
+        public IndexReadService(ISettings settings, ITagsService tagService, ILogger<IIndexReadService> logger, IFileSystem fileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;

@@ -5,21 +5,21 @@ using System.Linq;
 
 namespace Tetrifact.Core
 {
-    public class PackagePrune : IPackagePrune
+    public class PackagePruneService : IPackagePruneService
     {
         #region FIELDS 
 
         ISettings _settings;
 
-        IIndexReader _indexReader;
+        IIndexReadService _indexReader;
 
-        ILogger<IPackagePrune> _logger;
+        ILogger<IPackagePruneService> _logger;
 
         #endregion
 
         #region CTORS
 
-        public PackagePrune(ISettings settings, IIndexReader indexReader, ILogger<IPackagePrune> logger)
+        public PackagePruneService(ISettings settings, IIndexReadService indexReader, ILogger<IPackagePruneService> logger)
         {
             _settings = settings;
             _indexReader = indexReader;

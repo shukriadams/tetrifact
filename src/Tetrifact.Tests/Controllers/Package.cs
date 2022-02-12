@@ -14,12 +14,12 @@ namespace Tetrifact.Tests.Controllers
     {
         private readonly PackagesController _controller;
 
-        private readonly IPackageCreate _packageService;
+        private readonly IPackageCreateService _packageService;
 
         public Package()
         {
             _controller = this.Kernel.Get<PackagesController>();
-            _packageService = this.Kernel.Get<IPackageCreate>();
+            _packageService = this.Kernel.Get<IPackageCreateService>();
 
             TestingWorkspace.Reset();
         }

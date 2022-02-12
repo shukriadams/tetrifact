@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly IIndexReader _indexReader;
+        private readonly IIndexReadService _indexReader;
         
         private readonly IThread _thread;
         
@@ -26,7 +26,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReader indexReader, IThread thread, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IThread thread, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
             _thread = thread;

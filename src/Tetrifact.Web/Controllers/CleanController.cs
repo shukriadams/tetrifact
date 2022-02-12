@@ -11,11 +11,11 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
+        private readonly IIndexReadService _indexService;
 
         private readonly IArchiveService _archiveService;
 
-        private readonly IRepositoryCleaner _repositoryCleaner;
+        private readonly IRepositoryCleanService _repositoryCleaner;
 
         private readonly ILogger<CleanController> _log;
         #endregion
@@ -29,7 +29,7 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, IArchiveService archiveService, ILogger<CleanController> log)
+        public CleanController(IRepositoryCleanService repositoryCleaner, IIndexReadService indexService, IArchiveService archiveService, ILogger<CleanController> log)
         {
             _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;

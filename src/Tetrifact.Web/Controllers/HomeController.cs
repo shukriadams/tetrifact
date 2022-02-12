@@ -9,14 +9,14 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly ISettings _settings;
-        private readonly IIndexReader _indexService;
-        private readonly IPackageList _packageList;
+        private readonly IIndexReadService _indexService;
+        private readonly IPackageListService _packageList;
 
         #endregion
 
         #region CTORS
 
-        public HomeController(ISettings settings, IIndexReader indexService, IPackageList packageList)
+        public HomeController(ISettings settings, IIndexReadService indexService, IPackageListService packageList)
         {
             _settings = settings;
             _indexService = indexService;

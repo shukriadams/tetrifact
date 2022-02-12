@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.IndexReader
                 settings, 
                 new TestLogger<Core.ITagsService>(),new Core.PackageListCache(MemoryCacheHelper.GetInstance())); 
 
-            Core.IIndexReader reader = new Core.IndexReader(settings, tagService, new TestLogger<Core.IIndexReader>(), new FileSystem(), HashServiceHelper.Instance());
+            Core.IIndexReadService reader = new Core.IndexReadService(settings, tagService, new TestLogger<Core.IIndexReadService>(), new FileSystem(), HashServiceHelper.Instance());
             reader.Initialize();
 
             Assert.False(File.Exists(testFilePath));

@@ -14,9 +14,9 @@ namespace Tetrifact.Web
 
         private int _tickInterval;
 
-        private readonly IRepositoryCleaner _repositoryCleaner;
+        private readonly IRepositoryCleanService _repositoryCleaner;
 
-        private readonly IIndexReader _indexService;
+        private readonly IIndexReadService _indexService;
 
         private readonly IArchiveService _archiveService;
 
@@ -26,13 +26,13 @@ namespace Tetrifact.Web
 
         private ILogger<Daemon> _log;
 
-        private IPackagePrune _packagePrune;
+        private IPackagePruneService _packagePrune;
 
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, IArchiveService archiveService, IPackagePrune packagePrune, ILogger<Daemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IIndexReadService indexService, IArchiveService archiveService, IPackagePruneService packagePrune, ILogger<Daemon> log)
         {
             _indexService = indexService;
             _packagePrune = packagePrune;

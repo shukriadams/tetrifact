@@ -15,13 +15,13 @@ namespace Tetrifact.Tests
 
         protected ISettings Settings;
         
-        protected TestLogger<IIndexReader> IndexReaderLogger;
+        protected TestLogger<IIndexReadService> IndexReaderLogger;
         
         protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
         
         protected TestLogger<IArchiveService> ArchiveLogger;
         
-        protected IIndexReader IndexReader;
+        protected IIndexReadService IndexReader;
         
         protected ITagsService TagService;
         
@@ -47,7 +47,7 @@ namespace Tetrifact.Tests
 
             // pass in real file system for all tests, we use this most of the time, individual tests must override this on their own
             FileSystem = new FileSystem();
-            IndexReaderLogger = new TestLogger<IIndexReader>();
+            IndexReaderLogger = new TestLogger<IIndexReadService>();
             ArchiveLogger = new TestLogger<IArchiveService>();
 
             Settings = new Settings(new TestLogger<Settings>())
@@ -65,7 +65,7 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new Core.ThreadDefault();
 
-            IndexReader = new Core.IndexReader(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            IndexReader = new Core.IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
             ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, FileSystem, ArchiveLogger, Settings);
 
             Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests

@@ -120,7 +120,6 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public Dictionary<string, IEnumerable<string>> GetPackagesThenTags()
         {
-            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
             Dictionary<string, IEnumerable<string>> tags = this.GetTagsThenPackages();
 
             Dictionary<string, List<string>> packagetemp = new Dictionary<string, List<string>>();

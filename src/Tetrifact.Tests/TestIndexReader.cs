@@ -4,7 +4,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
-    public class TestIndexReader : IIndexReader
+    public class TestIndexReader : IIndexReadService
     {
         #region FIELDS 
 

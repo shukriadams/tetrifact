@@ -6,15 +6,15 @@ using System.Linq;
 
 namespace Tetrifact.Core
 {
-    public class PackageCreate : IPackageCreate
+    public class PackageCreateService : IPackageCreateService
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexReader;
+        private readonly IIndexReadService _indexReader;
 
         private readonly IPackageCreateWorkspace _workspace;
 
-        private readonly ILogger<IPackageCreate> _log;
+        private readonly ILogger<IPackageCreateService> _log;
 
         private readonly ISettings _settings;
 
@@ -26,7 +26,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreate(IIndexReader indexReader, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreate> log, IPackageCreateWorkspace workspace, IHashService hashService)
+        public PackageCreateService(IIndexReadService indexReader, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;

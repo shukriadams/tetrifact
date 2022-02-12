@@ -46,18 +46,18 @@ namespace Tetrifact.Web
 
             // register type injections here
             services.AddTransient<ISettings, Settings>();
-            services.AddTransient<IIndexReader, IndexReader>();
-            services.AddTransient<IRepositoryCleaner, RepositoryCleaner>();
+            services.AddTransient<IIndexReadService, IndexReadService>();
+            services.AddTransient<IRepositoryCleanService, RepositoryCleanService>();
             services.AddTransient<IPackageCreateWorkspace, PackageCreateWorkspace>();
             services.AddTransient<ITagsService, TagsService>();
-            services.AddTransient<IPackageCreate, PackageCreate>();
-            services.AddTransient<IPackageList, PackageList>();
+            services.AddTransient<IPackageCreateService, PackageCreateService>();
+            services.AddTransient<IPackageListService, PackageListService>();
             services.AddTransient<IPackageListCache, PackageListCache>();
             services.AddTransient<IHashService, HashService>();
             services.AddTransient<IFileSystem, FileSystem>();
             services.AddTransient<Daemon, Daemon>();
             services.AddTransient<IThread, ThreadDefault>();
-            services.AddTransient<IPackagePrune, PackagePrune>();
+            services.AddTransient<IPackagePruneService, PackagePruneService>();
             services.AddTransient<IPackageDiffService, PackageDiffService>();
             services.AddTransient<IArchiveService, ArchiveService>();
 
@@ -164,8 +164,8 @@ namespace Tetrifact.Web
             Console.WriteLine("*********************************************************************");
 
             // initialize indexes
-            IEnumerable<IIndexReader> indexReaders = serviceProvider.GetServices<IIndexReader>();
-            foreach (IIndexReader indexReader in indexReaders)
+            IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
+            foreach (IIndexReadService indexReader in indexReaders)
                 indexReader.Initialize();
             Console.WriteLine("Indexes initialized");
 

@@ -7,15 +7,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
 {
-    public class RepositoryCleaner : IRepositoryCleaner
+    public class RepositoryCleanService : IRepositoryCleanService
     {
         #region FIELDS
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IRepositoryCleaner> _logger;
+        private readonly ILogger<IRepositoryCleanService> _logger;
 
-        private readonly IIndexReader _indexReader;
+        private readonly IIndexReadService _indexReader;
 
         private readonly IFileSystem _fileSystem;
 
@@ -25,7 +25,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleaner(IIndexReader indexReader, ISettings settings, IFileSystem fileSystem, ILogger<IRepositoryCleaner> logger)
+        public RepositoryCleanService(IIndexReadService indexReader, ISettings settings, IFileSystem fileSystem, ILogger<IRepositoryCleanService> logger)
         {
             _settings = settings;
             _fileSystem = fileSystem;

@@ -6,7 +6,7 @@ namespace Tetrifact.Core
     /// Presents an abstraction that can be used to write to and read from a collection of packages. In production this would 
     /// be a collection of files and folders on a file system. For testing purposes this would be an in-memory abstraction.
     /// </summary>
-    public interface IIndexReader
+    public interface IIndexReadService
     {
         /// <summary>
         /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.

@@ -38,9 +38,9 @@ namespace Tetrifact.Tests
         /// <returns>New package id</returns>
         public static string CreatePackage(ISettings settings, IEnumerable<string> filesContent)
         {
-            IIndexReader indexReader = new Core.IndexReader(settings, 
+            IIndexReadService indexReader = new Core.IndexReadService(settings, 
                 new Core.TagsService(settings, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())), 
-                new TestLogger<IIndexReader>(),
+                new TestLogger<IIndexReadService>(),
                 new FileSystem(), 
                 HashServiceHelper.Instance());
 
@@ -51,11 +51,11 @@ namespace Tetrifact.Tests
                 new TestLogger<IArchiveService>(), 
                 settings);
 
-            IPackageCreate PackageCreate = new Core.PackageCreate(
+            IPackageCreateService PackageCreate = new Core.PackageCreateService(
                 indexReader,
                 archiveService,
                 settings,
-                new TestLogger<IPackageCreate>(),
+                new TestLogger<IPackageCreateService>(),
                 new Core.PackageCreateWorkspace(settings, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance()),
                 HashServiceHelper.Instance());
 

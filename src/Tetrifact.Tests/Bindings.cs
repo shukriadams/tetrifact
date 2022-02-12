@@ -11,17 +11,17 @@ namespace Tetrifact.Tests
         public override void Load()
         {
             Bind<ISettings>().To<Settings>();
-            Bind<IIndexReader>().To<TestIndexReader>();
-            Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
+            Bind<IIndexReadService>().To<TestIndexReader>();
+            Bind<IRepositoryCleanService>().To<TestRepositoryCleaner>();
             Bind<IPackageCreateWorkspace>().To<TestingWorkspace>();
-            Bind<IPackageList>().To<TestPackageList>();
+            Bind<IPackageListService>().To<TestPackageList>();
             Bind<IFileSystem>().To<FileSystem>();
             Bind<IHashService>().To<HashService>();
             Bind<IPackageListCache>().To<TestPackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
-            Bind<IPackageCreate>().To<Core.PackageCreate>();
+            Bind<IPackageCreateService>().To<Core.PackageCreateService>();
             Bind<IThread>().To<ThreadDefault>();
-            Bind<IPackagePrune>().To<Core.PackagePrune>();
+            Bind<IPackagePruneService>().To<Core.PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<Core.ArchiveService>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<ArchivesController>>().To<TestLogger<ArchivesController>>();
             Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
             Bind<ILogger<IPackageCreateWorkspace>>().To<TestLogger<IPackageCreateWorkspace>>();
-            Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
+            Bind<ILogger<IPackageCreateService>>().To<TestLogger<IPackageCreateService>>();
             Bind<ILogger<ISettings>>().To<TestLogger<ISettings>>();
             Bind<ILogger<IPackageDiffService>>().To<TestLogger<IPackageDiffService>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
