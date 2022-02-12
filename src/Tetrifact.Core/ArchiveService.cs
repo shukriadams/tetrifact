@@ -55,6 +55,14 @@ namespace Tetrifact.Core
             return manifest != null;
         }
 
+        public void EnsurePackageArchive(string packageId)
+        {
+            using (Stream stream =this.GetPackageAsArchive(packageId))
+            { 
+                // createa and immediately dispose of stream
+            }
+        }
+
         public Stream GetPackageAsArchive(string packageId)
         {
             string archivePath = this.GetPackageArchivePath(packageId);

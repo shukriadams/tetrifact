@@ -43,5 +43,11 @@ namespace Tetrifact.Core
         /// <param name="packageId"></param>
         /// <returns></returns>
         string GetPackageArchivePath(string packageId);
+
+        /// <summary>
+        /// Creates a package archive without locking up package stream
+        /// </summary>
+        /// <param name="packageId"></param>
+        void EnsurePackageArchive(string packageId);
     }
 }

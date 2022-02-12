@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -20,18 +19,18 @@ namespace Tetrifact.Core
         
         private readonly IHashService _hashService;
 
-        private readonly IManagedFileSystem _threadSafeFileSystem;
+        private readonly IManagedFileSystem _filesystem;
 
         #endregion
 
         #region CTORS
 
-        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IManagedFileSystem threadSafeFileSystem, IHashService hashService)
+        public IndexReader(ISettings settings, ITagsService tagService, ILogger<IIndexReader> logger, IManagedFileSystem filesystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
-            _threadSafeFileSystem = threadSafeFileSystem;
+            _filesystem = filesystem;
             _hashService = hashService;
         }
 
@@ -42,33 +41,33 @@ namespace Tetrifact.Core
         public void Initialize()
         {
             // wipe and recreate temp folder on app start
-            if (_threadSafeFileSystem.DirectoryExists(_settings.TempPath))
-                _threadSafeFileSystem.DirectoryDelete(_settings.TempPath, true);
+            if (_filesystem.DirectoryExists(_settings.TempPath))
+                _filesystem.DirectoryDelete(_settings.TempPath, true);
 
-            _threadSafeFileSystem.DirectoryCreate(_settings.PackagePath);
-            _threadSafeFileSystem.DirectoryCreate(_settings.ArchivePath);
-            _threadSafeFileSystem.DirectoryCreate(_settings.TempPath);
-            _threadSafeFileSystem.DirectoryCreate(_settings.RepositoryPath);
-            _threadSafeFileSystem.DirectoryCreate(_settings.TagsPath);
-            _threadSafeFileSystem.DirectoryCreate(_settings.PackageDiffsPath);
+            _filesystem.DirectoryCreate(_settings.PackagePath);
+            _filesystem.DirectoryCreate(_settings.ArchivePath);
+            _filesystem.DirectoryCreate(_settings.TempPath);
+            _filesystem.DirectoryCreate(_settings.RepositoryPath);
+            _filesystem.DirectoryCreate(_settings.TagsPath);
+            _filesystem.DirectoryCreate(_settings.PackageDiffsPath);
         }
 
         public IEnumerable<string> GetAllPackageIds()
         {
-            IEnumerable<string> rawList = _threadSafeFileSystem.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetFileName(r));
+            IEnumerable<string> rawList = _filesystem.GetDirectories(_settings.PackagePath);
+            return rawList.Select(r => _filesystem.GetFileName(r));
         }
 
         public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
         {
-            IEnumerable<string> rawList = _threadSafeFileSystem.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
+            IEnumerable<string> rawList = _filesystem.GetDirectories(_settings.PackagePath);
+            return rawList.Select(r => _filesystem.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string id)
         {
-            string packagePath = Path.Join(_settings.PackagePath, id);
-            return _threadSafeFileSystem.DirectoryExists(packagePath);
+            string packagePath = _filesystem.Join(_settings.PackagePath, id);
+            return _filesystem.DirectoryExists(packagePath);
         }
 
         public virtual Manifest GetExpectedManifest(string packageId)
@@ -82,13 +81,13 @@ namespace Tetrifact.Core
 
         public virtual Manifest GetManifest(string packageId)
         {
-            string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
-            if (!_threadSafeFileSystem.FileExists(filePath))
+            string filePath = _filesystem.Join(_settings.PackagePath, packageId, "manifest.json");
+            if (!_filesystem.FileExists(filePath))
                 return null;
 
             try
             {
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(_threadSafeFileSystem.ReadAllText(filePath));
+                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(_filesystem.ReadAllText(filePath));
                 var allTags = _tagService.GetPackagesThenTags();
                 if (allTags.ContainsKey(packageId))
                     manifest.Tags = allTags[packageId].ToHashSet();
@@ -105,10 +104,10 @@ namespace Tetrifact.Core
         public GetFileResponse GetFile(string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-            string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
+            string directFilePath = _filesystem.Join(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
             
-            if (_threadSafeFileSystem.FileExists(directFilePath))
-                return new GetFileResponse(_threadSafeFileSystem.GetFileReadStream(directFilePath), Path.GetFileName(fileIdentifier.Path));
+            if (_filesystem.FileExists(directFilePath))
+                return new GetFileResponse(_filesystem.GetFileReadStream(directFilePath), _filesystem.GetFileName(fileIdentifier.Path));
 
             return null;
         }
@@ -127,8 +126,8 @@ namespace Tetrifact.Core
             {
                 ManifestItem manifestItem = manifest.Files.FirstOrDefault(r => r.Path == filePath);
 
-                string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
-                if (_threadSafeFileSystem.FileExists(directFilePath))
+                string directFilePath = _filesystem.Join(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
+                if (_filesystem.FileExists(directFilePath))
                 {
                     (string, long) fileOnDiskProperties = _hashService.FromFile(directFilePath);
                     if (fileOnDiskProperties.Item1 != manifestItem.Hash)
@@ -164,25 +163,25 @@ namespace Tetrifact.Core
             // delete repo entries for this package, the binary will be removed by a cleanup job
             foreach (ManifestItem item in manifest.Files)
             {
-                string targetPath = Path.Combine(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
-                if (_threadSafeFileSystem.FileExists(targetPath))
-                    _threadSafeFileSystem.FileDelete(targetPath);
+                string targetPath = _filesystem.Join(_settings.RepositoryPath, item.Path, item.Hash, "packages", packageId);
+                if (_filesystem.FileExists(targetPath))
+                    _filesystem.FileDelete(targetPath);
             }
 
             // delete package folder
-            string packageFolder = Path.Combine(_settings.PackagePath, packageId);
-            if (_threadSafeFileSystem.DirectoryExists(packageFolder))
-                _threadSafeFileSystem.DirectoryDelete(packageFolder, true);
+            string packageFolder = _filesystem.Join(_settings.PackagePath, packageId);
+            if (_filesystem.DirectoryExists(packageFolder))
+                _filesystem.DirectoryDelete(packageFolder, true);
 
             // delete archives for package
-            string archivePath = Path.Combine(_settings.ArchivePath, packageId + ".zip");
-            if (_threadSafeFileSystem.FileExists(archivePath))
+            string archivePath = _filesystem.Join(_settings.ArchivePath, packageId + ".zip");
+            if (_filesystem.FileExists(archivePath))
             {
                 try
                 {
-                    _threadSafeFileSystem.FileDelete(archivePath);
+                    _filesystem.FileDelete(archivePath);
                 }
-                catch (IOException ex)
+                catch (System.IO.IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
                     _logger.LogWarning($"Failed to purge archive ${archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
@@ -190,14 +189,14 @@ namespace Tetrifact.Core
             }
 
             // delete tag links for package
-            IEnumerable<string> tagFiles = _threadSafeFileSystem.GetFiles(_settings.TagsPath, packageId, SearchOption.AllDirectories);
+            IEnumerable<string> tagFiles = _filesystem.GetFiles(_settings.TagsPath, packageId, System.IO.SearchOption.AllDirectories);
             foreach (string tagFile in tagFiles)
             {
                 try
                 {
-                    _threadSafeFileSystem.FileDelete(tagFile);
+                    _filesystem.FileDelete(tagFile);
                 }
-                catch (IOException ex)
+                catch (System.IO.IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
                     _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");

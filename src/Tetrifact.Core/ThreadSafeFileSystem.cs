@@ -9,6 +9,31 @@ namespace Tetrifact.Core
 
         private object _changeLock = new object();
 
+        public string GetFileName(string name)
+        {
+            return Path.GetFileName(name);
+        }
+
+        public string Join(string name1, string name2)
+        {
+            return Path.Join(name1, name2);
+        }
+
+        public string Join(string name1, string name2, string name3)
+        {
+            return Path.Join(name1, name2, name3);
+        }
+
+        public string Join(string name1, string name2, string name3, string name4)
+        {
+            return Path.Join(name1, name2, name3, name4);
+        }
+
+        public string Join(string name1, string name2, string name3, string name4, string name5)
+        {
+            return Path.Join(name1, name2, name3, name4, name5);
+        }
+
         public void DirectoryCreate(string path)
         { 
             lock(_changeLock)
