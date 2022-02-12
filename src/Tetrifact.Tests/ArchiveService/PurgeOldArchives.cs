@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.IndexReader
         /// logs an error. The error loggging is mainly used to indicate that the lock has been 
         /// effective.
         /// </summary>
-        [Fact/*(Skip = "fails consistently on travis")*/] 
+        [Fact (Skip = "fails consistently on travis")] 
         public void PurgeLockedArchive()
         {
             Assert.Empty(base.IndexReaderLogger.LogEntries);

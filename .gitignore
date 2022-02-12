@@ -29,6 +29,7 @@
 /build/linux/clone
 /src/Tetrifact.Tests/coverage.xml
 /src/Tetrifact.Tests/coverage
+/src/coverage
 /build/travis/.stage
 vagrant/ubuntu-bionic-18.04-cloudimg-console.log
 src/Tetrifact.Tests/coverage.xml.*

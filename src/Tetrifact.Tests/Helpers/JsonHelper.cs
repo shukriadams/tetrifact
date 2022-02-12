@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 
 namespace Tetrifact.Tests
@@ -15,17 +16,22 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public static dynamic ToDynamic(ActionResult actionResult)
         {
+            if (actionResult == null)
+                throw new Exception("actionResult cannot be null if dynamic conversion is needed");
+
             string jrawJson;
             if (actionResult is NotFoundObjectResult)
             {
                 NotFoundObjectResult notFound = actionResult as NotFoundObjectResult;
                 jrawJson = JsonConvert.SerializeObject(notFound.Value);
             }
-            else
+            else if (actionResult is JsonResult)
             {
                 JsonResult jsonResult = actionResult as JsonResult;
                 jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
-            }
+            } 
+            else 
+                throw new Exception($"actionResult type ${actionResult.GetType().FullName} is not supported here");
 
             dynamic obj = JsonConvert.DeserializeObject(jrawJson);
             return obj;

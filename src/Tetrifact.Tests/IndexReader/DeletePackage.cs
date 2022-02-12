@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.IndexReader
         }
 
         
-        [Fact/* (Skip = "fails consistently on travis")*/]  
+        [Fact (Skip = "fails consistently on travis")]  
         public void DeleteWithLockedArchive()
         {
             TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);

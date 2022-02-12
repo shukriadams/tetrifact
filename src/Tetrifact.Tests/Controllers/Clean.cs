@@ -1,23 +1,15 @@
-using Tetrifact.Web;
-using System.Collections.Generic;
 using Xunit;
 using Ninject;
-using Tetrifact.Core;
-using System.Linq;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.IO.Compression;
 
 namespace Tetrifact.Tests.Controlers
 {
     public class Clean : TestBase
     {
-        private readonly Tetrifact.Web.CleanController _controller;
+        private readonly Web.CleanController _controller;
 
         public Clean()
         {
-            _controller = this.Kernel.Get<Tetrifact.Web.CleanController>();
+            _controller = this.Kernel.Get<Web.CleanController>();
 
             TestingWorkspace.Reset();
         }
