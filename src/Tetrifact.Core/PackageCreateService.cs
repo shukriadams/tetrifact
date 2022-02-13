@@ -90,17 +90,20 @@ namespace Tetrifact.Core
 
                 _log.LogInformation("Hashing package content");
 
+                // populate hash collection with paths of incoming files, this ensures we maintain order 
+                // when parallel processing hashes for these files
                 IDictionary<string, string> hashes = new Dictionary<string, string>();
                 foreach (string file in files)
                     hashes.Add(file, null);
 
+                // get hash of incoming file, multithreaded for performance.
                 files.AsParallel().ForAll(delegate(string filePath) {
                     try {
-                        // get hash of incoming file
                         (string, long) fileProperties = _workspace.GetIncomingFileProperties(filePath);
 
                         lock(hashes)
                         {
+                            // 2 hashes are stored here, the hash of the path, AND the hash of the content at that path
                             hashes[filePath] = _hashService.FromString(filePath) + fileProperties.Item1;
                         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Ninject.Modules;
 using System.IO.Abstractions;
 using Tetrifact.Core;
@@ -11,17 +12,18 @@ namespace Tetrifact.Tests
         public override void Load()
         {
             Bind<ISettings>().To<Settings>();
+            Bind<IMemoryCache>().To<TestMemoryCache>();
             Bind<IIndexReadService>().To<TestIndexReader>();
             Bind<IRepositoryCleanService>().To<TestRepositoryCleaner>();
-            Bind<IPackageCreateWorkspace>().To<TestingWorkspace>();
-            Bind<IPackageListService>().To<TestPackageList>();
+            Bind<IPackageListService>().To<PackageListService>();
             Bind<IFileSystem>().To<FileSystem>();
             Bind<IHashService>().To<HashService>();
             Bind<IPackageListCache>().To<TestPackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
-            Bind<IPackageCreateService>().To<Core.PackageCreateService>();
+            Bind<IPackageCreateService>().To<PackageCreateService>();
+            Bind<IPackageCreateWorkspace>().To<PackageCreateWorkspace>();
             Bind<IThread>().To<ThreadDefault>();
-            Bind<IPackagePruneService>().To<Core.PackagePruneService>();
+            Bind<IPackagePruneService>().To<PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<Core.ArchiveService>();
             Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
@@ -35,6 +37,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IPackageDiffService>>().To<TestLogger<IPackageDiffService>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
+            Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
         }
     }
 }

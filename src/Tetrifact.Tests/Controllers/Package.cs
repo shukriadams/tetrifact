@@ -7,6 +7,8 @@ using System.Linq;
 using System.IO;
 using System;
 using System.IO.Compression;
+using Ninject.Parameters;
+using Moq;
 
 namespace Tetrifact.Tests.Controllers
 {
@@ -37,9 +39,15 @@ namespace Tetrifact.Tests.Controllers
         [Fact]
         public void GetPackageList()
         {
-            // inject 3 objects
-            TestPackageList.Packages = new List<Core.Package>() { new Core.Package(), new Core.Package(), new Core.Package() };
-            dynamic json = JsonHelper.ToDynamic(_controller.ListPackages(true, 0, 10));
+            IPackageListService moqListService = Mock.Of<IPackageListService>();
+            Mock.Get(moqListService)
+                .Setup(r => r.Get(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns( new List<Core.Package>() {
+                    new Core.Package(), new Core.Package(), new Core.Package() // inject 3 packages
+                });
+
+            PackagesController controller = this.Kernel.Get<PackagesController>(new ConstructorArgument("packageListService", moqListService) );
+            dynamic json = JsonHelper.ToDynamic(controller.ListPackages(true, 0, 10));
             Core.Package[] packages = json.success.packages.ToObject<Core.Package[]>();
             Assert.Equal(3, packages.Count());
         }
@@ -52,11 +60,17 @@ namespace Tetrifact.Tests.Controllers
             string file2Content = "file 2 content";
             Stream file1 = StreamsHelper.StreamFromString(file1Content);
             Stream file2 = StreamsHelper.StreamFromString(file2Content);
-            string expectedFullhash = HashServiceHelper.Instance().FromString(
-                HashServiceHelper.Instance().FromString("folder1/file1.txt") +
-                HashServiceHelper.Instance().FromString(file1Content) +
-                HashServiceHelper.Instance().FromString("folder2/file2.txt") +
-                HashServiceHelper.Instance().FromString(file2Content));
+
+            IHashService hashService = HashServiceHelper.Instance();
+            
+            string file1Hash = hashService.FromString(file1Content);
+            string file2Hash = hashService.FromString(file2Content);
+
+            string expectedFullhash = hashService.FromString(
+                hashService.FromString("folder1/file1.txt") +
+                file1Hash +
+                hashService.FromString("folder2/file2.txt") +
+                file2Hash);
 
             PackageCreateArguments postArgs = new PackageCreateArguments
             {
@@ -70,7 +84,8 @@ namespace Tetrifact.Tests.Controllers
 
             PackageCreateResult result = _packageService.CreatePackage(postArgs);
             Assert.True(result.Success);
-            Assert.Equal(2, TestingWorkspace.Repository.Count());
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -81,11 +96,15 @@ namespace Tetrifact.Tests.Controllers
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
 
+            IHashService hashService = HashServiceHelper.Instance();
+            string file1Hash = hashService.FromString(file1Content);
+            string file2Hash = hashService.FromString(file2Content);
+
             string expectedFullhash = HashServiceHelper.Instance().FromString(
                 HashServiceHelper.Instance().FromString("folder1/file1.txt") +
-                HashServiceHelper.Instance().FromString(file1Content) +
+                file1Hash +
                 HashServiceHelper.Instance().FromString("folder2/file2.txt") +
-                HashServiceHelper.Instance().FromString(file2Content));
+                file2Hash);
 
             files.Add("folder1/file1.txt", file1Content);
             files.Add("folder2/file2.txt", file2Content);
@@ -120,7 +139,8 @@ namespace Tetrifact.Tests.Controllers
                 throw new Exception(result.PublicError);
 
             Assert.True(result.Success);
-            Assert.Equal(2, TestingWorkspace.Repository.Count());
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 

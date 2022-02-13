@@ -39,15 +39,15 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageService"></param>
         /// <param name="settings"></param>
-        /// <param name="indexService"></param>
+        /// <param name="indexReadService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreateService packageService, IPackageListService packageList, IPackageListCache packageListCache, IIndexReadService indexService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreateService packageService, IPackageListService packageListService, IPackageListCache packageListCache, IIndexReadService indexReadService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
         {
-            _packageList = packageList;
+            _packageList = packageListService;
             _packageService = packageService;
             _packageListCache = packageListCache;
-            _indexService = indexService;
+            _indexService = indexReadService;
             _settings = settings;
             _packageDiffService = packageDiffService;
             _log = log;

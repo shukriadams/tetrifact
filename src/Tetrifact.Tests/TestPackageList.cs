@@ -9,7 +9,7 @@ namespace Tetrifact.Tests
     /// Instead of reading packages from filesystem, returns whatever is placed in internal static collections. 
     /// These should be primed by unit tests.
     /// </summary>
-    public class TestPackageList : IPackageListService
+    public class TestdfdPackageList 
     {
         public static IList<Package> Packages = new List<Package>();
         public static IList<string> PopularTags = new List<string>();
