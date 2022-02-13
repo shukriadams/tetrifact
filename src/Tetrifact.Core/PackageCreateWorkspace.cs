@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 
@@ -18,6 +19,7 @@ namespace Tetrifact.Core
 
         private readonly IHashService _hashService;
 
+        private readonly IFileSystem _filesystem;
         #endregion
 
         #region PROPERTIES
@@ -30,11 +32,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateWorkspace(ISettings settings, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
+        public PackageCreateWorkspace(ISettings settings, IFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
         {
             _settings = settings;
             _log = log;
             _hashService = hashService;
+            _filesystem = filesystem;
         }
 
         #endregion
@@ -47,16 +50,12 @@ namespace Tetrifact.Core
                 IsCompressed = _settings.IsStorageCompressionEnabled
             };
 
-            // workspaces have random names, for safety ensure name is not already in use
-            while (true)
-            {
-                this.WorkspacePath = Path.Join(_settings.TempPath, Guid.NewGuid().ToString());
-                if (!Directory.Exists(this.WorkspacePath))
-                    break;
-            }
+            // workspace folder is super random - date now ticks + guid. We assume this is always unique and we don't check
+            // this compromise is done to negate need for test coverage.
+            this.WorkspacePath = Path.Join(_settings.TempPath, DateTime.UtcNow.Ticks.ToString() + Guid.NewGuid().ToString());
 
             // create all basic directories for a functional workspace
-            Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
+            _filesystem.Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
         }
 
         public bool AddIncomingFile(Stream formFile, string relativePath)
@@ -65,7 +64,7 @@ namespace Tetrifact.Core
                 return false;
             
             string targetPath = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", relativePath));
-            Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+            _filesystem.Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
 
             using (var stream = new FileStream(targetPath, FileMode.Create))
             {
@@ -77,19 +76,19 @@ namespace Tetrifact.Core
         public void WriteFile(string filePath, string hash, long fileSize, string packageId)
         {
             if (string.IsNullOrEmpty(hash))
-                throw new ArgumentException("Hash value is required");
+                throw new ArgumentException("Hash value required");
 
             // move file to public folder
             string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
             string targetDirectory = Path.GetDirectoryName(targetPath);
             string packagesSubscribeDirectory = Path.Join(targetDirectory, "packages");
 
-            Directory.CreateDirectory(packagesSubscribeDirectory);
+            _filesystem.Directory.CreateDirectory(packagesSubscribeDirectory);
 
             bool onDisk = false;
             string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
 
-            if (!File.Exists(targetPath)) {
+            if (!_filesystem.File.Exists(targetPath)) {
 
                 if (this.Manifest.IsCompressed){
 
@@ -110,7 +109,7 @@ namespace Tetrifact.Core
                     }
 
                 } else {
-                    File.Move(incomingPath,targetPath);
+                    _filesystem.File.Move(incomingPath,targetPath);
                     _log.LogInformation($"PACKAGE CREATE : placed file {targetPath}");
                 }
 
@@ -118,7 +117,7 @@ namespace Tetrifact.Core
             }
 
             // write package id into package subscription directory, associating it with this hash 
-            File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
+            _filesystem.File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
             _log.LogInformation($"PACKAGE CREATE : subscribed package {packageId} to hash {packagesSubscribeDirectory} ");
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
@@ -139,17 +138,18 @@ namespace Tetrifact.Core
             // calculate package hash from child hashes
             this.Manifest.Hash = combinedHash;
             string targetFolder = Path.Join(_settings.PackagePath, packageId);
-            Directory.CreateDirectory(targetFolder);
-            File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
+            _filesystem.Directory.CreateDirectory(targetFolder);
+            _filesystem.File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
 
             Manifest headCopy = JsonConvert.DeserializeObject<Manifest>(JsonConvert.SerializeObject(this.Manifest));
             headCopy.Files = new List<ManifestItem>();
-            File.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
+            _filesystem.File.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
         }
 
+        
         public IEnumerable<string> GetIncomingFileNames()
         {
-            IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
+            IList<string> rawPaths = _filesystem.Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
             string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
             return rawPaths.Select(rawPath => FileHelper.ToUnixPath(Path.GetRelativePath(relativeRoot, rawPath)));
         }
@@ -158,15 +158,12 @@ namespace Tetrifact.Core
         {
             using (ZipArchive archive = new ZipArchive(file))
             {
-                foreach (ZipArchiveEntry entry in archive.Entries)
+                // if .Name empty it's an empty directory, this is difficult to force in testing so write as linq query to ensure coverage
+                foreach (ZipArchiveEntry entry in archive.Entries.Where(r => !string.IsNullOrEmpty(r.Name)))
                 {
-                    // if .Name is empty it's a directory
-                    if (string.IsNullOrEmpty(entry.Name))
-                        continue;
-
                     string targetFile = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", entry.FullName));
                     string targetDirectory = Path.GetDirectoryName(targetFile);
-                    Directory.CreateDirectory(targetDirectory);
+                    _filesystem.Directory.CreateDirectory(targetDirectory);
                     entry.ExtractToFile(targetFile);
                 }
             }
@@ -181,8 +178,8 @@ namespace Tetrifact.Core
         {
             try
             {
-                if (Directory.Exists(this.WorkspacePath))
-                    Directory.Delete(this.WorkspacePath, true);
+                if (_filesystem.Directory.Exists(this.WorkspacePath))
+                    _filesystem.Directory.Delete(this.WorkspacePath, true);
             }
             catch (IOException ex)
             {

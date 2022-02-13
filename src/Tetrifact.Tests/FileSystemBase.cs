@@ -9,7 +9,7 @@ namespace Tetrifact.Tests
     /// <summary>
     /// Base class for any type which requires concrete file system structures in place
     /// </summary>
-    public abstract class FileSystemBase
+    public abstract class FileSystemBase : TestBase
     {
         #region FIELDS
 

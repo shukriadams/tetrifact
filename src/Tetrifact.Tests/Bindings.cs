@@ -21,7 +21,7 @@ namespace Tetrifact.Tests
             Bind<IPackageListCache>().To<PackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreateService>().To<PackageCreateService>();
-            Bind<IPackageCreateWorkspace>().To<PackageCreateWorkspace>();
+            Bind<IPackageCreateWorkspace>().To<Core.PackageCreateWorkspace>();
             Bind<IThread>().To<ThreadDefault>();
             Bind<IPackagePruneService>().To<PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
