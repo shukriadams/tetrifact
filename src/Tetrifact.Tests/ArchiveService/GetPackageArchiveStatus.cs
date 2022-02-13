@@ -18,14 +18,14 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetDefault()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
             Assert.Equal(0, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id));
         }
 
         [Fact]
         public void GetInProgressStatus()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
             
             // mock temp archive
             File.WriteAllText(this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id), string.Empty);
@@ -36,7 +36,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetReadyStatus()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // mock temp archive
 

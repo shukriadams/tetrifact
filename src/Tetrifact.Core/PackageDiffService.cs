@@ -16,10 +16,10 @@ namespace Tetrifact.Core
         private readonly IIndexReadService _indexReader;
         private readonly ILogger<IPackageDiffService> _logger;
 
-        public PackageDiffService(ISettings settings, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<IPackageDiffService> logger)
+        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, ILogger<IPackageDiffService> logger)
         {
             _settings = settings;
-            _fileSystem = fileSystem;
+            _fileSystem = filesystem;
             _indexReader = indexReader;
             _logger = logger;
         }
@@ -120,9 +120,9 @@ namespace Tetrifact.Core
                 }
                 catch(Exception ex)
                 { 
-                    _logger.LogError($"Unexpected error writing diff between packages {upstreamPackageId} and {downstreamPackageId}", ex);
+                    // add context then rethrow
+                    throw new Exception($"Unexpected error writing diff between packages {upstreamPackageId} and {downstreamPackageId}", ex);
                 }
-
             }
 
             return diff;

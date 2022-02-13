@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetBasic()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
             using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetExistingArchive()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
             using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
                 // get again
@@ -73,7 +73,7 @@ namespace Tetrifact.Tests.ArchiveService
             base.Settings.ArchiveAvailablePollInterval = 0;
 
             // we need a valid package first
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // mock a temp archive file and lock it to simulate an ongoing zip
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
@@ -97,7 +97,7 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetAfterWaiting()
         {
             // we need a valid package first
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // create a fake archive temp file so GetPackageAsArchive() goes into wait state
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
@@ -138,7 +138,7 @@ namespace Tetrifact.Tests.ArchiveService
         {
             base.Settings.IsStorageCompressionEnabled = true;
 
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
             using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
@@ -153,7 +153,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_Nocompress_FileMissing()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // delete known package file via disk
             File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
@@ -171,7 +171,7 @@ namespace Tetrifact.Tests.ArchiveService
         {
             base.Settings.IsStorageCompressionEnabled = true;
 
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // delete known package file via disk
             File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
@@ -186,7 +186,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_Preexisting_tempFile()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // create abandoned tempfile for this package archive
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
@@ -209,7 +209,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact (Skip = "fails on travis")]
         public void GetArchive_Preexisting_locked_tempFile()
         {
-            TestPackage testPackage = PackageHelper.CreatePackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
             // create and lock tempfile for this package archive
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);

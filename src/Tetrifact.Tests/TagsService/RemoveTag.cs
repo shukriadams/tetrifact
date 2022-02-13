@@ -9,7 +9,7 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Basic(){
 
-            TestPackage package = PackageHelper.CreatePackage(this.Settings);
+            TestPackage package = PackageHelper.CreateNewPackageFile(this.Settings);
             string[] tags = new[] { "mytag" };
 
             foreach (string tag in tags) {

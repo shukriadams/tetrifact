@@ -8,11 +8,11 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Basic(){
-            TestPackage package1 = PackageHelper.CreatePackage(this.Settings, "package1");
+            TestPackage package1 = PackageHelper.CreateNewPackageFiles(this.Settings, "package1");
             string tag1 = "mytag1";
             base.TagsService.AddTag(package1.Id, tag1);
 
-            TestPackage package2 = PackageHelper.CreatePackage(this.Settings, "package2");
+            TestPackage package2 = PackageHelper.CreateNewPackageFiles(this.Settings, "package2");
             string tag2 = "mytag2";
             base.TagsService.AddTag(package2.Id, tag2);
 

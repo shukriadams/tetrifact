@@ -1,7 +1,6 @@
 ﻿using Moq;
 using Ninject;
 using Ninject.Parameters;
-using System;
 using System.IO;
 using System.IO.Abstractions;
 using Tetrifact.Core;
@@ -45,8 +44,8 @@ namespace Tetrifact.Tests.Workspace
 
             TestLogger<IPackageCreateWorkspace> log = new TestLogger<IPackageCreateWorkspace>();
 
-            IPackageCreateWorkspace myType = this.Kernel.Get<IPackageCreateWorkspace>(new ConstructorArgument[] { new ConstructorArgument("filesystem", fs.Object), new ConstructorArgument("log", log) } );
-            myType.Dispose();
+            IPackageCreateWorkspace workspace = this.Kernel.Get<IPackageCreateWorkspace>(new ConstructorArgument[] { new ConstructorArgument("filesystem", fs.Object), new ConstructorArgument("log", log) } );
+            workspace.Dispose();
             Assert.True(log.ContainsFragment("Failed to delete temp folder"));
         }
     }

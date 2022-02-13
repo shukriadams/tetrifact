@@ -33,25 +33,25 @@ namespace Tetrifact.Tests.PackagePrune
         {
             // create packages :
             // two packages under week threshold, these two should not be deleted
-            PackageHelper.CreatePackage(Settings, "under-week-1");
-            PackageHelper.CreatePackage(Settings, "under-week-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "under-week-1");
+            PackageHelper.CreateNewPackageFiles(Settings, "under-week-2");
 
             // two packages above week threshold, one of these should be deleted
-            PackageHelper.CreatePackage(Settings, "above-week-1");
-            PackageHelper.CreatePackage(Settings, "above-week-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-1");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
             // two packages above month threshold, one of these should be deleted
-            PackageHelper.CreatePackage(Settings, "above-month-1");
-            PackageHelper.CreatePackage(Settings, "above-month-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-month-1");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-month-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
 
 
             // two packages above year threshold, one of these should be deleted
-            PackageHelper.CreatePackage(Settings, "above-year-1");
-            PackageHelper.CreatePackage(Settings, "above-year-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-year-1");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-year-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
 
@@ -83,8 +83,8 @@ namespace Tetrifact.Tests.PackagePrune
         {
             Settings.PruneWeeklyKeep = 0;
             // create packages and set dates to hit weekly prune threshold
-            PackageHelper.CreatePackage(Settings, "above-week-1");
-            PackageHelper.CreatePackage(Settings, "above-week-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-1");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
@@ -103,17 +103,16 @@ namespace Tetrifact.Tests.PackagePrune
         {
             Settings.PruneWeeklyKeep = 0;
 
-            MockRepository repository = new MockRepository(MockBehavior.Loose) { DefaultValue = DefaultValue.Mock, CallBase = true };
-            Mock<Core.IndexReadService> mockedIndexReader = repository.Create<Core.IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Returns<Manifest>(null);
 
             // create package then delete its manifest
-            PackageHelper.CreatePackage(Settings, "dummy");
+            PackageHelper.CreateNewPackageFiles(Settings, "dummy");
             File.Delete(PackageHelper.GetManifestPath(Settings, "dummy"));
             
-            IPackagePruneService mockedPruner = new Core.PackagePruneService(this.Settings, mockedIndexReader.Object, _logger);
+            IPackagePruneService mockedPruner = new PackagePruneService(this.Settings, mockedIndexReader.Object, _logger);
             mockedPruner.Prune();
         }
 
@@ -123,8 +122,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Delete_Exception()
         {
-            MockRepository repository = new MockRepository(MockBehavior.Loose) { DefaultValue = DefaultValue.Mock, CallBase = true };
-            Mock<Core.IndexReadService> mockedIndexReader = repository.Create<Core.IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
             mockedIndexReader
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Callback(() => {
@@ -132,8 +130,8 @@ namespace Tetrifact.Tests.PackagePrune
                 });
 
             // create packages, force all to be eligable for delete
-            PackageHelper.CreatePackage(Settings, "dummy1");
-            PackageHelper.CreatePackage(Settings, "dummy2");
+            PackageHelper.CreateNewPackageFiles(Settings, "dummy1");
+            PackageHelper.CreateNewPackageFiles(Settings, "dummy2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "dummy1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "dummy2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
@@ -145,8 +143,8 @@ namespace Tetrifact.Tests.PackagePrune
         public void Prune_Protected_Tag()
         {
             // two packages above week threshold, one of these should be deleted, but protect both with tags
-            PackageHelper.CreatePackage(Settings, "above-week-1");
-            PackageHelper.CreatePackage(Settings, "above-week-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-1");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
