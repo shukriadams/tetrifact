@@ -82,7 +82,7 @@ namespace Tetrifact.Core
         /// remove directories from above while recursing.
         /// </summary>
         /// <param name="currentDirectory"></param>
-        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool isCurrentDirectoryPackages)
+        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool currentDirectoryIsPackages)
         {
             EnsureNoLock();
 
@@ -112,14 +112,14 @@ namespace Tetrifact.Core
                 }
                 catch (IOException ex)
                 {
-                    _log.LogError($"Failed to delete directory {currentDirectory} ", ex);
+                    _log.LogError($"ERROR : Failed to delete directory {currentDirectory} ", ex);
                 }
             }
                 
             // packages directory is the directory next to "bin" file that contains subscriber files for each package that refererences the bin
-            if (isCurrentDirectoryPackages)
+            if (currentDirectoryIsPackages)
             {
-                // package directory contains files only, never directories, so we check files only
+                // package directory contains files only, never directories, so we check file presence only
                 if (files.Any())
                 {
                     foreach (string file in files)
@@ -134,44 +134,39 @@ namespace Tetrifact.Core
                             }
                             catch (IOException ex)
                             {
-                                _log.LogError($"Failed to delete file {file} ", ex);
+                                _log.LogError($"ERROR : Failed to delete file {file} ", ex);
                             }
                         }
                     }
                 }
                 else
                 {
-                    // if reach here there are no packages in this packge directory, it is safe to attempt to delete it
+                    // if reach here there are no package link files in this directory, it is safe to attempt to delete it
 
                     // find the bin file in the parent directory associated with this package dir, and try to delete that
                     string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
+
                     try 
                     {
-                        if (_fileFilesystem.Exists(binFilePath))
-                        {
-                            EnsureNoLock();
-                            _fileFilesystem.Delete(binFilePath);
-                            _log.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
-                        }
+                        EnsureNoLock();
+                        _fileFilesystem.Delete(binFilePath);
+                        _log.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
                     }
                     catch (IOException ex)
                     {
-                        _log.LogError($"Error deleting bin file {binFilePath} ", ex);
+                        _log.LogError($"ERROR deleting bin file {binFilePath} ", ex);
                     }
 
                     try
                     {
-                        // delete this the package directory
-                        if (_directoryFileSystem.Exists(currentDirectory))
-                        {
-                            EnsureNoLock();
-                            _directoryFileSystem.Delete(currentDirectory);
-                            _log.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
-                        }
+                        // delete this (package) directory, yes 
+                        EnsureNoLock();
+                        _directoryFileSystem.Delete(currentDirectory);
+                        _log.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                     }
                     catch (IOException ex)
                     {
-                        _log.LogError($"Error deleting bin file file {currentDirectory} ", ex);
+                        _log.LogError($"ERROR deleting bin file file {currentDirectory} ", ex);
                     }
 
                     // done - package directory is deleted, no need to continue
@@ -194,7 +189,7 @@ namespace Tetrifact.Core
                 }
                 catch (IOException ex)
                 {
-                    _log.LogError($"Failed to delete file {filePath} ", ex);
+                    _log.LogError($"ERROR Failed to delete file {filePath} ", ex);
                 }
 
                 return;
@@ -202,8 +197,10 @@ namespace Tetrifact.Core
 
             foreach (string childDirectory in directories)
             {
-                bool isPackageFolder = Path.GetFileName(childDirectory) == "packages" && binFilePresent;
-                Clean_Internal(childDirectory, existingPackageIds, isPackageFolder);
+                // if the dir about to processed is called "packages" and there is a bin file present in current (parent) dir,
+                // then child is the packages directory
+                bool isPackageDir = Path.GetFileName(childDirectory) == "packages" && binFilePresent;
+                Clean_Internal(childDirectory, existingPackageIds, isPackageDir);
             }
         }
 

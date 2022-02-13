@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.TagsService
     public class AddTag : Base 
     {
         [Fact]
-        public void Basic(){
+        public void Happy_path(){
             TestPackage package = PackageHelper.CreateNewPackageFile(this.Settings);
             string[] tags = new[] { "mytag", "mytag3" };
 
@@ -20,6 +20,13 @@ namespace Tetrifact.Tests.TagsService
 
             Assert.Single(packages);
             Assert.True(tags.IsSubsetOf(packages.ElementAt(0).Tags));
+        }
+
+
+        [Fact]
+        public void InvalidPackage()
+        {
+            Assert.Throws<PackageNotFoundException>(()=>{ base.TagsService.AddTag("invalid-package-id", "some tag"); });
         }
     }
 }

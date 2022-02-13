@@ -11,7 +11,7 @@ namespace Tetrifact.Tests
     {
         public override void Load()
         {
-            Bind<ISettings>().To<Settings>();
+            Bind<ISettings>().To<Core.Settings>();
             Bind<IMemoryCache>().To<TestMemoryCache>();
             Bind<IIndexReadService>().To<IndexReadService>();
             Bind<IRepositoryCleanService>().To<RepositoryCleanService>();

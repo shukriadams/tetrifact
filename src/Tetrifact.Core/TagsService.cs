@@ -82,7 +82,7 @@ namespace Tetrifact.Core
                 {
                     tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)));
                 }
-                catch (FormatException)
+                catch (InvalidFileIdentifierException)
                 {
                     // log invalid tag folders, and continue.
                     _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
@@ -108,7 +108,7 @@ namespace Tetrifact.Core
                     IEnumerable<string> packages = _fileSystem.Directory.GetFiles(rawTag).Select(r => Path.GetFileName(r));
                     tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)), packages);
                 }
-                catch (FormatException)
+                catch (InvalidFileIdentifierException)
                 {
                     // log invalid tag folders, and continue.
                     _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");

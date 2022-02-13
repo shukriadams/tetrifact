@@ -20,6 +20,7 @@ namespace Tetrifact.Tests
         protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
         
         protected TestLogger<IArchiveService> ArchiveLogger;
+
         protected TestLogger<IRepositoryCleanService> RepoCleanLog;
 
         protected IIndexReadService IndexReader;
@@ -60,7 +61,7 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
-            Settings = new Settings(new TestLogger<Settings>())
+            Settings = new Core.Settings(new TestLogger<Core.Settings>())
             {
                 RepositoryPath = Path.Join(testFolder, "repository"),
                 PackagePath = Path.Join(testFolder, "packages"),

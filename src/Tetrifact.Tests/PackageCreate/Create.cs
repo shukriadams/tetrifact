@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.PackageCreate
     public class Create : Base
     {
         [Fact]
-        public void CreateBasic()
+        public void Happy_Path()
         {
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
@@ -180,6 +180,38 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateResult result = PackageCreate.CreatePackage(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.CreateNotAllowed, result.ErrorType);
+        }
+
+        /// <summary>
+        /// coverage
+        /// </summary>
+        [Fact]
+        public void Handle_No_Files()
+        {
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = "mypackage",
+                Files = new List<PackageCreateItem> { }
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
+        }
+
+        [Fact]
+        public void Handle_No_Id()
+        {
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Files = new List<PackageCreateItem> {
+                    new PackageCreateItem(StreamsHelper.StreamFromString("some text"), "folder/file")
+                }
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
         }
     }
 }

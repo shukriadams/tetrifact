@@ -20,5 +20,12 @@ namespace Tetrifact.Tests.TagsService
             IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }
+
+        [Fact]
+        public void InvalidPackage()
+        {
+            Assert.Throws<PackageNotFoundException>(() => { base.TagsService.RemoveTag("invalid-package-id", "some tag"); });
+        }
+
     }
 }

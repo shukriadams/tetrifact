@@ -142,12 +142,10 @@ namespace Tetrifact.Core
             this.PruneProtectectedTags = this.GetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
-            if (!string.IsNullOrEmpty(downloadArchiveCompressionEnvVar)){ 
-                if (downloadArchiveCompressionEnvVar == "0")
-                    DownloadArchiveCompression = CompressionLevel.NoCompression;
-                if (downloadArchiveCompressionEnvVar == "1")
-                    DownloadArchiveCompression = CompressionLevel.Fastest;
-            }
+            if (downloadArchiveCompressionEnvVar == "0")
+                DownloadArchiveCompression = CompressionLevel.NoCompression;
+            if (downloadArchiveCompressionEnvVar == "1")
+                DownloadArchiveCompression = CompressionLevel.Fastest;
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
@@ -184,10 +182,13 @@ namespace Tetrifact.Core
             if (settingsRawVariable == null)
                 return defaultValue;
 
-            if (!int.TryParse(settingsRawVariable, out defaultValue))
+            int attempt;
+            if (!int.TryParse(settingsRawVariable, out attempt)){
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                return defaultValue;
+            }
 
-            return defaultValue;
+            return attempt;
         }
 
         /// <summary>
@@ -203,10 +204,13 @@ namespace Tetrifact.Core
             if (settingsRawVariable == null)
                 return defaultValue;
 
-            if (!long.TryParse(settingsRawVariable, out defaultValue))
+            long attempt;
+            if (!long.TryParse(settingsRawVariable, out attempt)){
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid long.");
+                return defaultValue;
+            }
 
-            return defaultValue;
+            return attempt;
         }
 
         private bool GetSetting(string settingsName, bool defaultValue)
@@ -215,10 +219,13 @@ namespace Tetrifact.Core
             if (settingsRawVariable == null)
                 return defaultValue;
 
-            if (!Boolean.TryParse(settingsRawVariable, out defaultValue))
+            bool attempt;
+            if (!Boolean.TryParse(settingsRawVariable, out attempt)){
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
+                return defaultValue;
+            }
 
-            return defaultValue;
+            return attempt;
         }
 
         /// <summary>
