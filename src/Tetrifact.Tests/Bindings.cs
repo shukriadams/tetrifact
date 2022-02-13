@@ -13,7 +13,7 @@ namespace Tetrifact.Tests
         {
             Bind<ISettings>().To<Settings>();
             Bind<IMemoryCache>().To<TestMemoryCache>();
-            Bind<IIndexReadService>().To<TestIndexReader>();
+            Bind<IIndexReadService>().To<IndexReadService>();
             Bind<IRepositoryCleanService>().To<RepositoryCleanService>();
             Bind<IPackageListService>().To<PackageListService>();
             Bind<IFileSystem>().To<FileSystem>();
@@ -39,6 +39,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
             Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
             Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
+            Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
         }
     }
 }

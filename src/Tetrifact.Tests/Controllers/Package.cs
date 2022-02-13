@@ -28,8 +28,14 @@ namespace Tetrifact.Tests.Controllers
         public void GetPackageIdList()
         {
             // inject 3 indices
-            TestIndexReader.Test_Indexes = new string[] { "1", "2", "3" };
-            dynamic json = JsonHelper.ToDynamic(_controller.ListPackages(false, 0, 10));
+            Mock<IIndexReadService> mockedIndexReader = new Mock<IIndexReadService>();
+            mockedIndexReader
+                .Setup(r => r.GetPackageIds(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new string[] { "1", "2", "3" });
+
+            PackagesController controller = this.Kernel.Get<PackagesController>(new ConstructorArgument("indexReadService", mockedIndexReader.Object));
+
+            dynamic json = JsonHelper.ToDynamic(controller.ListPackages(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();
             Assert.Equal(3, ids.Count());
         }
@@ -37,14 +43,14 @@ namespace Tetrifact.Tests.Controllers
         [Fact]
         public void GetPackageList()
         {
-            IPackageListService moqListService = Mock.Of<IPackageListService>();
-            Mock.Get(moqListService)
+            Mock<IPackageListService> moqListService = new Mock<IPackageListService>();
+            moqListService
                 .Setup(r => r.Get(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns( new List<Core.Package>() {
                     new Core.Package(), new Core.Package(), new Core.Package() // inject 3 packages
                 });
 
-            PackagesController controller = this.Kernel.Get<PackagesController>(new ConstructorArgument("packageListService", moqListService) );
+            PackagesController controller = this.Kernel.Get<PackagesController>(new ConstructorArgument("packageListService", moqListService.Object) );
             dynamic json = JsonHelper.ToDynamic(controller.ListPackages(true, 0, 10));
             Core.Package[] packages = json.success.packages.ToObject<Core.Package[]>();
             Assert.Equal(3, packages.Count());

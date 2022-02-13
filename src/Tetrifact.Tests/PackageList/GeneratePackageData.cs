@@ -16,19 +16,20 @@ namespace Tetrifact.Tests.PackageList
             // Hit the private GeneratePackageData method by wiping cache.
             MemoryCacheHelper.GetInstance().Remove(Core.PackageListService.CacheKey);
 
-            IFileSystem mockFileSystem = Mock.Of<IFileSystem>();
+            Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
+
             // must have a directory of some kind
-            Mock.Get(mockFileSystem)
-                .Setup(f => f.DirectoryInfo.FromDirectoryName(It.IsAny<string>()).EnumerateDirectories())
+            mockFileSystem
+                .Setup(mq => mq.DirectoryInfo.FromDirectoryName(It.IsAny<string>()).EnumerateDirectories())
                 .Returns(new List<IDirectoryInfo> { FileSystem.DirectoryInfo.FromDirectoryName("/some/path"), FileSystem.DirectoryInfo.FromDirectoryName("/some/path2") });
 
             // force manifest file lookup to find nothing
-            Mock.Get(mockFileSystem)
-                .Setup(f => f.File.Exists(It.IsAny<string>()))
+            mockFileSystem
+                .Setup(mq => mq.File.Exists(It.IsAny<string>()))
                 .Returns(false);
 
             // do something to cover manifest file lookup
-            this.PackageList = new Core.PackageListService(this.MemoryCache, Settings, TagService, mockFileSystem, this.PackageListLogger);
+            this.PackageList = new Core.PackageListService(this.MemoryCache, Settings, TagService, mockFileSystem.Object, this.PackageListLogger);
             this.PackageList.Get(0,1);
         }
     }
