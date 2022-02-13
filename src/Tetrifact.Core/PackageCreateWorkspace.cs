@@ -151,7 +151,7 @@ namespace Tetrifact.Core
         {
             IList<string> rawPaths = Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
             string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
-            return rawPaths.Select(rawPath => Path.GetRelativePath(relativeRoot, rawPath));
+            return rawPaths.Select(rawPath => FileHelper.ToUnixPath(Path.GetRelativePath(relativeRoot, rawPath)));
         }
 
         public void AddArchiveContent(Stream file)
