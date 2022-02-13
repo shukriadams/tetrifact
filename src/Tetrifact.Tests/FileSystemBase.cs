@@ -20,13 +20,18 @@ namespace Tetrifact.Tests
         protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
         
         protected TestLogger<IArchiveService> ArchiveLogger;
-        
+        protected TestLogger<IRepositoryCleanService> RepoCleanLog;
+
         protected IIndexReadService IndexReader;
         
         protected ITagsService TagService;
         
         protected IFileSystem FileSystem;
         
+        protected IDirectory DirectoryFs;
+
+        protected IFile FileFs;
+
         protected ThreadDefault ThreadDefault;
         
         protected IArchiveService ArchiveService;
@@ -47,8 +52,13 @@ namespace Tetrifact.Tests
 
             // pass in real file system for all tests, we use this most of the time, individual tests must override this on their own
             FileSystem = new FileSystem();
+            DirectoryFs = FileSystem.Directory;
+            FileFs = FileSystem.File;
+
             IndexReaderLogger = new TestLogger<IIndexReadService>();
+            WorkspaceLogger = new TestLogger<IPackageCreateWorkspace>();
             ArchiveLogger = new TestLogger<IArchiveService>();
+            RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
             Settings = new Settings(new TestLogger<Settings>())
             {

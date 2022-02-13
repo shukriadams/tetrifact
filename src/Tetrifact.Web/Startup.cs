@@ -55,6 +55,8 @@ namespace Tetrifact.Web
             services.AddTransient<IPackageListCache, PackageListCache>();
             services.AddTransient<IHashService, HashService>();
             services.AddTransient<IFileSystem, FileSystem>();
+            services.AddTransient<IFile, FileWrapper>();
+            services.AddTransient<IDirectory, DirectoryWrapper>();
             services.AddTransient<Daemon, Daemon>();
             services.AddTransient<IThread, ThreadDefault>();
             services.AddTransient<IPackagePruneService, PackagePruneService>();

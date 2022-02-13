@@ -5,16 +5,18 @@ using Moq;
 using System;
 using System.IO.Abstractions;
 using System.Threading;
+using Ninject;
+using Ninject.Parameters;
+using System.Collections.Generic;
 
 namespace Tetrifact.Tests.repositoryCleaner
 {
     /// <summary>
     /// Note : renaming this class to just "clean" consistently produces race condition errors
     /// </summary>
-    public class CleanRepository : FileSystemBase
+    public class Clean : FileSystemBase
     {
         private readonly IRepositoryCleanService _respositoryCleaner;
-        private readonly TestLogger<IRepositoryCleanService> _logger;
 
         /// <summary>
         /// Creates 
@@ -23,25 +25,23 @@ namespace Tetrifact.Tests.repositoryCleaner
         private string CreateRepoContent()
         {
             string hash = "somehash";
-            string path = "some/path/filename.file";
             string content = "file content";
-            string rootPath = Path.Combine(base.Settings.RepositoryPath, path, hash);
+            string rootPath = Path.Combine(base.Settings.RepositoryPath, "some/path/filename.file", hash);
             Directory.CreateDirectory(rootPath);
-            Directory.CreateDirectory(Path.Combine(base.Settings.RepositoryPath, "dead", "end", "directory"));
+            Directory.CreateDirectory(Path.Combine(base.Settings.RepositoryPath, "an/empty/directory"));
             string filePath = Path.Combine(rootPath, "bin");
             File.WriteAllText(filePath, content);
 
             return filePath;
         }
 
-        public CleanRepository()
+        public Clean()
         {
-            _logger = new TestLogger<IRepositoryCleanService>();
-            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, this.Settings, this.FileSystem, _logger);
+            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, this.Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
         }
 
         [Fact]
-        public void HappyPAth()
+        public void HappyPath()
         {
             // create a file and write to repository using path convention of path/to/file/bin. File is not linked to any package
             string contentPath = CreateRepoContent();
@@ -71,9 +71,9 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.FileSystem, _logger);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
             respositoryCleaner.Clean();
-            Assert.True(_logger.ContainsFragment("Clean aborted, lock detected"));
+            Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.FileSystem, _logger);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();
@@ -107,7 +107,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         {
             Core.LinkLock.Instance.Lock("some-package");
             _respositoryCleaner.Clean();
-            Assert.True(_logger.ContainsFragment("Clean aborted, lock detected"));
+            Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
 
         /// <summary>
@@ -121,9 +121,9 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Directory.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, Settings, mockedFilesystem, _logger);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, Settings, mockedFilesystem.Directory, mockedFilesystem.File, RepoCleanLog);
             mockedCleaner.Clean();
-            Assert.True(_logger.ContainsFragment("Failed to read content of directory"));
+            Assert.True(RepoCleanLog.ContainsFragment("Failed to read content of directory"));
         }
 
         /// <summary>
@@ -132,17 +132,20 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Directory_Exception_Directory_Delete()
         {
-            /*
-            IFileSystem mockedFilesystem = Mock.Of<IFileSystem>();
-            Mock.Get(mockedFilesystem)
-                .Setup(r => r.Directory.Delete(It.IsAny<string>()))
-                .Throws<IOException>();
+            CreateRepoContent();
 
-            RepositoryCleaner mockedCleaner = new RepositoryCleaner(IndexReader, Settings, mockedFilesystem, _logger);
-            mockedCleaner.Clean();
-            Assert.True(_logger.ContainsFragment("Failed to delete directory"));
-            */
+            Mock<TestDirectory> dir = MockRepository.Create<TestDirectory>();
+            dir
+                .Setup(r => r.Delete(It.IsAny<string>()))
+                .Throws<IOException>();
+            
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "settings", Settings, "log", RepoCleanLog);
+
+            cleaner.Clean();
+            Assert.True(RepoCleanLog.ContainsFragment("Failed to delete directory"));
         }
+
+
 
         /*
             [Fact]

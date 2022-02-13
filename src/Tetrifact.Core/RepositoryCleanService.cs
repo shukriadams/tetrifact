@@ -13,11 +13,14 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IRepositoryCleanService> _logger;
+        private readonly ILogger<IRepositoryCleanService> _log;
 
         private readonly IIndexReadService _indexReader;
 
-        private readonly IFileSystem _fileSystem;
+        private readonly IDirectory _directoryFileSystem;
+        
+        private readonly IFile _fileFilesystem;
+
 
         public int LockPasses {private set ; get;}
 
@@ -25,11 +28,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, ISettings settings, IFileSystem fileSystem, ILogger<IRepositoryCleanService> logger)
+        public RepositoryCleanService(IIndexReadService indexReader, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
-            _fileSystem = fileSystem;
-            _logger = logger;
+            _directoryFileSystem = directoryFileSystem;
+            _fileFilesystem = fileFileSystem;
+            _log = log;
             _indexReader = indexReader;
         }
 
@@ -47,20 +51,20 @@ namespace Tetrifact.Core
                 // get a list of existing packages at time of calling. It is vital that new packages not be created
                 // while clean running, they will be cleaned up as they are not on this list
                 IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds();
-                _logger.LogInformation($"CLEANUP started, existing packages : {string.Join(",", existingPackageIds)}.");
+                _log.LogInformation($"CLEANUP started, existing packages : {string.Join(",", existingPackageIds)}.");
                 this.LockPasses = 0;
                 this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
             }
             catch(Exception ex)
             { 
                 if (ex.Message.StartsWith("System currently locked"))
-                    _logger.LogInformation("Clean aborted, lock detected");
+                    _log.LogInformation("Clean aborted, lock detected");
                 else
                     throw ex;
             }
             finally
             {
-                _logger.LogInformation($"CLEANUP complete");
+                _log.LogInformation($"CLEANUP complete");
             }
         }
 
@@ -87,28 +91,28 @@ namespace Tetrifact.Core
 
             try
             {
-                files = _fileSystem.Directory.GetFiles(currentDirectory);
-                directories = _fileSystem.Directory.GetDirectories(currentDirectory);
+                files = _directoryFileSystem.GetFiles(currentDirectory);
+                directories = _directoryFileSystem.GetDirectories(currentDirectory);
             }
             catch (IOException ex)
             {
-                _logger.LogError($"Failed to read content of directory {currentDirectory} ", ex);
+                _log.LogError($"Failed to read content of directory {currentDirectory} ", ex);
                 // if we can't read the files or directories in the current path, skip it and try to clean up other paths
                 return;
             }
 
-            // if directory is completely empty, we can safely delete it
+            // if directory is completely empty and it's not the root repo directory, we can safely delete it
             if (!files.Any() && !directories.Any() && currentDirectory != _settings.RepositoryPath)
             {
                 try
                 {
                     EnsureNoLock();
-                    _fileSystem.Directory.Delete(currentDirectory);
-                    _logger.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
+                    _directoryFileSystem.Delete(currentDirectory);
+                    _log.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
                 catch (IOException ex)
                 {
-                    _logger.LogError($"Failed to delete directory {currentDirectory} ", ex);
+                    _log.LogError($"Failed to delete directory {currentDirectory} ", ex);
                 }
             }
                 
@@ -125,12 +129,12 @@ namespace Tetrifact.Core
                             try
                             {
                                 EnsureNoLock();
-                                _fileSystem.File.Delete(file);
-                                _logger.LogWarning($"CLEANUP : deleted file {file}, package not found.");
+                                _fileFilesystem.Delete(file);
+                                _log.LogWarning($"CLEANUP : deleted file {file}, package not found.");
                             }
                             catch (IOException ex)
                             {
-                                _logger.LogError($"Failed to delete file {file} ", ex);
+                                _log.LogError($"Failed to delete file {file} ", ex);
                             }
                         }
                     }
@@ -143,31 +147,31 @@ namespace Tetrifact.Core
                     string binFilePath = Path.Join(Directory.GetParent(currentDirectory).FullName, "bin");
                     try 
                     {
-                        if (_fileSystem.File.Exists(binFilePath))
+                        if (_fileFilesystem.Exists(binFilePath))
                         {
                             EnsureNoLock();
-                            _fileSystem.File.Delete(binFilePath);
-                            _logger.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
+                            _fileFilesystem.Delete(binFilePath);
+                            _log.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
                         }
                     }
                     catch (IOException ex)
                     {
-                        _logger.LogError($"Error deleting bin file {binFilePath} ", ex);
+                        _log.LogError($"Error deleting bin file {binFilePath} ", ex);
                     }
 
                     try
                     {
                         // delete this the package directory
-                        if (_fileSystem.Directory.Exists(currentDirectory))
+                        if (_directoryFileSystem.Exists(currentDirectory))
                         {
                             EnsureNoLock();
-                            _fileSystem.Directory.Delete(currentDirectory);
-                            _logger.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
+                            _directoryFileSystem.Delete(currentDirectory);
+                            _log.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                         }
                     }
                     catch (IOException ex)
                     {
-                        _logger.LogError($"Error deleting bin file file {currentDirectory} ", ex);
+                        _log.LogError($"Error deleting bin file file {currentDirectory} ", ex);
                     }
 
                     // done - package directory is deleted, no need to continue
@@ -185,12 +189,12 @@ namespace Tetrifact.Core
                 try
                 {
                     EnsureNoLock();
-                    _fileSystem.File.Delete(filePath);
-                    _logger.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
+                    _fileFilesystem.Delete(filePath);
+                    _log.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
                 }
                 catch (IOException ex)
                 {
-                    _logger.LogError($"Failed to delete file {filePath} ", ex);
+                    _log.LogError($"Failed to delete file {filePath} ", ex);
                 }
 
                 return;

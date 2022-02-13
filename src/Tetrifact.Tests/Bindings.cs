@@ -17,6 +17,8 @@ namespace Tetrifact.Tests
             Bind<IRepositoryCleanService>().To<RepositoryCleanService>();
             Bind<IPackageListService>().To<PackageListService>();
             Bind<IFileSystem>().To<FileSystem>();
+            Bind<IDirectory>().To<DirectoryWrapper>();
+            Bind<IFile>().To<FileWrapper>();
             Bind<IHashService>().To<HashService>();
             Bind<IPackageListCache>().To<PackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
