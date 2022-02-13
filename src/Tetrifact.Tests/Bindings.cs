@@ -14,11 +14,11 @@ namespace Tetrifact.Tests
             Bind<ISettings>().To<Settings>();
             Bind<IMemoryCache>().To<TestMemoryCache>();
             Bind<IIndexReadService>().To<TestIndexReader>();
-            Bind<IRepositoryCleanService>().To<TestRepositoryCleaner>();
+            Bind<IRepositoryCleanService>().To<RepositoryCleanService>();
             Bind<IPackageListService>().To<PackageListService>();
             Bind<IFileSystem>().To<FileSystem>();
             Bind<IHashService>().To<HashService>();
-            Bind<IPackageListCache>().To<TestPackageListCache>();
+            Bind<IPackageListCache>().To<PackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreateService>().To<PackageCreateService>();
             Bind<IPackageCreateWorkspace>().To<PackageCreateWorkspace>();
@@ -38,6 +38,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
             Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
+            Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
         }
     }
 }

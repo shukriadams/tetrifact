@@ -10,8 +10,6 @@ namespace Tetrifact.Tests.Controllers
         public Files()
         {
             _controller = this.Kernel.Get<Web.FilesController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>

@@ -10,8 +10,6 @@ namespace Tetrifact.Tests.Controllers
         public Clean()
         {
             _controller = this.Kernel.Get<Web.CleanController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>

@@ -10,8 +10,6 @@ namespace Tetrifact.Tests.Controllers
         public Archives()
         {
             _controller = this.Kernel.Get<Web.ArchivesController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>

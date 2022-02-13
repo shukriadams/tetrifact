@@ -10,8 +10,6 @@ namespace Tetrifact.Tests.Controllers
         public Tags()
         {
             _controller = this.Kernel.Get<Web.TagsController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>

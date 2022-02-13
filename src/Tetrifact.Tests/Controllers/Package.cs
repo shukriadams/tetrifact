@@ -22,8 +22,6 @@ namespace Tetrifact.Tests.Controllers
         {
             _controller = this.Kernel.Get<PackagesController>();
             _packageService = this.Kernel.Get<IPackageCreateService>();
-
-            TestingWorkspace.Reset();
         }
 
         [Fact]

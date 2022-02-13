@@ -10,8 +10,6 @@ namespace Tetrifact.Tests.Controllers
         public Home()
         {
             _controller = this.Kernel.Get<Web.HomeController>();
-
-            TestingWorkspace.Reset();
         }
 
         /// <summary>
