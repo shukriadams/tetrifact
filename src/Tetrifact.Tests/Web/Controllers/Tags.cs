@@ -1,14 +1,15 @@
 using Xunit;
+using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Controllers
 {
     public class Tags : TestBase
     {
-        private readonly Web.TagsController _controller;
+        private readonly W.TagsController _controller;
 
         public Tags()
         {
-            _controller = NinjectHelper.Get<Web.TagsController>();
+            _controller = NinjectHelper.Get<W.TagsController>();
         }
 
         /// <summary>

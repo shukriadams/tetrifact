@@ -1,14 +1,15 @@
 using Xunit;
+using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Controllers
 {
     public class Home : TestBase
     {
-        private readonly Web.HomeController _controller;
+        private readonly W.HomeController _controller;
 
         public Home()
         {
-            _controller = NinjectHelper.Get<Web.HomeController>();
+            _controller = NinjectHelper.Get<W.HomeController>();
         }
 
         /// <summary>
@@ -19,6 +20,5 @@ namespace Tetrifact.Tests.Controllers
         {
             _controller.Index();
         }
-        
     }
 }

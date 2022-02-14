@@ -1,14 +1,15 @@
 using Xunit;
+using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Controllers
 {
     public class Files : TestBase
     {
-        private readonly Web.FilesController _controller;
+        private readonly W.FilesController _controller;
 
         public Files()
         {
-            _controller = NinjectHelper.Get<Web.FilesController>();
+            _controller = NinjectHelper.Get<W.FilesController>();
         }
 
         /// <summary>
