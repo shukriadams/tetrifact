@@ -14,6 +14,20 @@
         </li>
         <li>
             <p>
+                Gets the manifest (contents) of a package
+            </p>
+            <a href="/v1/packages/@ViewData["upstreamPackageId"]">/v1/packages/@ViewData["upstreamPackageId"]</a>
+            <hr />
+        </li>
+        <li>
+            <p>
+                Gets a list of file changes between an upstream (earlier) and downstream (later) build.
+            </p>
+            <a href="/v1/packages/diff/@ViewData["upstreamPackageId"]/@ViewData["downstreamPackageId"]">/v1/packages/diff/@ViewData["upstreamPackageId"]/@ViewData["downstreamPackageId"]</a>
+            <hr />
+        </li>        
+        <li>
+            <p>
                 Get a detailed list of packages
             </p>
             <a href="/v1/packages?isFull=true">/v1/packages?isFull=true</a>
@@ -23,14 +37,14 @@
             <p>
                 Gets the latest package with a given tag
             </p>
-            <a href="/v1/packages/latest/myTag">/v1/packages/latest/myTag</a>
+            <a href="/v1/packages/latest/@ViewData["exampleTag"]">/v1/packages/latest/@ViewData["exampleTag"]</a>
             <hr />
         </li>
         <li>
             <p>
                 Gets if package exists
             </p>
-            <a href="/v1/packages/myPackage/exists">/v1/packages/myPackage/exists</a>
+            <a href="/v1/packages/@ViewData["upstreamPackageId"]/exists">/v1/packages/@ViewData["upstreamPackageId"]/exists</a>
             <hr />
         </li>
         <li>

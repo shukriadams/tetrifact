@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Tetrifact.Core;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Tetrifact.Web
 {
@@ -48,6 +49,11 @@ namespace Tetrifact.Web
         [Route("api")]
         public IActionResult Api()
         {
+            IEnumerable<Package> packages = _packageList.Get(0, 10);
+            string exampleTag = _packageList.GetPopularTags(1).FirstOrDefault();
+            ViewData["upstreamPackageId"] = packages.Count() > 0 ? packages.ElementAt(0).Id : "my-upstream-packageId";
+            ViewData["downstreamPackageId"] = packages.Count() > 1 ? packages.ElementAt(1).Id : "my-downstream-packageId";
+            ViewData["exampleTag"] = string.IsNullOrEmpty(exampleTag) ? "my-example-tag" : exampleTag;
             return View();
         }
 

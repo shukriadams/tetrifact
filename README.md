@@ -12,12 +12,12 @@ Tetrifact is a server for storing build arfefacts. It is primarily written as a 
 
 ### Features
 
+- Exposes all artefacts and functionality via an HTTP REST API for easier integration with your CI and test chain 
 - reduces storage space by sharing identical files across builds (file deduplication)
 - handles millions of files, 100s of builds, 10s of gigabytes per builds - performs well on Unreal-scale projects with very large data footprints and file counts
 - supports build hashing and comparison, allowing you to get file differences between two builds
 - automatic pruning of old builds
 - supports tagging of builds
-- Exposes an HTTP REST API for easier integration with your CI and test chain 
 - Written Docker- and Linux-first in C# on Dotnetcore 3.1, runs on any system that supports this framework
 
 ### Hardware
