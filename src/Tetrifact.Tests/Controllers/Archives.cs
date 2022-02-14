@@ -1,5 +1,4 @@
 using Xunit;
-using Ninject;
 
 namespace Tetrifact.Tests.Controllers
 {
@@ -9,7 +8,7 @@ namespace Tetrifact.Tests.Controllers
 
         public Archives()
         {
-            _controller = this.Kernel.Get<Web.ArchivesController>();
+            _controller = NinjectHelper.Get<Web.ArchivesController>();
         }
 
         /// <summary>

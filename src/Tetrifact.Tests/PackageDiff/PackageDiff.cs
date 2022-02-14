@@ -1,6 +1,4 @@
 ﻿using Moq;
-using Ninject;
-using Ninject.Parameters;
 using System;
 using System.IO.Abstractions;
 using Tetrifact.Core;
@@ -80,7 +78,7 @@ namespace Tetrifact.Tests.PackageDiff
                     throw new Exception("some-error-123");
                 });
 
-            IPackageDiffService diffService = this.Kernel.Get<IPackageDiffService>( new ConstructorArgument("filesystem", fs.Object));
+            IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>("filesystem", fs.Object);
 
             string upstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new [] { "same content", "packege 1 content", "same content" });
             string downstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new [] { "same content", "packege 2 content", "same content" });
@@ -112,11 +110,10 @@ namespace Tetrifact.Tests.PackageDiff
             indexReader.Setup(mq => mq.GetExpectedManifest("package-1")).Returns(PackageHelper.CreateInMemoryManifest());
             indexReader.Setup(mq => mq.GetExpectedManifest("package-2")).Returns(PackageHelper.CreateInMemoryManifest());
 
-            IPackageDiffService diffService = this.Kernel.Get<IPackageDiffService>(new [] { 
-                new ConstructorArgument("filesystem", fs.Object), 
-                new ConstructorArgument("indexReader", indexReader.Object),
-                new ConstructorArgument("settings", Settings) 
-            });
+            IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>(
+                "filesystem", fs.Object, 
+                "indexReader", indexReader.Object,
+                "settings", Settings );
 
             // get diff
             Exception ex = Assert.Throws<Exception>(()=>{ diffService.GetDifference("package-1", "package-2"); }) ;

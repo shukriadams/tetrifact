@@ -1,14 +1,16 @@
 ﻿using Moq;
-using Ninject;
-using System.Reflection;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
+    /// <summary>
+    /// Common utility base for all tests. Useful place to store instances of things which should be unique per 
+    /// test run, as Xunit creates a new class instance per run. 
+    /// 
+    /// Utility things that are stateless should be placed in helper function.
+    /// </summary>
     public abstract class TestBase
     {
-        protected StandardKernel Kernel;
-
         protected ISettings Settings;
 
         /// <summary>
@@ -18,9 +20,7 @@ namespace Tetrifact.Tests
 
         public TestBase()
         {
-            this.Kernel = new StandardKernel();
-            this.Kernel.Load(Assembly.GetExecutingAssembly());
-            this.Settings = Kernel.Get<ISettings>();
+            this.Settings = NinjectHelper.Get<ISettings>();
             this.MockRepository = new MockRepository(MockBehavior.Loose) { CallBase = true };
         }
     }

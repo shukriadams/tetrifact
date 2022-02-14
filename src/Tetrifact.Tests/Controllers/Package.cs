@@ -1,13 +1,11 @@
 using Tetrifact.Web;
 using System.Collections.Generic;
 using Xunit;
-using Ninject;
 using Tetrifact.Core;
 using System.Linq;
 using System.IO;
 using System;
 using System.IO.Compression;
-using Ninject.Parameters;
 using Moq;
 
 namespace Tetrifact.Tests.Controllers
@@ -20,8 +18,8 @@ namespace Tetrifact.Tests.Controllers
 
         public Package()
         {
-            _controller = this.Kernel.Get<PackagesController>();
-            _packageService = this.Kernel.Get<IPackageCreateService>();
+            _controller = NinjectHelper.Get<PackagesController>();
+            _packageService = NinjectHelper.Get<IPackageCreateService>();
         }
 
         [Fact]
@@ -33,7 +31,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetPackageIds(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(new string[] { "1", "2", "3" });
 
-            PackagesController controller = this.Kernel.Get<PackagesController>(new ConstructorArgument("indexReadService", mockedIndexReader.Object));
+            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", mockedIndexReader.Object);
 
             dynamic json = JsonHelper.ToDynamic(controller.ListPackages(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();
@@ -50,7 +48,7 @@ namespace Tetrifact.Tests.Controllers
                     new Core.Package(), new Core.Package(), new Core.Package() // inject 3 packages
                 });
 
-            PackagesController controller = this.Kernel.Get<PackagesController>(new ConstructorArgument("packageListService", moqListService.Object) );
+            PackagesController controller = NinjectHelper.Get<PackagesController>("packageListService", moqListService.Object);
             dynamic json = JsonHelper.ToDynamic(controller.ListPackages(true, 0, 10));
             Core.Package[] packages = json.success.packages.ToObject<Core.Package[]>();
             Assert.Equal(3, packages.Count());

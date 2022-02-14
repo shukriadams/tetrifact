@@ -1,5 +1,4 @@
 using Xunit;
-using Ninject;
 
 namespace Tetrifact.Tests.Controllers
 {
@@ -9,7 +8,7 @@ namespace Tetrifact.Tests.Controllers
 
         public Clean()
         {
-            _controller = this.Kernel.Get<Web.CleanController>();
+            _controller = NinjectHelper.Get<Web.CleanController>();
         }
 
         /// <summary>
