@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 
@@ -8,15 +9,13 @@ namespace Tetrifact.Web
     /// <summary>
     /// Internal timed process that manages automated processes, such as cleanup, integrity checks, etc.
     /// </summary>
-    public class Daemon
+    public class Daemon : IDisposable
     {
         #region FIELDS
 
         private int _tickInterval;
 
         private readonly IRepositoryCleanService _repositoryCleaner;
-
-        private readonly IIndexReadService _indexService;
 
         private readonly IArchiveService _archiveService;
 
@@ -32,9 +31,8 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public Daemon(IRepositoryCleanService repositoryCleaner, IIndexReadService indexService, IArchiveService archiveService, IPackagePruneService packagePrune, ILogger<Daemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IPackagePruneService packagePrune, ILogger<Daemon> log)
         {
-            _indexService = indexService;
             _packagePrune = packagePrune;
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
@@ -45,64 +43,77 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        /// <summary>
+        /// Replaces the manual constructor in that we can pass the interval to this.
+        /// </summary>
+        /// <param name="tickInterval"></param>
         public void Start(int tickInterval)
         {
             _tickInterval = tickInterval;
-            Task.Run(async () => this.Tick());
-            _running = true;
 
+            Task.Run(() =>{
+                while (_running)
+                {
+                    try
+                    {
+                        _log.LogInformation("Daemon ticked");
+
+                        if (_busy)
+                            return;
+
+                        _busy = true;
+
+                        this.Work();
+                    }
+                    finally
+                    {
+                        _busy = false;
+                        Thread.Sleep(_tickInterval);
+                    }
+                }
+            });
         }
 
-        public void Stop(){
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
             _running = false;
         }
 
-        private async Task Tick()
+        /// <summary>
+        /// Daemon's main work method
+        /// </summary>
+        private void Work()
         { 
-            while(_running){
-                try
-                {
-                    _log.LogInformation("Daemon ticked");
-
-
-                    if (_busy)
-                        return;
-
-                    _busy = true;
-
-                    try 
-                    {
-                        _repositoryCleaner.Clean();
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError("Daemon repository clean error", ex);
-                    }
-
-                    try
-                    {
-                        _archiveService.PurgeOldArchives();
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError("Daemon Purge archives error", ex);
-                    }
-
-                    try
-                    {
-                        _packagePrune.Prune();
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError("Daemon prune error", ex);
-                    }
-                }
-                finally
-                {
-                    _busy = false;
-                    await Task.Delay(_tickInterval);
-                }
+            try 
+            {
+                _repositoryCleaner.Clean();
             }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon repository clean error", ex);
+            }
+
+            try
+            {
+                _archiveService.PurgeOldArchives();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon Purge archives error", ex);
+            }
+
+            try
+            {
+                _packagePrune.Prune();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon prune error", ex);
+            }
+
         }
 
         #endregion
