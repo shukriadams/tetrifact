@@ -7,6 +7,7 @@
         InvalidFileCount,
         InvalidArchiveFormat,
         UnexpectedError,
-        CreateNotAllowed
+        CreateNotAllowed,
+        InvalidName
     }
 }

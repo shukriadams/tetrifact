@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.PackageCreate
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
             int filesToAdd = 10;
-            string packageId = "my package";
+            string packageId = "my-package";
 
             for (int i = 0; i < filesToAdd; i++)
             {
@@ -65,20 +65,6 @@ namespace Tetrifact.Tests.PackageCreate
         }
 
         /// <summary>
-        /// Confirms graceful handling when attempting to create a package with completely empty arguments.
-        /// The first check to fail should be file empty check.
-        /// </summary>        
-        [Fact]
-        public void CreateWithNoArguments(){
-            // empty argument list
-            PackageCreateArguments args = new PackageCreateArguments();
-
-            PackageCreateResult result = PackageCreate.CreatePackage(args);
-            Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
-            Assert.Equal("Files collection is empty.", result.PublicError);
-        }
-
-        /// <summary>
         /// Ensure that 
         /// </summary>
         [Fact]
@@ -86,6 +72,7 @@ namespace Tetrifact.Tests.PackageCreate
 
             PackageCreateArguments args = new PackageCreateArguments
             {
+                Id = "1234",
                 // empty files list
                 Files = new List<PackageCreateItem>()
             };
@@ -110,7 +97,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDuplicatePackage()
         {
-            string packageId = "my package";
+            string packageId = "my-package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
             PackageCreateArguments package = new PackageCreateArguments
@@ -131,7 +118,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateArchiveWithTooManyFiles()
         {
-            string packageId = "my package";
+            string packageId = "my-package";
             Stream fileStream = StreamsHelper.StreamFromString("some text");
 
             PackageCreateArguments package = new PackageCreateArguments
@@ -212,6 +199,20 @@ namespace Tetrifact.Tests.PackageCreate
             PackageCreateResult result = PackageCreate.CreatePackage(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
+        }
+
+        [Fact]
+        public void Invalid_name_characters()
+        {
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = "123%*&¤",
+                Files = new List<PackageCreateItem> { }
+            };
+
+            PackageCreateResult result = PackageCreate.CreatePackage(package);
+            Assert.False(result.Success);
+            Assert.Equal(PackageCreateErrorTypes.InvalidName, result.ErrorType);
         }
     }
 }

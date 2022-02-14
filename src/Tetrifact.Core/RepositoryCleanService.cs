@@ -21,7 +21,6 @@ namespace Tetrifact.Core
         
         private readonly IFile _fileFilesystem;
 
-
         public int LockPasses {private set ; get;}
 
         #endregion

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Tetrifact.Core
 {
@@ -54,12 +55,16 @@ namespace Tetrifact.Core
                 if (!_settings.AllowPackageCreate)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };
 
+                if (string.IsNullOrEmpty(newPackage.Id))
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
+
+                Regex nameCheckRegx = new Regex("^[a-zA-Z0-9!._-]*$");
+                if (!nameCheckRegx.Match(newPackage.Id).Success)
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidName, PublicError = $"Package name {newPackage.Id} contains invalid characters." };
+
                 // validate the contents of "newPackage" object
                 if (!newPackage.Files.Any())
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Files collection is empty." };
-
-                if (string.IsNullOrEmpty(newPackage.Id))
-                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue, PublicError = "Id is required." };
 
                 // ensure package does not already exist
                 if (_indexReader.PackageNameInUse(newPackage.Id))
