@@ -29,9 +29,8 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(IRepositoryCleanService repositoryCleaner, IIndexReadService indexService, IArchiveService archiveService, ILogger<CleanController> log)
+        public CleanController(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, ILogger<CleanController> log)
         {
-            _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;
             _archiveService = archiveService;
             _log = log;

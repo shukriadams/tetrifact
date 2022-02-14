@@ -38,7 +38,6 @@ namespace Tetrifact.Web
 
         #region METHODS
 
-
         /// <summary>
         /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
         /// </summary>
@@ -48,15 +47,12 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}")]
         public ActionResult GetArchive(string packageId)
         {
-            Stream archiveStream = null;
-
             try
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
-                _archiveService.PurgeOldArchives();
-                archiveStream = _archiveService.GetPackageAsArchive(packageId);
+                Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
 
                 sw.Stop();
                 _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
@@ -65,13 +61,10 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException)
             {
-                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
+                return Responses.PackageNotExistError(this, packageId);
             }
             catch (Exception ex)
             {
-                if (archiveStream != null)
-                    archiveStream.Close();
-
                 _log.LogError(ex, "Unexpected error");
                 return Responses.UnexpectedError();
             }
@@ -92,8 +85,6 @@ namespace Tetrifact.Web
         {
             try
             {
-                _archiveService.PurgeOldArchives();
-
                 return new JsonResult(new
                 {
                     success = new

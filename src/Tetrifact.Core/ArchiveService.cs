@@ -57,7 +57,7 @@ namespace Tetrifact.Core
             return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
         }
 
-        public Stream GetPackageAsArchive(string packageId)
+        public virtual Stream GetPackageAsArchive(string packageId)
         {
             string archivePath = this.GetPackageArchivePath(packageId);
 
