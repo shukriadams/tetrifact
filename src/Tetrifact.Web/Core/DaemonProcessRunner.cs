@@ -13,9 +13,9 @@ namespace Tetrifact.Web
         
         private bool _busy;
 
-        private ILogger<DaemonProcessRunner> _log;
+        private ILogger<IDaemonProcessRunner> _log;
 
-        public DaemonProcessRunner(ILogger<DaemonProcessRunner> log)
+        public DaemonProcessRunner(ILogger<IDaemonProcessRunner> log)
         { 
             _log = log;
             _running = true;

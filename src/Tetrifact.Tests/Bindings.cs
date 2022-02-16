@@ -29,6 +29,7 @@ namespace Tetrifact.Tests
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<Core.ArchiveService>();
             Bind<W.IDaemon>().To< W.Daemon>();
+            Bind<W.IDaemonProcessRunner>().To<W.DaemonProcessRunner>();
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
             Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
             Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
@@ -45,6 +46,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
             Bind<ILogger<IPackagePruneService>>().To<TestLogger<IPackagePruneService>>();
             Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
+            Bind<ILogger<W.IDaemonProcessRunner>>().To<TestLogger<W.IDaemonProcessRunner>>();
         }
     }
 }
