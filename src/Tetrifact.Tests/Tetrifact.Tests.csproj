@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ArchiveService\**" />
+    <EmbeddedResource Remove="ArchiveService\**" />
+    <None Remove="ArchiveService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AltCover" Version="7.3.802" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
@@ -32,10 +38,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Tetrifact.Core\Tetrifact.Core.csproj" />
     <ProjectReference Include="..\Tetrifact.Web\Tetrifact.Web.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ArchiveService\" />
   </ItemGroup>
 
 </Project>

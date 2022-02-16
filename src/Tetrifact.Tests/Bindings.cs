@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Ninject.Modules;
 using System.IO.Abstractions;
 using Tetrifact.Core;
-using Tetrifact.Web;
+using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests
 {
@@ -28,11 +28,12 @@ namespace Tetrifact.Tests
             Bind<IPackagePruneService>().To<PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<Core.ArchiveService>();
-            Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
-            Bind<ILogger<CleanController>>().To<TestLogger<CleanController>>();
-            Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();
-            Bind<ILogger<ArchivesController>>().To<TestLogger<ArchivesController>>();
-            Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
+            Bind<W.IDaemon>().To< W.Daemon>();
+            Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
+            Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
+            Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
+            Bind<ILogger<W.ArchivesController>>().To<TestLogger<W.ArchivesController>>();
+            Bind<ILogger<W.TagsController>>().To<TestLogger<W.TagsController>>();
             Bind<ILogger<IPackageCreateWorkspace>>().To<TestLogger<IPackageCreateWorkspace>>();
             Bind<ILogger<IPackageCreateService>>().To<TestLogger<IPackageCreateService>>();
             Bind<ILogger<ISettings>>().To<TestLogger<ISettings>>();
@@ -42,6 +43,8 @@ namespace Tetrifact.Tests
             Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
             Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
             Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
+            Bind<ILogger<IPackagePruneService>>().To<TestLogger<IPackagePruneService>>();
+            Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
         }
     }
 }

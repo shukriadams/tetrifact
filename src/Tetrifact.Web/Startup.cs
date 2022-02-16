@@ -57,11 +57,12 @@ namespace Tetrifact.Web
             services.AddTransient<IFileSystem, FileSystem>();
             services.AddTransient<IFile, FileWrapper>();
             services.AddTransient<IDirectory, DirectoryWrapper>();
-            services.AddTransient<Daemon, Daemon>();
             services.AddTransient<IThread, ThreadDefault>();
             services.AddTransient<IPackagePruneService, PackagePruneService>();
             services.AddTransient<IPackageDiffService, PackageDiffService>();
             services.AddTransient<IArchiveService, ArchiveService>();
+            services.AddTransient<IDaemon, Daemon>();
+            services.AddTransient<IDaemonProcessRunner, DaemonProcessRunner>();
 
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -172,7 +173,7 @@ namespace Tetrifact.Web
             Console.WriteLine("Indexes initialized");
 
             // start daemon
-            Daemon daemon = serviceProvider.GetService<Daemon>();
+            IDaemon daemon = serviceProvider.GetService<IDaemon>();
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
                 int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
 

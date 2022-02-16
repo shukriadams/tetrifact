@@ -20,32 +20,47 @@ namespace Tetrifact.Tests
 
         public static T Get<T>(string name1, object arg1)
         {
-            return Get<T>(Ctor(name1, arg1));
+            return Get<T>(new[] {
+                new ConstructorArgument(name1, arg1)
+            });
         }
 
         public static T Get<T>(string name1, object arg1, string name2, object arg2)
         {
-            return Get<T>(Ctor(name1, arg1, name2, arg2));
+            return Get<T>(new[] {
+                new ConstructorArgument(name1, arg1),
+                new ConstructorArgument(name2, arg2)
+            });
         }
 
         public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3)
         {
-            return Get<T>(Ctor(name1, arg1, name2, arg2, name3, arg3));
+            return Get<T>(new[] {
+                new ConstructorArgument(name1, arg1),
+                new ConstructorArgument(name2, arg2),
+                new ConstructorArgument(name3, arg3)
+            });
         }
 
-        public static ConstructorArgument[] Ctor(string name1, object arg1)
+        public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4)
         {
-            return new[] { new ConstructorArgument(name1, arg1)};
+            return Get<T>(new[] { 
+                new ConstructorArgument(name1, arg1),
+                new ConstructorArgument(name2, arg2),
+                new ConstructorArgument(name3, arg3),
+                new ConstructorArgument(name4, arg4)
+            });
         }
 
-        public static ConstructorArgument[] Ctor(string name1, object arg1, string name2, object arg2)
+        public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4, string name5, object arg5)
         {
-            return new[] { new ConstructorArgument(name1, arg1), new ConstructorArgument(name2, arg2) };
-        }
-
-        public static ConstructorArgument[] Ctor(string name1, object arg1, string name2, object arg2, string name3, object arg3)
-        {
-            return new[] { new ConstructorArgument(name1, arg1), new ConstructorArgument(name2, arg2), new ConstructorArgument(name3, arg3) };
+            return Get<T>(new[] {
+                new ConstructorArgument(name1, arg1),
+                new ConstructorArgument(name2, arg2),
+                new ConstructorArgument(name3, arg3),
+                new ConstructorArgument(name4, arg4),
+                new ConstructorArgument(name5, arg5)
+            });
         }
     }
 }

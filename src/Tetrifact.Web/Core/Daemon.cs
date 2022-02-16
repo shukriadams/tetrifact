@@ -1,41 +1,38 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
+    public delegate void DaemonWork();
+
     /// <summary>
     /// Internal timed process that manages automated processes, such as cleanup, integrity checks, etc.
     /// </summary>
-    public class Daemon : IDisposable
+    public class Daemon : IDaemon 
     {
         #region FIELDS
-
-        private int _tickInterval;
 
         private readonly IRepositoryCleanService _repositoryCleaner;
 
         private readonly IArchiveService _archiveService;
 
-        private bool _busy;
+        private readonly ILogger<IDaemon> _log;
 
-        private bool _running;
+        private readonly IPackagePruneService _packagePrune;
 
-        private ILogger<Daemon> _log;
-
-        private IPackagePruneService _packagePrune;
+        private readonly IDaemonProcessRunner _processRunner;
 
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IPackagePruneService packagePrune, ILogger<Daemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, ILogger<IDaemon> log)
         {
             _packagePrune = packagePrune;
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
+            _processRunner = processRunner;
             _log = log;
         }
 
@@ -49,37 +46,15 @@ namespace Tetrifact.Web
         /// <param name="tickInterval"></param>
         public void Start(int tickInterval)
         {
-            _tickInterval = tickInterval;
-
-            Task.Run(() =>{
-                while (_running)
-                {
-                    try
-                    {
-                        _log.LogInformation("Daemon ticked");
-
-                        if (_busy)
-                            return;
-
-                        _busy = true;
-
-                        this.Work();
-                    }
-                    finally
-                    {
-                        _busy = false;
-                        Thread.Sleep(_tickInterval);
-                    }
-                }
-            });
+            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
         }
 
         /// <summary>
         /// 
         /// </summary>
         public void Dispose()
-        {
-            _running = false;
+        { 
+            _processRunner.Dispose();
         }
 
         /// <summary>
@@ -113,7 +88,6 @@ namespace Tetrifact.Web
             {
                 _log.LogError("Daemon prune error", ex);
             }
-
         }
 
         #endregion
