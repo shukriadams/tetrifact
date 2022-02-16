@@ -4,6 +4,7 @@ cd ./../src
 :: run test
 dotnet test /p:AltCover=true
 :: generate cover
-reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./coverage -assemblyfilters:+Tetrifact.*;-Tetrifact.Tests -classfilters:-Tetrifact.Core.ThreadDefault;-Tetrifact.Web.DaemonProcessRunner
+reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./coverage -assemblyfilters:+Tetrifact.*;-Tetrifact.Tests;-Tetrifact.Web.Views -classfilters:-Tetrifact.Core.ThreadDefault;-Tetrifact.Web.DaemonProcessRunner;-*f__*
 :: open cover report in browser
 explorer "file:///%cd%/coverage/index.html"
+
