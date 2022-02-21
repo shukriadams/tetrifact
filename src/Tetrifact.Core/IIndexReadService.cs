@@ -80,5 +80,11 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="packageId"></param>
         (bool, string) VerifyPackage(string packageId);
+
+        /// <summary>
+        /// Gets object with reading of disk use.
+        /// </summary>
+        /// <returns></returns>
+        DiskUseStats GetDiskUseSats();
     }
 }

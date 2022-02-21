@@ -10,6 +10,6 @@
         /// </summary>
         /// <param name="newPackage"></param>
         /// <returns></returns>
-        PackageCreateResult CreatePackage(PackageCreateArguments newPackage);
+        PackageCreateResult Create(PackageCreateArguments newPackage);
     }
 }

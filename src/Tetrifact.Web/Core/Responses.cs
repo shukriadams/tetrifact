@@ -21,15 +21,10 @@ namespace Tetrifact.Web
                 }
             });
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="packageId"></param>
-        /// <returns></returns>
-        public static NotFoundObjectResult PackageNotExistError(Controller controller, string packageId)
+        
+        public static BadRequestObjectResult PackageAlreadyExistsError(Controller controller, string packageId)
         {
-            return controller.NotFound(new
+            return new BadRequestObjectResult(new
             {
                 error = new
                 {

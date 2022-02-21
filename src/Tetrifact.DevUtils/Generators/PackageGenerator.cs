@@ -45,7 +45,7 @@ namespace Tetrifact.DevUtils
                     Id = Guid.NewGuid().ToString(),
                     Files = files
                 };
-                _packageServices.CreatePackage(package);
+                _packageServices.Create(package);
                 Console.WriteLine($"Generated package {package.Id}");
             }
 

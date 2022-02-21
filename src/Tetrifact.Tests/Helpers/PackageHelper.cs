@@ -77,7 +77,7 @@ namespace Tetrifact.Tests
                 Files = files
             };
 
-            PackageCreate.CreatePackage(package);
+            PackageCreate.Create(package);
             return packageId;
         }
 

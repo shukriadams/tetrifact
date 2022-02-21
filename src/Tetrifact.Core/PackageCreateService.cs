@@ -44,7 +44,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageCreateResult CreatePackage(PackageCreateArguments newPackage)
+        public PackageCreateResult Create(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
 

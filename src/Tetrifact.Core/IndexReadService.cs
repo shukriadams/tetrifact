@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Tetrifact.Core
@@ -209,6 +210,18 @@ namespace Tetrifact.Core
                     _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
+        }
+
+        public DiskUseStats GetDiskUseSats()
+        {
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DriveInfo drive = new DriveInfo(path);
+            DiskUseStats stats = new DiskUseStats();
+
+            stats.TotalBytes = drive.TotalSize;
+            stats.FreeBytes = drive.AvailableFreeSpace;
+
+            return stats;
         }
 
         #endregion

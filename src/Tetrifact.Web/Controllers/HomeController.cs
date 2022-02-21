@@ -167,7 +167,7 @@ namespace Tetrifact.Web
         [Route("spacecheck")]
         public ActionResult SpaceCheck()
         {
-            DiskUseStats useStats = FileHelper.GetDiskUseSats();
+            DiskUseStats useStats = _indexService.GetDiskUseSats();
             double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
 
             return new JsonResult(new

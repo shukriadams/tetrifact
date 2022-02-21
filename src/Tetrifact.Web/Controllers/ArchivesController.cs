@@ -61,7 +61,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException)
             {
-                return Responses.PackageNotExistError(this, packageId);
+                return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {
@@ -95,7 +95,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException)
             {
-                return Responses.PackageNotExistError(this, packageId);
+                return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {
