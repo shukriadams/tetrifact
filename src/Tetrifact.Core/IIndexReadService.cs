@@ -60,7 +60,8 @@ namespace Tetrifact.Core
 
         /// <summary>
         /// Gets a file from a package, as a binary array. Returns null if the package or file is invalid.
-        /// file fileIdentifier is file path + "::" + file hash, base64 encoded.
+        /// file fileIdentifier is file path + "::" + file hash, base64 encoded. Does not throw file not found exception
+        /// because the severity of a null depends on the context of the call.
         /// </summary>
         /// <param name="packageId"></param>
         /// <param name="path"></param>

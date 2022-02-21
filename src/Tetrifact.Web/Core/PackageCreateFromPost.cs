@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace Tetrifact.Core
+namespace Tetrifact.Web
 {
     /// <summary>
     /// Holds required data for adding a new package to system. Can be used as route data.

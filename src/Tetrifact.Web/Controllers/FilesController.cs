@@ -52,7 +52,7 @@ namespace Tetrifact.Web
                     return Responses.NotFoundError(this, $"file {fileId} not found. Id is invalid, or has been deleted.");
 
                 if (payload.Content == null)
-                    throw new Exception($"File {fileId} has no content.");
+                    throw new Exception($"File {fileId} has no content, possible data corruption.");
 
                 return File(payload.Content, "application/octet-stream", payload.FileName);
             }

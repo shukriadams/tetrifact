@@ -61,11 +61,10 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="project"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("uploadPackage")]
-        public IActionResult UploadPackage(string project)
+        public IActionResult UploadPackage()
         {
             string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
             return View(new UploadPackageModel { HostName = hostname });
@@ -73,12 +72,12 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// Renders view.
+        /// Shows page of package files at given pageindex
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("package/{packageId}/{page?}")]
-        public IActionResult Package(string packageId, int page)
+        [Route("package/{packageId}/{pageIndex?}")]
+        public IActionResult Package(string packageId, int pageIndex)
         {
             ViewData["packageId"] = packageId;
             Manifest manifest = _indexService.GetManifest(packageId);
@@ -87,11 +86,11 @@ namespace Tetrifact.Web
 
             ViewData["manifest"] = manifest;
 
-            if (page != 0)
-                page--;
+            if (pageIndex != 0)
+                pageIndex--;
 
             Pager pager = new Pager();
-            PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(page * _settings.ListPageSize).Take(_settings.ListPageSize), page, _settings.ListPageSize, manifest.Files.Count);
+            PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(pageIndex * _settings.ListPageSize).Take(_settings.ListPageSize), pageIndex, _settings.ListPageSize, manifest.Files.Count);
             ViewData["filesPage"] = filesPage;
             ViewData["filesPager"] = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles");
             return View();
@@ -160,24 +159,6 @@ namespace Tetrifact.Web
         {
             return View();
         }
-
-
-        /// <summary>
-        /// Renders empty JSON response
-        /// </summary>
-        /// <returns></returns>
-        [Route("isAlive")]
-        public ActionResult IsAlive()
-        {
-            return new JsonResult(new
-            {
-                success = new
-                {
-                    
-                }
-            });
-        }
-
 
         /// <summary>
         /// Renders view.
