@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Tetrifact.Core;
 using Tetrifact.Web;
 using Xunit;

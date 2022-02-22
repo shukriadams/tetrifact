@@ -26,6 +26,21 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        [Fact]
+        public void Package_not_found()
+        {
+            Mock<IIndexReadService> indexReadService = new Mock<IIndexReadService>();
+            indexReadService
+                .Setup(r => r.GetManifest(It.IsAny<string>())); // return null
+
+            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", indexReadService.Object);
+            NotFoundObjectResult result = controller.GetPackage("any-package-id") as NotFoundObjectResult;
+            Assert.NotNull(result);
+        }
+
+        /// <summary>
         /// coverage
         /// </summary>
         [Fact]

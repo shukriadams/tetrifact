@@ -91,23 +91,6 @@ namespace Tetrifact.Web
             });
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logId"></param>
-        /// <returns></returns>
-        public static BadRequestObjectResult PackageUploadFailedError(string logId)
-        {
-            return new BadRequestObjectResult(new
-            {
-                error = new
-                {
-                    code = 104,
-                    description = $"The package upload failed. Please check log enry {logId} for more information."
-                }
-            });
-        }
        
         /// <summary>
         /// 

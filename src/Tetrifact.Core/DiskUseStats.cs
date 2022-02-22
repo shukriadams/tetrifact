@@ -1,5 +1,3 @@
-using System;
-
 namespace Tetrifact.Core
 {
     public class DiskUseStats
@@ -10,7 +8,7 @@ namespace Tetrifact.Core
         public int ToPercent ()
         {
             if (this.TotalBytes == 0)
-                throw new Exception("Total bytes has not been set yet");
+                return 0;
 
             return (int)((100 * this.FreeBytes) / this.TotalBytes);
         }
