@@ -160,15 +160,28 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}/exists")]
         public ActionResult PackageExists(string packageId)
         {
-            return new JsonResult(new
+            try
             {
-                success = new
+                return new JsonResult(new
                 {
-                    exists = _indexService.GetManifest(packageId) != null
-                }
-            });
+                    success = new
+                    {
+                        exists = _indexService.PackageExists(packageId)
+                    }
+                });
+            } 
+            catch(Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError();
+            }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("{packageId}/verify")]
         public ActionResult VerifyPackage(string packageId)
@@ -176,6 +189,7 @@ namespace Tetrifact.Web
             try
             {
                 (bool, string) result = _indexService.VerifyPackage(packageId);
+
                 return new JsonResult(new
                 {
                     success = new
@@ -195,7 +209,6 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
-
 
         /// <summary>
         /// Returns the manifest for a package

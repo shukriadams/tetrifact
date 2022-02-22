@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
         }
 
         [Fact]
-        public void GetPackageList()
+        public void Full_package_list()
         {
             Mock<IPackageListService> moqListService = new Mock<IPackageListService>();
             moqListService
