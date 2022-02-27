@@ -65,7 +65,7 @@ namespace Tetrifact.Tests.ArchiveService
         /// <summary>
         /// Confirms that a timeout exception is thrown if package creation takes too long.
         /// </summary>
-        [Fact (Skip = "locking file doesn't work on linux, find cross-platform solution")]
+        [Fact/* (Skip = "locking file doesn't work on linux, find cross-platform solution")*/]
         public void GetTimesOut()
         {
             // zero wait times to speed up test, this should trigger an instant timeout
@@ -74,20 +74,18 @@ namespace Tetrifact.Tests.ArchiveService
 
             // we need a valid package first
             TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            
+            ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
 
             // mock a temp archive file and lock it to simulate an ongoing zip
-            string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
-            File.WriteAllText(tempArchivePath, string.Empty);
+            LockProvider.Instance.Lock(ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
 
-            using (FileStream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                Assert.Throws<TimeoutException>(() => {
-                    using (Stream zipStream = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
-                    {
-                        // do nothing, exception expected
-                    }
-                });
-            }
+            Assert.Throws<TimeoutException>(() => {
+                using (Stream zipStream = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+                {
+                    // do nothing, exception expected
+                }
+            });
         }
 
         /// <summary>
@@ -120,7 +118,7 @@ namespace Tetrifact.Tests.ArchiveService
                     });
 
                 // make a custom reader with our mocked Thread
-                IArchiveService archiveService = new Core.ArchiveService(this.IndexReader, mockThread, new FileSystem(), this.ArchiveLogger, this.Settings);
+                IArchiveService archiveService = new Core.ArchiveService(this.IndexReader, mockThread, LockProvider, new FileSystem(), this.ArchiveLogger, this.Settings);
 
                 using (Stream zipStream = archiveService.GetPackageAsArchive(testPackage.Id))
                 {
@@ -181,51 +179,22 @@ namespace Tetrifact.Tests.ArchiveService
         }
 
         /// <summary>
-        /// Ensure that existing temp file is deleted if new archive is generated
-        /// </summary>
-        [Fact]
-        public void GetArchive_Preexisting_tempFile()
-        {
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
-
-            // create abandoned tempfile for this package archive
-            string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
-            Directory.CreateDirectory(Path.GetDirectoryName(tempArchivePath));
-            File.WriteAllText(tempArchivePath, string.Empty);
-
-            // remove wait time, 
-            Settings.ArchiveWaitTimeout = 0;
-
-            // attempt to start a new archive generation, this should exit immediately
-            using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
-            {
-                Assert.True(ArchiveLogger.ContainsFragment($"Deleted abandoned temp archive for {testPackage.Id}"));
-            }
-        }
-
-        /// <summary>
         /// Ensure graceful handling of locked temp file from previous archive generating attempt
         /// </summary>
-        [Fact (Skip = "fails on travis")]
+        [Fact]
         public void GetArchive_Preexisting_locked_tempFile()
         {
             TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
-            // create and lock tempfile for this package archive
-            string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
-            Directory.CreateDirectory(Path.GetDirectoryName(tempArchivePath));
-            File.WriteAllText(tempArchivePath, string.Empty);
+            // lock archive
+            LockProvider.Instance.Lock(ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
             
-            // remove wait time, 
             Settings.ArchiveWaitTimeout = 0;
 
-            using (FileStream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                // attempt to start a new archive generation, this should exit immediately
-                TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
-                Assert.NotNull(ex);
-                Assert.True(ArchiveLogger.ContainsFragment("skipped, existing process detected"));
-            }
+            // attempt to start a new archive generation, this should exit immediately
+            TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
+            Assert.NotNull(ex);
+            Assert.True(ArchiveLogger.ContainsFragment("skipped, existing process detected"));
         }
     }
 }

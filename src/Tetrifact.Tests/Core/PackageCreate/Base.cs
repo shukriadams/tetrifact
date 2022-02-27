@@ -16,7 +16,8 @@ namespace Tetrifact.Tests.PackageCreate
             Logger = new TestLogger<IPackageCreateService>();
 
             PackageCreate = new Core.PackageCreateService(
-                IndexReader, 
+                IndexReader,
+                LockProvider,
                 ArchiveService,
                 Settings,
                 Logger,

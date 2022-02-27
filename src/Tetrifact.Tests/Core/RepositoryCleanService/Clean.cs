@@ -4,7 +4,6 @@ using Tetrifact.Core;
 using Moq;
 using System;
 using System.IO.Abstractions;
-using System.Threading;
 
 namespace Tetrifact.Tests.repositoryCleaner
 {
@@ -43,7 +42,7 @@ namespace Tetrifact.Tests.repositoryCleaner
 
         public Clean()
         {
-            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, this.Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, LockProvider, this.Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
         }
 
         /// <summary>
@@ -93,7 +92,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, this.LockProvider, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
             respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -112,7 +111,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, LockProvider, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();
@@ -127,7 +126,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void EnsureNoLock_Coverage()
         {
-            Core.LinkLock.Instance.Lock("some-package");
+            LockProvider.Instance.Lock("some-package");
             _respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -143,7 +142,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Directory.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, Settings, mockedFilesystem.Directory, mockedFilesystem.File, RepoCleanLog);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, LockProvider, Settings, mockedFilesystem.Directory, mockedFilesystem.File, RepoCleanLog);
             mockedCleaner.Clean();
             //Assert.True(RepoCleanLog.ContainsFragment("Failed to read content of directory"));
         }

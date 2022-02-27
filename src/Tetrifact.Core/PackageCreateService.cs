@@ -22,11 +22,13 @@ namespace Tetrifact.Core
 
         private readonly IArchiveService _archiveService;
 
+        private readonly ILock _lock;
+
         #endregion
 
         #region CTORS
 
-        public PackageCreateService(IIndexReadService indexReader, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService)
+        public PackageCreateService(IIndexReadService indexReader, ILockProvider lockProvider, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;
@@ -34,6 +36,7 @@ namespace Tetrifact.Core
             _workspace = workspace;
             _settings = settings;
             _hashService = hashService;
+            _lock = lockProvider.Instance;
         }
 
         #endregion
@@ -78,7 +81,7 @@ namespace Tetrifact.Core
                 long size = newPackage.Files.Sum(f => f.Content.Length);
 
                 // prevent deletes of empty repository folders this package might need to write to
-                LinkLock.Instance.Lock(newPackage.Id);
+                _lock.Lock(newPackage.Id);
 
                 _workspace.Initialize();
 
@@ -140,7 +143,7 @@ namespace Tetrifact.Core
             finally
             {
                 if (!string.IsNullOrEmpty(newPackage.Id))
-                    LinkLock.Instance.Unlock(newPackage.Id);
+                    _lock.Unlock(newPackage.Id);
             }
         }
 

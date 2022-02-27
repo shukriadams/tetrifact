@@ -5,49 +5,57 @@ namespace Tetrifact.Tests.LinkLock
 {
     public class LinkLock
     {
-        public LinkLock()
-        {
-            Core.LinkLock.Reset();
-        }
-
         [Fact]
         public void DefaultState()
         {
-            Assert.False(Core.LinkLock.Instance.IsAnyLocked());
+            ILock processLock = new ProcessLock();
+            Assert.False(processLock.IsAnyLocked());
         }
 
         [Fact]
         public void AnyPackageLocksAll()
         {
-            Core.LinkLock.Instance.Lock("some package");
-            Assert.True(Core.LinkLock.Instance.IsAnyLocked());
+            ILock processLock = new ProcessLock();
+            processLock.Lock("some package");
+            Assert.True(processLock.IsAnyLocked());
+        }
+
+        [Fact]
+        public void IsNamedLocked()
+        {
+            ILock processLock = new ProcessLock();
+            processLock.Lock("some package");
+            Assert.True(processLock.IsLocked("some package"));
         }
 
         [Fact]
         public void Unlock()
         {
-            Core.LinkLock.Instance.Lock("some package");
-            Core.LinkLock.Instance.Unlock("some package");
-            Assert.False(Core.LinkLock.Instance.IsAnyLocked());
+            ILock processLock = new ProcessLock();
+            processLock.Lock("some package");
+            processLock.Unlock("some package");
+            Assert.False(processLock.IsAnyLocked());
         }
 
         [Fact]
         public void OverlappingLocks()
         {
-            Core.LinkLock.Instance.Lock("some package");
-            Core.LinkLock.Instance.Lock("another package");
-            Core.LinkLock.Instance.Unlock("some package");
-            Assert.True(Core.LinkLock.Instance.IsAnyLocked());
+            ILock processLock = new ProcessLock();
+            processLock.Lock("some package");
+            processLock.Lock("another package");
+            processLock.Unlock("some package");
+            Assert.True(processLock.IsAnyLocked());
         }
 
         [Fact]
         public void OverlappingUnlocks()
         {
-            Core.LinkLock.Instance.Lock("some package");
-            Core.LinkLock.Instance.Lock("another package");
-            Core.LinkLock.Instance.Unlock("another package");
-            Core.LinkLock.Instance.Unlock("some package");
-            Assert.False(Core.LinkLock.Instance.IsAnyLocked());
+            ILock processLock = new ProcessLock();
+            processLock.Lock("some package");
+            processLock.Lock("another package");
+            processLock.Unlock("another package");
+            processLock.Unlock("some package");
+            Assert.False(processLock.IsAnyLocked());
         }
     }
 }

@@ -50,27 +50,20 @@ namespace Tetrifact.Tests.IndexReader
         }
 
         
-        [Fact (Skip = "fails consistently on travis")]  
+        [Fact/* (Skip = "fails consistently on travis")*/]  
         public void DeleteWithLockedArchive()
         {
             TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
-            // mock archive
-            string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
-            File.WriteAllText(archivePath, string.Empty);
-
-            // force create dummy zip file in archive folder
-            File.WriteAllText(archivePath, "dummy content");
+            // lock archive
+            LockProvider.Instance.Lock(base.ArchiveService.GetPackageArchivePath(testPackage.Id));
 
             // open stream in write mode to lock it, then attempt to purge archives
-            using (FileStream lockStream = File.OpenWrite(archivePath))
-            {
-                this.IndexReader.DeletePackage(testPackage.Id);
+            this.IndexReader.DeletePackage(testPackage.Id);
 
-                Assert.Single(base.IndexReaderLogger.LogEntries);
-                Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
-            }
-        }
+            Assert.Single(base.IndexReaderLogger.LogEntries);
+            Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
+    }
         
 
         [Fact]

@@ -22,17 +22,20 @@ namespace Tetrifact.Core
         
         private readonly IFileSystem _fileSystem;
 
+        private readonly ILock _lock;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IThread thread, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IThread thread, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
             _thread = thread;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
             _logger = logger;
+            _lock = lockProvider.Instance;
         }
 
         #endregion
@@ -70,7 +73,7 @@ namespace Tetrifact.Core
             DateTime start = DateTime.Now;
             TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
 
-            while (_fileSystem.File.Exists(tempPath))
+            while (_lock.IsLocked(tempPath))
             {
                 if (DateTime.Now - start > timeout)
                     throw new TimeoutException($"Timed out waiting for archive ${packageId} to build");
@@ -78,6 +81,10 @@ namespace Tetrifact.Core
                 _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
             }
 
+            if (!File.Exists(archivePath))
+                throw new Exception($"Archive generation for {packageId} failed, neither temp nor archive found");
+
+            _lock.Lock(archivePath, new TimeSpan(1, 0, 0));
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
@@ -115,6 +122,9 @@ namespace Tetrifact.Core
             {
                 try
                 {
+                    if (_lock.IsLocked(file.FullName))
+                        continue;
+
                     _fileSystem.File.Delete(file.FullName);
                 }
                 catch (IOException ex)
@@ -137,72 +147,75 @@ namespace Tetrifact.Core
             // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
             // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
-            if (_fileSystem.File.Exists(archivePathTemp))
+            if (_lock.IsLocked(archivePathTemp))
             {
-                try
-                {
-                    _fileSystem.File.Delete(archivePathTemp);
-                    _logger.LogInformation($"Deleted abandoned temp archive for {packageId}");
-                }
-                catch (IOException)
-                {
-                    _logger.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
-                    return;
-                }
-            }
+                _logger.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
+                return;
+            } 
 
-            _logger.LogInformation($"Archive generation for package {packageId} started");
-
-            // create zip file on disk asap to lock file name off
-            using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
+            try 
             {
-                // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
-                Manifest manifest = _indexReader.GetManifest(packageId);
+                // lock process - we use an in-memory lock instead of just locking the file on disk because linux file locks in 
+                // Dotnet are unreliable
+                _lock.Lock(archivePathTemp);
 
-                using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                _logger.LogInformation($"Archive generation for package {packageId} started");
+
+                // create zip file on disk asap to lock file name off
+                using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
                 {
-                    foreach (ManifestItem file in manifest.Files)
+                    // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
+                    Manifest manifest = _indexReader.GetManifest(packageId);
+
+                    using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                     {
-                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.DownloadArchiveCompression);
-
-                        using (Stream zipEntryStream = zipEntry.Open())
+                        foreach (ManifestItem file in manifest.Files)
                         {
-                            if (manifest.IsCompressed)
-                            {
-                                GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                                if (fileLookup == null)
-                                    throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
+                            ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.DownloadArchiveCompression);
 
-                                using (var storageArchive = new ZipArchive(fileLookup.Content))
+                            using (Stream zipEntryStream = zipEntry.Open())
+                            {
+                                if (manifest.IsCompressed)
                                 {
-                                    ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
-                                    using (var storageArchiveStream = storageArchiveEntry.Open())
+                                    GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                                    if (fileLookup == null)
+                                        throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
+
+                                    using (var storageArchive = new ZipArchive(fileLookup.Content))
                                     {
-                                        storageArchiveStream.CopyTo(zipEntryStream);
+                                        ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
+                                        using (var storageArchiveStream = storageArchiveEntry.Open())
+                                        {
+                                            storageArchiveStream.CopyTo(zipEntryStream);
+                                        }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                                if (fileLookup == null)
-                                    throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
-
-                                using (Stream fileStream = fileLookup.Content)
+                                else
                                 {
-                                    fileStream.CopyTo(zipEntryStream);
-                                }
-                            }
+                                    GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                                    if (fileLookup == null)
+                                        throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
-                            _logger.LogInformation($"Added file {file.Path} to archive");
+                                    using (Stream fileStream = fileLookup.Content)
+                                    {
+                                        fileStream.CopyTo(zipEntryStream);
+                                    }
+                                }
+
+                                _logger.LogInformation($"Added file {file.Path} to archive");
+                            }
                         }
                     }
                 }
-            }
 
-            // flip temp file to final path, it is ready for use only when this happens
-            _fileSystem.File.Move(archivePathTemp, archivePath);
-            _logger.LogInformation($"Archive generation for package {packageId} complete");
+                // flip temp file to final path, it is ready for use only when this happens
+                _fileSystem.File.Move(archivePathTemp, archivePath);
+                _logger.LogInformation($"Archive generation for package {packageId} complete");
+            }
+            finally 
+            {
+                _lock.Unlock(archivePathTemp);
+            }
         }
 
         #endregion

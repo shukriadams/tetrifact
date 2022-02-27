@@ -63,6 +63,8 @@ namespace Tetrifact.Web
             services.AddTransient<IArchiveService, ArchiveService>();
             services.AddTransient<IDaemon, Daemon>();
             services.AddTransient<IDaemonProcessRunner, DaemonProcessRunner>();
+            services.AddTransient<ILock, ProcessLock>();
+            services.AddTransient<ILockProvider, LockProvider>();
 
             // register filterws
             services.AddScoped<ReadLevel>();

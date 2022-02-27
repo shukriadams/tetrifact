@@ -11,8 +11,6 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReadService _indexService;
-
         private readonly IArchiveService _archiveService;
 
         private readonly IRepositoryCleanService _repositoryCleaner;

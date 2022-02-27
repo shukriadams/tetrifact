@@ -30,26 +30,21 @@ namespace Tetrifact.Tests.ArchiveService
         /// logs an error. The error loggging is mainly used to indicate that the lock has been 
         /// effective.
         /// </summary>
-        [Fact (Skip = "fails consistently on travis")] 
+        [Fact/* (Skip = "fails consistently on travis")*/] 
         public void PurgeLockedArchive()
         {
             Assert.Empty(base.IndexReaderLogger.LogEntries);
 
             this.Settings.MaxArchives = 0;
-            string path = Path.Join(Settings.ArchivePath, "dummy.zip");
-    
+
             // force create dummy zip file in archive folder
-            File.WriteAllText(path, "dummy content");
+            LockProvider.Instance.Lock(Path.Join(Settings.ArchivePath, "dummy.zip"));
 
-            // open dummy zip in write mode to lock it 
-            using (FileStream lockStream = File.OpenWrite(path))
-            {
-                // attempt to purge content of archive folder
-                base.ArchiveService.PurgeOldArchives();
+            // attempt to purge content of archive folder
+            base.ArchiveService.PurgeOldArchives();
 
-                Assert.Single(base.ArchiveLogger.LogEntries);
-                Assert.Contains("Failed to purge archive", base.ArchiveLogger.LogEntries[0]);
-            }
+            Assert.Single(base.ArchiveLogger.LogEntries);
+            Assert.Contains("Failed to purge archive", base.ArchiveLogger.LogEntries[0]);
         }
         
         
@@ -65,7 +60,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Setup(f => f.File.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IArchiveService archiveService = new Core.ArchiveService(IndexReader, new ThreadDefault(), fileSystem, ArchiveLogger , Settings);
+            IArchiveService archiveService = new Core.ArchiveService(IndexReader, new ThreadDefault(), LockProvider, fileSystem, ArchiveLogger , Settings);
 
             // force an archive and ensure that all archives will be purged
             Settings.MaxArchives = 0;

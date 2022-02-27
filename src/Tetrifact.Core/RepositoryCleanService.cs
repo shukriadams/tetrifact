@@ -21,19 +21,22 @@ namespace Tetrifact.Core
         
         private readonly IFile _fileFilesystem;
 
+        private readonly ILock _lock;
+
         public int LockPasses {private set ; get;}
 
         #endregion
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, ILockProvider lockerProvider, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
             _fileFilesystem = fileFileSystem;
             _log = log;
             _indexReader = indexReader;
+            _lock = lockerProvider.Instance;
         }
 
         #endregion
@@ -72,7 +75,7 @@ namespace Tetrifact.Core
         /// </summary>
         private void EnsureNoLock()
         {
-            if (LinkLock.Instance.IsAnyLocked())
+            if (_lock.IsAnyLocked())
                 throw new Exception($"System currently locked, clear process aborting");
         }
 
