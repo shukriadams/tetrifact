@@ -25,8 +25,9 @@ namespace Tetrifact.Tests.Web.Core.Daemon
             Mock<IArchiveService> archiveService = new Mock<IArchiveService>();
             Mock<IRepositoryCleanService> repositoryCleaner = new Mock<IRepositoryCleanService>();
             Mock<IPackagePruneService> packagePrune = new Mock<IPackagePruneService>();
+            Mock<ILockProvider> lockProvider = new Mock<ILockProvider>();
 
-            W.IDaemon daemon = NinjectHelper.Get<W.IDaemon>("repositoryCleaner", repositoryCleaner.Object, "archiveService", archiveService.Object, "processRunner", processRunner.Object, "packagePrune", packagePrune.Object);
+            W.IDaemon daemon = NinjectHelper.Get<W.IDaemon>("repositoryCleaner", repositoryCleaner.Object, "archiveService", archiveService.Object, "processRunner", processRunner.Object, "lockProvider", lockProvider.Object, "packagePrune", packagePrune.Object);
             daemon.Start(0);
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -21,7 +22,6 @@ namespace Tetrifact.Tests.IndexReader
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-
             Core.ISettings settings = new Core.Settings(new TestLogger<Core.Settings>())
             {
                 TempPath = Path.Join(testFolder, "Temp")
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.IndexReader
                 filesystem,
                 new TestLogger<Core.ITagsService>(),new Core.PackageListCache(MemoryCacheHelper.GetInstance())); 
 
-            Core.IIndexReadService reader = new Core.IndexReadService(settings, tagService, new TestLogger<Core.IIndexReadService>(), filesystem, HashServiceHelper.Instance());
+            Core.IIndexReadService reader = new Core.IndexReadService(settings, tagService, new TestLogger<IIndexReadService>(), filesystem, HashServiceHelper.Instance(), new Core.LockProvider());
             reader.Initialize();
 
             Assert.False(File.Exists(testFilePath));

@@ -103,7 +103,7 @@ namespace Tetrifact.Tests.PackagePrune
         {
             Settings.PruneWeeklyKeep = 0;
 
-            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Returns<Manifest>(null);
@@ -122,7 +122,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Delete_Exception()
         {
-            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             mockedIndexReader
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Callback(() => {

@@ -23,16 +23,19 @@ namespace Tetrifact.Web
 
         private readonly IDaemonProcessRunner _processRunner;
 
+        private readonly ILock _lock;
+
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, ILogger<IDaemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, ILockProvider lockProvider, ILogger<IDaemon> log)
         {
             _packagePrune = packagePrune;
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
             _processRunner = processRunner;
+            _lock = lockProvider.Instance;
             _log = log;
         }
 
@@ -61,7 +64,16 @@ namespace Tetrifact.Web
         /// Daemon's main work method
         /// </summary>
         private void Work()
-        { 
+        {
+            try
+            {
+                _lock.ClearExpired();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon lock clear error", ex);
+            }
+
             try 
             {
                 _repositoryCleaner.Clean();

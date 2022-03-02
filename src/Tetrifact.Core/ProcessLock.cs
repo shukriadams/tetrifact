@@ -24,7 +24,7 @@ namespace Tetrifact.Core
         public bool IsAnyLocked()
         {
             lock(_items)
-                return _items.Any();
+                return _items.Count > 0;
         }
 
         public bool IsLocked(string name)
@@ -35,18 +35,27 @@ namespace Tetrifact.Core
 
         public void Lock(string name)
         {
+            if (_items.ContainsKey(name))
+                return;
+
             lock (_items)
                 _items.Add(name, null);
         }
 
         public void Lock(string name, TimeSpan timespan)
         {
+            if (_items.ContainsKey(name))
+                return;
+
             lock (_items)
                 _items.Add(name, (timespan, DateTime.UtcNow));
         }
 
         public void Unlock(string name)
         {
+            if (!_items.ContainsKey(name))
+                return;
+
             lock (_items)
                 _items.Remove(name);
         }
@@ -57,34 +66,12 @@ namespace Tetrifact.Core
                 _items.Clear();
         }
 
-        public void LockPackageArchive(string packageId)
-        { 
-            string key = this.ArchiveLockKey(packageId);
-            this.Lock(key);
-        }
-
-        public void UnlockPackageArchive(string packageId)
-        {
-            string key = this.ArchiveLockKey(packageId);
-            this.Unlock(key);
-        }
-
-        public bool IsPackageArchiveLocked(string packageId)
-        {
-            string key = this.ArchiveLockKey(packageId);
-            return this.IsLocked(key);
-        }
-
-        private string ArchiveLockKey(string packageId)
-        {
-            return $"archive_lock_{packageId}";
-        }
 
         public void ClearExpired()
         { 
-            for (int i = _items.Count - 1; i == 0; i --)
+            for (int i = 0 ; i < _items.Count; i ++)
             {
-                string key = _items.Keys.ElementAt(i);
+                string key = _items.Keys.ElementAt(_items.Count - 1 - i);
                 if (!_items[key].HasValue)
                     continue;
 
@@ -95,7 +82,6 @@ namespace Tetrifact.Core
 
                 _items.Remove(key);
             }
-
         }
 
         #endregion

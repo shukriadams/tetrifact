@@ -23,10 +23,18 @@ namespace Tetrifact.Tests.repositoryCleaner
             // create package files
             string rootPathKeep = Path.Combine(base.Settings.RepositoryPath, "some/path/filename.file", "somehash");
             string packageId = "the-package";
+
+            // bin with child dirs
             Directory.CreateDirectory(rootPathKeep);
             File.WriteAllText(Path.Combine(rootPathKeep, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(rootPathKeep, "packages"));
             File.WriteAllText(Path.Combine(rootPathKeep, "packages", packageId), string.Empty); // link a package that doesn't exist
+
+            // bin with no child dirs
+            string rootPathKeep2 = Path.Combine(base.Settings.RepositoryPath, "some/path/filename3.file", "somehash");
+            Directory.CreateDirectory(rootPathKeep2);
+            File.WriteAllText(Path.Combine(rootPathKeep2, "bin"), "I am bin data");
+
 
             // create empty folder, this is for coverage testing
             Directory.CreateDirectory(Path.Combine(base.Settings.RepositoryPath, "an/empty/directory"));
@@ -51,9 +59,18 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void HappyPath()
         {
+            // mock file system deletes to do nothing
+            Mock<TestDirectory> dir = MockRepository.Create<TestDirectory>();
+            dir
+                .Setup(r => r.Delete(It.IsAny<string>()));
+
+            Mock<TestFile> file = MockRepository.Create<TestFile>();
+            file
+                .Setup(r => r.Delete(It.IsAny<string>()));
+
             // create a file and write to repository using path convention of path/to/file/bin. File is not linked to any package
             CreateRepoContent();
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "fileFileSystem", file.Object, "settings", Settings);
             cleaner.Clean(); // can't get this to work when run alongside other tests
         }
 
@@ -151,7 +168,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         /// Test coverage
         /// </summary>
         [Fact]
-        public void Directory_Exception_Directory_Delete()
+        public void Deletes_throw_exception()
         {
             CreateRepoContent();
 
@@ -159,8 +176,14 @@ namespace Tetrifact.Tests.repositoryCleaner
             dir
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
-            
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "settings", Settings, "log", RepoCleanLog);
+
+            Mock<TestFile> file = MockRepository.Create<TestFile>();
+            file
+                .Setup(r => r.Delete(It.IsAny<string>()))
+                .Throws<IOException>();
+
+
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "fileFileSystem", file.Object, "settings", Settings, "log", RepoCleanLog);
 
             cleaner.Clean();
             //Assert.True(RepoCleanLog.ContainsFragment("Failed to delete directory"));

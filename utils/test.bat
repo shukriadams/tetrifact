@@ -11,3 +11,4 @@ reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./coverage ^
 :: open cover report in browser
 explorer "file:///%cd%/coverage/index.html"
 
+pause

@@ -81,9 +81,6 @@ namespace Tetrifact.Core
                 _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
             }
 
-            if (!File.Exists(archivePath))
-                throw new Exception($"Archive generation for {packageId} failed, neither temp nor archive found");
-
             _lock.Lock(archivePath, new TimeSpan(1, 0, 0));
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
@@ -120,17 +117,20 @@ namespace Tetrifact.Core
 
             foreach (FileInfo file in files)
             {
-                try
-                {
-                    if (_lock.IsLocked(file.FullName))
-                        continue;
-
-                    _fileSystem.File.Delete(file.FullName);
-                }
-                catch (IOException ex)
+                if (_lock.IsLocked(file.FullName))
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
-                    _logger.LogWarning($"Failed to purge archive ${file}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _logger.LogWarning($"Failed to purge archive {file}, assuming in use. Will attempt delete on next pass.");
+                    continue;
+                }
+
+                try 
+                {
+                    _fileSystem.File.Delete(file.FullName);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogWarning($"Failed to purge archive {file}, assuming in use. Will attempt delete on next pass. {ex}");
                 }
             }
         }

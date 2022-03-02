@@ -93,7 +93,7 @@ namespace Tetrifact.Tests
             throw new NotImplementedException();
         }
 
-        void IFile.Delete(string path)
+        public virtual void Delete(string path)
         {
             throw new NotImplementedException();
         }

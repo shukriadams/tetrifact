@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
             Bind<IArchiveService>().To<Core.ArchiveService>();
             Bind<W.IDaemon>().To< W.Daemon>();
             Bind<ILock>().To<ProcessLock>();
-            Bind<ILockProvider>().To<LockProvider>();
+            Bind<ILockProvider>().To<Core.LockProvider>();
             Bind<W.IDaemonProcessRunner>().To<W.DaemonProcessRunner>();
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
             Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();

@@ -39,13 +39,14 @@ namespace Tetrifact.Tests
         public static string CreateNewPackageFiles(ISettings settings, IEnumerable<string> filesContent)
         {
             IFileSystem filesystem = new FileSystem();
-            ILockProvider lockProvider = new LockProvider();
+            ILockProvider lockProvider = new Core.LockProvider();
             IIndexReadService indexReader = new IndexReadService(
                 settings, 
                 new Core.TagsService(settings, filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())), 
                 new TestLogger<IIndexReadService>(),
                 filesystem, 
-                HashServiceHelper.Instance());
+                HashServiceHelper.Instance(),
+                lockProvider);
 
             IArchiveService archiveService = new Core.ArchiveService(
                 indexReader, 
@@ -90,7 +91,7 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public static TestPackage CreateNewPackageFile(ISettings settings)
         {
-            return CreateNewPackageFiles(settings, "somepackage");
+            return CreateNewPackageFiles(settings, Guid.NewGuid().ToString());
         }
 
         /// <summary>

@@ -37,8 +37,12 @@ namespace Tetrifact.Tests.ArchiveService
 
             this.Settings.MaxArchives = 0;
 
+            string path = Path.Join(Settings.ArchivePath, "dummy.zip");
+            
+            File.WriteAllText(path, string.Empty);
+
             // force create dummy zip file in archive folder
-            LockProvider.Instance.Lock(Path.Join(Settings.ArchivePath, "dummy.zip"));
+            LockProvider.Instance.Lock(path);
 
             // attempt to purge content of archive folder
             base.ArchiveService.PurgeOldArchives();

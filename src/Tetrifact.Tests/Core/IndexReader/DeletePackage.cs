@@ -55,6 +55,8 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
+            File.WriteAllText(Path.Join(Settings.ArchivePath, $"{testPackage.Id}.zip"), string.Empty);
+
             // lock archive
             LockProvider.Instance.Lock(base.ArchiveService.GetPackageArchivePath(testPackage.Id));
 

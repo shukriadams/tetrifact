@@ -63,8 +63,9 @@ namespace Tetrifact.Tests
             WorkspaceLogger = new TestLogger<IPackageCreateWorkspace>();
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
-            LockProvider = new LockProvider();
+            LockProvider = new Core.LockProvider();
             LockProvider.Instance.Clear();
+            System.Threading.Thread.Sleep(10); // pause between tests to prevent collisions on filesystem
 
             Settings = new Core.Settings(new TestLogger<Core.Settings>())
             {
@@ -82,7 +83,7 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new Core.ThreadDefault();
 
-            IndexReader = new Core.IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance());
+            IndexReader = new Core.IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, LockProvider, FileSystem, ArchiveLogger, Settings);
 
             Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests
