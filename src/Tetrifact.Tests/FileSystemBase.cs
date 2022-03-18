@@ -49,8 +49,24 @@ namespace Tetrifact.Tests
             string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
 
             // this is the "teardown" in our tests - force delete target directory that will contain all disk state for a test run. Requires of course that tests inherit from this class.
-            if (Directory.Exists(testFolder))
-                Directory.Delete(testFolder, true);
+            int tries = 0;
+            while(tries < 100)
+            {
+                try 
+                {
+                    if (Directory.Exists(testFolder))
+                        Directory.Delete(testFolder, true);
+
+                    break;
+                }
+                catch
+                { 
+                    tries++;
+                    Thread.Sleep(100);
+                }
+            }
+            if (tries == 100)
+                throw new Exception($"failed to delete test folder {testFolder}");
 
             Directory.CreateDirectory(testFolder);
 
@@ -64,7 +80,6 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
             LockProvider = new Core.LockProvider();
-            LockProvider.Instance.Clear();
             System.Threading.Thread.Sleep(10); // pause between tests to prevent collisions on filesystem
 
             Settings = new Core.Settings(new TestLogger<Core.Settings>())
@@ -86,7 +101,6 @@ namespace Tetrifact.Tests
             IndexReader = new Core.IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, LockProvider, FileSystem, ArchiveLogger, Settings);
 
-            Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }
 

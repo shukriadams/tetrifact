@@ -52,12 +52,12 @@ namespace Tetrifact.Core
 
         public string GetPackageArchivePath(string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, packageId + ".zip");
+            return Path.Combine(_settings.ArchivePath, $"{packageId}.zip");
         }
 
         public string GetPackageArchiveTempPath(string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, packageId + ".zip.tmp");
+            return Path.Combine(_settings.ArchivePath, $"{packageId}.zip.tmp");
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -76,7 +76,7 @@ namespace Tetrifact.Core
             while (_lock.IsLocked(tempPath))
             {
                 if (DateTime.Now - start > timeout)
-                    throw new TimeoutException($"Timed out waiting for archive ${packageId} to build");
+                    throw new TimeoutException($"Timed out waiting for archive {packageId} to build");
 
                 _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
             }

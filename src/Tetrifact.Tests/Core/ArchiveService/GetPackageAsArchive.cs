@@ -69,16 +69,13 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetTimesOut()
         {
             // zero wait times to speed up test, this should trigger an instant timeout
-            base.Settings.ArchiveWaitTimeout = 3; // 1 second
-            base.Settings.ArchiveAvailablePollInterval = 0;
+            base.Settings.ArchiveWaitTimeout = 1; // second
+            base.Settings.ArchiveAvailablePollInterval = 0; // no poll interval, so reads instantly
 
             // we need a valid package first
             TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
-            // ensure its archive exists
-            File.WriteAllText(Path.Join(Settings.ArchivePath, $"{testPackage.Id}.zip"), string.Empty);
-
-            // mock a temp archive file and lock it to simulate an ongoing zip
+            // lock the temp archive file in the system, this will block creating a new archive
             LockProvider.Instance.Lock(ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
 
             Assert.Throws<TimeoutException>(() => {

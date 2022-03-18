@@ -2,7 +2,6 @@
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
 using Tetrifact.Core;
 using Xunit;
 
@@ -50,22 +49,23 @@ namespace Tetrifact.Tests.IndexReader
         }
 
         
-        [Fact/* (Skip = "fails consistently on travis")*/]  
+        [Fact]  
         public void DeleteWithLockedArchive()
         {
             TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
 
+            // create a fake archive file
             File.WriteAllText(Path.Join(Settings.ArchivePath, $"{testPackage.Id}.zip"), string.Empty);
 
-            // lock archive
+            // lock archive file
             LockProvider.Instance.Lock(base.ArchiveService.GetPackageArchivePath(testPackage.Id));
 
-            // open stream in write mode to lock it, then attempt to purge archives
+            // attempt to delete package
             this.IndexReader.DeletePackage(testPackage.Id);
 
             Assert.Single(base.IndexReaderLogger.LogEntries);
             Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
-    }
+        }
         
 
         [Fact]
@@ -75,6 +75,7 @@ namespace Tetrifact.Tests.IndexReader
             PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(()=> this.IndexReader.DeletePackage(packageId));
             Assert.Equal(ex.PackageId, packageId);
         }
+
 
         /// <summary>
         /// An IOException on archive delete should be trapped, when the archive is still in use.

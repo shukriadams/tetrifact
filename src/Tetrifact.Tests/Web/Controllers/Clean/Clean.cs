@@ -17,7 +17,8 @@ namespace Tetrifact.Tests.Controllers.Clean
         {
             Mock<IRepositoryCleanService> repoCleanServiceMock = new Mock<IRepositoryCleanService>();
             repoCleanServiceMock
-                .Setup(r => r.Clean());
+                .Setup(r => r.Clean())
+                .Returns(new CleanResult());
 
             Mock<IArchiveService> archiveServiceMock = new Mock<IArchiveService>();
             archiveServiceMock

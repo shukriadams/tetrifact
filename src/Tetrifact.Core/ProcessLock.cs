@@ -29,35 +29,44 @@ namespace Tetrifact.Core
 
         public bool IsLocked(string name)
         {
+
             lock (_items)
+            {
                 return _items.ContainsKey(name);
+            }
         }
 
         public void Lock(string name)
         {
-            if (_items.ContainsKey(name))
-                return;
-
             lock (_items)
+            {
+                if (_items.ContainsKey(name))
+                    return;
+
                 _items.Add(name, null);
+            }
         }
 
         public void Lock(string name, TimeSpan timespan)
         {
-            if (_items.ContainsKey(name))
-                return;
-
             lock (_items)
+            {
+                if (_items.ContainsKey(name))
+                    return;
+
                 _items.Add(name, (timespan, DateTime.UtcNow));
+            }
         }
 
         public void Unlock(string name)
         {
-            if (!_items.ContainsKey(name))
-                return;
-
             lock (_items)
+            {
+                if (!_items.ContainsKey(name))
+                    return;
+
                 _items.Remove(name);
+            }
         }
 
         public void Clear()
@@ -68,7 +77,7 @@ namespace Tetrifact.Core
 
 
         public void ClearExpired()
-        { 
+        {
             for (int i = 0 ; i < _items.Count; i ++)
             {
                 string key = _items.Keys.ElementAt(_items.Count - 1 - i);

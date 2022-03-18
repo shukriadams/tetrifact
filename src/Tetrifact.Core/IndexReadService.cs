@@ -185,14 +185,14 @@ namespace Tetrifact.Core
                 _fileSystem.Directory.Delete(packageFolder, true);
 
             // delete archives for package
-            string archivePath = Path.Combine(_settings.ArchivePath, packageId + ".zip");
+            string archivePath = Path.Combine(_settings.ArchivePath, $"{packageId}.zip");
             if (_fileSystem.File.Exists(archivePath))
             {
                 try
                 {
                     if (_lock.IsLocked(archivePath))
                     {
-                        _logger.LogWarning($"Failed to purge archive ${archivePath}, assuming in use. Will attempt delete on next pass.");
+                        _logger.LogWarning($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass.");
                     }
                     else
                     {
@@ -202,7 +202,7 @@ namespace Tetrifact.Core
                 catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _logger.LogError($"Failed to purge archive ${archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _logger.LogError($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
 
@@ -217,7 +217,7 @@ namespace Tetrifact.Core
                 catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _logger.LogWarning($"Failed to delete tag ${tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _logger.LogWarning($"Failed to delete tag {tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }

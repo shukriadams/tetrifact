@@ -223,7 +223,7 @@ namespace Tetrifact.Web
             {
                 Manifest manifest = _indexService.GetManifest(packageId);
                 if (manifest == null)
-                    return Responses.NotFoundError(this, $"Package ${packageId} does not exist");
+                    return Responses.NotFoundError(this, $"Package {packageId} does not exist");
 
                 return new JsonResult(new
                 {
