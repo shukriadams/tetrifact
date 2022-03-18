@@ -48,14 +48,19 @@ namespace Tetrifact.Web
         {
             try 
             {
-                _repositoryCleaner.Clean();
+                CleanResult cleaned = _repositoryCleaner.Clean();
                 _archiveService.PurgeOldArchives();
 
                 return new JsonResult(new
                 {
                     success = new
                     {
-                        description = "Clean complete"
+                        cleaned = cleaned.Cleaned,
+                        failed = cleaned.Failed,
+                        directoriesScanned = cleaned.DirectoriesScanned,
+                        filesScanned = cleaned.FilesScanned,
+                        packagesInSystem = cleaned.PackagesInSystem,
+                        description = cleaned.Description 
                     }
                 });
             }

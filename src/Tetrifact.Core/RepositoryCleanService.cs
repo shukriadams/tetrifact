@@ -22,6 +22,14 @@ namespace Tetrifact.Core
         private readonly IFile _fileFilesystem;
 
         private readonly ILock _lock;
+    
+        private IList<string> _cleaned = new List<string>();
+
+        private IList<string> _failed = new List<string>();
+
+        private long _directoriesScanned = 0;
+
+        private long _filesScanned = 0;
 
         public int LockPasses {private set ; get;}
 
@@ -46,27 +54,43 @@ namespace Tetrifact.Core
         /// <summary>
         /// Starts clean process on repository. Process can be blocked while an existing upload is in progress.
         /// </summary>
-        public void Clean()
+        public CleanResult Clean()
         {
+            IEnumerable<string> existingPackageIds = new List<string>();
             try 
             {
                 // get a list of existing packages at time of calling. It is vital that new packages not be created
                 // while clean running, they will be cleaned up as they are not on this list
-                IEnumerable<string> existingPackageIds = _indexReader.GetAllPackageIds();
+                existingPackageIds = _indexReader.GetAllPackageIds();
                 _log.LogInformation($"CLEANUP started, existing packages : {string.Join(",", existingPackageIds)}.");
                 this.LockPasses = 0;
                 this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
+
+                return new CleanResult{ 
+                    Cleaned = _cleaned, 
+                    Failed = _failed, 
+                    DirectoriesScanned = _directoriesScanned, 
+                    FilesScanned = _filesScanned, 
+                    PackagesInSystem = existingPackageIds.Count(),
+                    Description = "Clean completed"
+                };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             { 
                 if (ex.Message.StartsWith("System currently locked"))
+                {
                     _log.LogInformation("Clean aborted, lock detected");
+                    return new CleanResult{
+                        Cleaned = _cleaned, 
+                        Failed = _failed, 
+                        DirectoriesScanned = _directoriesScanned, 
+                        FilesScanned = _filesScanned, 
+                        PackagesInSystem = existingPackageIds.Count(),
+                        Description = "Clean aborted, locked detected"
+                    };
+                }
                 else
                     throw ex;
-            }
-            finally
-            {
-                _log.LogInformation($"CLEANUP complete");
             }
         }
 
@@ -84,12 +108,13 @@ namespace Tetrifact.Core
         /// remove directories from above while recursing.
         /// </summary>
         /// <param name="currentDirectory"></param>
-        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool currentDirectoryIsPackages)
+        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool currentDirectoryIsPackageSubcriberList)
         {
             EnsureNoLock();
 
             string[] files = null;
             string[] directories = null;
+            _directoriesScanned ++;
 
             try
             {
@@ -99,6 +124,7 @@ namespace Tetrifact.Core
             catch (IOException ex)
             {
                 _log.LogError($"Failed to read content of directory {currentDirectory} ", ex);
+                _failed.Add(currentDirectory);
                 // if we can't read the files or directories in the current path, skip it and try to clean up other paths
                 return;
             }
@@ -110,16 +136,18 @@ namespace Tetrifact.Core
                 {
                     EnsureNoLock();
                     _directoryFileSystem.Delete(currentDirectory);
+                    _cleaned.Add(currentDirectory);
                     _log.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
                 catch (IOException ex)
                 {
                     _log.LogError($"ERROR : Failed to delete directory {currentDirectory} ", ex);
+                    _failed.Add(currentDirectory);
                 }
             }
                 
             // packages directory is the directory next to "bin" file that contains subscriber files for each package that refererences the bin
-            if (currentDirectoryIsPackages)
+            if (currentDirectoryIsPackageSubcriberList)
             {
                 // package directory contains files only, never directories, so we check file presence only
                 if (files.Any())
@@ -132,11 +160,13 @@ namespace Tetrifact.Core
                             {
                                 EnsureNoLock();
                                 _fileFilesystem.Delete(file);
+                                _cleaned.Add(file);
                                 _log.LogWarning($"CLEANUP : deleted file {file}, package not found.");
                             }
                             catch (IOException ex)
                             {
                                 _log.LogError($"ERROR : Failed to delete file {file} ", ex);
+                                _failed.Add(file);
                             }
                         }
                     }
@@ -152,11 +182,13 @@ namespace Tetrifact.Core
                     {
                         EnsureNoLock();
                         _fileFilesystem.Delete(binFilePath);
+                        _cleaned.Add(binFilePath);
                         _log.LogWarning($"CLEANUP : deleted bin {binFilePath}, not associated with any packages.");
                     }
                     catch (IOException ex)
                     {
                         _log.LogError($"ERROR deleting bin file {binFilePath} ", ex);
+                        _failed.Add(binFilePath);
                     }
 
                     try
@@ -164,11 +196,13 @@ namespace Tetrifact.Core
                         // delete this (package) directory, yes 
                         EnsureNoLock();
                         _directoryFileSystem.Delete(currentDirectory);
+                        _cleaned.Add(currentDirectory);
                         _log.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                     }
                     catch (IOException ex)
                     {
                         _log.LogError($"ERROR deleting bin file file {currentDirectory} ", ex);
+                        _failed.Add(currentDirectory);
                     }
 
                     // done - package directory is deleted, no need to continue
@@ -178,6 +212,9 @@ namespace Tetrifact.Core
 
 
             bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");
+            if (binFilePresent)
+                _filesScanned ++;
+
             if (binFilePresent && !directories.Any())
             {
                 // bin file is orphaned (no package, no package folders)
@@ -187,11 +224,13 @@ namespace Tetrifact.Core
                 {
                     EnsureNoLock();
                     _fileFilesystem.Delete(filePath);
+                    _cleaned.Add(filePath);
                     _log.LogWarning($"CLEANUP : deleted orphaned bin {filePath}, not associated with any packages.");
                 }
                 catch (IOException ex)
                 {
                     _log.LogError($"ERROR Failed to delete file {filePath} ", ex);
+                    _failed.Add(filePath);
                 }
 
                 return;

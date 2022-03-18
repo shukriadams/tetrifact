@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Tetrifact.Core
 {
     /// <summary>
@@ -9,6 +11,7 @@ namespace Tetrifact.Core
         /// Cleans dead files out from repository folder. When a package is deleted, it's contents in the repositiry folder stay behind. 
         /// Cleaning them out must be run seperately.
         /// </summary>
-        void Clean();
+        /// <returns>Summary of clean activity</returns>
+        CleanResult Clean();
     }
 }
