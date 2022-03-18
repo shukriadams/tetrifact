@@ -54,7 +54,7 @@ namespace Tetrifact.Web
                 if (payload.Content == null)
                     throw new Exception($"File {fileId} has no content, possible data corruption.");
 
-                return File(payload.Content, "application/octet-stream", payload.FileName);
+                return File(payload.Content, "application/octet-stream", payload.FileName, enableRangeProcessing: true);
             }
             catch (InvalidFileIdentifierException)
             {
