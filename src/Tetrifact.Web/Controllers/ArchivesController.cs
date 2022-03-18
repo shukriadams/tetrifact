@@ -60,7 +60,7 @@ namespace Tetrifact.Web
                 sw.Stop();
                 _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
 
-                return File(archiveStream, "application/octet-stream", $"{packageId}.zip");
+                return File(archiveStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
             }
             catch (PackageNotFoundException)
             {
