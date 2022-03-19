@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void HappyPath()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
             Assert.True(File.Exists(Path.Combine(this.Settings.PackagePath, testPackage.Id, "manifest.json")));
 
             this.IndexReader.DeletePackage(testPackage.Id);
@@ -26,7 +26,7 @@ namespace Tetrifact.Tests.IndexReader
         public void DeleteDisabled()
         {
             this.Settings.AllowPackageDelete = false;
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
             OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
             Assert.True(File.Exists(Path.Combine(this.Settings.PackagePath, testPackage.Id, "manifest.json")));
         }
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void DeleteWithArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             // mock archive
             string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
@@ -52,7 +52,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]  
         public void DeleteWithLockedArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             // create a fake archive file
             File.WriteAllText(Path.Join(Settings.ArchivePath, $"{testPackage.Id}.zip"), string.Empty);
@@ -83,7 +83,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void LockedArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             // mock its archive
             string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
@@ -103,7 +103,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void LockedTag()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackageFile(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
             PackageListCache PackageListCache = new PackageListCache(_memoryCache);

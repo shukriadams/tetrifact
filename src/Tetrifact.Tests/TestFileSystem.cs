@@ -455,7 +455,7 @@ namespace Tetrifact.Tests
 
         bool IDirectory.Exists(string path)
         {
-            throw new NotImplementedException();
+            return Directory.Exists(path);
         }
 
         DirectorySecurity IDirectory.GetAccessControl(string path)

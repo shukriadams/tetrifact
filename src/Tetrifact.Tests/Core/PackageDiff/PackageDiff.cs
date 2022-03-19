@@ -25,8 +25,8 @@ namespace Tetrifact.Tests.PackageDiff
             this.Settings.WorkerThreadCount = 1;
             this.PackageDiffService = new PackageDiffService(this.Settings, this.FileSystem, this.IndexReader, this.Logger);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new string[]{ "same content", "packege 1 content", "same content" } );
-            string downstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new string[] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = PackageHelper.CreateNewPackage(Settings, new string[]{ "same content", "packege 1 content", "same content" } );
+            string downstreamPackageId = PackageHelper.CreateNewPackage(Settings, new string[] { "same content", "packege 2 content", "same content" });
 
             // get diff
             this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
@@ -46,8 +46,8 @@ namespace Tetrifact.Tests.PackageDiff
             this.Settings.WorkerThreadCount = 2;
             this.PackageDiffService = new PackageDiffService(this.Settings, this.FileSystem, this.IndexReader, this.Logger);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new [] { "same content", "packege 1 content", "same content" });
-            string downstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new [] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 1 content", "same content" });
+            string downstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 2 content", "same content" });
 
             // get diff
             this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
@@ -80,8 +80,8 @@ namespace Tetrifact.Tests.PackageDiff
 
             IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>("filesystem", fs.Object);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new [] { "same content", "packege 1 content", "same content" });
-            string downstreamPackageId = PackageHelper.CreateNewPackageFiles(Settings, new [] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 1 content", "same content" });
+            string downstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 2 content", "same content" });
 
             Exception ex = Assert.Throws<Exception>(() => diffService.GetDifference(upstreamPackageId, downstreamPackageId));
             Assert.StartsWith("Unexpected error reading diff", ex.Message);

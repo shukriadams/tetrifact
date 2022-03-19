@@ -36,7 +36,7 @@ namespace Tetrifact.Tests
         /// Creates a package with custom file content - use this to test complex packages with difference content. Files have fixed paths in package, iterated by position in content array.
         /// </summary>
         /// <returns>New package id</returns>
-        public static string CreateNewPackageFiles(ISettings settings, IEnumerable<string> filesContent)
+        public static string CreateNewPackage(ISettings settings, IEnumerable<string> filesContent)
         {
             IFileSystem filesystem = new FileSystem();
             ILockProvider lockProvider = new Core.LockProvider();
@@ -89,7 +89,7 @@ namespace Tetrifact.Tests
         /// Generates a single-file package, returns its unique id.
         /// </summary>
         /// <returns></returns>
-        public static TestPackage CreateNewPackageFile(ISettings settings)
+        public static TestPackage CreateNewPackage(ISettings settings)
         {
             return CreateNewPackageFiles(settings, Guid.NewGuid().ToString());
         }

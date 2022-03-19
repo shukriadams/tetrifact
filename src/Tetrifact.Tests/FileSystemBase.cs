@@ -80,7 +80,6 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
             LockProvider = new Core.LockProvider();
-            System.Threading.Thread.Sleep(10); // pause between tests to prevent collisions on filesystem
 
             Settings = new Core.Settings(new TestLogger<Core.Settings>())
             {

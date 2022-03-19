@@ -69,13 +69,6 @@ namespace Tetrifact.Core
             }
         }
 
-        public void Clear()
-        {
-            lock (_items)
-                _items.Clear();
-        }
-
-
         public void ClearExpired()
         {
             for (int i = 0 ; i < _items.Count; i ++)

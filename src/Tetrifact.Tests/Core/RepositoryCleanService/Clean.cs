@@ -14,86 +14,165 @@ namespace Tetrifact.Tests.repositoryCleaner
     {
         private readonly IRepositoryCleanService _respositoryCleaner;
 
-        /// <summary>
-        /// Creates 
-        /// </summary>
-        /// <returns></returns>
-        private Tuple<string, string, string> CreateRepoContent()
-        {
-            // create package files
-            string rootPathKeep = Path.Combine(base.Settings.RepositoryPath, "some/path/filename.file", "somehash");
-            string packageId = "the-package";
-
-            // bin with child dirs
-            Directory.CreateDirectory(rootPathKeep);
-            File.WriteAllText(Path.Combine(rootPathKeep, "bin"), "I am bin data");
-            Directory.CreateDirectory(Path.Combine(rootPathKeep, "packages"));
-            File.WriteAllText(Path.Combine(rootPathKeep, "packages", packageId), string.Empty); // link a package that doesn't exist
-
-            // bin with no child dirs
-            string rootPathKeep2 = Path.Combine(base.Settings.RepositoryPath, "some/path/filename3.file", "somehash");
-            Directory.CreateDirectory(rootPathKeep2);
-            File.WriteAllText(Path.Combine(rootPathKeep2, "bin"), "I am bin data");
-
-
-            // create empty folder, this is for coverage testing
-            Directory.CreateDirectory(Path.Combine(base.Settings.RepositoryPath, "an/empty/directory"));
-
-            // create bin file with no linked package, this is for coverage testing
-            string rootPathDelete = Path.Combine(base.Settings.RepositoryPath, "some/path/abandonedfile.file", "someotherhash");
-            Directory.CreateDirectory(rootPathDelete);
-            Directory.CreateDirectory(Path.Combine(rootPathDelete, "packages"));
-            File.WriteAllText(Path.Combine(rootPathDelete, "bin"), "I am more bin data");
-
-            return new Tuple<string,string, string>(rootPathKeep, rootPathDelete, packageId);
-        }
+        #region CTORS
 
         public Clean()
         {
+            // clean tests require all locks released - do this BEFORE constructing repocleaner
+            base.LockProvider.Reset();
+
             _respositoryCleaner = new RepositoryCleanService(this.IndexReader, LockProvider, this.Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Arbitrary empty directory should be cleaned out
+        /// </summary>
+        [Fact]
+        public void Clean_Case1()
+        {
+            // create artbitrary, empty directory
+            string dir = Path.Combine(base.Settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
+            Directory.CreateDirectory(dir);
+
+            _respositoryCleaner.Clean();
+    
+            Assert.False(Directory.Exists(dir));
         }
 
         /// <summary>
-        /// Deletes a package that is not registered as one
+        /// Test coverage
         /// </summary>
         [Fact]
-        public void HappyPath()
+        public void Clean_Case1_exceptionCover()
         {
-            // mock file system deletes to do nothing
+            // override concrete dir deletes to throw exception
             Mock<TestDirectory> dir = MockRepository.Create<TestDirectory>();
             dir
-                .Setup(r => r.Delete(It.IsAny<string>()));
+                .Setup(r => r.Delete(It.IsAny<string>()))
+                .Throws<IOException>();
 
-            Mock<TestFile> file = MockRepository.Create<TestFile>();
-            file
-                .Setup(r => r.Delete(It.IsAny<string>()));
-
-            // create a file and write to repository using path convention of path/to/file/bin. File is not linked to any package
-            CreateRepoContent();
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "fileFileSystem", file.Object, "settings", Settings);
-            cleaner.Clean(); // can't get this to work when run alongside other tests
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "settings", Settings);
+            cleaner.Clean();
         }
 
         /// <summary>
-        /// Ensure that package id of placeholder content is marked as valid package, should not be deleted
+        /// Subscriber file for a package that does exist should NOT be removed
         /// </summary>
         [Fact]
-        public void PackageExists()
+        public void DontClean_case2()
         {
-            // create a file and write to repository using path convention of path/to/file/bin. File is not linked to any package
-            Tuple<string, string, string> content = CreateRepoContent();
+            // create a package
+            TestPackage package = PackageHelper.CreateNewPackage(this.Settings);
 
-            IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();
-            Mock.Get(mockIndexReader)
-                .Setup(r => r.GetAllPackageIds())
-                .Returns(new []{ content.Item3 });
+            // case 2 : package subscribed doest not exist
+            string dir = Path.Combine(base.Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
+            Directory.CreateDirectory(Path.Combine(dir, "packages"));
+            string subscriberFile = Path.Combine(dir, "packages", package.Id);
+            File.WriteAllText(subscriberFile, string.Empty); // link package 
 
-            // need to delete twice to ensure cascading deletes get a chance to 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", mockIndexReader, "settings", Settings);
+            _respositoryCleaner.Clean();
+
+            Assert.True(File.Exists(subscriberFile));
+        }
+
+        private string Create_Case2_Content()
+        {
+            // case 2 : package subscribed doest not exist
+            string dir = Path.Combine(base.Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
+            Directory.CreateDirectory(Path.Combine(dir, "packages"));
+            string subscriberFile = Path.Combine(dir, "packages", "deleted-package-id");
+            File.WriteAllText(subscriberFile, string.Empty); // link a package that doesn't exist
+
+            return subscriberFile;
+        }
+
+        /// <summary>
+        /// Subscriber file for a package that doesn't exist should be removed
+        /// </summary>
+        [Fact]
+        public void Clean_case2()
+        {
+            string subscriberFile = Create_Case2_Content();
+            _respositoryCleaner.Clean();
+
+            Assert.False(File.Exists(subscriberFile));
+        }
+
+        [Fact]
+        public void Clean_case2_exceptionCover()
+        {
+            string subscriberFile = Create_Case2_Content();
+
+            Mock<TestFile> fileservice = MockRepository.Create<TestFile>();
+            fileservice
+                .Setup(r => r.Delete(It.IsAny<string>()))
+                .Throws<IOException>();
+
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", fileservice.Object, "settings", Settings);
             cleaner.Clean();
 
-            Assert.True(File.Exists(Path.Combine(content.Item1, "packages", content.Item3)));
+            Assert.False(File.Exists(subscriberFile));
         }
+
+        private string Create_case3_content()
+        {
+            string dir = Path.Combine(base.Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
+            Directory.CreateDirectory(Path.Combine(dir, "packages"));
+            return dir;
+        }
+
+        /// <summary>
+        /// Bin directory with no subscribers should be deleted
+        /// </summary>
+        [Fact]
+        public void Clean_case3()
+        {
+            string dir = Create_case3_content();
+            _respositoryCleaner.Clean();
+            Assert.False(Directory.Exists(dir));
+        }
+
+        [Fact]
+        public void Clean_case3_exceptionCoveer()
+        {
+            string dir = Create_case3_content();
+
+            Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
+            directoryService
+                .Setup(r => r.Delete(It.IsAny<string>()))
+                .Throws<IOException>();
+
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", directoryService.Object, "settings", Settings);
+            cleaner.Clean();
+
+            Assert.False(Directory.Exists(dir));
+        }
+
+        /// <summary>
+        /// Test coverage
+        /// </summary>
+        [Fact]
+        public void Directory_Exception_GetDirectories()
+        {
+            IFileSystem mockedFilesystem = Mock.Of<IFileSystem>();
+            Mock.Get(mockedFilesystem)
+                .Setup(r => r.Directory.GetDirectories(It.IsAny<string>()))
+                .Throws<IOException>();
+
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, LockProvider, Settings, mockedFilesystem.Directory, mockedFilesystem.File, RepoCleanLog);
+            mockedCleaner.Clean();
+        }
+
+
 
         /// <summary>
         /// Clean must exit gracefully with no exception when system locked
@@ -146,47 +225,6 @@ namespace Tetrifact.Tests.repositoryCleaner
             LockProvider.Instance.Lock("some-package");
             _respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
-        }
-
-        /// <summary>
-        /// Test coverage
-        /// </summary>
-        [Fact]
-        public void Directory_Exception_GetDirectories()
-        { 
-            IFileSystem mockedFilesystem = Mock.Of<IFileSystem>();
-            Mock.Get(mockedFilesystem)
-                .Setup(r => r.Directory.GetDirectories(It.IsAny<string>()))
-                .Throws<IOException>();
-
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, LockProvider, Settings, mockedFilesystem.Directory, mockedFilesystem.File, RepoCleanLog);
-            mockedCleaner.Clean();
-            //Assert.True(RepoCleanLog.ContainsFragment("Failed to read content of directory"));
-        }
-
-        /// <summary>
-        /// Test coverage
-        /// </summary>
-        [Fact]
-        public void Deletes_throw_exception()
-        {
-            CreateRepoContent();
-
-            Mock<TestDirectory> dir = MockRepository.Create<TestDirectory>();
-            dir
-                .Setup(r => r.Delete(It.IsAny<string>()))
-                .Throws<IOException>();
-
-            Mock<TestFile> file = MockRepository.Create<TestFile>();
-            file
-                .Setup(r => r.Delete(It.IsAny<string>()))
-                .Throws<IOException>();
-
-
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "fileFileSystem", file.Object, "settings", Settings, "log", RepoCleanLog);
-
-            cleaner.Clean();
-            //Assert.True(RepoCleanLog.ContainsFragment("Failed to delete directory"));
         }
     }
 }

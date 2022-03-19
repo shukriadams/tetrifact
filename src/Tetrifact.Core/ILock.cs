@@ -15,10 +15,5 @@ namespace Tetrifact.Core
         void ClearExpired();
 
         void Unlock(string name);
-
-        /// <summary>
-        /// Removes all locks
-        /// </summary>
-        void Clear();
     }
 }
