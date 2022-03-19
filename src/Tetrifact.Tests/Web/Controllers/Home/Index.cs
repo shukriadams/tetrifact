@@ -5,9 +5,9 @@ using Tetrifact.Core;
 using Xunit;
 using W = Tetrifact.Web;
 
-namespace Tetrifact.Tests.Controllers
+namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Index : TestBase
+    public class Index : FileSystemBase
     {
          /// <summary>
         /// Confirms that the controller initialized and can be called.
@@ -18,13 +18,13 @@ namespace Tetrifact.Tests.Controllers
             Mock<IPackageListService> packageList = new Mock<IPackageListService>();
             packageList
                 .Setup(r => r.Get(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(new List<Core.Package>() { });
+                .Returns(new List<Tetrifact.Core.Package>() { });
 
             packageList
                 .Setup(r => r.GetPopularTags(It.IsAny<int>()))
                 .Returns(new List<string>() { });
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("archiveService", packageList.Object);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("archiveService", packageList.Object, "settings", Settings);
             
             ViewResult result = controller.Index() as ViewResult; 
             Assert.NotNull(result);

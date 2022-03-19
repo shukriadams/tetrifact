@@ -4,12 +4,12 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class UploadPackage
+    public class UploadPackage : FileSystemBase
     {
         [Fact]
         public void Happy_path()
         {
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>();
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("settings", Settings);
             HttpHelper.EnsureContext(controller);
 
             ViewResult result = controller.UploadPackage() as ViewResult;

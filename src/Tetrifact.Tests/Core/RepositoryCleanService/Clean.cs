@@ -3,7 +3,6 @@ using Xunit;
 using Tetrifact.Core;
 using Moq;
 using System;
-using System.IO.Abstractions;
 
 namespace Tetrifact.Tests.repositoryCleaner
 {
@@ -20,7 +19,6 @@ namespace Tetrifact.Tests.repositoryCleaner
         {
             // clean tests require all locks released - do this BEFORE constructing repocleaner
             base.LockProvider.Reset();
-
             _respositoryCleaner = new RepositoryCleanService(this.IndexReader, LockProvider, this.Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
         }
@@ -48,13 +46,17 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_Case1_exceptionCover()
         {
+            // create artbitrary, empty directory
+            string dir = Path.Combine(base.Settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
+            Directory.CreateDirectory(dir);
+
             // override concrete dir deletes to throw exception
-            Mock<TestDirectory> dir = MockRepository.Create<TestDirectory>();
-            dir
-                .Setup(r => r.Delete(It.IsAny<string>()))
+            Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
+            directoryService
+                .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", dir.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
             cleaner.Clean();
         }
 
@@ -115,10 +117,8 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", fileservice.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", Settings);
             cleaner.Clean();
-
-            Assert.False(File.Exists(subscriberFile));
         }
 
         private string Create_case3_content()
@@ -148,13 +148,11 @@ namespace Tetrifact.Tests.repositoryCleaner
 
             Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
             directoryService
-                .Setup(r => r.Delete(It.IsAny<string>()))
+                .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
             cleaner.Clean();
-
-            Assert.False(Directory.Exists(dir));
         }
 
         /// <summary>
@@ -163,12 +161,12 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Directory_Exception_GetDirectories()
         {
-            IFileSystem mockedFilesystem = Mock.Of<IFileSystem>();
-            Mock.Get(mockedFilesystem)
-                .Setup(r => r.Directory.GetDirectories(It.IsAny<string>()))
+            Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
+            directoryService
+                .Setup(r => r.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(IndexReader, LockProvider, Settings, mockedFilesystem.Directory, mockedFilesystem.File, RepoCleanLog);
+            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
             mockedCleaner.Clean();
         }
 

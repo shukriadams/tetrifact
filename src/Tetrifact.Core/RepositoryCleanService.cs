@@ -173,10 +173,6 @@ namespace Tetrifact.Core
                         }
                     }
                 }
-                else
-                {
-
-                }
             }
 
             bool binFilePresent = files.Any(r => Path.GetFileName(r) == "bin");

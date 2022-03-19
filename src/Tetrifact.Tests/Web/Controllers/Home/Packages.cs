@@ -6,7 +6,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Packages
+    public class Packages : FileSystemBase
     {
         [Fact]
         public void Happy_path()
@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                     new Tetrifact.Core.Package[]{ },1,1,1)
                 );
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object, "settings", Settings);
 
             ViewResult result = controller.Packages(1) as ViewResult;
             Assert.NotNull(result);

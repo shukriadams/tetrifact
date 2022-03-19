@@ -3,7 +3,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Error500
+    public class Error500 : FileSystemBase
     {
         /// <summary>
         /// coverage
@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
         [Fact]
         public void Happy_path()
         {
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>();
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("settings", Settings);
             controller.Error500();
         }
     }

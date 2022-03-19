@@ -7,7 +7,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class PackagesWithTag
+    public class PackagesWithTag : FileSystemBase
     {
         [Fact]
         public void Happy_path()
@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetWithTags(It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(new List<Tetrifact.Core.Package>());
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object, "settings", Settings);
 
             ViewResult result = controller.PackagesWithTag("any-tag") as ViewResult;
             Assert.NotNull(result);
@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetWithTags(It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new TagNotFoundException());
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object, "settings", Settings);
 
             controller.PackagesWithTag("any-tag");
         }

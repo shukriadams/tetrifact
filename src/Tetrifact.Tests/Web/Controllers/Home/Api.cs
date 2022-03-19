@@ -7,7 +7,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Api
+    public class Api : FileSystemBase
     {
         /// <summary>
         /// Confirms that the controller initialized and can be called.
@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetPopularTags(It.IsAny<int>()))
                 .Returns(new List<string>() { });
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("archiveService", packageList.Object);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object, "settings", Settings);
 
             ViewResult result = controller.Api() as ViewResult;
             Assert.NotNull(result);
