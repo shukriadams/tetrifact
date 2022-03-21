@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.IO.Abstractions;
 
 namespace Tetrifact.Core
 {
@@ -16,15 +17,18 @@ namespace Tetrifact.Core
 
         private readonly IPackageListCache _packageListCache;
 
+        private readonly IFileSystem _fileSystem;
+
         #endregion
 
         #region CTORS
 
-        public TagsService(ISettings settings, ILogger<ITagsService> logger, IPackageListCache packageListCache)
+        public TagsService(ISettings settings, IFileSystem fileSystem, ILogger<ITagsService> logger, IPackageListCache packageListCache)
         {
             _settings = settings;
             _logger = logger;
             _packageListCache = packageListCache;
+            _fileSystem = fileSystem;
         }
 
         #endregion
@@ -34,16 +38,16 @@ namespace Tetrifact.Core
         public void AddTag(string packageId, string tag)
         {
             string manifestPath = Path.Combine(_settings.PackagePath, packageId, "manifest.json");
-            if (!File.Exists(manifestPath))
+            if (!_fileSystem.File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
 
             // write tag to fs
             string targetFolder = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
-            Directory.CreateDirectory(targetFolder);
+            _fileSystem.Directory.CreateDirectory(targetFolder);
             
             string targetPath = Path.Combine(targetFolder, packageId);
-            if (!File.Exists(targetPath))
-                File.WriteAllText(targetPath, string.Empty);
+            if (!_fileSystem.File.Exists(targetPath))
+                _fileSystem.File.WriteAllText(targetPath, string.Empty);
 
             // flush in-memory tags
             _packageListCache.Clear();
@@ -52,12 +56,12 @@ namespace Tetrifact.Core
         public void RemoveTag(string packageId, string tag)
         {
             string manifestPath = Path.Combine(_settings.PackagePath, packageId, "manifest.json");
-            if (!File.Exists(manifestPath))
+            if (!_fileSystem.File.Exists(manifestPath))
                 throw new PackageNotFoundException(packageId);
 
             string targetPath = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag), packageId);
-            if (File.Exists(targetPath))
-                File.Delete(targetPath);
+            if (_fileSystem.File.Exists(targetPath))
+                _fileSystem.File.Delete(targetPath);
 
             // flush in-memory tags
             _packageListCache.Clear();
@@ -69,7 +73,7 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public IEnumerable<string> GetAllTags()
         {
-            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            string[] rawTags = _fileSystem.Directory.GetDirectories(_settings.TagsPath);
             List<string> tags = new List<string>();
 
             foreach (string rawTag in rawTags)
@@ -78,7 +82,7 @@ namespace Tetrifact.Core
                 {
                     tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)));
                 }
-                catch (FormatException)
+                catch (InvalidFileIdentifierException)
                 {
                     // log invalid tag folders, and continue.
                     _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
@@ -94,17 +98,17 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public Dictionary<string, IEnumerable<string>> GetTagsThenPackages()
         {
-            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
+            string[] rawTags = _fileSystem.Directory.GetDirectories(_settings.TagsPath);
             Dictionary<string, IEnumerable<string>> tags = new Dictionary<string, IEnumerable<string>>();
 
             foreach (string rawTag in rawTags)
             {
                 try
                 {
-                    IEnumerable<string> packages = Directory.GetFiles(rawTag).Select(r => Path.GetFileName(r));
+                    IEnumerable<string> packages = _fileSystem.Directory.GetFiles(rawTag).Select(r => Path.GetFileName(r));
                     tags.Add(Obfuscator.Decloak(Path.GetFileName(rawTag)), packages);
                 }
-                catch (FormatException)
+                catch (InvalidFileIdentifierException)
                 {
                     // log invalid tag folders, and continue.
                     _logger.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
@@ -120,7 +124,6 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public Dictionary<string, IEnumerable<string>> GetPackagesThenTags()
         {
-            string[] rawTags = Directory.GetDirectories(_settings.TagsPath);
             Dictionary<string, IEnumerable<string>> tags = this.GetTagsThenPackages();
 
             Dictionary<string, List<string>> packagetemp = new Dictionary<string, List<string>>();
@@ -152,10 +155,10 @@ namespace Tetrifact.Core
 
             foreach (string tag in tags) {
                 string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
-                if (!Directory.Exists(tagDirectory))
+                if (!_fileSystem.Directory.Exists(tagDirectory))
                     throw new TagNotFoundException();
 
-                string[] files = Directory.GetFiles(tagDirectory);
+                string[] files = _fileSystem.Directory.GetFiles(tagDirectory);
                 matches = matches.Union(files.Select(r => Path.GetFileName(r)));
             }
 

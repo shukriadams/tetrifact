@@ -1,5 +1,4 @@
-/vagrant/.vagrant
-/vagrant/ubuntu-xenial-16.04-cloudimg-console.log
+/vagrant/*/.vagrant
 /Tests/obj
 /.vs
 /src/Tetrifact.Web/obj
@@ -18,6 +17,7 @@
 /src/Tetrifact.ExternalTests/obj
 /src/Tetrifact.ExternalTests/bin
 /src/Tetrifact.Tests/Tetri.Tests.csproj.user
+/src/Tetrifact.Tests/coverage.xml.*
 /docker/.tmp
 /src/.vs
 /docker/.artefacts
@@ -29,6 +29,6 @@
 /build/linux/clone
 /src/Tetrifact.Tests/coverage.xml
 /src/Tetrifact.Tests/coverage
+/src/coverage
 /build/travis/.stage
-vagrant/ubuntu-bionic-18.04-cloudimg-console.log
-src/Tetrifact.Tests/coverage.xml.*
+

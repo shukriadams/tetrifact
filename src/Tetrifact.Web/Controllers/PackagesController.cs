@@ -22,10 +22,10 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
+        private readonly IIndexReadService _indexService;
         private readonly ILogger<PackagesController> _log;
-        private readonly IPackageCreate _packageService;
-        private readonly IPackageList _packageList;
+        private readonly IPackageCreateService _packageCreateService;
+        private readonly IPackageListService _packageList;
         private readonly ISettings _settings;
         private readonly IPackageListCache _packageListCache;
         private readonly IPackageDiffService _packageDiffService;
@@ -39,15 +39,15 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageService"></param>
         /// <param name="settings"></param>
-        /// <param name="indexService"></param>
+        /// <param name="indexReadService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreate packageService, IPackageList packageList, IPackageListCache packageListCache, IIndexReader indexService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
+        public PackagesController(IPackageCreateService packageCreateService, IPackageListService packageListService, IPackageListCache packageListCache, IIndexReadService indexReadService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
         {
-            _packageList = packageList;
-            _packageService = packageService;
+            _packageList = packageListService;
+            _packageCreateService = packageCreateService;
             _packageListCache = packageListCache;
-            _indexService = indexService;
+            _indexService = indexReadService;
             _settings = settings;
             _packageDiffService = packageDiffService;
             _log = log;
@@ -160,15 +160,28 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}/exists")]
         public ActionResult PackageExists(string packageId)
         {
-            return new JsonResult(new
+            try
             {
-                success = new
+                return new JsonResult(new
                 {
-                    exists = _indexService.GetManifest(packageId) != null
-                }
-            });
+                    success = new
+                    {
+                        exists = _indexService.PackageExists(packageId)
+                    }
+                });
+            } 
+            catch(Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError();
+            }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("{packageId}/verify")]
         public ActionResult VerifyPackage(string packageId)
@@ -176,6 +189,7 @@ namespace Tetrifact.Web
             try
             {
                 (bool, string) result = _indexService.VerifyPackage(packageId);
+
                 return new JsonResult(new
                 {
                     success = new
@@ -195,7 +209,6 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
-
 
         /// <summary>
         /// Returns the manifest for a package
@@ -250,11 +263,11 @@ namespace Tetrifact.Web
                 _log.LogInformation("Package upload request started");
 
                 // check if there is space available
-                DiskUseStats useStats = FileHelper.GetDiskUseSats();
-                if (useStats.ToPercent() < _settings.SpaceSafetyThreshold)
+                DiskUseStats useStats = _indexService.GetDiskUseSats();
+                if (useStats.ToPercent() <= _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
-                PackageCreateResult result = _packageService.CreatePackage(new PackageCreateArguments
+                PackageCreateResult result = _packageCreateService.Create(new PackageCreateArguments
                 {
                     Description = post.Description,
                     Files = post.Files.Select(r => new PackageCreateItem { 
@@ -296,7 +309,7 @@ namespace Tetrifact.Web
                     return Responses.InvalidArchiveContent();
 
                 if (result.ErrorType == PackageCreateErrorTypes.PackageExists)
-                    return Responses.PackageExistsError(post.Id);
+                    return Responses.PackageAlreadyExistsError(this, post.Id);
 
                 if (result.ErrorType == PackageCreateErrorTypes.MissingValue)
                     return Responses.MissingInputError(result.PublicError);

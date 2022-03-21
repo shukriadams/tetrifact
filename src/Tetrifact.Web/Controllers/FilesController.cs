@@ -11,7 +11,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
+        private readonly IIndexReadService _indexService;
         
         private readonly ILogger<FilesController> _log;
 
@@ -26,7 +26,7 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public FilesController(IIndexReader indexService, ILogger<FilesController> log)
+        public FilesController(IIndexReadService indexService, ILogger<FilesController> log)
         {
             _indexService = indexService;
             _log = log;
@@ -52,7 +52,7 @@ namespace Tetrifact.Web
                     return Responses.NotFoundError(this, $"file {fileId} not found. Id is invalid, or has been deleted.");
 
                 if (payload.Content == null)
-                    throw new Exception($"File {fileId} has no content.");
+                    throw new Exception($"File {fileId} has no content, possible data corruption.");
 
                 return File(payload.Content, "application/octet-stream", payload.FileName, enableRangeProcessing: true);
             }

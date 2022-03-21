@@ -9,9 +9,7 @@ namespace Tetrifact.Tests
         {
             Directory.CreateDirectory(Path.Combine(settings.TagsPath, Obfuscator.Cloak(tag)));
             File.WriteAllText(Path.Combine(settings.TagsPath, Obfuscator.Cloak(tag), packageId), string.Empty);
-
         }
-
     }
 
 }

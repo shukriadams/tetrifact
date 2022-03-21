@@ -15,7 +15,8 @@ namespace Tetrifact.Tests
         [Fact]
         public void GetDiskUseSats()
         {
-            DiskUseStats stats = FileHelper.GetDiskUseSats();
+            IIndexReadService indexReadServices = NinjectHelper.Get<IIndexReadService>();
+            DiskUseStats stats = indexReadServices.GetDiskUseSats();
 
             // We don't really care about specific values, this test is mostly for coverage, and
             // as longs as values are greater than zero, stats is reading _something_

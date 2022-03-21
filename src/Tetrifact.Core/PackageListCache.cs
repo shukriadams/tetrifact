@@ -13,7 +13,7 @@ namespace Tetrifact.Core
 
         public void Clear()
         {
-            _cache.Remove(PackageList.CacheKey);
+            _cache.Remove(PackageListService.CacheKey);
         }
     }
 }

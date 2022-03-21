@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Tetrifact.Core;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Tetrifact.Web
 {
@@ -9,14 +10,14 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly ISettings _settings;
-        private readonly IIndexReader _indexService;
-        private readonly IPackageList _packageList;
+        private readonly IIndexReadService _indexService;
+        private readonly IPackageListService _packageList;
 
         #endregion
 
         #region CTORS
 
-        public HomeController(ISettings settings, IIndexReader indexService, IPackageList packageList)
+        public HomeController(ISettings settings, IIndexReadService indexService, IPackageListService packageList)
         {
             _settings = settings;
             _indexService = indexService;
@@ -48,6 +49,11 @@ namespace Tetrifact.Web
         [Route("api")]
         public IActionResult Api()
         {
+            IEnumerable<Package> packages = _packageList.Get(0, 10);
+            string exampleTag = _packageList.GetPopularTags(1).FirstOrDefault();
+            ViewData["upstreamPackageId"] = packages.Count() > 0 ? packages.ElementAt(0).Id : "my-upstream-packageId";
+            ViewData["downstreamPackageId"] = packages.Count() > 1 ? packages.ElementAt(1).Id : "my-downstream-packageId";
+            ViewData["exampleTag"] = string.IsNullOrEmpty(exampleTag) ? "my-example-tag" : exampleTag;
             return View();
         }
 
@@ -55,11 +61,10 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="project"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("uploadPackage")]
-        public IActionResult UploadPackage(string project)
+        public IActionResult UploadPackage()
         {
             string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
             return View(new UploadPackageModel { HostName = hostname });
@@ -67,12 +72,12 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// Renders view.
+        /// Shows page of package files at given pageindex
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("package/{packageId}/{page?}")]
-        public IActionResult Package(string packageId, int page)
+        [Route("package/{packageId}/{pageIndex?}")]
+        public IActionResult Package(string packageId, int pageIndex)
         {
             ViewData["packageId"] = packageId;
             Manifest manifest = _indexService.GetManifest(packageId);
@@ -81,11 +86,11 @@ namespace Tetrifact.Web
 
             ViewData["manifest"] = manifest;
 
-            if (page != 0)
-                page--;
+            if (pageIndex != 0)
+                pageIndex--;
 
             Pager pager = new Pager();
-            PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(page * _settings.ListPageSize).Take(_settings.ListPageSize), page, _settings.ListPageSize, manifest.Files.Count);
+            PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(pageIndex * _settings.ListPageSize).Take(_settings.ListPageSize), pageIndex, _settings.ListPageSize, manifest.Files.Count);
             ViewData["filesPage"] = filesPage;
             ViewData["filesPager"] = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles");
             return View();
@@ -155,24 +160,6 @@ namespace Tetrifact.Web
             return View();
         }
 
-
-        /// <summary>
-        /// Renders empty JSON response
-        /// </summary>
-        /// <returns></returns>
-        [Route("isAlive")]
-        public ActionResult IsAlive()
-        {
-            return new JsonResult(new
-            {
-                success = new
-                {
-                    
-                }
-            });
-        }
-
-
         /// <summary>
         /// Renders view.
         /// </summary>
@@ -180,7 +167,7 @@ namespace Tetrifact.Web
         [Route("spacecheck")]
         public ActionResult SpaceCheck()
         {
-            DiskUseStats useStats = FileHelper.GetDiskUseSats();
+            DiskUseStats useStats = _indexService.GetDiskUseSats();
             double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
 
             return new JsonResult(new

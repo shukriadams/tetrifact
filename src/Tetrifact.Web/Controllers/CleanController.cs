@@ -11,8 +11,10 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
-        private readonly IRepositoryCleaner _repositoryCleaner;
+        private readonly IArchiveService _archiveService;
+
+        private readonly IRepositoryCleanService _repositoryCleaner;
+
         private readonly ILogger<CleanController> _log;
         #endregion
 
@@ -25,10 +27,10 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, ILogger<CleanController> log)
+        public CleanController(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, ILogger<CleanController> log)
         {
-            _indexService = indexService;
             _repositoryCleaner = repositoryCleaner;
+            _archiveService = archiveService;
             _log = log;
         }
 
@@ -47,7 +49,7 @@ namespace Tetrifact.Web
             try 
             {
                 _repositoryCleaner.Clean();
-                _indexService.PurgeOldArchives();
+                _archiveService.PurgeOldArchives();
 
                 return new JsonResult(new
                 {

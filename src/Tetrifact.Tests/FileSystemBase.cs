@@ -9,19 +9,46 @@ namespace Tetrifact.Tests
     /// <summary>
     /// Base class for any type which requires concrete file system structures in place
     /// </summary>
-    public abstract class FileSystemBase
+    public abstract class FileSystemBase : TestBase
     {
+        #region FIELDS
+
         protected ISettings Settings;
-        protected TestLogger<IIndexReader> Logger;
-        protected TestLogger<IWorkspace> WorkspaceLogger;
-        protected IIndexReader IndexReader;
+        
+        protected TestLogger<IIndexReadService> IndexReaderLogger;
+        
+        protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
+        
+        protected TestLogger<IArchiveService> ArchiveLogger;
+
+        protected TestLogger<IRepositoryCleanService> RepoCleanLog;
+
+        protected IIndexReadService IndexReader;
+        
         protected ITagsService TagService;
+        
         protected IFileSystem FileSystem;
+        
+        protected IDirectory DirectoryFs;
+
+        protected IFile FileFs;
+
         protected ThreadDefault ThreadDefault;
+        
+        protected IArchiveService ArchiveService;
+
+        protected ILockProvider LockProvider;
+
+
+        #endregion
+
+        #region CTORS
 
         public FileSystemBase()
         {
             string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
+
+            // this is the "teardown" in our tests - force delete target directory that will contain all disk state for a test run. Requires of course that tests inherit from this class.
             if (Directory.Exists(testFolder))
                 Directory.Delete(testFolder, true);
 
@@ -29,8 +56,18 @@ namespace Tetrifact.Tests
 
             // pass in real file system for all tests, we use this most of the time, individual tests must override this on their own
             FileSystem = new FileSystem();
+            DirectoryFs = FileSystem.Directory;
+            FileFs = FileSystem.File;
 
-            Settings = new Settings(new TestLogger<Settings>())
+            IndexReaderLogger = new TestLogger<IIndexReadService>();
+            WorkspaceLogger = new TestLogger<IPackageCreateWorkspace>();
+            ArchiveLogger = new TestLogger<IArchiveService>();
+            RepoCleanLog = new TestLogger<IRepositoryCleanService>();
+            LockProvider = new Core.LockProvider();
+            LockProvider.Instance.Clear();
+            System.Threading.Thread.Sleep(10); // pause between tests to prevent collisions on filesystem
+
+            Settings = new Core.Settings(new TestLogger<Core.Settings>())
             {
                 RepositoryPath = Path.Join(testFolder, "repository"),
                 PackagePath = Path.Join(testFolder, "packages"),
@@ -39,16 +76,20 @@ namespace Tetrifact.Tests
                 TagsPath = Path.Join(testFolder, "tags")
             };
 
-            Logger = new TestLogger<IIndexReader>();
             TagService = new Core.TagsService(
                 Settings,
+                FileSystem,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
             ThreadDefault = new Core.ThreadDefault();
 
-            IndexReader = new Core.IndexReader(Settings, ThreadDefault, TagService, Logger, FileSystem, HashServiceHelper.Instance());
-            Thread.Sleep(200);// fixes race condition when scaffolding up index between consecutive tests
+            IndexReader = new Core.IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
+            ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, LockProvider, FileSystem, ArchiveLogger, Settings);
+
+            Thread.Sleep(200);// yucky fix for race condition when scaffolding up index between consecutive tests
             IndexReader.Initialize();
         }
+
+        #endregion
     }
 }

@@ -1,0 +1,23 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+    config.vm.provider :hyperv do |v|
+        v.vmname  = "tetrifact" 
+    end
+
+    config.vm.hostname = "tetrifact"
+    config.vm.network "public_network"
+    config.vm.provider "hyperv"
+    config.vm.box = "generic/ubuntu1804"
+    config.vm.synced_folder "./../..", "/vagrant", type: "smb"
+    config.vm.provision :shell, path: "./../provision.sh"
+    
+    # Note that in hyperV, you cannot access a guest via localhost:4050, 
+    # use "ip address" to get machine address, it will be available at this
+    config.vm.network "forwarded_port", guest: 3000, host: 3001
+    config.vm.network "forwarded_port", guest: 49022, host: 49023
+    config.vm.network "forwarded_port", guest: 3001, host: 3002
+
+end

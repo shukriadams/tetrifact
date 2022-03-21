@@ -15,16 +15,5 @@ namespace Tetrifact.Tests
             long percent = stats.ToPercent();
             Assert.Equal(50, percent);
         }
-
-        [Fact]
-        public void FailsIfTotalIsZero()
-        {
-            DiskUseStats stats = new DiskUseStats();
-            Assert.Throws<Exception>(() =>
-            {
-                stats.ToPercent();
-            });
-        }
-
     }
 }

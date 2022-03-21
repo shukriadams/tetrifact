@@ -13,7 +13,8 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IIndexReader _indexService;
+        private readonly IArchiveService _archiveService;
+
         private readonly ILogger<ArchivesController> _log;
 
         #endregion
@@ -27,16 +28,15 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ArchivesController(IIndexReader indexService, ILogger<ArchivesController> log)
+        public ArchivesController(IArchiveService archiveService, ILogger<ArchivesController> log)
         {
-            _indexService = indexService;
+            _archiveService = archiveService;
             _log = log;
         }
 
         #endregion
 
         #region METHODS
-
 
         /// <summary>
         /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
@@ -47,15 +47,12 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}")]
         public ActionResult GetArchive(string packageId)
         {
-            Stream archiveStream = null;
-
             try
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
-                _indexService.PurgeOldArchives();
-                archiveStream = _indexService.GetPackageAsArchive(packageId);
+                Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
 
                 sw.Stop();
                 _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
@@ -64,13 +61,10 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException)
             {
-                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
+                return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {
-                if (archiveStream != null)
-                    archiveStream.Close();
-
                 _log.LogError(ex, "Unexpected error");
                 return Responses.UnexpectedError();
             }
@@ -91,19 +85,17 @@ namespace Tetrifact.Web
         {
             try
             {
-                _indexService.PurgeOldArchives();
-
                 return new JsonResult(new
                 {
                     success = new
                     {
-                        status = _indexService.GetPackageArchiveStatus(packageId)
+                        status = _archiveService.GetPackageArchiveStatus(packageId)
                     }
                 });
             }
             catch (PackageNotFoundException)
             {
-                return Responses.NotFoundError(this, $"Package ${packageId} not found.");
+                return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {

@@ -69,18 +69,12 @@ namespace Tetrifact.Web
         /// <returns>Rendered Html of pager.</returns>
         public string Render<T>(PageableData<T> page, int pagesPerGroup, string baseurl, string pageQueryStringArg, string hash = "")
         {
-            this.Calculate(page.VirtualItemCount, page.PageIndex, page.PageSize, pagesPerGroup);
+            // force cast max items from long to int - we will never realistically page through that many items
+            this.Calculate((int)page.VirtualItemCount, page.PageIndex, page.PageSize, pagesPerGroup);
             if (this.NotEnoughDataToPage)
                 return string.Empty;
 
             return this.RenderPageLinks(page.PageIndex, pagesPerGroup, baseurl, pageQueryStringArg, hash);
-        }
-
-        private static int LimitLongToInt(long lng)
-        {
-            if (lng > int.MaxValue)
-                return int.MaxValue;
-            return (int)lng;
         }
 
         /// <summary>
@@ -90,10 +84,8 @@ namespace Tetrifact.Web
         /// <param name="currentPage">Index of current page in total number of possible pages</param>
         /// <param name="itemsPerPage"></param>
         /// <param name="pagesPerGroup">Number of page links to occur on pager. If more pages than this are possible, a "next" link is rendered.</param>
-        private void Calculate(long totalItems, int currentPage, int itemsPerPage, int pagesPerGroup)
+        private void Calculate(int totalItemsToInt, int currentPage, int itemsPerPage, int pagesPerGroup)
         {
-            int totalItemsToInt = LimitLongToInt(totalItems);
-
             int totalPages = totalItemsToInt / itemsPerPage;
             if (totalItemsToInt % itemsPerPage > 0)
                 totalPages++;

@@ -1,34 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Ninject;
-using System.Reflection;
+﻿using Moq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
+    /// <summary>
+    /// Common utility base for all tests. Useful place to store instances of things which should be unique per 
+    /// test run, as Xunit creates a new class instance per run. 
+    /// 
+    /// Utility things that are stateless should be placed in helper function.
+    /// </summary>
     public abstract class TestBase
     {
-        protected StandardKernel Kernel;
         protected ISettings Settings;
 
         /// <summary>
-        /// Common method for convert JsonResult from API endjoing to dynamic object
+        /// Override-friendly mock repo incase you need to instantiate concrete types then override methods on them.
         /// </summary>
-        /// <param name="actionResult"></param>
-        /// <returns></returns>
-        public dynamic ToDynamic(ActionResult actionResult)
-        {
-            JsonResult jsonResult = (JsonResult)actionResult;
-            string jrawJson = JsonConvert.SerializeObject(jsonResult.Value);
-            dynamic obj = JsonConvert.DeserializeObject(jrawJson);
-            return obj;
-        }
+        protected MockRepository MockRepository;
 
         public TestBase()
         {
-            this.Kernel = new StandardKernel();
-            this.Kernel.Load(Assembly.GetExecutingAssembly());
-            this.Settings = Kernel.Get<ISettings>();
+            this.Settings = NinjectHelper.Get<ISettings>();
+            this.MockRepository = new MockRepository(MockBehavior.Loose) { CallBase = true };
         }
     }
 }

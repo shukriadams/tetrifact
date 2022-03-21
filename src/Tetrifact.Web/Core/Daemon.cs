@@ -1,34 +1,41 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
+    public delegate void DaemonWork();
+
     /// <summary>
     /// Internal timed process that manages automated processes, such as cleanup, integrity checks, etc.
     /// </summary>
-    public class Daemon
+    public class Daemon : IDaemon 
     {
         #region FIELDS
 
-        private int _tickInterval;
-        private readonly IRepositoryCleaner _repositoryCleaner;
-        private readonly IIndexReader _indexService;
-        private bool _busy;
-        private bool _running;
-        private ILogger<Daemon> _log;
-        private IPackagePrune _packagePrune;
+        private readonly IRepositoryCleanService _repositoryCleaner;
+
+        private readonly IArchiveService _archiveService;
+
+        private readonly ILogger<IDaemon> _log;
+
+        private readonly IPackagePruneService _packagePrune;
+
+        private readonly IDaemonProcessRunner _processRunner;
+
+        private readonly ILock _lock;
 
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleaner repositoryCleaner, IIndexReader indexService, IPackagePrune packagePrune, ILogger<Daemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, ILockProvider lockProvider, ILogger<IDaemon> log)
         {
-            _indexService = indexService;
             _packagePrune = packagePrune;
+            _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
+            _processRunner = processRunner;
+            _lock = lockProvider.Instance;
             _log = log;
         }
 
@@ -36,67 +43,65 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        /// <summary>
+        /// Replaces the manual constructor in that we can pass the interval to this.
+        /// </summary>
+        /// <param name="tickInterval"></param>
         public void Start(int tickInterval)
         {
-            _tickInterval = tickInterval;
-            Task.Run(async () => this.Tick());
-            _running = true;
-
+            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
         }
 
-        public void Stop(){
-            _running = false;
-        }
-
-        private async Task Tick()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
         { 
-            while(_running){
-                try
-                {
-                    _log.LogInformation("Daemon ticked");
+            _processRunner.Dispose();
+        }
 
+        /// <summary>
+        /// Daemon's main work method
+        /// </summary>
+        private void Work()
+        {
+            try
+            {
+                _lock.ClearExpired();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon lock clear error", ex);
+            }
 
-                    if (_busy)
-                        return;
+            try 
+            {
+                _repositoryCleaner.Clean();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon repository clean error", ex);
+            }
 
-                    _busy = true;
+            try
+            {
+                _archiveService.PurgeOldArchives();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon Purge archives error", ex);
+            }
 
-                    try 
-                    {
-                        _repositoryCleaner.Clean();
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError("Daemon repository clean error", ex);
-                    }
-
-                    try
-                    {
-                        _indexService.PurgeOldArchives();
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError("Daemon Purge archives error", ex);
-                    }
-
-                    try
-                    {
-                        _packagePrune.Prune();
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError("Daemon prune error", ex);
-                    }
-                }
-                finally
-                {
-                    _busy = false;
-                    await Task.Delay(_tickInterval);
-                }
+            try
+            {
+                _packagePrune.Prune();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon prune error", ex);
             }
         }
 
         #endregion
-
     }
 }

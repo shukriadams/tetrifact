@@ -74,6 +74,12 @@ namespace Tetrifact.Core
 
         public int WorkerThreadCount { get; set; }
 
+        public IEnumerable<string> PruneProtectectedTags { get; set; }
+
+        public  bool AllowPackageDelete { get; set; }
+
+        public  bool AllowPackageCreate { get; set; }
+
         #endregion
 
         #region CTORS
@@ -83,6 +89,8 @@ namespace Tetrifact.Core
             _log = log;
 
             // defaults
+            this.AllowPackageDelete = true;
+            this.AllowPackageCreate = true;
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.LinkLockWaitTime = 1000;               // 1 second
@@ -103,6 +111,7 @@ namespace Tetrifact.Core
             this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
             this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
             this.WorkerThreadCount = 8;
+            this.PruneProtectectedTags = new string[] { };
 
             // get settings from env variables
             this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -112,6 +121,8 @@ namespace Tetrifact.Core
             this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
             this.PackageDiffsPath = Environment.GetEnvironmentVariable("PACKAGE_DIFFS_PATH");
 
+            this.AllowPackageDelete = this.GetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
+            this.AllowPackageCreate = this.GetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
             this.IsStorageCompressionEnabled = this.GetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
             this.Prune = this.GetSetting("PRUNE", this.Prune);
             this.PruneIgnoreTags = this.GetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
@@ -128,14 +139,13 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
             this.AutoCreateArchiveOnPackageCreate = this.GetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
+            this.PruneProtectectedTags = this.GetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
-            if (!string.IsNullOrEmpty(downloadArchiveCompressionEnvVar)){ 
-                if (downloadArchiveCompressionEnvVar == "0")
-                    DownloadArchiveCompression = CompressionLevel.NoCompression;
-                if (downloadArchiveCompressionEnvVar == "1")
-                    DownloadArchiveCompression = CompressionLevel.Fastest;
-            }
+            if (downloadArchiveCompressionEnvVar == "0")
+                DownloadArchiveCompression = CompressionLevel.NoCompression;
+            if (downloadArchiveCompressionEnvVar == "1")
+                DownloadArchiveCompression = CompressionLevel.Fastest;
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
@@ -172,10 +182,13 @@ namespace Tetrifact.Core
             if (settingsRawVariable == null)
                 return defaultValue;
 
-            if (!int.TryParse(settingsRawVariable, out defaultValue))
+            int attempt;
+            if (!int.TryParse(settingsRawVariable, out attempt)){
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                return defaultValue;
+            }
 
-            return defaultValue;
+            return attempt;
         }
 
         /// <summary>
@@ -191,10 +204,13 @@ namespace Tetrifact.Core
             if (settingsRawVariable == null)
                 return defaultValue;
 
-            if (!long.TryParse(settingsRawVariable, out defaultValue))
+            long attempt;
+            if (!long.TryParse(settingsRawVariable, out attempt)){
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid long.");
+                return defaultValue;
+            }
 
-            return defaultValue;
+            return attempt;
         }
 
         private bool GetSetting(string settingsName, bool defaultValue)
@@ -203,10 +219,28 @@ namespace Tetrifact.Core
             if (settingsRawVariable == null)
                 return defaultValue;
 
-            if (!Boolean.TryParse(settingsRawVariable, out defaultValue))
+            bool attempt;
+            if (!Boolean.TryParse(settingsRawVariable, out attempt)){
                 _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
+                return defaultValue;
+            }
 
-            return defaultValue;
+            return attempt;
+        }
+
+        /// <summary>
+        /// Gets an array of values from comma-separated string
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        private IEnumerable<string> GetSetting(string settingsName, IEnumerable<string> defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            if (string.IsNullOrEmpty(settingsRawVariable))
+                return defaultValue;
+
+            return settingsRawVariable.Split(",",StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>

@@ -1,7 +1,5 @@
 using System;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace Tetrifact.Core
 {
@@ -39,19 +37,6 @@ namespace Tetrifact.Core
                 return path;
 
             return string.Join("/", items.Skip(1));
-        }
-
-        
-        public static DiskUseStats GetDiskUseSats()
-        {
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DriveInfo drive = new DriveInfo(path);
-            DiskUseStats stats = new DiskUseStats();
-            
-            stats.TotalBytes = drive.TotalSize;
-            stats.FreeBytes = drive.AvailableFreeSpace;
-
-            return stats; 
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Ninject.Modules;
 using System.IO.Abstractions;
 using Tetrifact.Core;
-using Tetrifact.Web;
+using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests
 {
@@ -10,29 +11,44 @@ namespace Tetrifact.Tests
     {
         public override void Load()
         {
-            Bind<ISettings>().To<Settings>();
-            Bind<IIndexReader>().To<TestIndexReader>();
-            Bind<IRepositoryCleaner>().To<TestRepositoryCleaner>();
-            Bind<IWorkspace>().To<TestingWorkspace>();
-            Bind<IPackageList>().To<TestPackageList>();
+            Bind<ISettings>().To<Core.Settings>();
+            Bind<IMemoryCache>().To<TestMemoryCache>();
+            Bind<IIndexReadService>().To<IndexReadService>();
+            Bind<IRepositoryCleanService>().To<RepositoryCleanService>();
+            Bind<IPackageListService>().To<PackageListService>();
             Bind<IFileSystem>().To<FileSystem>();
+            Bind<IDirectory>().To<DirectoryWrapper>();
+            Bind<IFile>().To<FileWrapper>();
             Bind<IHashService>().To<HashService>();
-            Bind<IPackageListCache>().To<TestPackageListCache>();
+            Bind<IPackageListCache>().To<PackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
-            Bind<IPackageCreate>().To<Core.PackageCreate>();
-            Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
+            Bind<IPackageCreateService>().To<PackageCreateService>();
+            Bind<IPackageCreateWorkspace>().To<Core.PackageCreateWorkspace>();
             Bind<IThread>().To<ThreadDefault>();
-            Bind<IPackagePrune>().To<Core.PackagePrune>();
-            Bind<IPackageDiffService>().To<Core.PackageDiffService>();
-            Bind<ILogger<PackagesController>>().To<TestLogger<PackagesController>>();
-            Bind<ILogger<CleanController>>().To<TestLogger<CleanController>>();
-            Bind<ILogger<FilesController>>().To<TestLogger<FilesController>>();
-            Bind<ILogger<ArchivesController>>().To<TestLogger<ArchivesController>>();
-            Bind<ILogger<TagsController>>().To<TestLogger<TagsController>>();
-            Bind<ILogger<IWorkspace>>().To<TestLogger<IWorkspace>>();
-            Bind<ILogger<IPackageCreate>>().To<TestLogger<IPackageCreate>>();
+            Bind<IPackagePruneService>().To<PackagePruneService>();
+            Bind<IPackageDiffService>().To<PackageDiffService>();
+            Bind<IArchiveService>().To<Core.ArchiveService>();
+            Bind<W.IDaemon>().To< W.Daemon>();
+            Bind<ILock>().To<ProcessLock>();
+            Bind<ILockProvider>().To<Core.LockProvider>();
+            Bind<W.IDaemonProcessRunner>().To<W.DaemonProcessRunner>();
+            Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
+            Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
+            Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
+            Bind<ILogger<W.ArchivesController>>().To<TestLogger<W.ArchivesController>>();
+            Bind<ILogger<W.TagsController>>().To<TestLogger<W.TagsController>>();
+            Bind<ILogger<IPackageCreateWorkspace>>().To<TestLogger<IPackageCreateWorkspace>>();
+            Bind<ILogger<IPackageCreateService>>().To<TestLogger<IPackageCreateService>>();
             Bind<ILogger<ISettings>>().To<TestLogger<ISettings>>();
-            Bind<ILogger<IPackageDiffService>>().To<TestLogger<PackageDiffService>>();
+            Bind<ILogger<IPackageDiffService>>().To<TestLogger<IPackageDiffService>>();
+            Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
+            Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
+            Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
+            Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
+            Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
+            Bind<ILogger<IPackagePruneService>>().To<TestLogger<IPackagePruneService>>();
+            Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
+            Bind<ILogger<W.IDaemonProcessRunner>>().To<TestLogger<W.IDaemonProcessRunner>>();
         }
     }
 }

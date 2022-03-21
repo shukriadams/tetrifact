@@ -6,7 +6,8 @@ namespace Tetrifact.Core
     {
         public void Sleep(int ms)
         { 
-            Thread.Sleep(ms);
+            if (ms > 0)
+                Thread.Sleep(ms);
         }
     }
 }

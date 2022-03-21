@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ArchiveService\**" />
+    <EmbeddedResource Remove="ArchiveService\**" />
+    <None Remove="ArchiveService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AltCover" Version="7.3.802" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />

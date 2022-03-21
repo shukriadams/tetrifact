@@ -21,13 +21,8 @@ namespace Tetrifact.Web
                 }
             });
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="packageId"></param>
-        /// <returns></returns>
-        public static BadRequestObjectResult PackageExistsError(string packageId)
+        
+        public static BadRequestObjectResult PackageAlreadyExistsError(Controller controller, string packageId)
         {
             return new BadRequestObjectResult(new
             {
@@ -46,7 +41,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 101,
-                    description = "An internal server occurred. You didn't do anything wrong."
+                    description = "An internal error occurred. Please check server logs for more info."
                 }
             });
         }
@@ -96,23 +91,6 @@ namespace Tetrifact.Web
             });
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logId"></param>
-        /// <returns></returns>
-        public static BadRequestObjectResult PackageUploadFailedError(string logId)
-        {
-            return new BadRequestObjectResult(new
-            {
-                error = new
-                {
-                    code = 104,
-                    description = $"The package upload failed. Please check log enry {logId} for more information."
-                }
-            });
-        }
        
         /// <summary>
         /// 

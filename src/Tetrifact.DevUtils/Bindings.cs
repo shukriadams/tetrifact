@@ -11,22 +11,23 @@ namespace Tetrifact.DevUtils
         public override void Load()
         {
             Bind<IPackageDiffService>().To<PackageDiffService>();
-            Bind<IPackageCreate>().To<PackageCreate>();
-            Bind<IIndexReader>().To<IndexReader>();
+            Bind<IPackageCreateService>().To<PackageCreateService>();
+            Bind<IIndexReadService>().To<IndexReadService>();
             Bind<ISettings>().To<Settings>();
-            Bind<IWorkspace>().To<Workspace>();
+            Bind<IPackageCreateWorkspace>().To<PackageCreateWorkspace>();
             Bind<IMemoryCache>().To<MemcacheShim>();
             Bind<IPackageListCache>().To<PackageListCache>();
-            Bind<ILogger<IWorkspace>>().To<FileLogger<Workspace>>();
+            Bind<ILogger<IPackageCreateWorkspace>>().To<FileLogger<PackageCreateWorkspace>>();
             Bind<ILogger<ISettings>>().To<FileLogger<ISettings>>();
-            Bind<ILogger<IPackageCreate>>().To<FileLogger<IPackageCreate>>();
+            Bind<ILogger<IPackageCreateService>>().To<FileLogger<IPackageCreateService>>();
             Bind<ILogger<IPackageDiffService>>().To<FileLogger<IPackageDiffService>>();
-            Bind<ILogger<IIndexReader>>().To<FileLogger<IIndexReader>>();
+            Bind<ILogger<IIndexReadService>>().To<FileLogger<IIndexReadService>>();
             Bind<ILogger<ITagsService>>().To<FileLogger<ITagsService>>();
             Bind<IThread>().To<ThreadDefault>();
             Bind<ITagsService>().To<TagsService>();
             Bind<IFileSystem>().To<FileSystem>();
             Bind<IHashService>().To<HashService>();
+            Bind<IArchiveService>().To<ArchiveService>();
         }
     }
 }

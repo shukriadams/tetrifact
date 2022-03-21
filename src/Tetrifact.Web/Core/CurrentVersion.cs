@@ -28,7 +28,7 @@ namespace Tetrifact.Web
             {
                 _version = reader.ReadToEnd();
                 if (_version.StartsWith("!"))
-                    _version = string.Empty;
+                    _version = "unset";
             }
         }
 
