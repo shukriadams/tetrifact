@@ -12,7 +12,7 @@ The default log level as of version 1.8.4 is `warning`. You can override this at
 
 If running in Docker, you can set this in docker-compose by overriding `command` with the following line
 
-    command: /bin/sh -c "cd /var/tetrifact && dotnet Tetrifact.Web.dll --Logging:LogLevel:Tetrifact=Information""
+    command: /bin/sh -c "cd /var/tetrifact && dotnet Tetrifact.Web.dll --Logging:LogLevel:Tetrifact=Information"
 
 ## REST
 
