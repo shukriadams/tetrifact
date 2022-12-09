@@ -1,0 +1,10 @@
+﻿@model IEnumerable<string>
+
+<ul class="tags">
+    @foreach (string tag in Model)
+    {
+        <li class="tags-tag">
+            <a class="tags-link" href="/packagesWithTag/@tag">@tag</a>
+        </li>
+    }
+</ul>

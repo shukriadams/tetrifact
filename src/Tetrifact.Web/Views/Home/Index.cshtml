@@ -17,6 +17,7 @@
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize())</div>
+                    @await Html.PartialAsync("TagsList", package.Tags)
                 </li>
             }
         </ul>
@@ -35,14 +36,7 @@
 
     @if (tags.Any())
     {
-        <ul>
-            @foreach (string tag in tags)
-            {
-                <li class="listItem">
-                    <a href="/packagesWithTag/@tag">@tag</a>
-                </li>
-            }
-        </ul>
+        @await Html.PartialAsync("TagsList", tags)
     }
     else
     {

@@ -20,14 +20,7 @@
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
                     <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize() )</div>
-                    <ul class="tags">
-                    @foreach (string tag in package.Tags)
-                    {
-                        <li class="tags-tag">
-                            <a class="tags-link" href="/packagesWithTag/@tag">@tag</a>
-                        </li>
-                    }
-                    </ul>
+                    @await Html.PartialAsync("TagsList", package.Tags)
                 </li>
             }
 
