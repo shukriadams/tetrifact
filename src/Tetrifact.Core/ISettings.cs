@@ -6,17 +6,17 @@ namespace Tetrifact.Core
     public interface ISettings
     {
         /// <summary>
-        /// Path where packages are stored. Each package lives in its own folder.
+        /// Path where packages are stored. Each package lives in its own directory.
         /// </summary>
         string PackagePath { get; set; }
 
         /// <summary>
-        /// Folder to store incoming files, temp archives, etc. Wiped on app start.
+        /// Directory to store incoming files, temp archives, etc. Wiped on app start.
         /// </summary>
         string TempPath { get; set; }
- 
+
         /// <summary>
-        /// Folder to store complete archives. Each archive is named for the package it contains.
+        /// Directory to store complete archives. Each archive is named for the package it contains.
         /// </summary>
         string ArchivePath { get; set; }
 
@@ -26,12 +26,17 @@ namespace Tetrifact.Core
         string RepositoryPath { get; set; }
 
         /// <summary>
-        /// Folder tags are written to.
+        /// Directory tags are written to.
         /// </summary>
         string TagsPath { get; set; }
 
         /// <summary>
-        /// Folder where diffs between packages are written to.
+        /// Directory metric data is cached to
+        /// </summary>
+        string MetricsPath { get; set; }
+
+        /// <summary>
+        /// Directory where diffs between packages are written to.
         /// </summary>
         string PackageDiffsPath { get; set; }
 
@@ -164,5 +169,10 @@ namespace Tetrifact.Core
         /// If false, package uploads from UI or API will not be allowed.
         /// </summary>
         bool AllowPackageCreate { get; set; }
+
+        /// <summary>
+        /// Interval in hours for metrics to be regenerated.
+        /// </summary>
+        int MetricsGenerationInterval { get; set; }
     }
 }

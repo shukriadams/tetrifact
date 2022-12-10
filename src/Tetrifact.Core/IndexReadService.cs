@@ -55,6 +55,7 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(_settings.TempPath);
             Directory.CreateDirectory(_settings.RepositoryPath);
             Directory.CreateDirectory(_settings.TagsPath);
+            Directory.CreateDirectory(_settings.MetricsPath);
             Directory.CreateDirectory(_settings.PackageDiffsPath);
         }
 

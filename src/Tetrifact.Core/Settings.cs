@@ -26,6 +26,8 @@ namespace Tetrifact.Core
 
         public string TagsPath { get; set; }
 
+        public string MetricsPath { get; set; }
+
         public string PackageDiffsPath { get; set; }
 
         public int ArchiveAvailablePollInterval { get; set; }
@@ -80,6 +82,8 @@ namespace Tetrifact.Core
 
         public  bool AllowPackageCreate { get; set; }
 
+        public int MetricsGenerationInterval { get; set; }
+
         #endregion
 
         #region CTORS
@@ -111,6 +115,7 @@ namespace Tetrifact.Core
             this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
             this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
             this.WorkerThreadCount = 8;
+            this.MetricsGenerationInterval = 24;
             this.PruneProtectectedTags = new string[] { };
 
             // get settings from env variables
@@ -119,6 +124,7 @@ namespace Tetrifact.Core
             this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
             this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
             this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
+            this.MetricsPath = Environment.GetEnvironmentVariable("METRICS_PATH");
             this.PackageDiffsPath = Environment.GetEnvironmentVariable("PACKAGE_DIFFS_PATH");
 
             this.AllowPackageDelete = this.GetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
@@ -132,7 +138,8 @@ namespace Tetrifact.Core
             this.PruneMonthlyKeep = this.GetSetting("PRUNE_MONTHLY_KEEP", this.PruneMonthlyKeep);
             this.PruneYearlyThreshold = this.GetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
             this.PruneYearlyKeep = this.GetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
-            
+            this.MetricsGenerationInterval = this.GetSetting("METRICS_GENERATION_INTERVAL", this.MetricsGenerationInterval);
+
             this.WorkerThreadCount = this.GetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
             this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
@@ -168,6 +175,9 @@ namespace Tetrifact.Core
 
             if (string.IsNullOrEmpty(TagsPath))
                 TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
+
+            if (string.IsNullOrEmpty(MetricsPath))
+                MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
         }
 
         /// <summary>

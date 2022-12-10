@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using Tetrifact.Core;
 
@@ -23,20 +25,25 @@ namespace Tetrifact.Web
 
         private readonly IDaemonProcessRunner _processRunner;
 
+        private readonly IMetricsService _metricsService;
+
+        private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly ILock _lock;
 
         #endregion
 
         #region CTORS
 
-        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, ILockProvider lockProvider, ILogger<IDaemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, IMetricsService metricsService, IHostApplicationLifetime applicationLifetime, ILockProvider lockProvider, ILogger<IDaemon> log)
         {
             _packagePrune = packagePrune;
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
             _processRunner = processRunner;
             _lock = lockProvider.Instance;
+            _metricsService = metricsService;
             _log = log;
+            _applicationLifetime = applicationLifetime;
         }
 
         #endregion
@@ -99,6 +106,21 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError("Daemon prune error", ex);
+            }
+
+            try
+            {
+                _metricsService.Generate();
+            }
+            catch (FatalException ex)
+            {
+                // error has already been logged, go straight to shutdown
+                _log.LogError("Fatal error - failed to delete corrupt last_run file : ", ex);
+                _applicationLifetime.StopApplication();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError("Daemon metrics generate error", ex);
             }
         }
 
