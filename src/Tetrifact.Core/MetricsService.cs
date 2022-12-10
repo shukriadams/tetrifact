@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -67,22 +69,25 @@ namespace Tetrifact.Core
             s.AppendLine($"##tetrifact:generated:{DateTime.UtcNow}##");
 
             // nr of packages - nr of direct child dirs in /packages 
-            int packageCount = 0;
+            long packageCount = new DirectoryInfo(_settings.PackagePath).GetDirectories().Length;
             s.AppendLine($"tetrifact packages_count={packageCount}u");
-
-            // logs on disk size - size of /logs dir
-            int logsSize = 0;
-            s.AppendLine($"tetrifact log_files_size={logsSize}u");
-
-            // nr of logs n disk - nr of file in /logs dir
-            int logsCount = 0;
-            s.AppendLine($"tetrifact log_files_count={logsCount}u");
 
             // nr of files on disk - nr of files in /repository
             long respositoryFileCount = 0;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                //(IEnumerable<string>, IEnumerable<string>) result = Shell.Run($"find {_settings.RepositoryPath} -type f | wc -l");
+                // find /path/to/scan -type f | wc -l
+                // returns number
+            }
+
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
 
             // disk space used - size of /repository dir
+            // du -cha --max-depth=0 /path/to/scan | grep -E "G"
+            // returns 2 lines
+            // 86G      /path/to/scan
+            // 86G      total
             long respositoryFileSize = 0;
             s.AppendLine($"tetrifact repository_files_size={respositoryFileSize}u");
 
