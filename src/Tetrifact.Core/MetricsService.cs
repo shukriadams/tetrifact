@@ -19,13 +19,16 @@ namespace Tetrifact.Core
 
         private ILogger<IMetricsService> _logger;
 
+        private ISystemCallsService _systemCallsService;
+
         #endregion
 
         #region CTORS
 
-        public MetricsService(ISettings settings, ILogger<IMetricsService> logger) 
+        public MetricsService(ISystemCallsService systemCallsService, ISettings settings, ILogger<IMetricsService> logger) 
         {
             _settings = settings;
+            _systemCallsService = systemCallsService;
             _logger = logger;
         }
 
@@ -72,57 +75,54 @@ namespace Tetrifact.Core
             long packageCount = new DirectoryInfo(_settings.PackagePath).GetDirectories().Length;
             s.AppendLine($"tetrifact packages_count={packageCount}u");
 
+            
+            
             // nr of files on disk - nr of files in /repository
             long respositoryFileCount = 0;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            ShellResult result = _systemCallsService.GetRepoFilesCount();
+
+            if (result.ExitCode != 0 || result.StdErr.Count() != 0)
             {
-                ShellResult result = Shell.Run($"find {_settings.RepositoryPath} -type f | wc -l");
-                // returns number in stdout
-                if (result.ExitCode != 0 || result.StdOut.Count() != 0)
-                {
-                    _logger.LogError($"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
-                }
-                else 
-                {
-                    string incomingFileCount = string.Join("", result.StdOut);
-                    if (!long.TryParse(incomingFileCount, out respositoryFileCount))
-                        _logger.LogError($"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
-                }
+                _logger.LogError($"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+            }
+            else 
+            {
+                string incomingFileCount = string.Join("", result.StdOut);
+                if (!long.TryParse(incomingFileCount, out respositoryFileCount))
+                    _logger.LogError($"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
             }
 
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
 
-            // disk space used - size of /repository dir
-            // du -b --max-depth=0 /path/to/scan 
-            // returns 1 line with value in bytes
-            // 86123      /path/to/scan
+
+
             long respositoryFileSize = 0;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            result = _systemCallsService.GetRepoFilesSize();
+
+            if (result.ExitCode != 0 || result.StdErr.Count() != 0)
             {
-                ShellResult result = Shell.Run($"du -b --max-depth=0 {_settings.RepositoryPath}");
-                if (result.ExitCode != 0 || result.StdOut.Count() != 0)
+                _logger.LogError($"Repo file size failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+            }
+            else 
+            {
+                Regex bytesLookup = new Regex("^(\\d*)?");
+                string stdOut = string.Join("", result.StdOut);
+                Match bytesLookupResult = bytesLookup.Match(stdOut);
+                if (bytesLookupResult.Success)
                 {
-                    _logger.LogError($"Repo file size failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
-                }
+                    string bytesRaw = bytesLookupResult.Groups[1].Value;
+                    if (!long.TryParse(bytesRaw, out respositoryFileSize))
+                        _logger.LogError($"Repo file size failed : could not parse {bytesRaw} to long.");
+                } 
                 else 
                 {
-                    Regex bytesLookup = new Regex("^(\\d*)?");
-                    string stdOut = string.Join("", result.StdOut);
-                    Match bytesLookupResult = bytesLookup.Match(stdOut);
-                    if (bytesLookupResult.Success)
-                    {
-                        string bytesRaw = bytesLookupResult.Groups[1].Value;
-                        if (!long.TryParse(bytesRaw, out respositoryFileSize))
-                            _logger.LogError($"Repo file size failed : could not parse {bytesRaw} to long.");
-                    } 
-                    else 
-                    {
-                        _logger.LogError($"Repo file size failed, could not parse bytes from stdOut \"{stdOut}\"");
-                    }
+                    _logger.LogError($"Repo file size failed, could not parse bytes from stdOut \"{stdOut}\"");
                 }
             }
 
             s.AppendLine($"tetrifact repository_files_size={respositoryFileSize}u");
+
+
 
             File.WriteAllText(Path.Join(_settings.MetricsPath, "influx"), s.ToString());
             File.WriteAllText(lastRunPath, DateTime.UtcNow.ToString());
