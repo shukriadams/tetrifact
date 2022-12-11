@@ -6,13 +6,11 @@ Don't worry if your revision hashes are difficult to pass around, share or remem
 
 ## Changing log level
 
-The default log level as of version 1.8.4 is `warning`. You can override this at app start with the standard dotnet syntax
+The default log level as of version 1.8.4 is `Warning`. You can override this with the environment variable
 
-    dotnet Tetrifact.Web.dll --Logging:LogLevel:Microsoft=Information
+    Logging__LogLevel__Microsoft=<YOUR LEVEL>
 
-If running in Docker, you can set this in docker-compose by overriding `command` with the following line
-
-    command: /bin/sh -c "cd /var/tetrifact && dotnet Tetrifact.Web.dll --Logging:LogLevel:Tetrifact=Information"
+Allowed levels are the standard internal Dotnet values : Trace|Debug|Information|Warning|Error|Critical|None
 
 ## REST
 

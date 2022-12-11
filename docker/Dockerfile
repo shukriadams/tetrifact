@@ -24,4 +24,7 @@ COPY ./.artefacts/. /var/tetrifact
 
 USER tetrifact
 
-CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll --Logging:LogLevel:Microsoft=Warning'
+# set Tetrifact default log level
+ENV Logging__LogLevel__Microsoft=Warning
+
+CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll'

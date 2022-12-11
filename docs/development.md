@@ -46,7 +46,7 @@ Start app
 
 to view navigate your browser to
 
-    http://localhost:3000/
+    http://localhost:5001/
 
 All content is placed in /src/Tetrifact.Web/bin/Debug/netcoreapp3.1/data
 
