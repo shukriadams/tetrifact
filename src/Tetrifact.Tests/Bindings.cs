@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Ninject.Modules;
 using System.IO.Abstractions;
@@ -30,16 +31,21 @@ namespace Tetrifact.Tests
             Bind<IArchiveService>().To<Core.ArchiveService>();
             Bind<W.IDaemon>().To< W.Daemon>();
             Bind<ILock>().To<ProcessLock>();
+            Bind<IMetricsService>().To<MetricsService>();
+            Bind<ISystemCallsService>().To<SystemCallsService>();
             Bind<ILockProvider>().To<Core.LockProvider>();
             Bind<W.IDaemonProcessRunner>().To<W.DaemonProcessRunner>();
+            Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
+            
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
             Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
             Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
             Bind<ILogger<W.ArchivesController>>().To<TestLogger<W.ArchivesController>>();
             Bind<ILogger<W.TagsController>>().To<TestLogger<W.TagsController>>();
             Bind<ILogger<IPackageCreateWorkspace>>().To<TestLogger<IPackageCreateWorkspace>>();
+            Bind<ILogger<IMetricsService>>().To<TestLogger<IMetricsService>>();
+            Bind<ILogger<ISystemCallsService>>().To<TestLogger<ISystemCallsService>>();
             Bind<ILogger<IPackageCreateService>>().To<TestLogger<IPackageCreateService>>();
-            Bind<ILogger<ISettings>>().To<TestLogger<ISettings>>();
             Bind<ILogger<IPackageDiffService>>().To<TestLogger<IPackageDiffService>>();
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();

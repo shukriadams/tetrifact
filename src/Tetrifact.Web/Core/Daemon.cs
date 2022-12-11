@@ -28,6 +28,7 @@ namespace Tetrifact.Web
         private readonly IMetricsService _metricsService;
 
         private readonly IHostApplicationLifetime _applicationLifetime;
+
         private readonly ILock _lock;
 
         #endregion

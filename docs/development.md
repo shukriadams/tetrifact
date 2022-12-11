@@ -91,7 +91,7 @@ Unit test coverage is done with https://github.com/SteveGilham/altcover. To visu
 
 The HTML report is at
 
-    ./coverage/index.html
+    /src/coverage/index.html
 
 ## Architecture
 
