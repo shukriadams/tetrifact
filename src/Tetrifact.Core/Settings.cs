@@ -8,12 +8,6 @@ namespace Tetrifact.Core
 {
     public class Settings : ISettings
     {
-        #region FIELDS
-
-        private readonly ILogger<ISettings> _log;
-
-        #endregion
-
         #region PROPERTIES
 
         public string PackagePath { get; set; }
@@ -88,10 +82,8 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public Settings(ILogger<ISettings> log)
+        public Settings()
         {
-            _log = log;
-
             // defaults
             this.AllowPackageDelete = true;
             this.AllowPackageCreate = true;
@@ -127,26 +119,26 @@ namespace Tetrifact.Core
             this.MetricsPath = Environment.GetEnvironmentVariable("METRICS_PATH");
             this.PackageDiffsPath = Environment.GetEnvironmentVariable("PACKAGE_DIFFS_PATH");
 
-            this.AllowPackageDelete = this.GetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
-            this.AllowPackageCreate = this.GetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
-            this.IsStorageCompressionEnabled = this.GetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
-            this.Prune = this.GetSetting("PRUNE", this.Prune);
-            this.PruneIgnoreTags = this.GetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
-            this.PruneWeeklyThreshold = this.GetSetting("PRUNE_WEEKLY_THRESHOLD", this.PruneWeeklyThreshold);
-            this.PruneWeeklyKeep = this.GetSetting("PRUNE_WEEKLY_KEEP", this.PruneWeeklyKeep);
-            this.PruneMonthlyThreshold = this.GetSetting("PRUNE_MONTHLY_THRESHOLD", this.PruneMonthlyThreshold);
-            this.PruneMonthlyKeep = this.GetSetting("PRUNE_MONTHLY_KEEP", this.PruneMonthlyKeep);
-            this.PruneYearlyThreshold = this.GetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
-            this.PruneYearlyKeep = this.GetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
-            this.MetricsGenerationInterval = this.GetSetting("METRICS_GENERATION_INTERVAL", this.MetricsGenerationInterval);
+            this.AllowPackageDelete = this.TryGetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
+            this.AllowPackageCreate = this.TryGetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
+            this.IsStorageCompressionEnabled = this.TryGetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
+            this.Prune = this.TryGetSetting("PRUNE", this.Prune);
+            this.PruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
+            this.PruneWeeklyThreshold = this.TryGetSetting("PRUNE_WEEKLY_THRESHOLD", this.PruneWeeklyThreshold);
+            this.PruneWeeklyKeep = this.TryGetSetting("PRUNE_WEEKLY_KEEP", this.PruneWeeklyKeep);
+            this.PruneMonthlyThreshold = this.TryGetSetting("PRUNE_MONTHLY_THRESHOLD", this.PruneMonthlyThreshold);
+            this.PruneMonthlyKeep = this.TryGetSetting("PRUNE_MONTHLY_KEEP", this.PruneMonthlyKeep);
+            this.PruneYearlyThreshold = this.TryGetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
+            this.PruneYearlyKeep = this.TryGetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
+            this.MetricsGenerationInterval = this.TryGetSetting("METRICS_GENERATION_INTERVAL", this.MetricsGenerationInterval);
 
-            this.WorkerThreadCount = this.GetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
-            this.ListPageSize = this.GetSetting("LIST_PAGE_SIZE", this.ListPageSize);
-            this.MaxArchives = this.GetSetting("MAX_ARCHIVES", this.MaxArchives);
-            this.AuthorizationLevel = this.GetSetting("AUTH_LEVEL", this.AuthorizationLevel);
-            this.SpaceSafetyThreshold = this.GetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
-            this.AutoCreateArchiveOnPackageCreate = this.GetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
-            this.PruneProtectectedTags = this.GetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
+            this.WorkerThreadCount = this.TryGetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
+            this.ListPageSize = this.TryGetSetting("LIST_PAGE_SIZE", this.ListPageSize);
+            this.MaxArchives = this.TryGetSetting("MAX_ARCHIVES", this.MaxArchives);
+            this.AuthorizationLevel = this.TryGetSetting("AUTH_LEVEL", this.AuthorizationLevel);
+            this.SpaceSafetyThreshold = this.TryGetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
+            this.AutoCreateArchiveOnPackageCreate = this.TryGetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
+            this.PruneProtectectedTags = this.TryGetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")
@@ -186,7 +178,7 @@ namespace Tetrifact.Core
         /// <param name="settingsName"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        private int GetSetting(string settingsName, int defaultValue)
+        private int TryGetSetting(string settingsName, int defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
             if (settingsRawVariable == null)
@@ -194,7 +186,7 @@ namespace Tetrifact.Core
 
             int attempt;
             if (!int.TryParse(settingsRawVariable, out attempt)){
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
+                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
                 return defaultValue;
             }
 
@@ -207,8 +199,7 @@ namespace Tetrifact.Core
         /// <param name="settingsName"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-
-        private long GetSetting(string settingsName, long defaultValue)
+        private long TryGetSetting(string settingsName, long defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
             if (settingsRawVariable == null)
@@ -216,14 +207,14 @@ namespace Tetrifact.Core
 
             long attempt;
             if (!long.TryParse(settingsRawVariable, out attempt)){
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid long.");
+                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid long.");
                 return defaultValue;
             }
 
             return attempt;
         }
 
-        private bool GetSetting(string settingsName, bool defaultValue)
+        private bool TryGetSetting(string settingsName, bool defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
             if (settingsRawVariable == null)
@@ -231,7 +222,7 @@ namespace Tetrifact.Core
 
             bool attempt;
             if (!Boolean.TryParse(settingsRawVariable, out attempt)){
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
+                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
                 return defaultValue;
             }
 
@@ -244,7 +235,7 @@ namespace Tetrifact.Core
         /// <param name="settingsName"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        private IEnumerable<string> GetSetting(string settingsName, IEnumerable<string> defaultValue)
+        private IEnumerable<string> TryGetSetting(string settingsName, IEnumerable<string> defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
             if (string.IsNullOrEmpty(settingsRawVariable))
@@ -260,7 +251,7 @@ namespace Tetrifact.Core
         /// <param name="settingsName"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        private TEnum GetSetting<TEnum>(string settingsName, TEnum defaultValue)
+        private TEnum TryGetSetting<TEnum>(string settingsName, TEnum defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
             if (settingsRawVariable == null)
@@ -273,7 +264,7 @@ namespace Tetrifact.Core
             }
             catch
             {
-                _log.LogError($"Environment variable for {settingsName} ({settingsRawVariable}) is invalid, it must match one of {string.Join(",", Enum.GetNames(typeof(TEnum)))}.");
+                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is invalid, it must match one of {string.Join(",", Enum.GetNames(typeof(TEnum)))}.");
             }
 
             return defaultValue;

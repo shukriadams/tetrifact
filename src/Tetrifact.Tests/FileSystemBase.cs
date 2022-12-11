@@ -81,7 +81,7 @@ namespace Tetrifact.Tests
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
             LockProvider = new Core.LockProvider();
 
-            Settings = new Core.Settings(new TestLogger<Core.Settings>())
+            Settings = new Core.Settings()
             {
                 RepositoryPath = Path.Join(testFolder, "repository"),
                 PackagePath = Path.Join(testFolder, "packages"),
@@ -95,9 +95,9 @@ namespace Tetrifact.Tests
                 FileSystem,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
-            ThreadDefault = new Core.ThreadDefault();
+            ThreadDefault = new ThreadDefault();
 
-            IndexReader = new Core.IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
+            IndexReader = new IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, LockProvider, FileSystem, ArchiveLogger, Settings);
 
             IndexReader.Initialize();

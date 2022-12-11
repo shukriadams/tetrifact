@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.IndexReader
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-            Core.ISettings settings = new Core.Settings(new TestLogger<Core.Settings>())
+            ISettings settings = new Core.Settings()
             {
                 TempPath = Path.Join(testFolder, "Temp")
             };
@@ -32,12 +32,12 @@ namespace Tetrifact.Tests.IndexReader
             Directory.CreateDirectory(settings.TempPath);
             string testFilePath = Path.Join(settings.TempPath, "test");
             File.WriteAllText(testFilePath, string.Empty);
-            Core.ITagsService tagService = new Core.TagsService(
+            ITagsService tagService = new Core.TagsService(
                 settings,
                 filesystem,
-                new TestLogger<Core.ITagsService>(),new Core.PackageListCache(MemoryCacheHelper.GetInstance())); 
+                new TestLogger<ITagsService>(),new PackageListCache(MemoryCacheHelper.GetInstance())); 
 
-            Core.IIndexReadService reader = new Core.IndexReadService(settings, tagService, new TestLogger<IIndexReadService>(), filesystem, HashServiceHelper.Instance(), new Core.LockProvider());
+            IIndexReadService reader = new IndexReadService(settings, tagService, new TestLogger<IIndexReadService>(), filesystem, HashServiceHelper.Instance(), new Core.LockProvider());
             reader.Initialize();
 
             Assert.False(File.Exists(testFilePath));

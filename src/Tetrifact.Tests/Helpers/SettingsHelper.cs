@@ -19,7 +19,7 @@ namespace Tetrifact.Tests
 
             Directory.CreateDirectory(testFolder);
 
-            return new Core.Settings(new TestLogger<Core.Settings>())
+            return new Core.Settings
             {
                 RepositoryPath = Path.Join(testFolder, "repository"),
                 PackagePath = Path.Join(testFolder, "packages"),
