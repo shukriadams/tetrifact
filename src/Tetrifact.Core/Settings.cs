@@ -78,6 +78,8 @@ namespace Tetrifact.Core
 
         public int MetricsGenerationInterval { get; set; }
 
+        public string ServerName { get; set; }
+
         #endregion
 
         #region CTORS
@@ -85,6 +87,7 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
+            this.ServerName = "Tetrifact";
             this.AllowPackageDelete = true;
             this.AllowPackageCreate = true;
             this.ArchiveAvailablePollInterval = 1000;   // 1 second

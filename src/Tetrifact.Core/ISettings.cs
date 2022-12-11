@@ -6,6 +6,11 @@ namespace Tetrifact.Core
     public interface ISettings
     {
         /// <summary>
+        /// Name of server, displayed in layout. Cosmetic only
+        /// </summary>
+        string ServerName { get; set; }
+
+        /// <summary>
         /// Path where packages are stored. Each package lives in its own directory.
         /// </summary>
         string PackagePath { get; set; }

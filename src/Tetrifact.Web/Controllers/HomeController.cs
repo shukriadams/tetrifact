@@ -37,6 +37,7 @@ namespace Tetrifact.Web
         {
             ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
             ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
+            ViewData["serverName"] = _settings.ServerName;
             return View();
         }
 
@@ -54,6 +55,7 @@ namespace Tetrifact.Web
             ViewData["upstreamPackageId"] = packages.Count() > 0 ? packages.ElementAt(0).Id : "my-upstream-packageId";
             ViewData["downstreamPackageId"] = packages.Count() > 1 ? packages.ElementAt(1).Id : "my-downstream-packageId";
             ViewData["exampleTag"] = string.IsNullOrEmpty(exampleTag) ? "my-example-tag" : exampleTag;
+            ViewData["serverName"] = _settings.ServerName;
             return View();
         }
 
@@ -66,6 +68,7 @@ namespace Tetrifact.Web
         [Route("uploadPackage")]
         public IActionResult UploadPackage()
         {
+            ViewData["serverName"] = _settings.ServerName;
             string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
             return View(new UploadPackageModel { HostName = hostname });
         }
@@ -79,6 +82,7 @@ namespace Tetrifact.Web
         [Route("package/{packageId}/{pageIndex?}")]
         public IActionResult Package(string packageId, int pageIndex)
         {
+            ViewData["serverName"] = _settings.ServerName;
             ViewData["packageId"] = packageId;
             Manifest manifest = _indexService.GetManifest(packageId);
             if (manifest == null)
@@ -111,6 +115,7 @@ namespace Tetrifact.Web
 
             Pager pager = new Pager();
             PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
+            ViewData["serverName"] = _settings.ServerName;
             ViewData["pager"] = pager.Render(packages, _settings.PagesPerPageGroup, "/packages", "page");
             ViewData["packages"] = packages;
             return View();
@@ -128,6 +133,7 @@ namespace Tetrifact.Web
             try
             {
                 string[] tagsSplit = tags.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
+                ViewData["serverName"] = _settings.ServerName;
                 ViewData["tag"] = tags;
                 ViewData["packages"] = _packageList.GetWithTags(tagsSplit, 0, _settings.ListPageSize);
                 return View();
@@ -146,6 +152,7 @@ namespace Tetrifact.Web
         [Route("error/404")]
         public IActionResult Error404()
         {
+            ViewData["serverName"] = _settings.ServerName;
             return View();
         }
 
@@ -157,6 +164,7 @@ namespace Tetrifact.Web
         [Route("error/500")]
         public IActionResult Error500()
         {
+            ViewData["serverName"] = _settings.ServerName;
             return View();
         }
 
@@ -169,6 +177,7 @@ namespace Tetrifact.Web
         {
             DiskUseStats useStats = _indexService.GetDiskUseSats();
             double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
+            ViewData["serverName"] = _settings.ServerName;
 
             return new JsonResult(new
             {
