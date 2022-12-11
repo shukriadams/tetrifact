@@ -4,14 +4,28 @@ using System.Diagnostics;
 
 namespace Tetrifact.Core
 {
+    public class ShellResult
+    {
+        public int ExitCode {get;set;}
+        public IEnumerable<string> StdOut {get; set; }
+        public IEnumerable<string> StdErr {get; set; }
+        
+        public ShellResult(int exitCode, IEnumerable<string> stdOut, IEnumerable<string> stdErr)
+        {
+            this.ExitCode = exitCode;
+            this.StdOut = stdOut;
+            this.StdErr = stdErr;
+        }
+    }
+
     public class Shell
     {
         /// <summary>
-        /// Runs a shell command SYNCHRONOUSLY, returns a tuple with stdout and stderr.
+        /// Runs a shell command SYNCHRONOUSLY, returns a tuple with exit code, stdout and stderr.
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public static (IEnumerable<string>, IEnumerable<string>) Run(string command)
+        public static ShellResult Run(string command, bool verbose=false)
         {
             Process cmd = new Process();
             cmd.StartInfo.FileName = "sh";
@@ -34,17 +48,19 @@ namespace Tetrifact.Core
             {
                 string line = cmd.StandardOutput.ReadLine();
                 stdOut.Add(line);
-                Console.WriteLine(line);
+                if (verbose)
+                    Console.WriteLine(line);
             }
 
             while (!cmd.StandardError.EndOfStream)
             {
                 string line = cmd.StandardError.ReadLine();
                 stdErr.Add(line);
-                Console.WriteLine(line);
+                if (verbose)
+                    Console.WriteLine(line);
             }
-
-            return (stdOut, stdErr);
+            
+            return new ShellResult(cmd.ExitCode, stdOut, stdErr);
         }
     }
 }

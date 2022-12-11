@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -76,19 +76,52 @@ namespace Tetrifact.Core
             long respositoryFileCount = 0;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                //(IEnumerable<string>, IEnumerable<string>) result = Shell.Run($"find {_settings.RepositoryPath} -type f | wc -l");
-                // find /path/to/scan -type f | wc -l
-                // returns number
+                ShellResult result = Shell.Run($"find {_settings.RepositoryPath} -type f | wc -l");
+                // returns number in stdout
+                if (result.ExitCode != 0 || result.StdOut.Count() != 0)
+                {
+                    _logger.LogError($"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+                }
+                else 
+                {
+                    string incomingFileCount = string.Join("", result.StdOut);
+                    if (!long.TryParse(incomingFileCount, out respositoryFileCount))
+                        _logger.LogError($"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
+                }
             }
 
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
 
             // disk space used - size of /repository dir
-            // du -cha --max-depth=0 /path/to/scan | grep -E "G"
-            // returns 2 lines
-            // 86G      /path/to/scan
-            // 86G      total
+            // du -b --max-depth=0 /path/to/scan 
+            // returns 1 line with value in bytes
+            // 86123      /path/to/scan
             long respositoryFileSize = 0;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                ShellResult result = Shell.Run($"du -b --max-depth=0 {_settings.RepositoryPath}");
+                if (result.ExitCode != 0 || result.StdOut.Count() != 0)
+                {
+                    _logger.LogError($"Repo file size failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+                }
+                else 
+                {
+                    Regex bytesLookup = new Regex("^(\\d*)?");
+                    string stdOut = string.Join("", result.StdOut);
+                    Match bytesLookupResult = bytesLookup.Match(stdOut);
+                    if (bytesLookupResult.Success)
+                    {
+                        string bytesRaw = bytesLookupResult.Groups[1].Value;
+                        if (!long.TryParse(bytesRaw, out respositoryFileSize))
+                            _logger.LogError($"Repo file size failed : could not parse {bytesRaw} to long.");
+                    } 
+                    else 
+                    {
+                        _logger.LogError($"Repo file size failed, could not parse bytes from stdOut \"{stdOut}\"");
+                    }
+                }
+            }
+
             s.AppendLine($"tetrifact repository_files_size={respositoryFileSize}u");
 
             File.WriteAllText(Path.Join(_settings.MetricsPath, "influx"), s.ToString());

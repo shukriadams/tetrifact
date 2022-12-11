@@ -124,6 +124,7 @@ namespace Tetrifact.Web
 
 
             string logPath = Environment.GetEnvironmentVariable("LOG_PATH");
+            string logLevel = Environment.GetEnvironmentVariable("Logging__LogLevel__Microsoft");
             if (string.IsNullOrEmpty(logPath))
                 logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
 
@@ -159,6 +160,7 @@ namespace Tetrifact.Web
             Console.WriteLine($"Is storage compression enabled: {settings.IsStorageCompressionEnabled}");
             Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
             Console.WriteLine($"List page size: {settings.ListPageSize}");
+            Console.WriteLine($"Log level : {logLevel}");
             Console.WriteLine($"Log path: {logPath}");
             Console.WriteLine($"Max archives: {settings.MaxArchives}");
             Console.WriteLine($"PackagePath: {settings.PackagePath}");
