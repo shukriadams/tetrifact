@@ -134,6 +134,7 @@ namespace Tetrifact.Core
             this.PruneYearlyThreshold = this.TryGetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
             this.PruneYearlyKeep = this.TryGetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
             this.MetricsGenerationInterval = this.TryGetSetting("METRICS_GENERATION_INTERVAL", this.MetricsGenerationInterval);
+            this.ServerName = this.TryGetSetting("SERVER_NAME", this.ServerName);
 
             this.WorkerThreadCount = this.TryGetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
             this.ListPageSize = this.TryGetSetting("LIST_PAGE_SIZE", this.ListPageSize);
@@ -173,6 +174,16 @@ namespace Tetrifact.Core
 
             if (string.IsNullOrEmpty(MetricsPath))
                 MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
+        }
+
+        private string TryGetSetting(string settingsName, string defaultValue)
+        {
+            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
+            
+            if (settingsRawVariable == null)
+                return defaultValue;
+                
+            return settingsRawVariable;
         }
 
         /// <summary>
