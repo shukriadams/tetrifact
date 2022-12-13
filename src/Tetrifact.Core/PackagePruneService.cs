@@ -71,6 +71,12 @@ namespace Tetrifact.Core
                     weeklyPruneQueue.Add(packageId);
             }
 
+            // log out audit for prune, use warning because we expect this to be logged as important
+            _logger.LogWarning(" ******************************** Prune audit **********************************");
+            _logger.LogWarning($" Weekly prune keep is  {_settings.PruneWeeklyKeep}, {weeklyPruneQueue.Count()} packages in pre-filter queue");
+            _logger.LogWarning($" Monthly prune keep is  {_settings.PruneMonthlyKeep}, {monthlyPruneQueue.Count()} packages in pre-filter queue");
+            _logger.LogWarning($" Yearæy prune keep is  {_settings.PruneYearlyKeep}, {yearlyPruneQueue.Count()} packages in pre-filter queue");
+
             // weekly
             this.CalculatePrune(weeklyPruneQueue, ref prune, _settings.PruneWeeklyKeep, "weekly");
 
@@ -80,12 +86,15 @@ namespace Tetrifact.Core
             // yearly
             this.CalculatePrune(yearlyPruneQueue, ref prune, _settings.PruneYearlyKeep, "yearly");
 
+            _logger.LogWarning($" {weeklyPruneQueue.Count()} packages kept in post-filter weekly queue");
+            _logger.LogWarning($" {monthlyPruneQueue.Count()} packages kept in post-filter weekly queue");
+            _logger.LogWarning($" {yearlyPruneQueue.Count()} packages kept in post-filter weekly queue");
+            _logger.LogWarning(" ******************************** Prune audit **********************************");
+
             if (prune.Count() > 0) 
             {
                 foreach (string packageId in prune)
                 {
-                    _logger.LogInformation($"Pruning package {packageId}");
-
                     try
                     {
                         _indexReader.DeletePackage(packageId);
@@ -104,20 +113,14 @@ namespace Tetrifact.Core
             if (keep == 0)
                 return;
 
-            if (queue.Count < keep)
-                return;
-
             IEnumerable<string> take = queue
                 // randomize
                 .OrderBy(n => Guid.NewGuid())
                 // take excess
                 .Take(queue.Count - keep);
 
-            if (take.Count() > 0)
-            {
-                _logger.LogInformation($"Found {take.Count()} packages for {context} prune.");
-                prune = prune.Concat(take);
-            }
+            _logger.LogWarning($"{take.Count()} packages of {queue.Count()} marked for delete in {context} prune. Ids are : {string.Join(",", take)}");
+            prune = prune.Concat(take);
         }
 
         #endregion

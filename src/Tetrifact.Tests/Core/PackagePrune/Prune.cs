@@ -20,49 +20,72 @@ namespace Tetrifact.Tests.PackagePrune
             Settings.PruneWeeklyThreshold = 7;
             Settings.PruneMonthlyThreshold = 31;
             Settings.PruneYearlyThreshold = 364;
-            Settings.PruneWeeklyKeep = 1;
-            Settings.PruneMonthlyKeep = 1;
-            Settings.PruneYearlyKeep = 1;
+            Settings.PruneWeeklyKeep = 3;
+            Settings.PruneMonthlyKeep = 3;
+            Settings.PruneYearlyKeep = 3;
             Settings.PruneProtectectedTags = new string[] { "keep" };
 
-            _packagePrune = new Core.PackagePruneService(this.Settings, this.IndexReader, _logger);
+            _packagePrune = new PackagePruneService(this.Settings, this.IndexReader, _logger);
         }
 
         [Fact]
         public void HappyPath()
         {
             // create packages :
-            // two packages under week threshold, these two should not be deleted
+            // packages under week threshold, none of these should not be deleted
             PackageHelper.CreateNewPackageFiles(Settings, "under-week-1");
             PackageHelper.CreateNewPackageFiles(Settings, "under-week-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "under-week-3");
+            PackageHelper.CreateNewPackageFiles(Settings, "under-week-4");
+            PackageHelper.CreateNewPackageFiles(Settings, "under-week-5");
 
-            // two packages above week threshold, one of these should be deleted
+            // packages above week threshold, two should be deleted
             PackageHelper.CreateNewPackageFiles(Settings, "above-week-1");
             PackageHelper.CreateNewPackageFiles(Settings, "above-week-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-3");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-4");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-week-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-week-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
-            // two packages above month threshold, one of these should be deleted
+            // packages above month threshold, two of these should be deleted
             PackageHelper.CreateNewPackageFiles(Settings, "above-month-1");
             PackageHelper.CreateNewPackageFiles(Settings, "above-month-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-month-3");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-month-4");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-month-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-month-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
 
-
-            // two packages above year threshold, one of these should be deleted
+            // packages above year threshold, two of these should be deleted
             PackageHelper.CreateNewPackageFiles(Settings, "above-year-1");
             PackageHelper.CreateNewPackageFiles(Settings, "above-year-2");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-year-3");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-year-4");
+            PackageHelper.CreateNewPackageFiles(Settings, "above-year-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "above-year-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
 
-            _packagePrune.Prune();
+            // prune multiple times to ensure that randomization doesn't lead to unintended deletes
+            for (int i = 0 ; i < 100 ; i ++)
+                _packagePrune.Prune();
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();
 
-            Assert.Equal(5, packages.Count());
-            Assert.Single(packages.Where(r => r.StartsWith("above-week-")));
-            Assert.Single(packages.Where(r => r.StartsWith("above-month-")));
-            Assert.Single(packages.Where(r => r.StartsWith("above-year-")));
+            Assert.Equal(14, packages.Count());
+
+            Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
+            Assert.Equal(3, packages.Where(r => r.StartsWith("above-month-")).Count());
+            Assert.Equal(3, packages.Where(r => r.StartsWith("above-year-")).Count());
         }
 
         /// <summary>
@@ -139,6 +162,9 @@ namespace Tetrifact.Tests.PackagePrune
             mockedPruner.Prune();
         }
 
+        /// <summary>
+        /// Esnure that packages with protected tag are never marked for pruning.
+        /// </summary>
         [Fact]
         public void Prune_Protected_Tag()
         {
