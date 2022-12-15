@@ -73,9 +73,9 @@ namespace Tetrifact.Core
 
             // log out audit for prune, use warning because we expect this to be logged as important
             _logger.LogWarning(" ******************************** Prune audit **********************************");
-            _logger.LogWarning($" Weekly prune keep is  {_settings.PruneWeeklyKeep}, {weeklyPruneQueue.Count()} packages in pre-filter queue");
-            _logger.LogWarning($" Monthly prune keep is  {_settings.PruneMonthlyKeep}, {monthlyPruneQueue.Count()} packages in pre-filter queue");
-            _logger.LogWarning($" Yearæy prune keep is  {_settings.PruneYearlyKeep}, {yearlyPruneQueue.Count()} packages in pre-filter queue");
+            _logger.LogWarning($" Weekly prune keep is {_settings.PruneWeeklyKeep}. {weeklyPruneQueue.Count()} packages in pre-filter queue.");
+            _logger.LogWarning($" Monthly prune keep is {_settings.PruneMonthlyKeep}. {monthlyPruneQueue.Count()} packages in pre-filter queue.");
+            _logger.LogWarning($" Yearly prune keep is {_settings.PruneYearlyKeep}. {yearlyPruneQueue.Count()} packages in pre-filter queue.");
 
             // weekly
             this.CalculatePrune(weeklyPruneQueue, ref prune, _settings.PruneWeeklyKeep, "weekly");
@@ -86,9 +86,9 @@ namespace Tetrifact.Core
             // yearly
             this.CalculatePrune(yearlyPruneQueue, ref prune, _settings.PruneYearlyKeep, "yearly");
 
-            _logger.LogWarning($" {weeklyPruneQueue.Count()} packages kept in post-filter weekly queue");
-            _logger.LogWarning($" {monthlyPruneQueue.Count()} packages kept in post-filter weekly queue");
-            _logger.LogWarning($" {yearlyPruneQueue.Count()} packages kept in post-filter weekly queue");
+            _logger.LogWarning($"{weeklyPruneQueue.Count()} packages retained in post-filter weekly queue");
+            _logger.LogWarning($"{monthlyPruneQueue.Count()} packages retained in post-filter monthly queue");
+            _logger.LogWarning($"{yearlyPruneQueue.Count()} packages retained in post-filter yearly queue");
             _logger.LogWarning(" ******************************** Prune audit **********************************");
 
             if (prune.Count() > 0) 

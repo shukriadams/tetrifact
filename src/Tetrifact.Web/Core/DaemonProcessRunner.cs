@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Tetrifact.Web
 {
     /// <summary>
-    /// Keep-alive logic for daemon, kept in separate class to excluded it from unit testing.
+    /// Keep-alive logic for daemon, kept in separate class and kept simple, excluded from unit testing because testing cross-thread is a pain.
     /// </summary>
     public class DaemonProcessRunner : IDaemonProcessRunner
     {
