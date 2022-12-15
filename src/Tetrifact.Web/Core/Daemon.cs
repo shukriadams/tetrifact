@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using Tetrifact.Core;
+using Cronos;
 
 namespace Tetrifact.Web
 {
@@ -72,6 +73,11 @@ namespace Tetrifact.Web
         /// </summary>
         private void Work()
         {
+
+
+            //CronExpression expression = CronExpression.Parse("* * * * *");
+            //DateTime? nextUtc = expression.GetNextOccurrence(DateTime.UtcNow);
+
             try
             {
                 _lock.ClearExpired();
