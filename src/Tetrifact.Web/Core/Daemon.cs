@@ -22,7 +22,7 @@ namespace Tetrifact.Web
 
         private readonly IPackagePruneService _packagePrune;
 
-        private readonly IDaemonProcessRunner _processRunner;
+        private readonly IDaemonBackgroundProcess _processRunner;
 
         private readonly IMetricsService _metricsService;
 
@@ -34,7 +34,7 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonProcessRunner processRunner, IPackagePruneService packagePrune, IMetricsService metricsService, IHostApplicationLifetime applicationLifetime, ILockProvider lockProvider, ILogger<IDaemon> log)
+        public Daemon(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, IDaemonBackgroundProcess processRunner, IPackagePruneService packagePrune, IMetricsService metricsService, IHostApplicationLifetime applicationLifetime, ILockProvider lockProvider, ILogger<IDaemon> log)
         {
             _packagePrune = packagePrune;
             _archiveService = archiveService;

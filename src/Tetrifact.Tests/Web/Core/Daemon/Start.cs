@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
         [Fact]
         public void Happy_path()
         {
-            Mock<W.IDaemonProcessRunner> processRunner = new Mock<W.IDaemonProcessRunner>();
+            Mock<W.IDaemonBackgroundProcess> processRunner = new Mock<W.IDaemonBackgroundProcess>();
             processRunner
                 .Setup(r => r.Start(It.IsAny<W.DaemonWork>(), It.IsAny<int>()))
                 .Callback((W.DaemonWork work, int interval)=>{
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
         [Fact]
         public void Archive_exception()
         {
-            Mock<W.IDaemonProcessRunner> processRunner = new Mock<W.IDaemonProcessRunner>();
+            Mock<W.IDaemonBackgroundProcess> processRunner = new Mock<W.IDaemonBackgroundProcess>();
             processRunner
                 .Setup(r => r.Start(It.IsAny<W.DaemonWork>(), It.IsAny<int>()))
                 .Callback((W.DaemonWork work, int interval) => {
@@ -63,7 +63,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
         [Fact]
         public void Repo_clean_exception()
         {
-            Mock<W.IDaemonProcessRunner> processRunner = new Mock<W.IDaemonProcessRunner>();
+            Mock<W.IDaemonBackgroundProcess> processRunner = new Mock<W.IDaemonBackgroundProcess>();
             processRunner
                 .Setup(r => r.Start(It.IsAny<W.DaemonWork>(), It.IsAny<int>()))
                 .Callback((W.DaemonWork work, int interval) => {
@@ -89,7 +89,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
         [Fact]
         public void Prune_exception()
         {
-            Mock<W.IDaemonProcessRunner> processRunner = new Mock<W.IDaemonProcessRunner>();
+            Mock<W.IDaemonBackgroundProcess> processRunner = new Mock<W.IDaemonBackgroundProcess>();
             processRunner
                 .Setup(r => r.Start(It.IsAny<W.DaemonWork>(), It.IsAny<int>()))
                 .Callback((W.DaemonWork work, int interval) => {

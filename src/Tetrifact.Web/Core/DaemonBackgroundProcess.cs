@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 namespace Tetrifact.Web
 {
     /// <summary>
-    /// Keep-alive logic for daemon, kept in separate class and kept simple, excluded from unit testing because testing cross-thread is a pain.
+    /// Runs Daemon on its own task thread. We keep this separate from daemon logic for easier unit testing.
     /// </summary>
-    public class DaemonProcessRunner : IDaemonProcessRunner
+    public class DaemonBackgroundProcess : IDaemonBackgroundProcess
     {
         private bool _running;
         
         private bool _busy;
 
-        private ILogger<IDaemonProcessRunner> _log;
+        private ILogger<IDaemonBackgroundProcess> _log;
 
-        public DaemonProcessRunner(ILogger<IDaemonProcessRunner> log)
+        public DaemonBackgroundProcess(ILogger<IDaemonBackgroundProcess> log)
         { 
             _log = log;
             _running = true;
@@ -28,8 +28,6 @@ namespace Tetrifact.Web
                 {
                     try
                     {
-                        _log.LogInformation("Daemon ticked");
-
                         if (_busy)
                             return;
 

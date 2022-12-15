@@ -1,6 +1,6 @@
 ﻿namespace Tetrifact.Web
 {
-    public interface IDaemonProcessRunner
+    public interface IDaemonBackgroundProcess
     {
         void Start(DaemonWork work, int tickInterval);
 

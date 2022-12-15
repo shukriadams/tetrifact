@@ -34,7 +34,7 @@ namespace Tetrifact.Tests
             Bind<IMetricsService>().To<MetricsService>();
             Bind<ISystemCallsService>().To<SystemCallsService>();
             Bind<ILockProvider>().To<Core.LockProvider>();
-            Bind<W.IDaemonProcessRunner>().To<W.DaemonProcessRunner>();
+            Bind<W.IDaemonBackgroundProcess>().To<W.DaemonBackgroundProcess>();
             Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
             
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
@@ -54,7 +54,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
             Bind<ILogger<IPackagePruneService>>().To<TestLogger<IPackagePruneService>>();
             Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
-            Bind<ILogger<W.IDaemonProcessRunner>>().To<TestLogger<W.IDaemonProcessRunner>>();
+            Bind<ILogger<W.IDaemonBackgroundProcess>>().To<TestLogger<W.IDaemonBackgroundProcess>>();
         }
     }
 }
