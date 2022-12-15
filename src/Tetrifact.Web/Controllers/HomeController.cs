@@ -2,6 +2,7 @@
 using Tetrifact.Core;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace Tetrifact.Web
 {
@@ -132,7 +133,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                string[] tagsSplit = tags.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
+                string[] tagsSplit = tags.Split(",", System.StringSplitOptions.RemoveEmptyEntries).Select(r => Uri.UnescapeDataString(r)).ToArray();
                 ViewData["serverName"] = _settings.ServerName;
                 ViewData["tag"] = tags;
                 ViewData["packages"] = _packageList.GetWithTags(tagsSplit, 0, _settings.ListPageSize);

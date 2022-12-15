@@ -4,7 +4,7 @@
     @foreach (string tag in Model)
     {
         <li class="tags-tag">
-            <a class="tags-link" href="/packagesWithTag/@tag">@tag</a>
+            <a class="tags-link" href="/packagesWithTag/@Uri.EscapeDataString(tag)">@tag</a>
         </li>
     }
 </ul>
