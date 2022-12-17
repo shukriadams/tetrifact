@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -80,6 +79,10 @@ namespace Tetrifact.Core
 
         public string ServerName { get; set; }
 
+        public string LogPath { get; set; }
+
+        public string LogLevel{ get; set; }
+
         #endregion
 
         #region CTORS
@@ -112,16 +115,17 @@ namespace Tetrifact.Core
             this.WorkerThreadCount = 8;
             this.MetricsGenerationInterval = 24;
             this.PruneProtectectedTags = new string[] { };
-
-            // get settings from env variables
-            this.PackagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
-            this.TempPath = Environment.GetEnvironmentVariable("TEMP_PATH");
-            this.RepositoryPath = Environment.GetEnvironmentVariable("HASH_INDEX_PATH");
-            this.ArchivePath = Environment.GetEnvironmentVariable("ARCHIVE_PATH");
-            this.TagsPath = Environment.GetEnvironmentVariable("TAGS_PATH");
-            this.MetricsPath = Environment.GetEnvironmentVariable("METRICS_PATH");
-            this.PackageDiffsPath = Environment.GetEnvironmentVariable("PACKAGE_DIFFS_PATH");
-
+            this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+            this.LogLevel = "Warning";
+            this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
+            this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
+            this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
+            this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
+            this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
+            this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
+            this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
+            
+            // try to overrride defaults from environment variables
             this.AllowPackageDelete = this.TryGetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
             this.AllowPackageCreate = this.TryGetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
             this.IsStorageCompressionEnabled = this.TryGetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
@@ -135,7 +139,6 @@ namespace Tetrifact.Core
             this.PruneYearlyKeep = this.TryGetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
             this.MetricsGenerationInterval = this.TryGetSetting("METRICS_GENERATION_INTERVAL", this.MetricsGenerationInterval);
             this.ServerName = this.TryGetSetting("SERVER_NAME", this.ServerName);
-
             this.WorkerThreadCount = this.TryGetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
             this.ListPageSize = this.TryGetSetting("LIST_PAGE_SIZE", this.ListPageSize);
             this.MaxArchives = this.TryGetSetting("MAX_ARCHIVES", this.MaxArchives);
@@ -143,6 +146,15 @@ namespace Tetrifact.Core
             this.SpaceSafetyThreshold = this.TryGetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
             this.AutoCreateArchiveOnPackageCreate = this.TryGetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
             this.PruneProtectectedTags = this.TryGetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
+            this.LogPath = this.TryGetSetting("LOG_PATH", this.LogPath);
+            this.LogLevel = this.TryGetSetting("Logging__LogLevel__Microsoft", this.LogLevel);
+            this.PackageDiffsPath = this.TryGetSetting("PACKAGE_DIFFS_PATH", this.PackageDiffsPath);
+            this.PackagePath = this.TryGetSetting("PACKAGE_PATH", this.PackagePath);
+            this.TempPath = this.TryGetSetting("TEMP_PATH", this.TempPath);
+            this.RepositoryPath = this.TryGetSetting("HASH_INDEX_PATH", this.RepositoryPath);
+            this.ArchivePath = this.TryGetSetting("ARCHIVE_PATH", this.ArchivePath);
+            this.TagsPath = this.TryGetSetting("TAGS_PATH", this.TagsPath);
+            this.MetricsPath = this.TryGetSetting("METRICS_PATH", this.MetricsPath);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")
@@ -152,30 +164,18 @@ namespace Tetrifact.Core
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
                 this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
-
-            // fall back to defaults
-            if (string.IsNullOrEmpty(PackageDiffsPath))
-                PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
-
-            if (string.IsNullOrEmpty(PackagePath))
-                PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
-
-            if (string.IsNullOrEmpty(TempPath))
-                TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
-
-            if (string.IsNullOrEmpty(RepositoryPath))
-                RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
-
-            if (string.IsNullOrEmpty(ArchivePath))
-                ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
-
-            if (string.IsNullOrEmpty(TagsPath))
-                TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
-
-            if (string.IsNullOrEmpty(MetricsPath))
-                MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
         }
 
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// Gets a string environment variable if it is defined.
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         private string TryGetSetting(string settingsName, string defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);

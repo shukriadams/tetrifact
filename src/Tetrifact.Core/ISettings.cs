@@ -21,6 +21,16 @@ namespace Tetrifact.Core
         string TempPath { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        string LogPath { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string LogLevel { get; set; }
+
+        /// <summary>
         /// Directory to store complete archives. Each archive is named for the package it contains.
         /// </summary>
         string ArchivePath { get; set; }

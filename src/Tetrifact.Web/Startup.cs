@@ -104,7 +104,6 @@ namespace Tetrifact.Web
                 app.UseHsts();
             }
 
-
             // register custom error pages
             app.Use(async (context, next) =>
             {
@@ -123,14 +122,6 @@ namespace Tetrifact.Web
                 }
             });
 
-
-            string logPath = Environment.GetEnvironmentVariable("LOG_PATH");
-            string logLevel = Environment.GetEnvironmentVariable("Logging__LogLevel__Microsoft");
-            if (string.IsNullOrEmpty(logPath))
-                logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
-
-            loggerFactory.AddFile(logPath);
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -145,8 +136,22 @@ namespace Tetrifact.Web
             int daemonInterval = 1000 * 60 * 10; // 60000 = 10 minutes
 
             ISettings settings = serviceProvider.GetService<ISettings>();
+            loggerFactory.AddFile(settings.LogPath);
+            
+            // start daemon
+            IDaemon daemon = serviceProvider.GetService<IDaemon>();
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
+                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
+
+            daemon.Start(daemonInterval);
+
+            // initialize indexes
+            IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
+            foreach (IIndexReadService indexReader in indexReaders)
+                indexReader.Initialize();
+
             Console.WriteLine("*********************************************************************");
-            Console.WriteLine("TETRIFACT SERVER starting");
+            Console.WriteLine("TETRIFACT : server starting");
             Console.WriteLine("");
             Console.WriteLine("Settings:");
             Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
@@ -161,8 +166,8 @@ namespace Tetrifact.Web
             Console.WriteLine($"Is storage compression enabled: {settings.IsStorageCompressionEnabled}");
             Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
             Console.WriteLine($"List page size: {settings.ListPageSize}");
-            Console.WriteLine($"Log level : {logLevel}");
-            Console.WriteLine($"Log path: {logPath}");
+            Console.WriteLine($"Log level : {settings.LogLevel}");
+            Console.WriteLine($"Log path: {settings.LogPath}");
             Console.WriteLine($"Max archives: {settings.MaxArchives}");
             Console.WriteLine($"PackagePath: {settings.PackagePath}");
             Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
@@ -172,19 +177,6 @@ namespace Tetrifact.Web
             Console.WriteLine($"Temp path: {settings.TempPath}");
             Console.WriteLine("*********************************************************************");
 
-            // initialize indexes
-            IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
-            foreach (IIndexReadService indexReader in indexReaders)
-                indexReader.Initialize();
-            Console.WriteLine("Indexes initialized");
-
-            // start daemon
-            IDaemon daemon = serviceProvider.GetService<IDaemon>();
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
-                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
-
-            daemon.Start(daemonInterval);
-            Console.WriteLine("Daemon started");
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Tetrifact.Tests
             }
         }
 
-
         public CancellationToken ApplicationStopped
         { 
             get 
