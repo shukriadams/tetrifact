@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 
@@ -61,12 +60,15 @@ namespace Tetrifact.Web
             services.AddTransient<IPackagePruneService, PackagePruneService>();
             services.AddTransient<IPackageDiffService, PackageDiffService>();
             services.AddTransient<IArchiveService, ArchiveService>();
-            services.AddTransient<IDaemon, Daemon>();
-            services.AddTransient<IDaemonBackgroundProcess, DaemonBackgroundProcess>();
             services.AddTransient<IMetricsService, MetricsService>();
             services.AddTransient<ISystemCallsService, SystemCallsService>();
             services.AddTransient<ILock, ProcessLock>();
             services.AddTransient<ILockProvider, LockProvider>();
+            services.AddTransient<ICron, MetricsCron>();
+            services.AddTransient<ICron, PruneCron>();
+            services.AddTransient<ICron, CleanerCron>();
+            services.AddTransient<IDaemon, Daemon>();
+            
 
             // register filterws
             services.AddScoped<ReadLevel>();
@@ -137,13 +139,11 @@ namespace Tetrifact.Web
 
             ISettings settings = serviceProvider.GetService<ISettings>();
             loggerFactory.AddFile(settings.LogPath);
-            
-            // start daemon
-            IDaemon daemon = serviceProvider.GetService<IDaemon>();
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DAEMON_INTERVAL")))
-                int.TryParse(Environment.GetEnvironmentVariable("DAEMON_INTERVAL"), out daemonInterval);
 
-            daemon.Start(daemonInterval);
+            // start daemons
+            IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
+            foreach (ICron cron in crons)
+                cron.Start();
 
             // initialize indexes
             IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();

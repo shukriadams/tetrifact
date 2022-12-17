@@ -29,14 +29,13 @@ namespace Tetrifact.Tests
             Bind<IPackagePruneService>().To<PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<Core.ArchiveService>();
-            Bind<W.IDaemon>().To< W.Daemon>();
             Bind<ILock>().To<ProcessLock>();
             Bind<IMetricsService>().To<MetricsService>();
             Bind<ISystemCallsService>().To<SystemCallsService>();
             Bind<ILockProvider>().To<Core.LockProvider>();
-            Bind<W.IDaemonBackgroundProcess>().To<W.DaemonBackgroundProcess>();
             Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
-            
+            Bind<W.IDaemon>().To<TestDaemon>();
+
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
             Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
             Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
@@ -54,7 +53,7 @@ namespace Tetrifact.Tests
             Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
             Bind<ILogger<IPackagePruneService>>().To<TestLogger<IPackagePruneService>>();
             Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
-            Bind<ILogger<W.IDaemonBackgroundProcess>>().To<TestLogger<W.IDaemonBackgroundProcess>>();
+            Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
         }
     }
 }

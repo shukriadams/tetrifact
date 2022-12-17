@@ -20,7 +20,7 @@ namespace Tetrifact.Core
             string value = Environment.GetEnvironmentVariable(name);
             int val;
             if (!int.TryParse(Environment.GetEnvironmentVariable(name), out val)){
-                Console.WriteLine($"Environment variable {value} expected to be integer, but could not be parsed, falling back to default {defaultValue}");
+                Console.WriteLine($"Environment variable \"{value}\" expected to be integer, but could not be parsed, falling back to default {defaultValue}");
                 return defaultValue;
             }
 

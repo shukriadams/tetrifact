@@ -28,7 +28,7 @@ namespace Tetrifact.Web
             bool isIIS = Environment.GetEnvironmentVariable("IS_IIS") == "true";
             bool useHTTPS = EnvironmentArgsHelper.GetAsBool("TETRIFACT_USE_HTTPS");
             string httpsCertPath = Environment.GetEnvironmentVariable("TETRIFACT_HTTPS_CERT_PATH");
-            int port = EnvironmentArgsHelper.GetAsInt("TETRIFACT_PORT", 5001);
+            int port = EnvironmentArgsHelper.GetAsInt("TETRIFACT_PORT", 5000);
 
             if (useHTTPS && string.IsNullOrEmpty(httpsCertPath)){
                 Console.WriteLine("TETRIFACT_HTTPS_CERT_PATH env var not set, cannot use HTTPS");

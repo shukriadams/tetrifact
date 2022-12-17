@@ -83,6 +83,12 @@ namespace Tetrifact.Core
 
         public string LogLevel{ get; set; }
 
+        public string CleanCronMask { get; set; }
+
+        public string PruneCronMask { get; set; }
+
+        public string MetricsCronMask { get; set; }
+
         #endregion
 
         #region CTORS
@@ -124,7 +130,10 @@ namespace Tetrifact.Core
             this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
-            
+            this.CleanCronMask = "0 * * * *"; // ever hour on the hour
+            this.PruneCronMask = "0 0 * * *"; // once a day at midnight
+            this.MetricsCronMask = "0 */12 * * *"; // every 12 hours
+
             // try to overrride defaults from environment variables
             this.AllowPackageDelete = this.TryGetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
             this.AllowPackageCreate = this.TryGetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
@@ -155,6 +164,9 @@ namespace Tetrifact.Core
             this.ArchivePath = this.TryGetSetting("ARCHIVE_PATH", this.ArchivePath);
             this.TagsPath = this.TryGetSetting("TAGS_PATH", this.TagsPath);
             this.MetricsPath = this.TryGetSetting("METRICS_PATH", this.MetricsPath);
+            this.CleanCronMask = this.TryGetSetting("CLEAN_CRON_MASK", this.CleanCronMask);
+            this.PruneCronMask = this.TryGetSetting("PRUNE_CRON_MASK", this.PruneCronMask);
+            this.MetricsPath = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsPath);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")

@@ -189,5 +189,20 @@ namespace Tetrifact.Core
         /// Interval in hours for metrics to be regenerated.
         /// </summary>
         int MetricsGenerationInterval { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string CleanCronMask { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string PruneCronMask { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string MetricsCronMask { get; set; }
     }
 }

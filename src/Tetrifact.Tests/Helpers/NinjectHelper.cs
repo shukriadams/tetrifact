@@ -6,6 +6,13 @@ namespace Tetrifact.Tests
 {
     public class NinjectHelper
     {
+        public static StandardKernel Kernel() 
+        {
+            StandardKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
+            return kernel;
+        }
+
         private static T Get<T>(ConstructorArgument[] args)
         {
             StandardKernel kernel = new StandardKernel();
