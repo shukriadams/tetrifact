@@ -17,13 +17,40 @@ namespace Tetrifact.Tests
             return (Mock)Activator.CreateInstance(creator);
         }
 
-        public static IEnumerable<object> CtorArgs(Type t, object overrid, bool forceMock)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="overrid"></param>
+        /// <param name="forceMock">Ignores Ninject, will create empty Moq type</param>
+        /// <returns></returns>
+        public static IEnumerable<object> CtorArgs(Type t, object overrid, bool forceMoq)
         {
-            return CtorArgs(t, new object[] { overrid }, forceMock);
+            return CtorArgs(t, new object[] { overrid }, forceMoq);
         }
 
-        public static IEnumerable<object> CtorArgs(Type t, object[] overrides, bool forceMock)
+        public static IEnumerable<object> CtorArgs(Type t, object overrid)
         {
+            return CtorArgs(t, new object[] { overrid }, false);
+        }
+
+        public static IEnumerable<object> CtorArgs(Type t, object[] overrides) 
+        {
+            return CtorArgs(t, new object[] { overrides }, false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="overrides"></param>
+        /// <param name="forceMock">Ignores Ninject, will create empty Moq type</param>
+        /// <returns></returns>
+        public static IEnumerable<object> CtorArgs(Type t, object[] overrides, bool forceMoq)
+        {
+            if (t.IsInterface)
+                throw new Exception($"Cannot create instance of interface {t.Name} - please use a class instead");
+
             ConstructorInfo ctor = t.GetConstructors().FirstOrDefault();
             if (ctor == null)
                 throw new Exception("no ctor found");
@@ -39,7 +66,7 @@ namespace Tetrifact.Tests
 
                 try
                 {
-                    if (arg == null && !forceMock)
+                    if (arg == null && !forceMoq)
                         arg = kernel.Get(p.ParameterType);
                 }
                 catch (Exception ex)
@@ -49,7 +76,8 @@ namespace Tetrifact.Tests
 
                 try
                 {
-                    arg = CreateMock(p.ParameterType).Object;
+                    if (arg == null) 
+                        arg = CreateMock(p.ParameterType).Object;
                 }
                 catch (Exception ex)
                 {
@@ -62,14 +90,30 @@ namespace Tetrifact.Tests
             return args;
         }
 
-        public static T WithAllMocked<T>() where T : class 
+        /// <summary>
+        /// Creates an instance of type T with all IOC dependencies mocked.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T CreateInstanceWithAllMoqed<T>() where T : class 
         {
             return repo.Create<T>(CtorArgs(typeof(T), new object[]{ }, true).ToArray()).Object;
         }
 
-        public static T With<T>(Mock dependencyMock) where T : class
+        /// <summary>
+        /// Creates an instance of type T with available Ninject IOC dependencies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dependencyMock"></param>
+        /// <returns></returns>
+        public static T CreateInstanceWithSingleDependency<T>(object dependency) where T : class
         {
-            return repo.Create<T>(CtorArgs(typeof(T), dependencyMock.Object, false).ToArray()).Object;
+            return repo.Create<T>(CtorArgs(typeof(T), dependency, false).ToArray()).Object;
+        }
+
+        public static T CreateInstanceWithDependencies<T>(object[] dependencies) where T : class
+        {
+            return repo.Create<T>(CtorArgs(typeof(T), dependencies, false).ToArray()).Object;
         }
     }
 }

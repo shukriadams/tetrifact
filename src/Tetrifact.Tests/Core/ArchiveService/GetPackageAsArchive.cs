@@ -10,31 +10,38 @@ namespace Tetrifact.Tests.ArchiveService
 {
     public class GetPackageAsArchive : FileSystemBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Fact]
-        public void GetBasic()
+        public void PackageStreamHasContent()
         {
+            // create a package
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+
+            // stream package as archive
             using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
+                // ensure that stream contains package content
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
+                // test package has 1 item
                 Assert.Single(items);
+                // byte content generated in package should be in archive stream
                 Assert.Equal(testPackage.Content, items[testPackage.Path]);
             }
         }
 
         /// <summary>
         /// Ensures test coverage of code in GetPackageAsArchive() that references an existing archive
-        /// file. To do this we hit the GetBasic() test, which generates an archive, then retrieve it again.
-        /// The assert here is for completeness only - this test's passing requirement is measured in test
-        /// coverage.
+        /// file. To do this we repeat the PackageStreamHasContent() test, which generates an archive, then retrieve it again.
         /// 
-        /// To confirm this test, uncomment it, run tests with coverage, generate report, and look for the branch
-        /// warning in GetPackageAsArchive().
+        /// Coverage test
         /// </summary>
         [Fact]
         public void GetExistingArchive()
         {
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+
             using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
                 // get again
@@ -47,19 +54,16 @@ namespace Tetrifact.Tests.ArchiveService
         }
 
         /// <summary>
-        /// Tests graceful handling of archive fetching for a non-existent package
+        /// Archive fetching for a non-existent package should throw expected exception
         /// </summary>
         [Fact]
         public void GetNonExistent()
         {
-            PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(() => {
-                using (Stream zipStream = this.ArchiveService.GetPackageAsArchive("invalid id"))
-                {
-                    // do nothing, exception expected
-                }
+            PackageNotFoundException exception = Assert.Throws<PackageNotFoundException>(() => {
+                using (Stream zipStream = this.ArchiveService.GetPackageAsArchive("my invalid id")){ }
             });
 
-            Assert.Equal("invalid id", ex.PackageId);
+            Assert.Equal("my invalid id", exception.PackageId);
         }
 
         /// <summary>
@@ -92,31 +96,31 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetAfterWaiting()
         {
-            // we need a valid package first
+            // create a package 
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             // create a fake archive temp file so GetPackageAsArchive() goes into wait state
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
             File.WriteAllText(tempArchivePath, string.Empty);
 
-            // seeing as our fake temp archive bypasses archive creation, we should make a fake archive too, it should just be a file
+            // fake temp archive bypasses archive creation, so make a fake archive too, it needs to be just a file
             string archivePath = this.ArchiveService.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, "some-fake-archive-content");
 
-            // lock the temp archive so it doesn't get auto-clobbered
+            // lock the temp archive so it doesn't get auto-clobbered (not needed, doesn't work on linux)
             using (Stream lockStream = new FileStream(tempArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // mock IThread.Sleep, in this method, we will release and delete our temp archive lock, so the archive fetch can proceed
-                IThread mockThread = Mock.Of<IThread>();
-                Mock.Get(mockThread)
-                    .Setup(r => r.Sleep( It.IsAny<int>() ))
-                    .Callback<int>(time =>{
+                var mockThread = new Mock<IThread>();
+                mockThread
+                    .Setup(r => r.Sleep(It.IsAny<int>()))
+                    .Callback<int>(time => {
                         lockStream.Close();
                         File.Delete(tempArchivePath);
                     });
 
                 // make a custom reader with our mocked Thread
-                IArchiveService archiveService = new Core.ArchiveService(this.IndexReader, mockThread, LockProvider, new FileSystem(), this.ArchiveLogger, this.Settings);
+                IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{mockThread.Object, this.Settings });
 
                 using (Stream zipStream = archiveService.GetPackageAsArchive(testPackage.Id))
                 {

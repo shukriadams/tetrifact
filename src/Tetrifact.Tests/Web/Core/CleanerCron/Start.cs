@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
         [Fact]
         public void Happy_path()
         {
-            var cleanerCron = MoqHelper.WithAllMocked<W.CleanerCron>();
+            var cleanerCron = MoqHelper.CreateInstanceWithAllMoqed<W.CleanerCron>();
             cleanerCron.Work();
         }
 
@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
                  .Setup(r => r.PurgeOldArchives())
                  .Throws(new Exception("some error"));
 
-            var cleanerCron = MoqHelper.With<W.CleanerCron>(archiveService);
+            var cleanerCron = MoqHelper.CreateInstanceWithSingleDependency<W.CleanerCron>(archiveService.Object);
             cleanerCron.Work();
         }
 

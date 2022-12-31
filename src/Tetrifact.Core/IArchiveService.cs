@@ -25,8 +25,8 @@ namespace Tetrifact.Core
         /// <summary>
         /// Returns a status code the given archive. Requesting status for a given archive will also start
         /// generating that archive.
-        /// 0 : Archive creation started.
-        /// 1 : Archive is being created.
+        /// 0 : Archive creation was started.
+        /// 1 : Archive is already started, is still in progress.
         /// 2 : Archive is available for download.
         /// 
         /// throw a PackageNotFoundException if the package does not exist or is marked for delete
