@@ -22,21 +22,11 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="t"></param>
         /// <param name="overrid"></param>
-        /// <param name="forceMock">Ignores Ninject, will create empty Moq type</param>
+        /// <param name="forceMock">Ignores Ninject, creates empty Moq type</param>
         /// <returns></returns>
         public static IEnumerable<object> CtorArgs(Type t, object overrid, bool forceMoq)
         {
             return CtorArgs(t, new object[] { overrid }, forceMoq);
-        }
-
-        public static IEnumerable<object> CtorArgs(Type t, object overrid)
-        {
-            return CtorArgs(t, new object[] { overrid }, false);
-        }
-
-        public static IEnumerable<object> CtorArgs(Type t, object[] overrides) 
-        {
-            return CtorArgs(t, new object[] { overrides }, false);
         }
 
         /// <summary>

@@ -11,11 +11,9 @@ namespace Tetrifact.Tests.PackagePrune
     public class Prune : FileSystemBase
     {
         private readonly IPackagePruneService _packagePrune;
-        private readonly TestLogger<IPackagePruneService> _logger;
 
         public Prune()
         {
-            _logger = new TestLogger<IPackagePruneService>();
             Settings.Prune = true;
             Settings.PruneWeeklyThreshold = 7;
             Settings.PruneMonthlyThreshold = 31;
@@ -25,7 +23,7 @@ namespace Tetrifact.Tests.PackagePrune
             Settings.PruneYearlyKeep = 3;
             Settings.PruneProtectectedTags = new string[] { "keep" };
 
-            _packagePrune = new PackagePruneService(this.Settings, this.IndexReader, _logger);
+            _packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[]{ this.Settings, this.IndexReader }); 
         }
 
         [Fact]
@@ -81,11 +79,66 @@ namespace Tetrifact.Tests.PackagePrune
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();
 
-           // Assert.Equal(14, packages.Count());
+            Assert.Equal(14, packages.Count());
 
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-month-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-year-")).Count());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Fact]
+        public void Prune_over_time() 
+        {
+            // create 5 packages with date "now" (for real now)
+            PackageHelper.CreateNewPackageFiles(Settings, "1");
+            PackageHelper.CreateNewPackageFiles(Settings, "2");
+            PackageHelper.CreateNewPackageFiles(Settings, "3");
+            PackageHelper.CreateNewPackageFiles(Settings, "4");
+            PackageHelper.CreateNewPackageFiles(Settings, "5");
+
+            // run pr
+            Core.Settings settings = new Core.Settings();
+            settings.Prune = true;
+            settings.PruneWeeklyThreshold = 7;
+            settings.PruneMonthlyThreshold = 31;
+            settings.PruneYearlyThreshold = 364;
+            settings.PruneWeeklyKeep = 4;
+            settings.PruneMonthlyKeep = 3;
+            settings.PruneYearlyKeep = 2;
+
+            // mock time time provider to return fixed "now" date
+            DateTime now = DateTime.UtcNow;
+            Mock<ITimeProvideer> timeProvider = new Mock<ITimeProvideer>();
+            timeProvider.Setup(r => r.GetUtcNow())
+                .Returns(()=> now);
+
+            PackagePruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { settings, this.IndexReader, timeProvider.Object });
+
+            // prune now - now packages must be deleted
+            for (int i = 0; i < 10; i++)
+                packagePrune.Prune();
+            Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
+
+            // shift time by 8 days to put packages into weekly bracked, 1 package should be deleted
+            now = DateTime.UtcNow.AddDays(8);
+            for (int i = 0; i < 10; i++)
+                packagePrune.Prune();
+            Assert.Equal(4, this.IndexReader.GetAllPackageIds().Count());
+
+            // shift time by 32 days to put packages into monthly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(32);
+            for (int i = 0; i < 10; i++)
+                packagePrune.Prune();
+            Assert.Equal(3, this.IndexReader.GetAllPackageIds().Count());
+
+            // shift time by 365 days to put packages into yearly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(365);
+            for (int i = 0; i < 10; i++)
+                packagePrune.Prune();
+            Assert.Equal(2, this.IndexReader.GetAllPackageIds().Count());
         }
 
         /// <summary>
@@ -107,7 +160,7 @@ namespace Tetrifact.Tests.PackagePrune
         {
             Settings.PruneWeeklyKeep = 0;
 
-            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
+            Mock<IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Returns<Manifest>(null);
@@ -116,7 +169,7 @@ namespace Tetrifact.Tests.PackagePrune
             PackageHelper.CreateNewPackageFiles(Settings, "dummy");
             File.Delete(PackageHelper.GetManifestPath(Settings, "dummy"));
             
-            IPackagePruneService mockedPruner = new PackagePruneService(this.Settings, mockedIndexReader.Object, _logger);
+            IPackagePruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { this.Settings, mockedIndexReader.Object }); 
             mockedPruner.Prune();
         }
 
@@ -126,7 +179,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Delete_Exception()
         {
-            Mock<Core.IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
+            Mock<IndexReadService> mockedIndexReader = base.MockRepository.Create<IndexReadService>(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             mockedIndexReader
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Callback(() => {
@@ -139,7 +192,7 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "dummy1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPath(Settings, "dummy2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
-            IPackagePruneService mockedPruner = new Core.PackagePruneService(this.Settings, mockedIndexReader.Object, _logger);
+            IPackagePruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { this.Settings, mockedIndexReader.Object }); 
             mockedPruner.Prune();
         }
 

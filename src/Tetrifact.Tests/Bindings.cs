@@ -24,7 +24,7 @@ namespace Tetrifact.Tests
             Bind<IPackageListCache>().To<PackageListCache>();
             Bind<ITagsService>().To<Core.TagsService>();
             Bind<IPackageCreateService>().To<PackageCreateService>();
-            Bind<IPackageCreateWorkspace>().To<Core.PackageCreateWorkspace>();
+            Bind<IPackageCreateWorkspace>().To<PackageCreateWorkspace>();
             Bind<IThread>().To<ThreadDefault>();
             Bind<IPackagePruneService>().To<PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
@@ -35,6 +35,7 @@ namespace Tetrifact.Tests
             Bind<ILockProvider>().To<Core.LockProvider>();
             Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
             Bind<W.IDaemon>().To<TestDaemon>();
+            Bind<ITimeProvideer>().To<TimeProvider>();
 
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
             Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();

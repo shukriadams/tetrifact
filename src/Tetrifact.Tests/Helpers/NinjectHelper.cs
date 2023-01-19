@@ -20,26 +20,58 @@ namespace Tetrifact.Tests
             return kernel.Get<T>(args);
         }
 
+        /// <summary>
+        /// Creates an instance with entirely default bound contructor types
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T Get<T>()
         {
             return Get<T>(new ConstructorArgument[] { } );
         }
 
-        public static T Get<T>(string name1, object arg1)
+        /// <summary>
+        /// Creates an instance with a single constructor argument
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name1"></param>
+        /// <param name="arg1"></param>
+        /// <returns></returns>
+        public static T Get<T>(string name, object arg)
         {
             return Get<T>(new[] {
-                new ConstructorArgument(name1, arg1)
+                new ConstructorArgument(name, arg)
             });
         }
 
-        public static T Get<T>(string name1, object arg1, string name2, object arg2)
+        /// <summary>
+        /// Creates an instance with two constructor arguments.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arg1Name"></param>
+        /// <param name="arg1Value"></param>
+        /// <param name="arg2Name"></param>
+        /// <param name="arg2Value"></param>
+        /// <returns></returns>
+        public static T Get<T>(string arg1Name, object arg1Value, string arg2Name, object arg2Value)
         {
             return Get<T>(new[] {
-                new ConstructorArgument(name1, arg1),
-                new ConstructorArgument(name2, arg2)
+                new ConstructorArgument(arg1Name, arg1Value),
+                new ConstructorArgument(arg2Name, arg2Value)
             });
         }
 
+        /// <summary>
+        /// Creates an instance with three constructor arguments.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name1"></param>
+        /// <param name="arg1"></param>
+        /// <param name="name2"></param>
+        /// <param name="arg2"></param>
+        /// <param name="name3"></param>
+        /// <param name="arg3"></param>
+        /// <returns></returns>
         public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3)
         {
             return Get<T>(new[] {
@@ -49,6 +81,19 @@ namespace Tetrifact.Tests
             });
         }
 
+        /// <summary>
+        /// Creates an instance with four constructor arguments.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name1"></param>
+        /// <param name="arg1"></param>
+        /// <param name="name2"></param>
+        /// <param name="arg2"></param>
+        /// <param name="name3"></param>
+        /// <param name="arg3"></param>
+        /// <param name="name4"></param>
+        /// <param name="arg4"></param>
+        /// <returns></returns>
         public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4)
         {
             return Get<T>(new[] { 
@@ -59,6 +104,21 @@ namespace Tetrifact.Tests
             });
         }
 
+        /// <summary>
+        /// Creates an instance with five constructor arguments.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name1"></param>
+        /// <param name="arg1"></param>
+        /// <param name="name2"></param>
+        /// <param name="arg2"></param>
+        /// <param name="name3"></param>
+        /// <param name="arg3"></param>
+        /// <param name="name4"></param>
+        /// <param name="arg4"></param>
+        /// <param name="name5"></param>
+        /// <param name="arg5"></param>
+        /// <returns></returns>
         public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4, string name5, object arg5)
         {
             return Get<T>(new[] {

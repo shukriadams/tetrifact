@@ -68,7 +68,8 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
             services.AddTransient<IDaemon, Daemon>();
-            
+            services.AddTransient<ITimeProvideer, TimeProvider>();
+
 
             // register filterws
             services.AddScoped<ReadLevel>();

@@ -15,15 +15,18 @@ namespace Tetrifact.Core
 
         ILogger<IPackagePruneService> _logger;
 
+        ITimeProvideer _timeprovider;
+
         #endregion
 
         #region CTORS
 
-        public PackagePruneService(ISettings settings, IIndexReadService indexReader, ILogger<IPackagePruneService> logger)
+        public PackagePruneService(ISettings settings, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> logger)
         {
             _settings = settings;
             _indexReader = indexReader;
             _logger = logger;
+            _timeprovider = timeprovider;
         }
 
         #endregion
@@ -61,15 +64,11 @@ namespace Tetrifact.Core
 
             // calculate periods for weekly, monthly and year pruning - weekly happens first, and after some time from NOW passes. Monthly starts at some point after weekly starts
             // and yearl starst some point after that and runs indefinitely.
-            DateTime weeklyPruneFloor = DateTime.UtcNow.AddDays(-1 *_settings.PruneWeeklyThreshold);
-            DateTime monthlyPruneFloor = DateTime.UtcNow.AddDays(-1 * _settings.PruneMonthlyThreshold);
-            DateTime yearlyPruneFloor = DateTime.UtcNow.AddDays(-1 * _settings.PruneYearlyThreshold);
+            DateTime utcNow = _timeprovider.GetUtcNow();
+            DateTime weeklyPruneFloor = utcNow.AddDays(-1 *_settings.PruneWeeklyThreshold);
+            DateTime monthlyPruneFloor = utcNow.AddDays(-1 * _settings.PruneMonthlyThreshold);
+            DateTime yearlyPruneFloor = utcNow.AddDays(-1 * _settings.PruneYearlyThreshold);
 
-
-
-            //PopulateKeep(yearlyPrunedFloor, _settings.PruneYearlyKeep, ref keep, ref packageIds);
-            //PopulateKeep(monthlyPruneFloor, _settings.PruneYearlyKeep + _settings.PruneMonthlyKeep, ref keep, ref packageIds);
-            //PopulateKeep(weeklyPruneFloor, _settings.PruneWeeklyKeep + _settings.PruneYearlyKeep + _settings.PruneMonthlyKeep, ref keep, ref packageIds, true );
 
             foreach (string packageId in packageIds)
             {
