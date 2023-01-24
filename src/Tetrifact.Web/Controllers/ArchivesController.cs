@@ -59,8 +59,9 @@ namespace Tetrifact.Web
 
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
             }
-            catch (PackageNotFoundException)
+            catch (PackageNotFoundException ex)
             {
+                _log.LogInformation($"{ex}");
                 return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
@@ -93,8 +94,9 @@ namespace Tetrifact.Web
                     }
                 });
             }
-            catch (PackageNotFoundException)
+            catch (PackageNotFoundException ex)
             {
+                _log.LogInformation($"{ex}");
                 return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)

@@ -140,7 +140,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.LogInformation($"{ex}");
                 return Responses.NotFoundError(this, $"Package {ex.PackageId} does not exist");
             }
             catch (Exception ex)
@@ -199,8 +199,9 @@ namespace Tetrifact.Web
                     }
                 });
             }
-            catch (PackageNotFoundException)
+            catch (PackageNotFoundException ex)
             {
+                _log.LogInformation($"{ex}");
                 return Responses.NotFoundError(this, $"Package {packageId} does not exist");
             }
             catch (Exception ex)
@@ -350,8 +351,9 @@ namespace Tetrifact.Web
                     }
                 });
             }
-            catch (PackageNotFoundException)
+            catch (PackageNotFoundException ex)
             {
+                _log.LogInformation($"{ex}");
                 return Responses.NotFoundError(this, $"Package ");
             }
             catch (Exception ex)
