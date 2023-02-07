@@ -1,0 +1,21 @@
+name: builds docker image
+on: 
+  push:
+    tags:
+      - '*'
+jobs:
+
+    linux-x64:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v1
+        - name: builds docker image and pushes to docker hub
+          run: |
+            cd build/travis
+            docker-compose up -d
+            docker exec -it tetrifactbuild bash -c "cd /tmp && sh ./buildStage1.sh"
+            sh ./buildStage2.sh
+          env:
+            DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+            DOCKER_USER: ${{ secrets.DOCKER_USER }}
+            TETRIFACT_UPLOAD_TOKEN: ${{ secrets.TETRIFACT_UPLOAD_TOKEN }}
