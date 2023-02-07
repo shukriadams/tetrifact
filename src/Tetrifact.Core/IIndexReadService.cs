@@ -86,5 +86,13 @@ namespace Tetrifact.Core
         /// </summary>
         /// <returns></returns>
         DiskUseStats GetDiskUseSats();
+
+        /// <summary>
+        /// Gets properties of a file in repo. Returns null if file does not exist.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        FileOnDiskProperties GetFileProperties(string path, string hash);
     }
 }

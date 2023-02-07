@@ -21,7 +21,19 @@ namespace Tetrifact.Web
                 }
             });
         }
-        
+
+        public static BadRequestObjectResult InvalidJSONError()
+        {
+            return new BadRequestObjectResult(new
+            {
+                error = new
+                {
+                    code = 100,
+                    description = $"JSON invalid"
+                }
+            });
+        }
+
         public static BadRequestObjectResult PackageAlreadyExistsError(Controller controller, string packageId)
         {
             return new BadRequestObjectResult(new

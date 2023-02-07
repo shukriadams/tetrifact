@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -32,13 +34,13 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns>Tupple with file hash and file size (length)</returns>
-        public (string,long) FromFile(string filePath)
+        public FileOnDiskProperties FromFile(string filePath)
         {
             using (FileStream fs = File.OpenRead(filePath))
             using (HashAlgorithm hashAlgorithm = SHA256.Create())
             {
                 byte[] hash = hashAlgorithm.ComputeHash(fs);
-                return (ToHex(hash), fs.Length);
+                return new FileOnDiskProperties{ Hash = ToHex(hash), Size = fs.Length };
             }
         }
 
@@ -80,9 +82,9 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="files"></param>
         /// <returns></returns>
-        public string[] SortFileArrayForHashing(string[] files)
+        public IEnumerable<string> SortFileArrayForHashing(IEnumerable<string> files)
         {
-            Array.Sort(files, (x, y) => String.Compare(x, y));
+            Array.Sort(files.ToArray(), (x, y) => String.Compare(x, y));
             return files;
         }
 

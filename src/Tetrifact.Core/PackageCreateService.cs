@@ -93,7 +93,12 @@ namespace Tetrifact.Core
                         _workspace.AddIncomingFile(formFile.Content, formFile.FileName);
 
                 // get all files which were uploaded, sort alphabetically for combined hashing
-                string[] files = _workspace.GetIncomingFileNames().ToArray();
+                IEnumerable<string> files = _workspace.GetIncomingFileNames().ToList();
+                
+                // if merging with existing filees, add those files to files collection
+                IEnumerable<string> existingFile = newPackage.ExistingFiles.Select(r => r.Path);
+                files.Concat(existingFile);
+
                 files = _hashService.SortFileArrayForHashing(files);
 
                 _log.LogInformation("Hashing package content");
@@ -104,22 +109,36 @@ namespace Tetrifact.Core
                 foreach (string file in files)
                     hashes.Add(file, null);
 
-                // get hash of incoming file, multithreaded for performance.
+                foreach(ManifestItem item in newPackage.ExistingFiles)
+                    hashes[item.Path] = item.Hash;
+
+                // write incoming files to repo, get hash of each
                 files.AsParallel().ForAll(delegate(string filePath) {
-                    try {
-                        (string, long) fileProperties = _workspace.GetIncomingFileProperties(filePath);
+                    try 
+                    {
+                        if (existingFile.Contains(filePath)){ 
+                            FileOnDiskProperties filePropertiesOnDisk = _indexReader.GetFileProperties(filePath, hashes[filePath]);
+                            if (filePropertiesOnDisk == null)
+                                throw new Exception($"Expected local file {filePath} @ hash {hashes[filePath]} does not exist");
+
+                            _workspace.WriteFile(filePath, hashes[filePath], filePropertiesOnDisk.Size, newPackage.Id);
+                            return;
+                        }
+
+                        FileOnDiskProperties fileProperties = _workspace.GetIncomingFileProperties(filePath);
 
                         lock(hashes)
                         {
                             // 2 hashes are stored here, the hash of the path, AND the hash of the content at that path
-                            hashes[filePath] = _hashService.FromString(filePath) + fileProperties.Item1;
+                            hashes[filePath] = _hashService.FromString(filePath) + fileProperties.Hash;
                         }
 
                         // todo : this would be a good place to confirm that existingPackageId is actually valid
-                        _workspace.WriteFile(filePath, fileProperties.Item1, fileProperties.Item2, newPackage.Id);
+                        _workspace.WriteFile(filePath, fileProperties.Hash, fileProperties.Size, newPackage.Id);
                     }
-                    catch (Exception ex){
-                        // give exception more context 
+                    catch (Exception ex)
+                    {
+                        // give exception more context, AsParallel should pass exception back up to waiting parenting thread
                         throw new Exception($"Error processing hash for file {filePath}", ex);
                     }
                 });
@@ -145,6 +164,16 @@ namespace Tetrifact.Core
                 if (!string.IsNullOrEmpty(newPackage.Id))
                     _lock.Unlock(newPackage.Id);
             }
+        }
+
+        public PartialPackageLookupResult FindExisting(PartialPackageLookupArguments newPackage)
+        { 
+            return null;
+        }
+
+        public PartialPackageCreateResult Create(PartialPackageCreateArguments newPackage)
+        {
+            return null;
         }
 
         #endregion

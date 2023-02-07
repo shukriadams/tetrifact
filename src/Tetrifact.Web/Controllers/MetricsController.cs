@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
-using System.Web;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web

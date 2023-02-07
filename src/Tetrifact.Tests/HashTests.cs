@@ -23,7 +23,7 @@ namespace Tetrifact.Tests
             Directory.CreateDirectory(this.Settings.TempPath);
             string path = Path.Join(this.Settings.TempPath, "hashFromFileTest.txt");
             File.WriteAllText(path, _input);
-            Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromFile(path).Item1);
+            Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromFile(path).Hash);
         }
 
         [Fact]

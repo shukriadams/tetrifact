@@ -4,6 +4,7 @@ curl ^
     -H "Content-Type: multipart/form-data" ^
     -H "Transfer-Encoding: chunked" ^
     -F "Files=@content.zip" ^
-    http://localhost:7313/v1/packages/%RANDOM%?isArchive=true 
+    -F "Test=@test.txt" ^
+    http://localhost:5000/v1/packages/%RANDOM%?isArchive=true 
 
 pause

@@ -20,6 +20,7 @@ namespace Tetrifact.Core
         private readonly IHashService _hashService;
 
         private readonly IFileSystem _filesystem;
+        
         #endregion
 
         #region PROPERTIES
@@ -58,6 +59,7 @@ namespace Tetrifact.Core
             _filesystem.Directory.CreateDirectory(Path.Join(this.WorkspacePath, "incoming"));
         }
 
+
         public bool AddIncomingFile(Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
@@ -73,6 +75,7 @@ namespace Tetrifact.Core
             }
         }
 
+
         public void WriteFile(string filePath, string hash, long fileSize, string packageId)
         {
             if (string.IsNullOrEmpty(hash))
@@ -80,10 +83,6 @@ namespace Tetrifact.Core
 
             // move file to public folder
             string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
-            string targetDirectory = Path.GetDirectoryName(targetPath);
-            string packagesSubscribeDirectory = Path.Join(targetDirectory, "packages");
-
-            _filesystem.Directory.CreateDirectory(packagesSubscribeDirectory);
 
             bool onDisk = false;
             string incomingPath = Path.Join(this.WorkspacePath, "incoming", filePath);
@@ -117,8 +116,7 @@ namespace Tetrifact.Core
             }
 
             // write package id into package subscription directory, associating it with this hash 
-            _filesystem.File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
-            _log.LogInformation($"PACKAGE CREATE : subscribed package {packageId} to hash {packagesSubscribeDirectory} ");
+            this.SubscribeToHash(filePath, hash, packageId);
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
 
@@ -132,6 +130,19 @@ namespace Tetrifact.Core
                     this.Manifest.SizeOnDisk += fileSize;
             }
         }
+
+
+        public void SubscribeToHash(string filePath, string hash, string packageId) 
+        {
+            string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
+            string targetDirectory = Path.GetDirectoryName(targetPath);
+            string packagesSubscribeDirectory = Path.Join(targetDirectory, "packages");
+
+            _filesystem.Directory.CreateDirectory(packagesSubscribeDirectory);
+            _filesystem.File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
+            _log.LogInformation($"PACKAGE CREATE : subscribed package {packageId} to hash {packagesSubscribeDirectory} ");
+        }
+
 
         public void WriteManifest(string packageId, string combinedHash)
         {
@@ -154,6 +165,7 @@ namespace Tetrifact.Core
             return rawPaths.Select(rawPath => FileHelper.ToUnixPath(Path.GetRelativePath(relativeRoot, rawPath)));
         }
 
+
         public void AddArchiveContent(Stream file)
         {
             using (ZipArchive archive = new ZipArchive(file))
@@ -169,10 +181,12 @@ namespace Tetrifact.Core
             }
         }
 
-        public (string, long) GetIncomingFileProperties(string relativePath)
+
+        public FileOnDiskProperties GetIncomingFileProperties(string relativePath)
         {
             return _hashService.FromFile(Path.Join(this.WorkspacePath, "incoming", relativePath));
         }
+
 
         public void Dispose()
         {

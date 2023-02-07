@@ -1,4 +1,6 @@
-﻿namespace Tetrifact.Core
+﻿using System.Collections.Generic;
+
+namespace Tetrifact.Core
 {
     public interface IHashService
     {
@@ -7,7 +9,7 @@
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        (string, long) FromFile(string filePath);
+        FileOnDiskProperties FromFile(string filePath);
 
         /// <summary>
         /// Generates a SHA256 hash from a byte array.
@@ -28,6 +30,6 @@
         /// </summary>
         /// <param name="files"></param>
         /// <returns></returns>
-        string[] SortFileArrayForHashing(string[] files);
+        IEnumerable<string> SortFileArrayForHashing(IEnumerable<string> files);
     }
 }

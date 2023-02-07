@@ -91,6 +91,17 @@ namespace Tetrifact.Core
             return manifest;
         }
 
+        public virtual FileOnDiskProperties GetFileProperties(string path, string hash)
+        { 
+            string filePath = Path.Combine(_settings.RepositoryPath, path, hash);
+            if (!File.Exists(filePath))
+                return null;
+
+            FileInfo fileInfo = new FileInfo(filePath);
+
+            return new FileOnDiskProperties { Hash = hash, Size = fileInfo.Length };
+        }
+
         public virtual Manifest GetManifest(string packageId)
         {
             string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
@@ -131,7 +142,7 @@ namespace Tetrifact.Core
                 throw new PackageNotFoundException(packageId);
 
             StringBuilder hashes = new StringBuilder();
-            string[] files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
+            IEnumerable<string> files = _hashService.SortFileArrayForHashing(manifest.Files.Select(r => r.Path).ToArray());
             List<string> errors = new List<string>();
 
             foreach (string filePath in files)
@@ -141,11 +152,11 @@ namespace Tetrifact.Core
                 string directFilePath = Path.Combine(_settings.RepositoryPath, manifestItem.Path, manifestItem.Hash, "bin");
                 if (_fileSystem.File.Exists(directFilePath))
                 {
-                    (string, long) fileOnDiskProperties = _hashService.FromFile(directFilePath);
-                    if (fileOnDiskProperties.Item1 != manifestItem.Hash)
-                        errors.Add($"Package file {manifestItem.Path} expects hash {manifestItem.Hash} but on-disk has {fileOnDiskProperties.Item1}");
+                    FileOnDiskProperties fileOnDiskProperties = _hashService.FromFile(directFilePath);
+                    if (fileOnDiskProperties.Hash != manifestItem.Hash)
+                        errors.Add($"Package file {manifestItem.Path} expects hash {manifestItem.Hash} but on-disk has {fileOnDiskProperties.Hash}");
                     else 
-                        hashes.Append(_hashService.FromString(manifestItem.Path) + fileOnDiskProperties.Item1);
+                        hashes.Append(_hashService.FromString(manifestItem.Path) + fileOnDiskProperties.Hash);
                 }
                 else
                 {

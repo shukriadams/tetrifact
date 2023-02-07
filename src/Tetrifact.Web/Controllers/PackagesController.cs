@@ -268,6 +268,21 @@ namespace Tetrifact.Web
                 if (useStats.ToPercent() <= _settings.SpaceSafetyThreshold)
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
+                // attempt to parse incoming existing files
+                ExistingFiles existingFiles = null;
+                if (post.ExistingFileData != null)
+                { 
+                    try 
+                    {
+                        string content = StreamsHelper.StreamToString(post.ExistingFileData.OpenReadStream());
+                        existingFiles = Newtonsoft.Json.JsonConvert.DeserializeObject<ExistingFiles>(content);
+                    } 
+                    catch(Exception) 
+                    {
+                        return Responses.InvalidJSONError();
+                    }
+                }
+
                 PackageCreateResult result = _packageCreateService.Create(new PackageCreateArguments
                 {
                     Description = post.Description,
