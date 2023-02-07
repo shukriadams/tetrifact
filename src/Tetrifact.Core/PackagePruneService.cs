@@ -115,9 +115,10 @@ namespace Tetrifact.Core
 
             // log out audit for prune, use warning because we expect this to be logged as important
             _logger.LogWarning(" ******************************** Prune audit **********************************");
-            _logger.LogWarning($" Weekly prune keep is {_settings.PruneWeeklyKeep}, keeping {weeklyKeep.Count()} - {string.Join(",", weeklyKeep)}");
-            _logger.LogWarning($" Monthly prune keep is {_settings.PruneMonthlyKeep}, keeping {monthlyKeep.Count()} - {string.Join(",", monthlyKeep)}");
-            _logger.LogWarning($" Yearly prune keep is {_settings.PruneYearlyKeep}, keeping {yearlyKeep.Count()} - {string.Join(",", yearlyKeep)}");
+            _logger.LogWarning($" Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
+            _logger.LogWarning($" Weekly prune ({weeklyPruneFloor}) keep is {_settings.PruneWeeklyKeep}, keeping {weeklyKeep.Count()} - {string.Join(",", weeklyKeep)}");
+            _logger.LogWarning($" Monthly prune ({monthlyPruneFloor}) keep is {_settings.PruneMonthlyKeep}, keeping {monthlyKeep.Count()} - {string.Join(",", monthlyKeep)}");
+            _logger.LogWarning($" Yearly prune ({yearlyPruneFloor}) keep is {_settings.PruneYearlyKeep}, keeping {yearlyKeep.Count()} - {string.Join(",", yearlyKeep)}");
             _logger.LogWarning(" ******************************** Prune audit **********************************");
 
             foreach (string packageId in packageIds)

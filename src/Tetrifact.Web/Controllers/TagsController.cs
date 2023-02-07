@@ -116,7 +116,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.LogDebug($"{ex}");
                 return Responses.NotFoundError(this, $"Package {packageId} not found.");
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.LogDebug($"{ex}");
                 return Responses.NotFoundError(this, $"Package {packageId} not found.");
             }
             catch (Exception ex)
