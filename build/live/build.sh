@@ -25,16 +25,13 @@ docker run \
     shukriadams/tetrifact-build:0.0.4 \
     sh -c "cd /tmp/tetrifact && \
         dotnet restore && \
-        dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release"
-
-cd ./../../src/Tetrifact.Web/bin/Release/netcoreapp3.1 
-zip -r ./Tetrifact.$TAG.zip ./publish/*
+        dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
+        cd ./Tetrifact.Web/bin/Release/netcoreapp3.1 && \
+        zip -r ./Tetrifact.$TAG.zip ./publish/*"
 
 rm -rf .stage 
 mkdir -p .stage 
 mkdir -p .stage/.artefacts 
-
-cd -
 
 # stage docker file and artefacts
 cp ./../../docker/Dockerfile ./.stage
