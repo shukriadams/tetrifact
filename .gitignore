@@ -30,5 +30,5 @@
 /src/Tetrifact.Tests/coverage.xml
 /src/Tetrifact.Tests/coverage
 /src/coverage
-/build/travis/.stage
+/build/live/.stage
 
