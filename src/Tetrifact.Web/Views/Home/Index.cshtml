@@ -1,4 +1,5 @@
 ﻿@using Tetrifact.Core;
+@using Tetrifact.Web;
 @using Humanizer;
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -16,7 +17,7 @@
             @foreach (Package package in packages)
             {
                 <li class="listItem">
-                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToLocalTime().ToString("g") - @package.CreatedUtc.Humanize())</div>
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@TimeHelper.ToIsoString(package.CreatedUtc.ToLocalTime()) - @package.CreatedUtc.ToLocalTime().Humanize())</div>
                     @await Html.PartialAsync("TagsList", package.Tags)
                 </li>
             }
