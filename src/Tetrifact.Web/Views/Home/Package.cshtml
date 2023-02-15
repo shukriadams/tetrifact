@@ -1,4 +1,5 @@
 ﻿@using Tetrifact.Core;
+@using Tetrifact.Web;
 @using Humanizer;
 
 @{
@@ -28,7 +29,7 @@
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc.ToLocalTime().ToString("g") (@manifest.CreatedUtc.Humanize())
+            @TimeHelper.ToIsoString(manifest.CreatedUtc.ToLocalTime()) (@manifest.CreatedUtc.ToLocalTime().Humanize())
         </div>
     </div>
 
