@@ -246,6 +246,23 @@ namespace Tetrifact.Core
             return stats;
         }
 
+        public PartialPackageLookupResult FindExisting(PartialPackageLookupArguments newPackage)
+        {
+            IList<ManifestItem> existing = new List<ManifestItem>();
+
+            foreach (ManifestItem file in newPackage.Files)
+            {
+                string repositoryPathDir = _fileSystem.Path.Join(_settings.RepositoryPath, file.Path, file.Hash);
+                if (_fileSystem.Directory.Exists(repositoryPathDir))
+                    existing.Add(file);
+            }
+
+            return new PartialPackageLookupResult
+            {
+                Existing = existing
+            };
+        }
+
         #endregion
     }
 }

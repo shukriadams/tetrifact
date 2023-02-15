@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -24,17 +25,21 @@ namespace Tetrifact.Core
 
         private readonly ILock _lock;
 
+        private readonly IFileSystem _filesystem;
+
         #endregion
 
         #region CTORS
 
-        public PackageCreateService(IIndexReadService indexReader, ILockProvider lockProvider, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService)
+        public PackageCreateService(IIndexReadService indexReader, ILockProvider lockProvider, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService, IFileSystem filesystem)
         {
             _indexReader = indexReader;
             _log = log;
+            _filesystem = filesystem;
             _archiveService = archiveService;
             _workspace = workspace;
             _settings = settings;
+            
             _hashService = hashService;
             _lock = lockProvider.Instance;
         }
@@ -164,16 +169,6 @@ namespace Tetrifact.Core
                 if (!string.IsNullOrEmpty(newPackage.Id))
                     _lock.Unlock(newPackage.Id);
             }
-        }
-
-        public PartialPackageLookupResult FindExisting(PartialPackageLookupArguments newPackage)
-        { 
-            return null;
-        }
-
-        public PartialPackageCreateResult Create(PartialPackageCreateArguments newPackage)
-        {
-            return null;
         }
 
         #endregion

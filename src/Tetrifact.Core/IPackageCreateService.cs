@@ -11,10 +11,5 @@
         /// <param name="newPackage"></param>
         /// <returns></returns>
         PackageCreateResult Create(PackageCreateArguments newPackage);
-
-        PartialPackageLookupResult FindExisting(PartialPackageLookupArguments newPackage);
-
-        PartialPackageCreateResult Create(PartialPackageCreateArguments newPackage);
-
     }
 }

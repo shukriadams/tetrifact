@@ -4,11 +4,11 @@ namespace Tetrifact.Core
 {
     public class PartialPackageLookupResult
     {
-        public IEnumerable<ManifestItem> Files { get; set; }
+        public IEnumerable<ManifestItem> Existing { get; set; }
 
         public PartialPackageLookupResult()
         {
-            this.Files = new List<ManifestItem>();
+            this.Existing = new List<ManifestItem>();
         }
     }
 }

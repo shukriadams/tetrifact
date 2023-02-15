@@ -94,5 +94,12 @@ namespace Tetrifact.Core
         /// <param name="hash"></param>
         /// <returns></returns>
         FileOnDiskProperties GetFileProperties(string path, string hash);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newPackage"></param>
+        /// <returns></returns>
+        PartialPackageLookupResult FindExisting(PartialPackageLookupArguments newPackage);
     }
 }

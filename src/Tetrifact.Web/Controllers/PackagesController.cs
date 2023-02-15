@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Diagnostics;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Tetrifact.Web
 {
@@ -376,6 +377,30 @@ namespace Tetrifact.Web
                 _log.LogError(ex, "An unexpected error occurred.");
                 return Responses.UnexpectedError();
             }
+        }
+
+        [HttpPost("findexisting")]
+        public ActionResult FindExistingFiles([FromForm] PackageExistingLookupFromPost post)
+        {
+            Manifest incomingManifest = null;
+            try 
+            {
+                incomingManifest = Newtonsoft.Json.JsonConvert.DeserializeObject<Manifest>(post.Manifest);
+            } 
+            catch (Exception ex)
+            {
+                return Responses.InvalidJSONError();
+            }
+
+            PartialPackageLookupResult re = _indexService.FindExisting(new PartialPackageLookupArguments { Files = incomingManifest.Files });
+
+            return new JsonResult(new
+            {
+                success = new
+                {
+                    Manifest = re
+                }
+            });
         }
 
         #endregion
