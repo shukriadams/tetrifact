@@ -19,7 +19,10 @@ namespace Tetrifact.Core
         /// </summary>
         public IList<PackageCreateItem> Files { get; set; }
 
-        public IList<ManifestItem> ExistingFiles { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<ManifestItem> ExistingFiles { get; set; }
 
         /// <summary>
         /// True if the querystring IsArchive is set to true. If true, Files will be treated as an archive and unpacked.

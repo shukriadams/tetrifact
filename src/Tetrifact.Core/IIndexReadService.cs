@@ -93,7 +93,7 @@ namespace Tetrifact.Core
         /// <param name="path"></param>
         /// <param name="hash"></param>
         /// <returns></returns>
-        FileOnDiskProperties GetFileProperties(string path, string hash);
+        FileOnDiskProperties GetRepositoryFileProperties(string path, string hash);
 
         /// <summary>
         /// 

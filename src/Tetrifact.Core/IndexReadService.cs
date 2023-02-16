@@ -91,9 +91,9 @@ namespace Tetrifact.Core
             return manifest;
         }
 
-        public virtual FileOnDiskProperties GetFileProperties(string path, string hash)
+        public virtual FileOnDiskProperties GetRepositoryFileProperties(string path, string hash)
         { 
-            string filePath = Path.Combine(_settings.RepositoryPath, path, hash);
+            string filePath = Path.Join(_settings.RepositoryPath, path, hash, "bin");
             if (!File.Exists(filePath))
                 return null;
 

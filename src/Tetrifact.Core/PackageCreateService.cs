@@ -101,8 +101,8 @@ namespace Tetrifact.Core
                 IEnumerable<string> files = _workspace.GetIncomingFileNames().ToList();
                 
                 // if merging with existing filees, add those files to files collection
-                IEnumerable<string> existingFile = newPackage.ExistingFiles.Select(r => r.Path);
-                files.Concat(existingFile);
+                IEnumerable<string> existingFiles = newPackage.ExistingFiles.Select(r => r.Path);
+                files = files.Concat(existingFiles);
 
                 files = _hashService.SortFileArrayForHashing(files);
 
@@ -121,15 +121,15 @@ namespace Tetrifact.Core
                 files.AsParallel().ForAll(delegate(string filePath) {
                     try 
                     {
-                        if (existingFile.Contains(filePath)){ 
-                            FileOnDiskProperties filePropertiesOnDisk = _indexReader.GetFileProperties(filePath, hashes[filePath]);
+                        if (existingFiles.Contains(filePath)){ 
+                            FileOnDiskProperties filePropertiesOnDisk = _indexReader.GetRepositoryFileProperties(filePath, hashes[filePath]);
                             if (filePropertiesOnDisk == null)
                                 throw new Exception($"Expected local file {filePath} @ hash {hashes[filePath]} does not exist");
 
-                            _workspace.WriteFile(filePath, hashes[filePath], filePropertiesOnDisk.Size, newPackage.Id);
+                            _workspace.SubscribeToHash(filePath, hashes[filePath], newPackage.Id, filePropertiesOnDisk.Size, false);
                             return;
                         }
-
+                        
                         FileOnDiskProperties fileProperties = _workspace.GetIncomingFileProperties(filePath);
 
                         lock(hashes)
@@ -140,6 +140,7 @@ namespace Tetrifact.Core
 
                         // todo : this would be a good place to confirm that existingPackageId is actually valid
                         _workspace.WriteFile(filePath, fileProperties.Hash, fileProperties.Size, newPackage.Id);
+                        
                     }
                     catch (Exception ex)
                     {

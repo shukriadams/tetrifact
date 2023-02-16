@@ -50,7 +50,15 @@ namespace Tetrifact.Core
         /// <param name="enableCompression"></param>
         void WriteFile(string fileInIncoming, string hash, long fileSize, string packageId);
         
-        void SubscribeToHash(string filePath, string hash, string packageId);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="hash"></param>
+        /// <param name="packageId"></param>
+        /// <param name="fileSize"></param>
+        /// <param name="onDisk"></param>
+        void SubscribeToHash(string filePath, string hash, string packageId, long fileSize, bool onDisk);
 
         /// <summary>
         /// Writes the final manfiest for the package. If applicabale, writes manifest object as a JSON file.

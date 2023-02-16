@@ -270,13 +270,12 @@ namespace Tetrifact.Web
                     return Responses.InsufficientSpace("Insufficient space on storage drive.");
 
                 // attempt to parse incoming existing files
-                ExistingFiles existingFiles = null;
-                if (post.ExistingFileData != null)
+                IEnumerable<ManifestItem> existingFiles = null;
+                if (post.ExistingFiles != null)
                 { 
                     try 
                     {
-                        string content = StreamsHelper.StreamToString(post.ExistingFileData.OpenReadStream());
-                        existingFiles = Newtonsoft.Json.JsonConvert.DeserializeObject<ExistingFiles>(content);
+                        existingFiles = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<ManifestItem>>(post.ExistingFiles);
                     } 
                     catch(Exception) 
                     {
@@ -293,6 +292,7 @@ namespace Tetrifact.Web
                         FileName = post.RemoveFirstDirectoryFromPath ? FileHelper.RemoveFirstDirectoryFromPath(r.FileName) : r.FileName 
                         }).ToList(),
                     Id = post.Id,
+                    ExistingFiles = existingFiles,
                     IsArchive = post.IsArchive
                 });
 
