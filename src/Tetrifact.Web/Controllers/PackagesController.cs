@@ -379,15 +379,21 @@ namespace Tetrifact.Web
             }
         }
 
-        [HttpPost("findexisting")]
-        public ActionResult FindExistingFiles([FromForm] PackageExistingLookupFromPost post)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
+        [HttpPost("filterexistingfiles")]
+        public ActionResult FilterExistingFiles([FromForm] PackageExistingLookupFromPost post)
         {
-            Manifest incomingManifest = null;
+            Manifest incomingManifest;
             try 
             {
                 incomingManifest = Newtonsoft.Json.JsonConvert.DeserializeObject<Manifest>(post.Manifest);
             } 
-            catch (Exception ex)
+            catch
             {
                 return Responses.InvalidJSONError();
             }

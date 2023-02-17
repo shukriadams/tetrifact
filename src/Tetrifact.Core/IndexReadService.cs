@@ -259,7 +259,7 @@ namespace Tetrifact.Core
 
             return new PartialPackageLookupResult
             {
-                Existing = existing
+                Files = existing
             };
         }
 
