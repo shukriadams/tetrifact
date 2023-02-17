@@ -101,7 +101,10 @@ namespace Tetrifact.Core
                 IEnumerable<string> files = _workspace.GetIncomingFileNames().ToList();
                 
                 // if merging with existing filees, add those files to files collection
-                IEnumerable<string> existingFiles = newPackage.ExistingFiles.Select(r => r.Path);
+                IEnumerable<string> existingFiles = new string[] { };
+                if (newPackage.ExistingFiles != null)
+                    existingFiles = newPackage.ExistingFiles.Select(r => r.Path);
+
                 files = files.Concat(existingFiles);
 
                 files = _hashService.SortFileArrayForHashing(files);

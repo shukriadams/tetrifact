@@ -89,6 +89,8 @@ namespace Tetrifact.Core
 
             if (!_filesystem.File.Exists(targetPath)) {
 
+                _filesystem.Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+
                 if (this.Manifest.IsCompressed){
 
                     using (FileStream zipStream = new FileStream(targetPath, FileMode.Create))
@@ -108,7 +110,6 @@ namespace Tetrifact.Core
                     }
 
                 } else {
-                    _filesystem.Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
                     _filesystem.File.Move(incomingPath,targetPath);
                     _log.LogInformation($"PACKAGE CREATE : placed file {targetPath}");
                 }
