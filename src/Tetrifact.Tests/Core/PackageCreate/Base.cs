@@ -15,14 +15,15 @@ namespace Tetrifact.Tests.PackageCreate
             Workspace = new PackageCreateWorkspace(Settings, base.FileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             Logger = new TestLogger<IPackageCreateService>();
 
-            PackageCreate = new Core.PackageCreateService(
+            PackageCreate = new PackageCreateService(
                 IndexReader,
                 LockProvider,
                 ArchiveService,
                 Settings,
                 Logger,
                 Workspace, 
-                HashServiceHelper.Instance());
+                HashServiceHelper.Instance(),
+                new TestFileSystem());
         }
     }
 }

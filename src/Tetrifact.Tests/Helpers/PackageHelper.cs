@@ -63,7 +63,8 @@ namespace Tetrifact.Tests
                 settings,
                 new TestLogger<IPackageCreateService>(),
                 new PackageCreateWorkspace(settings, filesystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance()),
-                HashServiceHelper.Instance());
+                HashServiceHelper.Instance(),
+                new TestFileSystem());
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string packageId = Guid.NewGuid().ToString();
