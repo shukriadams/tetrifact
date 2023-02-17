@@ -92,8 +92,18 @@ namespace Tetrifact.Core
         }
 
         public virtual Manifest GetManifest(string packageId)
+        { 
+            return this.GetManifest(packageId, "manifest.json");
+        }
+
+        public virtual Manifest GetManifestHead(string packageId)
         {
-            string filePath = Path.Join(_settings.PackagePath, packageId, "manifest.json");
+            return this.GetManifest(packageId, "manifest-head.json");
+        }
+
+        private Manifest GetManifest(string packageId, string type)
+        {
+            string filePath = Path.Join(_settings.PackagePath, packageId, type);
             if (!_fileSystem.File.Exists(filePath))
                 return null;
 
