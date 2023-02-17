@@ -45,6 +45,7 @@ namespace Tetrifact.Core
         public PackageCreateArguments()
         {
             this.Files = new List<PackageCreateItem>();
+            this.ExistingFiles = new List<ManifestItem>();
         }
 
         #endregion
