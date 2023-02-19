@@ -11,9 +11,9 @@ namespace Tetrifact.Tests
 {
     public class PackageHelper
     {
-        public static string GetManifestPath(ISettings settings, string packageName)
+        public static IEnumerable<string> GetManifestPaths(ISettings settings, string packageName)
         {
-            return Path.Combine(settings.PackagePath, packageName, "manifest.json");
+            return new string[]{ Path.Combine(settings.PackagePath, packageName, "manifest.json"), Path.Combine(settings.PackagePath, packageName, "manifest-head.json") };
         }
 
         /// <summary>

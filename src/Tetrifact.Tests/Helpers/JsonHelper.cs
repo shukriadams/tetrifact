@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Tetrifact.Tests
@@ -42,11 +43,15 @@ namespace Tetrifact.Tests
         /// <param name="jsonFilePath"></param>
         /// <param name="entry"></param>
         /// <param name="value"></param>
-        public static void WriteValuetoRoot(string jsonFilePath, string entry, JToken value)
+        public static void WriteValuetoRoot(IEnumerable<string> jsonFilePaths, string entry, JToken value)
         {
-            JObject json = JObject.Parse(File.ReadAllText(jsonFilePath));
-            json[entry] = value;
-            File.WriteAllText(jsonFilePath, json.ToString());
+            foreach (string jsonFilePath in jsonFilePaths) 
+            {
+                JObject json = JObject.Parse(File.ReadAllText(jsonFilePath));
+                json[entry] = value;
+                File.WriteAllText(jsonFilePath, json.ToString());
+
+            }
         }
     }
 }

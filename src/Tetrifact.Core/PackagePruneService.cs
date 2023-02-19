@@ -68,11 +68,13 @@ namespace Tetrifact.Core
             DateTime weeklyPruneFloor = utcNow.AddDays(-1 *_settings.PruneWeeklyThreshold);
             DateTime monthlyPruneFloor = utcNow.AddDays(-1 * _settings.PruneMonthlyThreshold);
             DateTime yearlyPruneFloor = utcNow.AddDays(-1 * _settings.PruneYearlyThreshold);
-
+            int inWeeky = 0;
+            int inMonthly = 0;
+            int inYearly = 0;
 
             foreach (string packageId in packageIds)
             {
-                Manifest manifest = _indexReader.GetManifest(packageId);
+                Manifest manifest = _indexReader.GetManifestHead(packageId);
 
                 if (manifest == null)
                 {
@@ -84,18 +86,21 @@ namespace Tetrifact.Core
                 
                 if (manifest.CreatedUtc < yearlyPruneFloor)
                 {
+                    inYearly ++;
                     if (yearlyKeep.Count < _settings.PruneYearlyKeep || isTaggedKeep)
                         yearlyKeep.Add(packageId);
                 }
 
                 if (manifest.CreatedUtc > yearlyPruneFloor && manifest.CreatedUtc < monthlyPruneFloor) 
                 {
+                    inMonthly ++;
                     if (monthlyKeep.Count < _settings.PruneMonthlyKeep || isTaggedKeep)
                         monthlyKeep.Add(packageId);
                 }
 
                 if (manifest.CreatedUtc > monthlyPruneFloor && manifest.CreatedUtc < weeklyPruneFloor)
                 {
+                    inWeeky ++;
                     if (weeklyKeep.Count < _settings.PruneWeeklyKeep || isTaggedKeep)
                         weeklyKeep.Add(packageId);
                 }
@@ -116,9 +121,10 @@ namespace Tetrifact.Core
             // log out audit for prune, use warning because we expect this to be logged as important
             _logger.LogWarning(" ******************************** Prune audit **********************************");
             _logger.LogWarning($" Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
-            _logger.LogWarning($" Weekly prune ({weeklyPruneFloor}) keep is {_settings.PruneWeeklyKeep}, keeping {weeklyKeep.Count()} - {string.Join(",", weeklyKeep)}");
-            _logger.LogWarning($" Monthly prune ({monthlyPruneFloor}) keep is {_settings.PruneMonthlyKeep}, keeping {monthlyKeep.Count()} - {string.Join(",", monthlyKeep)}");
-            _logger.LogWarning($" Yearly prune ({yearlyPruneFloor}) keep is {_settings.PruneYearlyKeep}, keeping {yearlyKeep.Count()} - {string.Join(",", yearlyKeep)}");
+            _logger.LogWarning($" Weekly prune ({weeklyPruneFloor}) keep is {_settings.PruneWeeklyKeep}, keeping {weeklyKeep.Count()} of {inWeeky} - {string.Join(",", weeklyKeep)}");
+            _logger.LogWarning($" Monthly prune ({monthlyPruneFloor}) keep is {_settings.PruneMonthlyKeep}, keeping {monthlyKeep.Count()} of {inMonthly} - {string.Join(",", monthlyKeep)}");
+            _logger.LogWarning($" Yearly prune ({yearlyPruneFloor}) keep is {_settings.PruneYearlyKeep}, keeping {yearlyKeep.Count()} of {inYearly} - {string.Join(",", yearlyKeep)}");
+            _logger.LogWarning($" Pruning {packageIds.Count} packages ({string.Join(",", packageIds)}).");
             _logger.LogWarning(" ******************************** Prune audit **********************************");
 
             foreach (string packageId in packageIds)

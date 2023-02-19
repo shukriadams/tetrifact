@@ -44,12 +44,14 @@ namespace Tetrifact.Core
         /// <returns></returns>
         bool PackageNameInUse(string id);
 
+        Manifest GetManifest(string packageId);
+
         /// <summary>
         /// Returns the manifest of a given package if the package exists. Returns null if the package is invalid.
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
-        Manifest GetManifest(string packageId);
+        Manifest GetManifestHead(string packageId);
 
         /// <summary>
         /// Returns a manifest. Throws exception if manifest not found.
