@@ -89,6 +89,8 @@ namespace Tetrifact.Core
 
         public string MetricsCronMask { get; set; }
 
+        public bool DEBUG_block_prune_deletes { get ;set; }
+
         #endregion
 
         #region CTORS
@@ -167,6 +169,8 @@ namespace Tetrifact.Core
             this.CleanCronMask = this.TryGetSetting("CLEAN_CRON_MASK", this.CleanCronMask);
             this.PruneCronMask = this.TryGetSetting("PRUNE_CRON_MASK", this.PruneCronMask);
             this.MetricsPath = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsPath);
+            this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
+
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")

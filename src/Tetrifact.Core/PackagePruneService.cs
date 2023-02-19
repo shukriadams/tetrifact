@@ -71,6 +71,7 @@ namespace Tetrifact.Core
             int inWeeky = 0;
             int inMonthly = 0;
             int inYearly = 0;
+            int startingPackageCount = packageIds.Count;
 
             foreach (string packageId in packageIds)
             {
@@ -124,13 +125,14 @@ namespace Tetrifact.Core
             _logger.LogWarning($" Weekly prune ({weeklyPruneFloor}) keep is {_settings.PruneWeeklyKeep}, keeping {weeklyKeep.Count()} of {inWeeky} - {string.Join(",", weeklyKeep)}");
             _logger.LogWarning($" Monthly prune ({monthlyPruneFloor}) keep is {_settings.PruneMonthlyKeep}, keeping {monthlyKeep.Count()} of {inMonthly} - {string.Join(",", monthlyKeep)}");
             _logger.LogWarning($" Yearly prune ({yearlyPruneFloor}) keep is {_settings.PruneYearlyKeep}, keeping {yearlyKeep.Count()} of {inYearly} - {string.Join(",", yearlyKeep)}");
-            _logger.LogWarning($" Pruning {packageIds.Count} packages ({string.Join(",", packageIds)}).");
+            _logger.LogWarning($" Pruning {packageIds.Count}/{startingPackageCount} packages ({string.Join(",", packageIds)}).");
             _logger.LogWarning(" ******************************** Prune audit **********************************");
 
             foreach (string packageId in packageIds)
             {
                 try
                 {
+                    if (!_settings.DEBUG_block_prune_deletes)
                     _indexReader.DeletePackage(packageId);
                 } 
                 catch (Exception ex)
