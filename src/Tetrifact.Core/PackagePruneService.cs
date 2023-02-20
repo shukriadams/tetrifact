@@ -132,8 +132,10 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    if (!_settings.DEBUG_block_prune_deletes)
-                    _indexReader.DeletePackage(packageId);
+                    if (_settings.DEBUG_block_prune_deletes)
+                        _logger.LogWarning($"Would have pruned package {packageId} (DEBUG_block_prune_deletes enabled)");
+                    else
+                        _indexReader.DeletePackage(packageId);
                 } 
                 catch (Exception ex)
                 {
