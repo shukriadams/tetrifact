@@ -129,7 +129,7 @@ namespace Tetrifact.Core
 
             _filesystem.Directory.CreateDirectory(packagesSubscribeDirectory);
             _filesystem.File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
-            _log.LogInformation($"PACKAGE CREATE : subscribed package {packageId} to file {filePath}, hash {hash} ");
+            _log.LogInformation($"PACKAGE CREATE : subscribed package \"{packageId}\" to file \"{filePath}\", hash {hash} ");
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             lock (this.Manifest)
@@ -170,12 +170,19 @@ namespace Tetrifact.Core
             using (ZipArchive archive = new ZipArchive(file))
             {
                 // if .Name empty it's an empty directory, this is difficult to force in testing so write as linq query to ensure coverage
-                foreach (ZipArchiveEntry entry in archive.Entries.Where(r => !string.IsNullOrEmpty(r.Name)))
+                
+                IEnumerable<ZipArchiveEntry> items = archive.Entries.Where(r => !string.IsNullOrEmpty(r.Name));
+                int count = 0;
+                int total = items.Count();
+
+                foreach (ZipArchiveEntry entry in items)
                 {
                     string targetFile = FileHelper.ToUnixPath(Path.Join(this.WorkspacePath, "incoming", entry.FullName));
                     string targetDirectory = Path.GetDirectoryName(targetFile);
                     _filesystem.Directory.CreateDirectory(targetDirectory);
                     entry.ExtractToFile(targetFile);
+                    count ++;
+                    _log.LogInformation($"Unpacked file ${targetFile} ({count} / {total})");
                 }
             }
         }

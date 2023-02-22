@@ -3,6 +3,7 @@ using Tetrifact.Core;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Web
 {
@@ -13,16 +14,18 @@ namespace Tetrifact.Web
         private readonly ISettings _settings;
         private readonly IIndexReadService _indexService;
         private readonly IPackageListService _packageList;
+        private readonly ILogger<HomeController> _log;
 
         #endregion
 
         #region CTORS
 
-        public HomeController(ISettings settings, IIndexReadService indexService, IPackageListService packageList)
+        public HomeController(ISettings settings, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;
             _packageList = packageList;
+            _log = log;
         }
 
         #endregion

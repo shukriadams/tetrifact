@@ -30,7 +30,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "Logging__LogLevel__Microsoft": "Error",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Logging__LogLevel__System": "Debug"
       },
       "applicationUrl": "http://0.0.0.0:3000"
     }

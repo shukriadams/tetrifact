@@ -21,6 +21,7 @@ namespace Tetrifact.Web
                 .ConfigureLogging(logging =>{ 
                     // add explicit console.writeline output to all log writes
                     logging.AddConsole();
+                    logging.AddCustomFormatter();
                 })
                 .UseStartup<Startup>();
                 

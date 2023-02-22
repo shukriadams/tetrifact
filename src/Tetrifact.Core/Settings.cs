@@ -158,7 +158,7 @@ namespace Tetrifact.Core
             this.AutoCreateArchiveOnPackageCreate = this.TryGetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
             this.PruneProtectectedTags = this.TryGetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
             this.LogPath = this.TryGetSetting("LOG_PATH", this.LogPath);
-            this.LogLevel = this.TryGetSetting("Logging__LogLevel__Microsoft", this.LogLevel);
+            this.LogLevel = this.TryGetSetting("Logging__LogLevel__System", this.LogLevel);
             this.PackageDiffsPath = this.TryGetSetting("PACKAGE_DIFFS_PATH", this.PackageDiffsPath);
             this.PackagePath = this.TryGetSetting("PACKAGE_PATH", this.PackagePath);
             this.TempPath = this.TryGetSetting("TEMP_PATH", this.TempPath);
