@@ -119,13 +119,17 @@ namespace Tetrifact.Core
             RemoveKeep(ref newKeep, ref packageIds);
             RemoveKeep(ref taggedKeep, ref packageIds);
 
+            string pruneIdList = string.Empty;
+            if (packageIds.Count > 0)
+                pruneIdList = $"({string.Join(",", pruneIdList)})";
+
             // log out audit for prune, use warning because we expect this to be logged as important
             _logger.LogWarning(" ******************************** Prune audit **********************************");
             _logger.LogWarning($" Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
-            _logger.LogWarning($" Weekly prune ({weeklyPruneFloor}) keep is {_settings.PruneWeeklyKeep}, keeping {weeklyKeep.Count()} of {inWeeky} - {string.Join(",", weeklyKeep)}");
-            _logger.LogWarning($" Monthly prune ({monthlyPruneFloor}) keep is {_settings.PruneMonthlyKeep}, keeping {monthlyKeep.Count()} of {inMonthly} - {string.Join(",", monthlyKeep)}");
-            _logger.LogWarning($" Yearly prune ({yearlyPruneFloor}) keep is {_settings.PruneYearlyKeep}, keeping {yearlyKeep.Count()} of {inYearly} - {string.Join(",", yearlyKeep)}");
-            _logger.LogWarning($" Pruning {packageIds.Count}/{startingPackageCount} packages ({string.Join(",", packageIds)}).");
+            _logger.LogWarning($" Weekly prune (starting from {weeklyPruneFloor}) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky} {string.Join(",", weeklyKeep)}.");
+            _logger.LogWarning($" Monthly prune (starting from {monthlyPruneFloor}) countis {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly} {string.Join(",", monthlyKeep)}.");
+            _logger.LogWarning($" Yearly prune (starting from {yearlyPruneFloor}) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly} {string.Join(",", yearlyKeep)}.");
+            _logger.LogWarning($" Pruning {packageIds.Count} packages {pruneIdList}.");
             _logger.LogWarning(" ******************************** Prune audit **********************************");
 
             foreach (string packageId in packageIds)
