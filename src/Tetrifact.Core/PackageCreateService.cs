@@ -117,8 +117,9 @@ namespace Tetrifact.Core
                 foreach (string file in files)
                     hashes.Add(file, null);
 
-                foreach(ManifestItem item in newPackage.ExistingFiles)
-                    hashes[item.Path] = item.Hash;
+                if (newPackage.ExistingFiles != null)
+                    foreach(ManifestItem item in newPackage.ExistingFiles)
+                        hashes[item.Path] = item.Hash;
 
                 // write incoming files to repo, get hash of each
                 files.AsParallel().ForAll(delegate(string filePath) {
