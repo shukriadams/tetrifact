@@ -71,6 +71,11 @@ namespace Tetrifact.Core
         bool AutoCreateArchiveOnPackageCreate { get; set; }
 
         /// <summary>
+        /// for debugging on production - if true, prune logic will run, but actual prune deletes will be suppressed.
+        /// </summary>
+        bool DEBUG_block_prune_deletes { get; set; }
+
+        /// <summary>
         /// Time in milliseconds to wait for a locked link to be released.
         /// </summary>
         int LinkLockWaitTime { get; set; }
