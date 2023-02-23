@@ -49,10 +49,35 @@ namespace Tetrifact.Core
         }
 
         public void Prune()
-        { 
+        {
             if (!_settings.Prune)
                 return;
 
+            PruneReport report = this.Report();
+
+            foreach(string line in report.Report)
+               _logger.LogInformation(line);
+
+            foreach (string packageId in report.PackageIds)
+            {
+                try
+                {
+                    if (_settings.DEBUG_block_prune_deletes)
+                        _logger.LogInformation($"Would have pruned package {packageId} (DEBUG_block_prune_deletes enabled)");
+                    else {
+                        _indexReader.DeletePackage(packageId);
+                        _logger.LogInformation($"Pruned package {packageId}");
+                    }
+                } 
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Prune failed for package {packageId}", ex);
+                }
+            }
+        }
+
+        public PruneReport Report()
+        {
             IList<string> weeklyKeep = new List<string>();
             IList<string> monthlyKeep = new List<string>();
             IList<string> yearlyKeep = new List<string>();
@@ -65,7 +90,7 @@ namespace Tetrifact.Core
             // calculate periods for weekly, monthly and year pruning - weekly happens first, and after some time from NOW passes. Monthly starts at some point after weekly starts
             // and yearl starst some point after that and runs indefinitely.
             DateTime utcNow = _timeprovider.GetUtcNow();
-            DateTime weeklyPruneFloor = utcNow.AddDays(-1 *_settings.PruneWeeklyThreshold);
+            DateTime weeklyPruneFloor = utcNow.AddDays(-1 * _settings.PruneWeeklyThreshold);
             DateTime monthlyPruneFloor = utcNow.AddDays(-1 * _settings.PruneMonthlyThreshold);
             DateTime yearlyPruneFloor = utcNow.AddDays(-1 * _settings.PruneYearlyThreshold);
             int inWeeky = 0;
@@ -84,24 +109,26 @@ namespace Tetrifact.Core
                 }
 
                 bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneProtectectedTags.Any(protectedTag => protectedTag.Equals(tag)));
-                
+
                 if (manifest.CreatedUtc < yearlyPruneFloor)
                 {
-                    inYearly ++;
+                    inYearly++;
                     if (yearlyKeep.Count < _settings.PruneYearlyKeep || isTaggedKeep)
                         yearlyKeep.Add(packageId);
                 }
 
-                if (manifest.CreatedUtc > yearlyPruneFloor && manifest.CreatedUtc < monthlyPruneFloor) 
+                if (manifest.CreatedUtc > yearlyPruneFloor && manifest.CreatedUtc < monthlyPruneFloor)
                 {
-                    inMonthly ++;
+                    inMonthly++;
+
                     if (monthlyKeep.Count < _settings.PruneMonthlyKeep || isTaggedKeep)
                         monthlyKeep.Add(packageId);
                 }
 
                 if (manifest.CreatedUtc > monthlyPruneFloor && manifest.CreatedUtc < weeklyPruneFloor)
                 {
-                    inWeeky ++;
+                    inWeeky++;
+
                     if (weeklyKeep.Count < _settings.PruneWeeklyKeep || isTaggedKeep)
                         weeklyKeep.Add(packageId);
                 }
@@ -124,30 +151,19 @@ namespace Tetrifact.Core
                 pruneIdList = $"({string.Join(",", pruneIdList)})";
 
             // log out audit for prune, use warning because we expect this to be logged as important
-            _logger.LogWarning(" ******************************** Prune audit **********************************");
-            _logger.LogWarning($" Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
-            _logger.LogWarning($" Weekly prune (starting from {weeklyPruneFloor}) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky} {string.Join(",", weeklyKeep)}.");
-            _logger.LogWarning($" Monthly prune (starting from {monthlyPruneFloor}) countis {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly} {string.Join(",", monthlyKeep)}.");
-            _logger.LogWarning($" Yearly prune (starting from {yearlyPruneFloor}) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly} {string.Join(",", yearlyKeep)}.");
-            _logger.LogWarning($" Pruning {packageIds.Count} packages {pruneIdList}.");
-            _logger.LogWarning(" ******************************** Prune audit **********************************");
+            IList<string> report = new List<string>();
+            report.Add (" ******************************** Prune audit **********************************");
+            report.Add($" Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
+            report.Add($" Weekly prune (starting from {weeklyPruneFloor}, {_settings.PruneWeeklyThreshold} days back) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky} {string.Join(",", weeklyKeep)}.");
+            report.Add($" Monthly prune (starting from {monthlyPruneFloor}, {_settings.PruneMonthlyThreshold} days back) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly} {string.Join(",", monthlyKeep)}.");
+            report.Add($" Yearly prune (starting from {yearlyPruneFloor}, {_settings.PruneYearlyThreshold} days back) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly} {string.Join(",", yearlyKeep)}.");
+            report.Add($" Pruning {packageIds.Count} packages {pruneIdList}.");
+            report.Add(" ******************************** Prune audit **********************************");
 
-            foreach (string packageId in packageIds)
-            {
-                try
-                {
-                    if (_settings.DEBUG_block_prune_deletes)
-                        _logger.LogInformation($"Would have pruned package {packageId} (DEBUG_block_prune_deletes enabled)");
-                    else {
-                        _indexReader.DeletePackage(packageId);
-                        _logger.LogInformation($"Pruned package {packageId}");
-                    }
-                } 
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Prune failed for package {packageId}", ex);
-                }
-            }
+            return new PruneReport{ 
+                Report = report, 
+                PackageIds = packageIds 
+            };
         }
 
         #endregion

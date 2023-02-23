@@ -37,6 +37,8 @@ namespace Tetrifact.Tests
             Bind<W.IDaemon>().To<TestDaemon>();
             Bind<ITimeProvideer>().To<TimeProvider>();
 
+            Bind<ILogger<W.HomeController>>().To<TestLogger<W.HomeController>>();
+            Bind<ILogger<W.PruneController>>().To<TestLogger<W.PruneController>>();
             Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
             Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
             Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
