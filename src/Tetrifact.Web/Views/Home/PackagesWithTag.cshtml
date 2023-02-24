@@ -1,5 +1,4 @@
 ﻿@using Tetrifact.Core;
-@using Tetrifact.Web;
 @using Humanizer;
 @{
     string tag = ViewData["tag"] as string;
@@ -15,7 +14,7 @@
             @foreach (Package package in packages)
             {
                 <li class="listItem">
-                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@TimeHelper.ToIsoString(package.CreatedUtc.ToLocalTime()) - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@TimeHelper.ToIsoString(package.CreatedUtc) - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
                 </li>
             }
         </ul>

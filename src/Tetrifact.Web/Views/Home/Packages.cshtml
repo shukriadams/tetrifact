@@ -1,5 +1,4 @@
 ﻿@using Tetrifact.Core;
-@using Tetrifact.Web;
 @using Humanizer;
 
 @{
@@ -20,7 +19,7 @@
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
-                    <div class="subtext">(@TimeHelper.ToIsoString(package.CreatedUtc.ToLocalTime()) - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+                    <div class="subtext">(@TimeHelper.ToIsoString(package.CreatedUtc) - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
                     @await Html.PartialAsync("TagsList", package.Tags)
                 </li>
             }
