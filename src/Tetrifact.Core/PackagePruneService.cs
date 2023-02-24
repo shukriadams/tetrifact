@@ -174,9 +174,9 @@ namespace Tetrifact.Core
             // log out audit for prune, use warning because we expect this to be logged as important
             report.Add(string.Empty);
             report.Add($"Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
-            report.Add($"WEEKLY prune (before {TimeHelper.ToIsoString(weeklyPruneFloor)}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky}{string.Join(",", weeklyKeep)}{weeklyPruneFlattened}.");
-            report.Add($"MONTHLY prune (before {TimeHelper.ToIsoString(monthlyPruneFloor)}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly}{string.Join(",", monthlyKeep)}{monthlyPruneFlattened}.");
-            report.Add($"YEARLY prune (before {TimeHelper.ToIsoString(yearlyPruneFloor)}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly}{string.Join(",", yearlyKeep)}{yearlyPruneFlattened}.");
+            report.Add($"WEEKLY prune (before {TimeHelper.ToIsoString(weeklyPruneFloor)}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky}. {string.Join(",", weeklyKeep)}{weeklyPruneFlattened}.");
+            report.Add($"MONTHLY prune (before {TimeHelper.ToIsoString(monthlyPruneFloor)}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly}. {string.Join(",", monthlyKeep)}{monthlyPruneFlattened}.");
+            report.Add($"YEARLY prune (before {TimeHelper.ToIsoString(yearlyPruneFloor)}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly}. {string.Join(",", yearlyKeep)}{yearlyPruneFlattened}.");
             report.Add(string.Empty);
             report.Add($"Pruning {packageIds.Count} packages{pruneIdList}.");
             report.Add(" ******************************** Prune audit **********************************");
