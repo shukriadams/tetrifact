@@ -109,7 +109,7 @@ namespace Tetrifact.Tests.PackagePrune
             settings.PruneMonthlyKeep = 3;
             settings.PruneYearlyKeep = 2;
 
-            // mock time time provider to return fixed "now" date
+            // mock time time provider to return a shifting "now" date
             DateTime now = DateTime.UtcNow;
             Mock<ITimeProvideer> timeProvider = new Mock<ITimeProvideer>();
             timeProvider.Setup(r => r.GetUtcNow())
@@ -122,7 +122,7 @@ namespace Tetrifact.Tests.PackagePrune
                 packagePrune.Prune();
             Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 8 days to put packages into weekly bracked, 1 package should be deleted
+            // shift time by 8 days to put packages into weekly bracket, 1 package should be deleted
             now = DateTime.UtcNow.AddDays(8);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
