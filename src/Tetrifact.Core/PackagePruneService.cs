@@ -115,16 +115,17 @@ namespace Tetrifact.Core
 
                 bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneProtectectedTags.Any(protectedTag => protectedTag.Equals(tag)));
                 string flattenedTags = manifest.Tags.Count == 0 ? string.Empty : $"Tags : {string.Join(",", manifest.Tags)}";
-                report.Add($"- {packageId}, added {TimeHelper.ToIsoString(manifest.CreatedUtc)} ({Math.Round((DateTime.UtcNow - manifest.CreatedUtc).TotalDays, 0)} days ago). {flattenedTags}");
+                int ageInDays = (int)Math.Round((DateTime.UtcNow - manifest.CreatedUtc).TotalDays, 0);
+                report.Add($"- {packageId}, added {TimeHelper.ToIsoString(manifest.CreatedUtc)} ({ageInDays}) days ago). {flattenedTags}");
 
-                if (manifest.CreatedUtc < yearlyPruneFloor)
+                if (ageInDays > _settings.PruneYearlyThreshold)
                 {
                     inYearly++;
                     if (yearlyKeep.Count < _settings.PruneYearlyKeep || isTaggedKeep)
                         yearlyKeep.Add(packageId);
                 }
 
-                if (manifest.CreatedUtc > yearlyPruneFloor && manifest.CreatedUtc < monthlyPruneFloor)
+                if (ageInDays <= _settings.PruneYearlyThreshold && ageInDays > _settings.PruneMonthlyThreshold)
                 {
                     inMonthly++;
 
@@ -132,7 +133,7 @@ namespace Tetrifact.Core
                         monthlyKeep.Add(packageId);
                 }
 
-                if (manifest.CreatedUtc > monthlyPruneFloor && manifest.CreatedUtc < weeklyPruneFloor)
+                if (ageInDays <= _settings.PruneMonthlyThreshold && ageInDays > _settings.PruneWeeklyThreshold)
                 {
                     inWeeky++;
 
@@ -140,7 +141,7 @@ namespace Tetrifact.Core
                         weeklyKeep.Add(packageId);
                 }
 
-                if (manifest.CreatedUtc > weeklyPruneFloor)
+                if (ageInDays <= _settings.PruneWeeklyThreshold)
                     newKeep.Add(packageId);
 
                 if (isTaggedKeep)
@@ -159,12 +160,12 @@ namespace Tetrifact.Core
 
             // log out audit for prune, use warning because we expect this to be logged as important
             report.Add(string.Empty);
-            report.Add($" Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
-            report.Add($" Weekly prune (before {TimeHelper.ToIsoString(weeklyPruneFloor)}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky} {string.Join(",", weeklyKeep)}.");
-            report.Add($" Monthly prune (before {TimeHelper.ToIsoString(monthlyPruneFloor)}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly} {string.Join(",", monthlyKeep)}.");
-            report.Add($" Yearly prune (before {TimeHelper.ToIsoString(yearlyPruneFloor)}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly} {string.Join(",", yearlyKeep)}.");
+            report.Add($"Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
+            report.Add($"WEEKLY prune (before {TimeHelper.ToIsoString(weeklyPruneFloor)}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky} {string.Join(",", weeklyKeep)}.");
+            report.Add($"MONTHLY prune (before {TimeHelper.ToIsoString(monthlyPruneFloor)}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly} {string.Join(",", monthlyKeep)}.");
+            report.Add($"YEARLY prune (before {TimeHelper.ToIsoString(yearlyPruneFloor)}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly} {string.Join(",", yearlyKeep)}.");
             report.Add(string.Empty);
-            report.Add($" Pruning {packageIds.Count} packages{pruneIdList}.");
+            report.Add($"Pruning {packageIds.Count} packages{pruneIdList}.");
             report.Add(" ******************************** Prune audit **********************************");
 
             return new PruneReport{ 
