@@ -155,7 +155,7 @@ namespace Tetrifact.Core
 
             string pruneIdList = string.Empty;
             if (packageIds.Count > 0)
-                pruneIdList = $" ({string.Join(",", pruneIdList)})";
+                pruneIdList = $" ({string.Join(",", packageIds)})";
 
             // log out audit for prune, use warning because we expect this to be logged as important
             report.Add(string.Empty);
