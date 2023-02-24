@@ -147,7 +147,7 @@ namespace Tetrifact.Core
                     if (weeklyKeep.Count < _settings.PruneWeeklyKeep || isTaggedKeep)
                         weeklyKeep.Add(packageId);
                     else
-                        monthlyPrune.Add(packageId);
+                        weeklyPrune.Add(packageId);
                 }
 
                 if (ageInDays <= _settings.PruneWeeklyThreshold)
