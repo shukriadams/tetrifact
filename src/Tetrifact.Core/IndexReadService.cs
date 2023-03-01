@@ -260,12 +260,22 @@ namespace Tetrifact.Core
         {
             IList<ManifestItem> existing = new List<ManifestItem>();
 
-            foreach (ManifestItem file in newPackage.Files)
-            {
-                string repositoryPathDir = _fileSystem.Path.Join(_settings.RepositoryPath, file.Path, file.Hash);
-                if (_fileSystem.Directory.Exists(repositoryPathDir))
-                    existing.Add(file);
-            }
+            // write incoming files to repo, get hash of each
+            newPackage.Files.AsParallel().ForAll(delegate (ManifestItem file) {
+                string repositoryPathDir = string.Empty;
+
+                try
+                {
+                    repositoryPathDir = _fileSystem.Path.Join(_settings.RepositoryPath, file.Path, file.Hash);
+                    if (_fileSystem.Directory.Exists(repositoryPathDir))
+                        existing.Add(file);
+                }
+                catch (Exception ex)
+                {
+                    // give exception more context, AsParallel should pass exception back up to waiting parenting thread
+                    throw new Exception($"Error looking up existing repo file {repositoryPathDir} {file}", ex);
+                }
+            });
 
             return new PartialPackageLookupResult
             {
