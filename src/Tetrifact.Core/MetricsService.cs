@@ -148,7 +148,7 @@ namespace Tetrifact.Core
                 if (dateLookupREsult.Success)
                 {
                     DateTime date = DateTime.Parse(dateLookupREsult.Groups[1].Value);
-                    if (DateTime.Now - date > new TimeSpan(_settings.MetricsGenerationInterval + 1, 0, 0))
+                    if (DateTime.UtcNow - date > new TimeSpan(_settings.MetricsGenerationInterval + 1, 0, 0))
                         throw new MetricsStaleException($"Metrics stale error - last generation ({date}) is more than an hour later than its expected regeneration time");
 
                     return metrics;
