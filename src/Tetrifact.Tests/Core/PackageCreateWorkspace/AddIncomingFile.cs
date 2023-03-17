@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.Workspace
         public void EmptyStream()
         {
             // returns false if attempting to send empty stream 
-            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(base.Settings);
             bool result = workspace.AddIncomingFile(StreamsHelper.StreamFromString(string.Empty), string.Empty);
             Assert.False(result);
         }

@@ -21,6 +21,8 @@ namespace Tetrifact.Core
 
         private readonly IFileSystem _filesystem;
         
+        private readonly IIndexReadService _indexReadService;
+
         #endregion
 
         #region PROPERTIES
@@ -33,8 +35,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateWorkspace(ISettings settings, IFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
+        public PackageCreateWorkspace(ISettings settings, IIndexReadService indexReadService, IFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
         {
+            _indexReadService = indexReadService;
             _settings = settings;
             _log = log;
             _hashService = hashService;
@@ -147,13 +150,8 @@ namespace Tetrifact.Core
             // calculate package hash from child hashes
             this.Manifest.Id = packageId;
             this.Manifest.Hash = combinedHash;
-            string targetFolder = Path.Join(_settings.PackagePath, packageId);
-            _filesystem.Directory.CreateDirectory(targetFolder);
-            _filesystem.File.WriteAllText(Path.Join(targetFolder, "manifest.json"), JsonConvert.SerializeObject(this.Manifest));
 
-            Manifest headCopy = JsonConvert.DeserializeObject<Manifest>(JsonConvert.SerializeObject(this.Manifest));
-            headCopy.Files = new List<ManifestItem>();
-            _filesystem.File.WriteAllText(Path.Join(targetFolder, "manifest-head.json"), JsonConvert.SerializeObject(headCopy));
+            _indexReadService.WriteManifest(packageId, this.Manifest);
         }
 
         

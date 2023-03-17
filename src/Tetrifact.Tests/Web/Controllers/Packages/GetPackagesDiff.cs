@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class GetPackagesDiff
+    public class GetPackagesDiff : TestBase
     {
         /// <summary>
         /// coverage
@@ -20,7 +20,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new Tetrifact.Core.PackageDiff());
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageDiffService", packageDiffService.Object);
             JsonResult result = controller.GetPackagesDiff("upstream", "downstream") as JsonResult;
             Assert.NotNull(result);
         }
@@ -36,7 +36,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageDiffService", packageDiffService.Object);
             NotFoundObjectResult result = controller.GetPackagesDiff("upstream", "downstream") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -52,7 +52,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageDiffService", packageDiffService.Object);
             BadRequestObjectResult result = controller.GetPackagesDiff("upstream", "downstream") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

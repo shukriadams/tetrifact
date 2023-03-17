@@ -73,8 +73,6 @@ namespace Tetrifact.Core
             // nr of packages - nr of direct child dirs in /packages 
             long packageCount = new DirectoryInfo(_settings.PackagePath).GetDirectories().Length;
             s.AppendLine($"tetrifact packages_count={packageCount}u");
-
-            
             
             // nr of files on disk - nr of files in /repository
             long respositoryFileCount = 0;
@@ -92,7 +90,6 @@ namespace Tetrifact.Core
             }
 
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
-
 
 
             long respositoryFileSize = 0;

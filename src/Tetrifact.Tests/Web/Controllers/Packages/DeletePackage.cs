@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class DeletePackage
+    public class DeletePackage : TestBase
     {
         /// <summary>
         /// 
@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
         {
             Mock<IIndexReadService> indexReadService = new Mock<IIndexReadService>();
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "indexReadService", indexReadService.Object);
             JsonResult result = controller.DeletePackage("any-package-id") as JsonResult;
             Assert.NotNull(result);
         }
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "indexReadService", indexReadService.Object);
             NotFoundObjectResult result = controller.DeletePackage("any-package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Throws(new Exception());
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "indexReadService", indexReadService.Object);
             BadRequestObjectResult result = controller.DeletePackage("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

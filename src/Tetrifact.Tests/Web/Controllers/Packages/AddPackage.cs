@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class AddPackage
+    public class AddPackage : TestBase
     {
 
         [Fact]
@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { Success = true });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             JsonResult result = controller.AddPackage(new PackageCreateFromPost{ }) as JsonResult;
             Assert.NotNull(result);
         }
@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDiskUseSats())
                 .Returns(new DiskUseStats{ });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "indexReadService", indexReadService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -50,7 +50,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -66,7 +66,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -82,7 +82,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -98,7 +98,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -114,7 +114,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -130,7 +130,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Throws(new Exception());
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(base.Settings, "packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.AddPackage(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }

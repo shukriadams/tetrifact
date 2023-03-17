@@ -279,7 +279,7 @@ namespace Tetrifact.Tests.PackageCreate
                     new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
-            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>();
+            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>(base.Settings);
 
             PackageCreateResult result = _packageService.Create(postArgs);
             Assert.False(result.Success);

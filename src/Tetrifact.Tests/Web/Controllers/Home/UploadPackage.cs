@@ -9,7 +9,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
         [Fact]
         public void Happy_path()
         {
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("settings", Settings);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>(base.Settings, "settings", Settings);
             HttpHelper.EnsureContext(controller);
 
             ViewResult result = controller.UploadPackage() as ViewResult;

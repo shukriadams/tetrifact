@@ -56,7 +56,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
             cleaner.Clean();
         }
 
@@ -117,7 +117,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", Settings);
             cleaner.Clean();
         }
 
@@ -151,7 +151,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
             cleaner.Clean();
         }
 
@@ -166,7 +166,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
             mockedCleaner.Clean();
         }
 

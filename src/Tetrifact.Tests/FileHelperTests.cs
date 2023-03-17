@@ -3,7 +3,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
-    public class FileHelperTests
+    public class FileHelperTests : TestBase
     {
         [Fact]
         public void BytesToMegabytes()
@@ -15,7 +15,7 @@ namespace Tetrifact.Tests
         [Fact]
         public void GetDiskUseSats()
         {
-            IIndexReadService indexReadServices = NinjectHelper.Get<IIndexReadService>();
+            IIndexReadService indexReadServices = NinjectHelper.Get<IIndexReadService>(base.Settings);
             DiskUseStats stats = indexReadServices.GetDiskUseSats();
 
             // We don't really care about specific values, this test is mostly for coverage, and

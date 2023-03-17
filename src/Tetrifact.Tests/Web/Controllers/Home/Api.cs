@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetPopularTags(It.IsAny<int>()))
                 .Returns(new List<string>() { });
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object, "settings", Settings);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>(base.Settings, "packageList", packageList.Object);
 
             ViewResult result = controller.Api() as ViewResult;
             Assert.NotNull(result);

@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                     new Tetrifact.Core.Package[]{ },1,1,1)
                 );
 
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object, "settings", Settings);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>(base.Settings, "packageList", packageList.Object, "settings", Settings);
 
             ViewResult result = controller.Packages(1) as ViewResult;
             Assert.NotNull(result);

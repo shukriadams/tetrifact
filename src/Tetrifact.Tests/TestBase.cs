@@ -20,7 +20,7 @@ namespace Tetrifact.Tests
 
         public TestBase()
         {
-            this.Settings = NinjectHelper.Get<ISettings>();
+            this.Settings = NinjectHelper.Get<ISettings>(null);
             this.MockRepository = new MockRepository(MockBehavior.Loose) { CallBase = true };
         }
     }
