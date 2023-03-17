@@ -26,7 +26,7 @@ namespace Tetrifact.Core
         string LogPath { get; set; }
 
         /// <summary>
-        /// 
+        /// Allowed values are: Information|Warning|Error
         /// </summary>
         string LogLevel { get; set; }
 
