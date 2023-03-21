@@ -67,6 +67,7 @@ namespace Tetrifact.Core
             }
 
             StringBuilder s = new StringBuilder();
+
             // add comment at start of file, this is used when reading back the metrics to ensure content is not stale
             s.AppendLine($"##tetrifact:generated:{DateTime.UtcNow}##");
 

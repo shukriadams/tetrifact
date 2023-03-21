@@ -91,6 +91,8 @@ namespace Tetrifact.Core
 
         public bool DEBUG_block_prune_deletes { get ;set; }
 
+        public int MetricsGenerationBufferTime { get; set; }
+
         #endregion
 
         #region CTORS
@@ -123,6 +125,7 @@ namespace Tetrifact.Core
             this.WorkerThreadCount = 8;
             this.MetricsGenerationInterval = 24;
             this.PruneProtectectedTags = new string[] { };
+            this.MetricsGenerationBufferTime = 1; // 1 hour
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
             this.LogLevel = "Warning";
             this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
@@ -169,6 +172,7 @@ namespace Tetrifact.Core
             this.CleanCronMask = this.TryGetSetting("CLEAN_CRON_MASK", this.CleanCronMask);
             this.PruneCronMask = this.TryGetSetting("PRUNE_CRON_MASK", this.PruneCronMask);
             this.MetricsPath = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsPath);
+            this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
 
 

@@ -104,6 +104,9 @@ namespace Tetrifact.Core
             int inYearly = 0;
             int startingPackageCount = packageIds.Count;
 
+            if (_settings.DEBUG_block_prune_deletes)
+                report.Add($"DEBUG_block_prune_deletes is enabled, packages will not be deleted");
+
             report.Add($"Found {packageIds.Count} packages :");
 
             foreach (string packageId in packageIds)

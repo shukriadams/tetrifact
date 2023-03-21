@@ -243,6 +243,39 @@ namespace Tetrifact.Web
         }
 
 
+        [ServiceFilter(typeof(WriteLevel))]
+        [HttpPost("createdate/{packageId}/{date}")]
+        public ActionResult SetPackageCreateDate(string packageId, string date)
+        { 
+            try 
+            { 
+                _indexService.UpdatePackageCreateDate(packageId, date);
+
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        description = "Package updated"
+                    }
+                });
+
+            }
+            catch (PackageNotFoundException)
+            {
+                return Responses.NotFoundError(this, packageId);
+            }
+            catch (FormatException ex)
+            {
+                return Responses.GeneralUserError(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "An unexpected error occurred.");
+                return Responses.UnexpectedError();
+            }
+        }
+
+
         /// <summary>
         /// Creates a new package. Returns JSON with local hash of package.
         /// 
