@@ -251,6 +251,9 @@ namespace Tetrifact.Web
             { 
                 _indexService.UpdatePackageCreateDate(packageId, date);
 
+                // force flush in-memory list of packages
+                _packageListCache.Clear();
+
                 return new JsonResult(new
                 {
                     success = new
