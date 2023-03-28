@@ -31,6 +31,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "Logging__LogLevel__Microsoft": "Error",
+        "PRUNE_IGNORE_TAGS": "keep",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Logging__LogLevel__System": "Debug"
       },

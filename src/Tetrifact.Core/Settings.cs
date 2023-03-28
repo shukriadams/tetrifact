@@ -53,8 +53,6 @@ namespace Tetrifact.Core
 
         public bool Prune { get; set; }
 
-        public string PruneIgnoreTags { get; set; }
-
         public int PruneMonthlyThreshold { get; set; }
 
         public int PruneMonthlyKeep { get; set; }
@@ -115,7 +113,6 @@ namespace Tetrifact.Core
             this.AccessTokens = new List<string>();
             this.IsStorageCompressionEnabled = false;
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
-            this.PruneIgnoreTags = string.Empty;
             this.PruneWeeklyKeep = 7; 
             this.PruneMonthlyKeep = 4;
             this.PruneYearlyKeep = 12;
@@ -144,7 +141,7 @@ namespace Tetrifact.Core
             this.AllowPackageCreate = this.TryGetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
             this.IsStorageCompressionEnabled = this.TryGetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
             this.Prune = this.TryGetSetting("PRUNE", this.Prune);
-            this.PruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
+            
             this.PruneWeeklyThreshold = this.TryGetSetting("PRUNE_WEEKLY_THRESHOLD", this.PruneWeeklyThreshold);
             this.PruneWeeklyKeep = this.TryGetSetting("PRUNE_WEEKLY_KEEP", this.PruneWeeklyKeep);
             this.PruneMonthlyThreshold = this.TryGetSetting("PRUNE_MONTHLY_THRESHOLD", this.PruneMonthlyThreshold);
@@ -175,6 +172,8 @@ namespace Tetrifact.Core
             this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
 
+            string pruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", string.Empty);
+            this.PruneProtectectedTags = pruneIgnoreTags.Split(",");
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")

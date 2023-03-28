@@ -134,11 +134,6 @@ namespace Tetrifact.Core
         /// If true, package autoprune will run
         /// </summary>
         bool Prune { get; set; }
-
-        /// <summary>
-        /// optional, comma-separated list of several tags. If set, packages with this tag will never be pruned.
-        /// </summary>
-        string PruneIgnoreTags { get; set; }
         
         /// <summary>
         /// Minimum age (in days) for a package to be applicable for monthly prune 
