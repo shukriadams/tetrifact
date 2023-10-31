@@ -111,7 +111,7 @@ See the [developer docs](/docs/development.md) for details on running Tetrifact 
 
 ## Security
 
-Tetrifact has zero security - it is 100% open and intended for use on internal networks where everyone is trusted. _Never_ expose your Tetrifact instance to "the web" unless you know what you're doing.
+Tetrifact has zero security - it is 100% open and intended for use on internal networks where everyone is trusted. _Never_ expose your Tetrifact instance to "the web" unless you know what you're doing. 
 
 ## License
 
