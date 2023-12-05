@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +47,7 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public void Initialize()
+        void IPackageCreateWorkspace.Initialize()
         {
             this.Manifest = new Manifest{ 
                 IsCompressed = _settings.IsStorageCompressionEnabled
@@ -63,7 +62,7 @@ namespace Tetrifact.Core
         }
 
 
-        public bool AddIncomingFile(Stream formFile, string relativePath)
+        bool IPackageCreateWorkspace.AddIncomingFile(Stream formFile, string relativePath)
         {
             if (formFile.Length == 0)
                 return false;
@@ -79,7 +78,7 @@ namespace Tetrifact.Core
         }
 
 
-        public void WriteFile(string filePath, string hash, long fileSize, string packageId)
+        void IPackageCreateWorkspace.WriteFile(string filePath, string hash, long fileSize, string packageId)
         {
             if (string.IsNullOrEmpty(hash))
                 throw new ArgumentException("Hash value required");
@@ -121,12 +120,12 @@ namespace Tetrifact.Core
             }
 
             // write package id into package subscription directory, associating it with this hash 
-            this.SubscribeToHash(filePath, hash, packageId, fileSize, onDisk);
+            ((IPackageCreateWorkspace)this).SubscribeToHash(filePath, hash, packageId, fileSize, onDisk);
         }
 
 
         // this method is called from parallel threads, make thread safe
-        public void SubscribeToHash(string filePath, string hash, string packageId, long fileSize, bool onDisk) 
+        void IPackageCreateWorkspace.SubscribeToHash(string filePath, string hash, string packageId, long fileSize, bool onDisk) 
         {
             string packagesSubscribeDirectory = Path.Join(_settings.RepositoryPath, filePath, hash, "packages");
 
@@ -145,7 +144,7 @@ namespace Tetrifact.Core
         }
 
 
-        public void WriteManifest(string packageId, string combinedHash)
+        void IPackageCreateWorkspace.WriteManifest(string packageId, string combinedHash)
         {
             // calculate package hash from child hashes
             this.Manifest.Id = packageId;
@@ -155,7 +154,7 @@ namespace Tetrifact.Core
         }
 
         
-        public IEnumerable<string> GetIncomingFileNames()
+        IEnumerable<string> IPackageCreateWorkspace.GetIncomingFileNames()
         {
             IList<string> rawPaths = _filesystem.Directory.GetFiles(this.WorkspacePath, "*.*", SearchOption.AllDirectories);
             string relativeRoot = Path.Join(this.WorkspacePath, "incoming");
@@ -163,7 +162,7 @@ namespace Tetrifact.Core
         }
 
 
-        public void AddArchiveContent(Stream file)
+        void IPackageCreateWorkspace.AddArchiveContent(Stream file)
         {
             using (ZipArchive archive = new ZipArchive(file))
             {
@@ -186,14 +185,14 @@ namespace Tetrifact.Core
         }
 
 
-        public FileOnDiskProperties GetIncomingFileProperties(string relativePath)
+        FileOnDiskProperties IPackageCreateWorkspace.GetIncomingFileProperties(string relativePath)
         {
             string path = Path.Join(this.WorkspacePath, "incoming", relativePath);
             return _hashService.FromFile(path);
         }
 
 
-        public void Dispose()
+        void IPackageCreateWorkspace.Dispose()
         {
             try
             {
