@@ -173,7 +173,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Comma-separated list of tags which will not be pruned.
         /// </summary>
-        IEnumerable<string> PruneProtectectedTags { get; set; }
+        IEnumerable<string> PruneIgnoreTags { get; set; }
 
         /// <summary>
         /// If false, existing packages cannot be deleted from UI or API.

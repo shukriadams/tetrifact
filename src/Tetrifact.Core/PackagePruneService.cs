@@ -119,7 +119,7 @@ namespace Tetrifact.Core
                     continue;
                 }
 
-                bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneProtectectedTags.Any(protectedTag => protectedTag.Equals(tag)));
+                bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
                 string flattenedTags = manifest.Tags.Count == 0 ? string.Empty : $"Tags : {string.Join(",", manifest.Tags)}";
                 int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
                 report.Add($"- {packageId}, added {TimeHelper.ToIsoString(manifest.CreatedUtc)} ({ageInDays}) days ago). {flattenedTags}");

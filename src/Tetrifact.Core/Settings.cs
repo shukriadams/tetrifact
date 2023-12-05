@@ -67,7 +67,7 @@ namespace Tetrifact.Core
 
         public int WorkerThreadCount { get; set; }
 
-        public IEnumerable<string> PruneProtectectedTags { get; set; }
+        public IEnumerable<string> PruneIgnoreTags { get; set; }
 
         public  bool AllowPackageDelete { get; set; }
 
@@ -121,7 +121,7 @@ namespace Tetrifact.Core
             this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
             this.WorkerThreadCount = 8;
             this.MetricsGenerationInterval = 24;
-            this.PruneProtectectedTags = new string[] { };
+            this.PruneIgnoreTags = new string[] { };
             this.MetricsGenerationBufferTime = 1; // 1 hour
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
             this.LogLevel = "Warning";
@@ -156,7 +156,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = this.TryGetSetting("AUTH_LEVEL", this.AuthorizationLevel);
             this.SpaceSafetyThreshold = this.TryGetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
             this.AutoCreateArchiveOnPackageCreate = this.TryGetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
-            this.PruneProtectectedTags = this.TryGetSetting("PRUNE_PROTECTED_TAGS", this.PruneProtectectedTags);
+            this.PruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
             this.LogPath = this.TryGetSetting("LOG_PATH", this.LogPath);
             this.LogLevel = this.TryGetSetting("Logging__LogLevel__System", this.LogLevel);
             this.PackageDiffsPath = this.TryGetSetting("PACKAGE_DIFFS_PATH", this.PackageDiffsPath);
@@ -171,9 +171,6 @@ namespace Tetrifact.Core
             this.MetricsPath = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsPath);
             this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
-
-            string pruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", string.Empty);
-            this.PruneProtectectedTags = pruneIgnoreTags.Split(",");
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")

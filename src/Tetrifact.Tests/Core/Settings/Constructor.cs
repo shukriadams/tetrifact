@@ -141,14 +141,14 @@ namespace Tetrifact.Tests.Settings
         [Fact]
         public void Comma_separated_args()
         {
-            Environment.SetEnvironmentVariable("PRUNE_PROTECTED_TAGS", "123,456");
+            Environment.SetEnvironmentVariable("PRUNE_IGNORE_TAGS", "123,456");
             ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             // should revert to default
-            Assert.Equal(2, settings.PruneProtectectedTags.Count());
+            Assert.Equal(2, settings.PruneIgnoreTags.Count());
 
-            Assert.Contains("123", settings.PruneProtectectedTags);
-            Assert.Contains("456", settings.PruneProtectectedTags);
+            Assert.Contains("123", settings.PruneIgnoreTags);
+            Assert.Contains("456", settings.PruneIgnoreTags);
         }
 
     }
