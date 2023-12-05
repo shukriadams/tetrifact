@@ -1,8 +1,5 @@
 ﻿using Moq;
-using System;
 using System.Collections.Generic;
-using System.Text;
-using Tetrifact;
 using Tetrifact.Core;
 using Tetrifact.Web;
 using Xunit;
@@ -12,17 +9,20 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
 {
     public class ListPackages : TestBase
     {
-
         [Fact]
-        public void Happy_path()
+        public void Package_Id_List()
         {
             // inject 3 indices
-            Mock<IIndexReadService> mockedIndexReader = new Mock<IIndexReadService>();
-            mockedIndexReader
-                .Setup(r => r.GetPackageIds(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(new string[] { "1", "2", "3" });
+            Mock<IPackageListService> mockedPackageListService = new Mock<IPackageListService>();
+            mockedPackageListService
+                .Setup(r => r.Get(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new Package[] { 
+                        new Package { Id = "1" }, 
+                        new Package { Id = "2" }, 
+                        new Package { Id = "3" } 
+                    });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "indexReadService", mockedIndexReader.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageListService", mockedPackageListService.Object);
 
             dynamic json = JsonHelper.ToDynamic(controller.ListPackages(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();

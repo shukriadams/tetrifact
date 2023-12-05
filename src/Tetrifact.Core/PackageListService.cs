@@ -78,7 +78,6 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData;
             
-            
             if (!_cache.TryGetValue(CacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();

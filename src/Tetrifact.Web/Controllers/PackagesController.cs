@@ -67,13 +67,15 @@ namespace Tetrifact.Web
         [HttpGet("")]
         public ActionResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
+            IEnumerable<Package> packages = _packageList.Get(pageIndex, pageSize);
+
             if (isFull)
             {
                 return new JsonResult(new
                 {
                     success = new
                     {
-                        packages = _packageList.Get(pageIndex, pageSize)
+                        packages = packages
                     }
                 });
             }
@@ -83,7 +85,7 @@ namespace Tetrifact.Web
                 {
                     success = new
                     {
-                        packages = _indexService.GetPackageIds(pageIndex, pageSize)
+                        packages = packages.Select( p => p.Id)
                     }
                 });
             }

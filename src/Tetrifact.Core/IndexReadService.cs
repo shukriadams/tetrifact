@@ -122,12 +122,6 @@ namespace Tetrifact.Core
             return rawList.Select(r => Path.GetFileName(r));
         }
 
-        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
-        {
-            IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
-        }
-
         public bool PackageNameInUse(string id)
         {
             string packagePath = Path.Join(_settings.PackagePath, id);
