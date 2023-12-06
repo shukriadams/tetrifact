@@ -52,7 +52,10 @@ namespace Tetrifact.Tests
             {
                 object arg = overrides.Where(r => r.GetType() == p.ParameterType).SingleOrDefault();
                 if (arg == null)
-                    arg = overrides.Where(r => p.ParameterType.IsAssignableFrom(r.GetType())).SingleOrDefault();
+                    arg = overrides.Where(r => 
+                        p.ParameterType.IsAssignableFrom(r.GetType()) 
+                        || (r is Mock && p.ParameterType.IsAssignableFrom(((Mock)r).Object.GetType()))
+                    ).SingleOrDefault();
 
                 try
                 {
@@ -74,7 +77,12 @@ namespace Tetrifact.Tests
                     throw new Exception($"failed to create ctor arg with both ninject and moq, type {t.Name}, parameter {p.ParameterType}", ex);
                 }
 
-                args.Add(arg);
+                if (arg is Mock)
+                { 
+                    args.Add(((Mock)arg).Object);
+                }
+                else
+                    args.Add(arg);
             }
 
             return args;

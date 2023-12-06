@@ -20,7 +20,7 @@ namespace Tetrifact.Tests.PackageList
             this.TagServiceLogger = new TestLogger<ITagsService>();
             this.PackageListCache = new Core.PackageListCache(MemoryCache);
             this.TagService = new Core.TagsService(Settings, this.FileSystem, TagServiceLogger, PackageListCache);
-            this.PackageList = new Core.PackageListService(MemoryCache, Settings, TagService, this.FileSystem, this.PackageListLogger);
+            this.PackageList = new Core.PackageListService(MemoryCache, Settings, new HashService(), TagService, this.FileSystem, this.PackageListLogger);
         }
 
         public void Dispose()
