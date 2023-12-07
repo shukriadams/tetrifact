@@ -46,5 +46,12 @@ namespace Tetrifact.Core
         /// <param name="pageSize"></param>
         /// <returns></returns>
         PageableData<Package> GetPage(int pageIndex, int pageSize);
+
+        /// <summary>
+        /// Searches packages by id and tag
+        /// </summary>
+        /// <param name="searchtext"></param>
+        /// <returns></returns>
+        PageableData<Package> Find(string searchtext, int pageIndex, int pageSize);
     }
 }

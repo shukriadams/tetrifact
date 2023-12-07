@@ -104,6 +104,9 @@ namespace Tetrifact.Core
             int inYearly = 0;
             int startingPackageCount = packageIds.Count;
 
+            if (_settings.DEBUG_block_prune_deletes)
+                report.Add($"DEBUG_block_prune_deletes is enabled, packages will not be deleted");
+
             report.Add($"Found {packageIds.Count} packages :");
 
             foreach (string packageId in packageIds)
@@ -116,10 +119,15 @@ namespace Tetrifact.Core
                     continue;
                 }
 
-                bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneProtectectedTags.Any(protectedTag => protectedTag.Equals(tag)));
+                bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
                 string flattenedTags = manifest.Tags.Count == 0 ? string.Empty : $"Tags : {string.Join(",", manifest.Tags)}";
                 int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
                 report.Add($"- {packageId}, added {TimeHelper.ToIsoString(manifest.CreatedUtc)} ({ageInDays}) days ago). {flattenedTags}");
+
+                if (isTaggedKeep){
+                    taggedKeep.Add(packageId);
+                    continue;
+                }
 
                 if (ageInDays > _settings.PruneYearlyThreshold)
                 {
@@ -128,6 +136,8 @@ namespace Tetrifact.Core
                         yearlyKeep.Add(packageId);
                     else
                         yearlyPrune.Add(packageId);
+
+                    continue;
                 }
 
                 if (ageInDays <= _settings.PruneYearlyThreshold && ageInDays > _settings.PruneMonthlyThreshold)
@@ -138,6 +148,8 @@ namespace Tetrifact.Core
                         monthlyKeep.Add(packageId);
                     else
                         monthlyPrune.Add(packageId);
+
+                    continue;
                 }
 
                 if (ageInDays <= _settings.PruneMonthlyThreshold && ageInDays > _settings.PruneWeeklyThreshold)
@@ -148,13 +160,13 @@ namespace Tetrifact.Core
                         weeklyKeep.Add(packageId);
                     else
                         weeklyPrune.Add(packageId);
+
+                    continue;
                 }
 
                 if (ageInDays <= _settings.PruneWeeklyThreshold)
                     newKeep.Add(packageId);
-
-                if (isTaggedKeep)
-                    taggedKeep.Add(packageId);
+                
             }
 
             RemoveKeep(ref yearlyKeep, ref packageIds);
@@ -174,6 +186,8 @@ namespace Tetrifact.Core
             // log out audit for prune, use warning because we expect this to be logged as important
             report.Add(string.Empty);
             report.Add($"Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
+            if (taggedKeep.Count > 0)
+                report.Add($"Kept due to tagging - {string.Join(",", taggedKeep)}.");
             report.Add($"WEEKLY prune (before {TimeHelper.ToIsoString(weeklyPruneFloor)}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky}. {string.Join(",", weeklyKeep)}{weeklyPruneFlattened}.");
             report.Add($"MONTHLY prune (before {TimeHelper.ToIsoString(monthlyPruneFloor)}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly}. {string.Join(",", monthlyKeep)}{monthlyPruneFlattened}.");
             report.Add($"YEARLY prune (before {TimeHelper.ToIsoString(yearlyPruneFloor)}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly}. {string.Join(",", yearlyKeep)}{yearlyPruneFlattened}.");

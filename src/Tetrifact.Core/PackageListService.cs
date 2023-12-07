@@ -28,19 +28,22 @@ namespace Tetrifact.Core
 
         private readonly ITagsService _tagService;
 
+        private readonly IHashService _hashService;
+
         public static readonly string CacheKey = "_packageCache";
 
         #endregion
 
         #region CTORS
 
-        public PackageListService(IMemoryCache memoryCache, ISettings settings, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> logger)
+        public PackageListService(IMemoryCache memoryCache, ISettings settings, IHashService hashService, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> logger)
         {
             _cache = memoryCache;
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
             _fileSystem = fileSystem;
+            _hashService = hashService;
         }
 
         #endregion
@@ -78,7 +81,6 @@ namespace Tetrifact.Core
         {
             IList<Package> packageData;
             
-            
             if (!_cache.TryGetValue(CacheKey, out packageData))
             {
                 packageData = this.GeneratePackageData();
@@ -112,6 +114,31 @@ namespace Tetrifact.Core
             return packageData.Where(r => tags.IsSubsetOf(r.Tags)).OrderByDescending(r => r.CreatedUtc).FirstOrDefault();
         }
 
+        PageableData<Package> IPackageListService.Find(string searchtext, int pageIndex, int pageSize)
+        {
+            // check to see if test result is cached
+            IList<Package> packageData;
+            if (!_cache.TryGetValue(CacheKey, out packageData))
+            {
+                packageData = this.GeneratePackageData();
+            }
+
+            searchtext = searchtext.ToLower();
+            string packageDataHash = $"{packageData.GetHashCode()}_{_hashService.FromString(searchtext)}";
+            IEnumerable<Package> searchResults;
+            if (!_cache.TryGetValue(packageDataHash, out searchResults))
+            {
+                searchResults = packageData.Where(package => package.Id.ToLower().Contains(searchtext) || string.Join(" | ", package.Tags).ToLower().Contains(searchtext));
+                
+                _cache.Set(packageDataHash, searchResults, new DateTimeOffset(DateTime.UtcNow.AddHours(1)));
+            }
+
+            return new PageableData<Package>(searchResults.Skip(pageIndex*pageSize).Take(pageSize), 
+                pageIndex, 
+                pageSize, 
+                searchResults.Count());
+        }
+
         #endregion
 
         #region METHODS Private
@@ -129,23 +156,27 @@ namespace Tetrifact.Core
                 {
                     // generate manifest head if it doesn't exist
                     string manifestHeadPath = Path.Join(packageDirectory, "manifest-head.json");
-                    if (!File.Exists(manifestHeadPath))
+                    if (!this._fileSystem.File.Exists(manifestHeadPath))
                     {
                         string manifestPath = Path.Join(packageDirectory, "manifest.json");
                         if (!_fileSystem.File.Exists(manifestPath))
                             continue;
 
-                        Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestPath));
+                        Manifest manifest = JsonConvert.DeserializeObject<Manifest>(this._fileSystem.File.ReadAllText(manifestPath));
                         manifest.Files = new List<ManifestItem>();
-                        File.WriteAllText(manifestHeadPath, JsonConvert.SerializeObject(manifest));
+                        this._fileSystem.File.WriteAllText(manifestHeadPath, JsonConvert.SerializeObject(manifest));
                     }
 
-                    Manifest manifestHead = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestHeadPath));
+                    Manifest manifestHead = JsonConvert.DeserializeObject<Manifest>(this._fileSystem.File.ReadAllText(manifestHeadPath));
                     string packageId = Path.GetFileName(packageDirectory);
                     packageData.Add(new Package
                     {
                         CreatedUtc = manifestHead.CreatedUtc,
-                        Id = packageId,
+                        
+                        // we should be using manifesthead.id only, but for some older tests we rely on directory name as a simple way to initialize
+                        // manifests. REwrite tests and refactor this out 
+                        Id = string.IsNullOrEmpty(manifestHead.Id) ? packageId : manifestHead.Id,
+
                         Description = manifestHead.Description,
                         Hash = manifestHead.Hash,
                         Tags = packagesThenTags.ContainsKey(packageId) ? packagesThenTags[packageId].ToHashSet() : new HashSet<string>()

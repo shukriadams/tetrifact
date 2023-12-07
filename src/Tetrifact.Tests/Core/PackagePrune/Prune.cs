@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.PackagePrune
             Settings.PruneWeeklyKeep = 3;
             Settings.PruneMonthlyKeep = 3;
             Settings.PruneYearlyKeep = 3;
-            Settings.PruneProtectectedTags = new string[] { "keep" };
+            Settings.PruneIgnoreTags = new string[] { "keep" };
 
             _packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[]{ this.Settings, this.IndexReader }); 
         }

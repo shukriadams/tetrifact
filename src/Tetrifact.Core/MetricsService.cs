@@ -67,14 +67,13 @@ namespace Tetrifact.Core
             }
 
             StringBuilder s = new StringBuilder();
+
             // add comment at start of file, this is used when reading back the metrics to ensure content is not stale
             s.AppendLine($"##tetrifact:generated:{DateTime.UtcNow}##");
 
             // nr of packages - nr of direct child dirs in /packages 
             long packageCount = new DirectoryInfo(_settings.PackagePath).GetDirectories().Length;
             s.AppendLine($"tetrifact packages_count={packageCount}u");
-
-            
             
             // nr of files on disk - nr of files in /repository
             long respositoryFileCount = 0;
@@ -92,7 +91,6 @@ namespace Tetrifact.Core
             }
 
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
-
 
 
             long respositoryFileSize = 0;
@@ -148,7 +146,7 @@ namespace Tetrifact.Core
                 if (dateLookupREsult.Success)
                 {
                     DateTime date = DateTime.Parse(dateLookupREsult.Groups[1].Value);
-                    if (DateTime.Now - date > new TimeSpan(_settings.MetricsGenerationInterval + 1, 0, 0))
+                    if (DateTime.UtcNow - date > new TimeSpan(_settings.MetricsGenerationInterval + 1, 0, 0))
                         throw new MetricsStaleException($"Metrics stale error - last generation ({date}) is more than an hour later than its expected regeneration time");
 
                     return metrics;

@@ -26,7 +26,7 @@ namespace Tetrifact.Core
         string LogPath { get; set; }
 
         /// <summary>
-        /// 
+        /// Allowed values are: Information|Warning|Error
         /// </summary>
         string LogLevel { get; set; }
 
@@ -134,11 +134,6 @@ namespace Tetrifact.Core
         /// If true, package autoprune will run
         /// </summary>
         bool Prune { get; set; }
-
-        /// <summary>
-        /// optional, comma-separated list of several tags. If set, packages with this tag will never be pruned.
-        /// </summary>
-        string PruneIgnoreTags { get; set; }
         
         /// <summary>
         /// Minimum age (in days) for a package to be applicable for monthly prune 
@@ -178,7 +173,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Comma-separated list of tags which will not be pruned.
         /// </summary>
-        IEnumerable<string> PruneProtectectedTags { get; set; }
+        IEnumerable<string> PruneIgnoreTags { get; set; }
 
         /// <summary>
         /// If false, existing packages cannot be deleted from UI or API.
@@ -209,5 +204,10 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         string MetricsCronMask { get; set; }
+
+        /// <summary>
+        /// Time (hours) metric regeneration is allowed to be late before an error is flagged
+        /// </summary>
+        int MetricsGenerationBufferTime { get; set; }
     }
 }

@@ -6,16 +6,16 @@ namespace Tetrifact.Core
     /// <summary>
     /// Collection of objects with properties for supporting of paging through a collection of objects
     /// </summary>
-    /// <typeparam name="U"></typeparam>
+    /// <typeparam name="T"></typeparam>
     [Serializable]
-    public class PageableData<U>
+    public class PageableData<T>
     {
         #region PROPERTIES
 
         /// <summary>
         /// Page of objects on current page
         /// </summary>
-        public IEnumerable<U> Items { get; set; }
+        public IEnumerable<T> Items { get; set; }
 
         /// <summary>
         /// Total number of objects in source collection that can be paged through
@@ -41,7 +41,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PageableData(IEnumerable<U> items, int pageIndex, int pageSize, long virtualItemCount)
+        public PageableData(IEnumerable<T> items, int pageIndex, int pageSize, long virtualItemCount)
         {
             this.Items = items;
             this.PageSize = pageSize;

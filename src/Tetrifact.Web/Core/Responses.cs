@@ -15,6 +15,7 @@ namespace Tetrifact.Web
         {
             return controller.NotFound(new
             {
+                statusCode = 404,
                 error = new
                 {
                     description = description
@@ -26,6 +27,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 100,
@@ -38,6 +40,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 100,
@@ -50,6 +53,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 101,
@@ -62,6 +66,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 101,
@@ -78,10 +83,24 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 102,
                     description = "Invalid package content. A package flagged as archive must contain a single zip file."
+                }
+            });
+        }
+
+        public static BadRequestObjectResult GeneralUserError(string description)
+        {
+            return new BadRequestObjectResult(new
+            {
+                statusCode = 400,
+                error = new
+                {
+                    code = 101,
+                    description = description
                 }
             });
         }
@@ -95,6 +114,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 103,
@@ -112,6 +132,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 105,
@@ -129,6 +150,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 106,
@@ -146,6 +168,7 @@ namespace Tetrifact.Web
         {
             return new BadRequestObjectResult(new
             {
+                statusCode = 400,
                 error = new
                 {
                     code = 107,

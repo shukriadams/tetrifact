@@ -15,7 +15,7 @@
         "DOTNET_HOST_PATH": "dotnet",
         "PRUNE": "true",
         "AUTH_LEVEL": "Write",
-        "PRUNE_PROTECTED_TAGS": "keep,safe,",
+        "PRUNE_IGNORE_TAGS": "keep,safe,",
         "PRUNE_WEEKLY_THRESHOLD": "1",
         "ACCESS_TOKENS": "",
         "DAEMON_INTERVAL": "60000",
@@ -31,6 +31,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "Logging__LogLevel__Microsoft": "Error",
+        "PRUNE_IGNORE_TAGS": "keep",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Logging__LogLevel__System": "Debug"
       },

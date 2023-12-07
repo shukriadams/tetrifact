@@ -52,7 +52,7 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         /// <param name="manifest"></param>
-        public PackageCreateResult Create(PackageCreateArguments newPackage)
+        PackageCreateResult IPackageCreateService.Create(PackageCreateArguments newPackage)
         {
             List<string> transactionLog = new List<string>();
 

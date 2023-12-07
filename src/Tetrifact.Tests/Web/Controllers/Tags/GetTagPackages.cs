@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Tags
 {
-    public class GetTagPackages
+    public class GetTagPackages : TestBase
     {
         [Fact]
         public void Happy_path()
@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
                 .Setup(r => r.GetPackageIdsWithTags(It.IsAny<string[]>()))
                 .Returns(new string[] { });
 
-            TagsController controller = NinjectHelper.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = NinjectHelper.Get<TagsController>(base.Settings, "tagsService", tagsService.Object);
             JsonResult result = controller.GetTagPackages("tag-list") as JsonResult;
             Assert.NotNull(result);
         }
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
                 .Setup(r => r.GetPackageIdsWithTags(It.IsAny<string[]>()))
                 .Throws(new Exception());
 
-            TagsController controller = NinjectHelper.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = NinjectHelper.Get<TagsController>(base.Settings, "tagsService", tagsService.Object);
             BadRequestObjectResult result = controller.GetTagPackages("tag-list") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

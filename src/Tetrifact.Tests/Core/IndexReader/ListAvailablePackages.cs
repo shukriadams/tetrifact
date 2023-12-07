@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -10,15 +10,17 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void ListAll()
         {
-            Directory.CreateDirectory(Path.Join(this.Settings.PackagePath, "package1"));
-            Directory.CreateDirectory(Path.Join(this.Settings.PackagePath, "package2"));
-            Directory.CreateDirectory(Path.Join(this.Settings.PackagePath, "package3"));
+            TestPackage package1 = PackageHelper.CreateNewPackage(this.Settings);
+            TestPackage package2 = PackageHelper.CreateNewPackage(this.Settings);
+            TestPackage package3 = PackageHelper.CreateNewPackage(this.Settings);
 
-            IEnumerable<string> packages = this.IndexReader.GetPackageIds(0, 10);
+            IPackageListService listService = NinjectHelper.Get<IPackageListService>(this.Settings);
+            IEnumerable<Package> packages = listService.Get(0, 10);
+            
             Assert.Equal(3, packages.Count());
-            Assert.Contains("package1", packages);
-            Assert.Contains("package2", packages);
-            Assert.Contains("package3", packages);
+            Assert.True(packages.Any(p => p.Id == package1.Id));
+            Assert.True(packages.Any(p => p.Id == package2.Id));
+            Assert.True(packages.Any(p => p.Id == package3.Id));
         }
     }
 }

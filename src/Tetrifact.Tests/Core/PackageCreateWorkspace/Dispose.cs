@@ -40,7 +40,7 @@ namespace Tetrifact.Tests.Workspace
                     throw new IOException("some-error");
                 });
 
-            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>("filesystem", fs.Object, "log", this.WorkspaceLogger);
+            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(base.Settings, "filesystem", fs.Object, "log", this.WorkspaceLogger);
 
             workspace.Dispose();
             Assert.True(this.WorkspaceLogger.ContainsFragment("Failed to delete temp folder"));

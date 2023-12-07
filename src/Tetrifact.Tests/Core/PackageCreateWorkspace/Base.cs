@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.Workspace
 
         public Base()
         {
-            PackageCreateWorkspace = new PackageCreateWorkspace(Settings, base.FileSystem, base.WorkspaceLogger, HashServiceHelper.Instance());
+            PackageCreateWorkspace = new PackageCreateWorkspace(Settings, base.IndexReader, base.FileSystem, base.WorkspaceLogger, HashServiceHelper.Instance());
             PackageCreateWorkspace.Initialize();
         }
     }

@@ -64,16 +64,62 @@ namespace Tetrifact.Core
             return this.GetManifest(packageId) != null;
         }
 
+        public void WriteManifest(string packageId, Manifest manifest)
+        {
+            string targetFolder = Path.Join(_settings.PackagePath, packageId);
+            string packageTempPath = Path.Join(targetFolder, "~manifest.json");
+            string packageHeadTempPath = Path.Join(targetFolder, "~manifest-head.json");
+            string packagePath = Path.Join(targetFolder, "manifest.json");
+            string packageHeadPath = Path.Join(targetFolder, "manifest-head.json");
+
+            // calculate package hash from child hashes
+            _fileSystem.Directory.CreateDirectory(targetFolder);
+            _fileSystem.File.WriteAllText(packageTempPath, JsonConvert.SerializeObject(manifest));
+        
+
+            // head is package minus file data
+            Manifest headCopy = JsonConvert.DeserializeObject<Manifest>(JsonConvert.SerializeObject(manifest));
+            headCopy.Files = new List<ManifestItem>();
+            _fileSystem.File.WriteAllText(packageHeadTempPath, JsonConvert.SerializeObject(headCopy));
+
+            // flip temp files
+            if (_fileSystem.File.Exists(packagePath))
+                _fileSystem.File.Delete(packagePath);
+
+            _fileSystem.File.Move(packageTempPath, packagePath);
+
+            if (_fileSystem.File.Exists(packageHeadPath))
+                _fileSystem.File.Delete(packageHeadPath);
+
+            _fileSystem.File.Move(packageHeadTempPath, packageHeadPath);
+        }
+
+        public void UpdatePackageCreateDate(string packageId, string createdUtcDate)
+        {
+            DateTime created;
+            
+            try 
+            {
+                created = DateTime.Parse(createdUtcDate);
+            }
+            catch(Exception)
+            { 
+                throw new FormatException($"{createdUtcDate} could not be parsed into a datetime");
+            }
+
+            Manifest manifest = this.GetManifest(packageId);
+            if (manifest == null)
+                throw new PackageNotFoundException(packageId);
+
+            manifest.CreatedUtc = created;
+
+            this.WriteManifest(packageId, manifest);
+        }
+
         public IEnumerable<string> GetAllPackageIds()
         {
             IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);
             return rawList.Select(r => Path.GetFileName(r));
-        }
-
-        public IEnumerable<string> GetPackageIds(int pageIndex, int pageSize)
-        {
-            IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);
-            return rawList.Select(r => Path.GetFileName(r)).OrderBy(r => r).Skip(pageIndex).Take(pageSize);
         }
 
         public bool PackageNameInUse(string id)

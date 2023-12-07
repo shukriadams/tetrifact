@@ -3,7 +3,7 @@
 namespace Tetrifact.Core
 {
     /// <summary>
-    /// Presents an abstraction that can be used to write to and read from a collection of packages. In production this would 
+    /// Abstraction to write to and read from a collection of packages. In production this would 
     /// be a collection of files and folders on a file system. For testing purposes this would be an in-memory abstraction.
     /// </summary>
     public interface IIndexReadService
@@ -15,22 +15,20 @@ namespace Tetrifact.Core
         /// <returns></returns>
         bool PackageExists(string packageId);
 
+        void WriteManifest(string packageId, Manifest manifest);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <param name="createdUtcDate"></param>
+        void UpdatePackageCreateDate(string packageId, string createdUtcDate);
+
         /// <summary>
         /// Gets a list of all package ids in repository. This method is expensive at scale and should be used only when absolutely necessary.
         /// </summary>
         /// <returns></returns>
         IEnumerable<string> GetAllPackageIds();
-
-        /// <summary>
-        /// Gets a list of all packages which can be linked to. A package that cannot be linked to can still be downloaded from 
-        /// through a file link from another package.
-        /// 
-        /// Packages are stored as immediate child folders of the system package folder. Package names are the short names of these folders,
-        /// that is, if the server package folder contains package1 as /path/to/packages/package1, then "package1" would be the name of the
-        /// available package.
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<string> GetPackageIds(int pageIndex, int pageSize);
 
         /// <summary>
         /// create all required folders and stuctures.

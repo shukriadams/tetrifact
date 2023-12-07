@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string search = ViewData["search"] as string; 
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -18,6 +22,10 @@
                     <a class="title" href="/">
                         @ViewData["serverName"] <span class="subtitle">Artifact storage</span>
                     </a>
+                    <div class="searchFieldHolder">
+                        <input class="txtSearch" type="text" value="@search" />
+                        <button class="btnSearch button button--dark">Find</button>
+                    </div>
                 </div>
             </header>
 
@@ -51,7 +59,8 @@
             </div>
         </footer>
     </div>
-    <script type="module" src="/scripts//package.js"></script>
+    <script type="module" src="/scripts/common.js"></script>
+    <script type="module" src="/scripts/package.js"></script>
 </body>
 </html>
 

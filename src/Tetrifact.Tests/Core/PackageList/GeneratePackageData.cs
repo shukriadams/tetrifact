@@ -1,6 +1,7 @@
 ﻿using Moq;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.PackageList
@@ -29,7 +30,7 @@ namespace Tetrifact.Tests.PackageList
                 .Returns(false);
 
             // do something to cover manifest file lookup
-            this.PackageList = new Core.PackageListService(this.MemoryCache, Settings, TagService, mockFileSystem.Object, this.PackageListLogger);
+            this.PackageList = new Core.PackageListService(this.MemoryCache, Settings, new HashService(), TagService, mockFileSystem.Object, this.PackageListLogger);
             this.PackageList.Get(0,1);
         }
     }

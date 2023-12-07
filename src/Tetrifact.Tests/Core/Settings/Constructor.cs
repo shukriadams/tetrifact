@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Settings
 {
-    public class Constructor 
+    public class Constructor : TestBase
     {
         /// <summary>
         /// Coverage 
@@ -14,7 +14,6 @@ namespace Tetrifact.Tests.Settings
         public void Compression_NoCompression()
         {
             Environment.SetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION", "0");
-            ISettings settings = NinjectHelper.Get<ISettings>();
         }
 
         /// <summary>
@@ -24,7 +23,6 @@ namespace Tetrifact.Tests.Settings
         public void Compression_MaxCompression()
         {
             Environment.SetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION", "1");
-            ISettings settings = NinjectHelper.Get<ISettings>();
         }
 
         /// <summary>
@@ -34,7 +32,6 @@ namespace Tetrifact.Tests.Settings
         public void Access_tokens()
         {
             Environment.SetEnvironmentVariable("ACCESS_TOKENS", "123");
-            ISettings settings = NinjectHelper.Get<ISettings>();
 
             // revert
             Environment.SetEnvironmentVariable("ACCESS_TOKENS", "");
@@ -47,7 +44,7 @@ namespace Tetrifact.Tests.Settings
         public void Error_handle_invalid_integer_arg()
         {
             Environment.SetEnvironmentVariable("MAX_ARCHIVES", "zzz");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             // shoudl revert to default
             Assert.Equal(10, settings.MaxArchives);
@@ -60,7 +57,7 @@ namespace Tetrifact.Tests.Settings
         public void Valid_integer_arg()
         {
             Environment.SetEnvironmentVariable("MAX_ARCHIVES", "12");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             // shoudl revert to default
             Assert.Equal(12, settings.MaxArchives);
@@ -75,7 +72,7 @@ namespace Tetrifact.Tests.Settings
         public void Error_handle_invalid_long_arg()
         {
             Environment.SetEnvironmentVariable("SPACE_SAFETY_THRESHOLD", "zzz");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             // shoudl revert to default
             Assert.Equal(0, settings.SpaceSafetyThreshold);
@@ -88,7 +85,7 @@ namespace Tetrifact.Tests.Settings
         public void Valid_long_arg()
         {
             Environment.SetEnvironmentVariable("SPACE_SAFETY_THRESHOLD", "10");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             Assert.Equal(10, settings.SpaceSafetyThreshold);
         }
@@ -100,7 +97,7 @@ namespace Tetrifact.Tests.Settings
         public void Error_handle_invalid_bool_arg()
         {
             Environment.SetEnvironmentVariable("ALLOW_PACKAGE_CREATE", "zzz");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             // shoudl revert to default
             Assert.True(settings.AllowPackageCreate);
@@ -116,9 +113,9 @@ namespace Tetrifact.Tests.Settings
         public void Error_handle_enum_parse()
         {
             Environment.SetEnvironmentVariable("AUTH_LEVEL", "zzz");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
-            // shoudl revert to default
+            // should remain at default
             Assert.Equal(AuthorizationLevel.None, settings.AuthorizationLevel);
         }
 
@@ -129,7 +126,7 @@ namespace Tetrifact.Tests.Settings
         public void Handle_enum_parse()
         {
             Environment.SetEnvironmentVariable("AUTH_LEVEL", AuthorizationLevel.Read.ToString());
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
             // shoudl revert to default
             Assert.Equal(AuthorizationLevel.Read, settings.AuthorizationLevel);
@@ -144,14 +141,14 @@ namespace Tetrifact.Tests.Settings
         [Fact]
         public void Comma_separated_args()
         {
-            Environment.SetEnvironmentVariable("PRUNE_PROTECTED_TAGS", "123,456");
-            ISettings settings = NinjectHelper.Get<ISettings>();
+            Environment.SetEnvironmentVariable("PRUNE_IGNORE_TAGS", "123,456");
+            ISettings settings = NinjectHelper.Get<ISettings>(null);
 
-            // shoudl revert to default
-            Assert.Equal(2, settings.PruneProtectectedTags.Count());
+            // should revert to default
+            Assert.Equal(2, settings.PruneIgnoreTags.Count());
 
-            Assert.Contains("123", settings.PruneProtectectedTags);
-            Assert.Contains("456", settings.PruneProtectectedTags);
+            Assert.Contains("123", settings.PruneIgnoreTags);
+            Assert.Contains("456", settings.PruneIgnoreTags);
         }
 
     }
