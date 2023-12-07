@@ -1,13 +1,5 @@
 # Tetrifact
 
-Master branch
-
-[![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=master)](https://travis-ci.org/shukriadams/tetrifact)
-
-Develop branch
-
-[![Build Status](https://travis-ci.org/shukriadams/tetrifact.svg?branch=develop)](https://travis-ci.org/shukriadams/tetrifact)
-
 Tetrifact is a server for storing build arfefacts. It is primarily written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. 
 
 ### Features
