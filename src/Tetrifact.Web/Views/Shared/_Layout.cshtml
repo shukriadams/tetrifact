@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string search = ViewData["search"] as string; 
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -19,7 +23,7 @@
                         @ViewData["serverName"] <span class="subtitle">Artifact storage</span>
                     </a>
                     <div class="searchFieldHolder">
-                        <input class="txtSearch" type="text" />
+                        <input class="txtSearch" type="text" value="@search" />
                         <button class="btnSearch button button--dark">Find</button>
                     </div>
                 </div>
