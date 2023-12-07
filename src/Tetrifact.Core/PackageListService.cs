@@ -123,11 +123,12 @@ namespace Tetrifact.Core
                 packageData = this.GeneratePackageData();
             }
 
+            searchtext = searchtext.ToLower();
             string packageDataHash = $"{packageData.GetHashCode()}_{_hashService.FromString(searchtext)}";
             IEnumerable<Package> searchResults;
             if (!_cache.TryGetValue(packageDataHash, out searchResults))
             {
-                searchResults = packageData.Where(package => package.Id.Contains(searchtext) || string.Join(" | ", package.Tags).Contains(searchtext));
+                searchResults = packageData.Where(package => package.Id.ToLower().Contains(searchtext) || string.Join(" | ", package.Tags).ToLower().Contains(searchtext));
                 
                 _cache.Set(packageDataHash, searchResults, new DateTimeOffset(DateTime.UtcNow.AddHours(1)));
             }

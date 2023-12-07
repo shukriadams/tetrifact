@@ -1,14 +1,16 @@
 ﻿@using Tetrifact.Core;
 @using Humanizer;
-
 @{
-    ViewData["Title"] = "Packages";
+    string tag = ViewData["tag"] as string;
+    ViewData["Title"] = $"Search";
     Layout = "~/Views/Shared/_Layout.cshtml";
     PageableData<Package> packages = ViewData["results"] as PageableData<Package>;
     string pager = ViewData["pager"] as string;
+    string search = ViewData["search"] as string; 
 }
 
 <div>
+    <h2>Results for @search</h2>
     @if (packages.Items.Any())
     {
         @Html.Raw(pager)
@@ -31,7 +33,7 @@
     else
     {
         <text>
-            No packages found.
+            No results found.
         </text>
     }
 </div>

@@ -125,6 +125,26 @@ namespace Tetrifact.Web
             return View();
         }
 
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("search/{search?}/{page?}")]
+        public IActionResult Search(string search, int page)
+        {
+            // user-facing page values start at 1 instead of 0. reset
+            if (page != 0)
+                page--;
+
+            PageableData<Package> results = _packageList.Find(search, page, _settings.ListPageSize);
+            Pager pager = new Pager();
+            ViewData["serverName"] = _settings.ServerName;
+            ViewData["search"] = search;
+            ViewData["results"] = results;
+            ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, "/search", "page");
+            return View();
+        }
 
         /// <summary>
         /// Renders view.
