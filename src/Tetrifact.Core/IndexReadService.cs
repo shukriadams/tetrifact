@@ -59,12 +59,12 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(_settings.PackageDiffsPath);
         }
 
-        public virtual bool PackageExists(string packageId)
+        bool IIndexReadService.PackageExists(string packageId)
         {
-            return this.GetManifest(packageId) != null;
+            return ((IIndexReadService)this).GetManifest(packageId) != null;
         }
 
-        public void WriteManifest(string packageId, Manifest manifest)
+        void IIndexReadService.WriteManifest(string packageId, Manifest manifest)
         {
             string targetFolder = Path.Join(_settings.PackagePath, packageId);
             string packageTempPath = Path.Join(targetFolder, "~manifest.json");
@@ -94,7 +94,7 @@ namespace Tetrifact.Core
             _fileSystem.File.Move(packageHeadTempPath, packageHeadPath);
         }
 
-        public void UpdatePackageCreateDate(string packageId, string createdUtcDate)
+        void IIndexReadService.UpdatePackageCreateDate(string packageId, string createdUtcDate)
         {
             DateTime created;
             
@@ -107,37 +107,37 @@ namespace Tetrifact.Core
                 throw new FormatException($"{createdUtcDate} could not be parsed into a datetime");
             }
 
-            Manifest manifest = this.GetManifest(packageId);
+            Manifest manifest = ((IIndexReadService)this).GetManifest(packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
             manifest.CreatedUtc = created;
 
-            this.WriteManifest(packageId, manifest);
+            ((IIndexReadService)this).WriteManifest(packageId, manifest);
         }
 
-        public IEnumerable<string> GetAllPackageIds()
+        IEnumerable<string> IIndexReadService.GetAllPackageIds()
         {
             IEnumerable<string> rawList = _fileSystem.Directory.GetDirectories(_settings.PackagePath);
             return rawList.Select(r => Path.GetFileName(r));
         }
 
-        public bool PackageNameInUse(string id)
+        bool IIndexReadService.PackageNameInUse(string id)
         {
             string packagePath = Path.Join(_settings.PackagePath, id);
             return _fileSystem.Directory.Exists(packagePath);
         }
 
-        public virtual Manifest GetExpectedManifest(string packageId)
+        Manifest IIndexReadService.GetExpectedManifest(string packageId)
         { 
-            Manifest manifest = this.GetManifest(packageId);
+            Manifest manifest = ((IIndexReadService)this).GetManifest(packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
             return manifest;
         }
 
-        public virtual FileOnDiskProperties GetRepositoryFileProperties(string path, string hash)
+        FileOnDiskProperties IIndexReadService.GetRepositoryFileProperties(string path, string hash)
         { 
             string filePath = Path.Join(_settings.RepositoryPath, path, hash, "bin");
             if (!File.Exists(filePath))
@@ -148,12 +148,12 @@ namespace Tetrifact.Core
             return new FileOnDiskProperties { Hash = hash, Size = fileInfo.Length };
         }
 
-        public virtual Manifest GetManifest(string packageId)
+        Manifest IIndexReadService.GetManifest(string packageId)
         { 
             return this.GetManifest(packageId, "manifest.json");
         }
 
-        public virtual Manifest GetManifestHead(string packageId)
+        Manifest IIndexReadService.GetManifestHead(string packageId)
         {
             return this.GetManifest(packageId, "manifest-head.json");
         }
@@ -180,7 +180,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public GetFileResponse GetFile(string id)
+        GetFileResponse IIndexReadService.GetFile(string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
             string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
@@ -191,9 +191,9 @@ namespace Tetrifact.Core
             return null;
         }
 
-        public (bool, string) VerifyPackage(string packageId) 
+        (bool, string) IIndexReadService.VerifyPackage(string packageId) 
         {
-            Manifest manifest = this.GetManifest(packageId);
+            Manifest manifest = ((IIndexReadService)this).GetManifest(packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
@@ -230,12 +230,12 @@ namespace Tetrifact.Core
             return (true, string.Empty);
         }
 
-        public virtual void DeletePackage(string packageId)
+        void IIndexReadService.DeletePackage(string packageId)
         {
             if (!_settings.AllowPackageDelete)
                 throw new OperationNowAllowedException();
 
-            Manifest manifest = this.GetManifest(packageId);
+            Manifest manifest = ((IIndexReadService)this).GetManifest(packageId);
             if (manifest == null)
                 throw new PackageNotFoundException(packageId);
 
@@ -290,7 +290,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public DiskUseStats GetDiskUseSats()
+        DiskUseStats IIndexReadService.GetDiskUseSats()
         {
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             DriveInfo drive = new DriveInfo(path);
@@ -302,7 +302,7 @@ namespace Tetrifact.Core
             return stats;
         }
 
-        public PartialPackageLookupResult FindExisting(PartialPackageLookupArguments newPackage)
+        PartialPackageLookupResult IIndexReadService.FindExisting(PartialPackageLookupArguments newPackage)
         {
             IList<ManifestItem> existing = new List<ManifestItem>();
 

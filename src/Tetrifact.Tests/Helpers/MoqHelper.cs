@@ -113,5 +113,22 @@ namespace Tetrifact.Tests
         {
             return repo.Create<T>(CtorArgs(typeof(T), dependencies, false).ToArray()).Object;
         }
+
+        public static Mock<T> CreateMockWithDependencies<T>(object[] dependencies) where T : class
+        {
+            return repo.Create<T>(CtorArgs(typeof(T), dependencies, false).ToArray());
+        }
+
+        /// <summary>
+        /// Creates a mock of some concrete type, force casting it to an interface
+        /// </summary>
+        /// <typeparam name="TConcrete"></typeparam>
+        /// <typeparam name="TInterfaceOut"></typeparam>
+        /// <param name="dependencies"></param>
+        /// <returns></returns>
+        public static Mock<TInterfaceOut> CreateMockWithDependencies<TConcrete, TInterfaceOut>(object[] dependencies) where TConcrete : class where TInterfaceOut : class
+        {
+            return repo.Create<TConcrete>(CtorArgs(typeof(TConcrete), dependencies, false).ToArray()).As<TInterfaceOut>();
+        }
     }
 }

@@ -14,8 +14,7 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public static bool IsSubsetOf<T>(this ICollection<T> mainCollection, ICollection<T> subCollection)
         {
-            bool isSubset = !mainCollection.Except(subCollection).Any();
-            return isSubset;
+            return !mainCollection.Except(subCollection).Any();
         }
 
     }
