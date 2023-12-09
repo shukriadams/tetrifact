@@ -1,10 +1,9 @@
 ﻿@using Tetrifact.Core;
-@using Humanizer;
 
 @{
     ViewData["Title"] = "Packages";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    PageableData<Package> packages = ViewData["results"] as PageableData<Package>;
+    PageableData<Package> packages = ViewData["packages"] as PageableData<Package>;
     string pager = ViewData["pager"] as string;
 }
 
@@ -19,7 +18,7 @@
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
-                    <div class="subtext">(@TimeHelper.ToIsoString(package.CreatedUtc) - @package.CreatedUtc.ToLocalTime().Humanize() )</div>
+                    <div class="subtext">(@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago)</div>
                     @await Html.PartialAsync("TagsList", package.Tags)
                 </li>
             }

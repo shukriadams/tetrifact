@@ -66,6 +66,7 @@ input[type=text] {
     font-size: 16px;
     font-weight: 100;
     padding-left: 10px;
+    white-space: nowrap;
 }
 
 .fixed {
@@ -92,12 +93,16 @@ header {
     display: inline-block;
     position: absolute;
     right: 10px;
+    max-width: 50%;
+    white-space: nowrap;
 }
 
 .title {
     color: white;
     font-size: 34px;
     font-weight: bold;
+    display: inline-block;
+    max-width: 50%
 }
 
 main {

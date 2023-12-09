@@ -43,6 +43,9 @@ namespace Tetrifact.Core
 
         public PageableData(IEnumerable<T> items, int pageIndex, int pageSize, long virtualItemCount)
         {
+            if (pageSize == 0)
+                throw new Exception("PageableData page size cannot be zero, will divide overflow. Set to at least 1.");
+
             this.Items = items;
             this.PageSize = pageSize;
             this.PageIndex = pageIndex;

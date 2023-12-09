@@ -1,6 +1,4 @@
 ﻿@using Tetrifact.Core;
-@using Humanizer;
-
 @{
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
@@ -28,7 +26,7 @@
             Created
         </div>
         <div class="layout-value">
-            @TimeHelper.ToIsoString(manifest.CreatedUtc) (@manifest.CreatedUtc.ToLocalTime().Humanize())
+            @manifest.CreatedUtc.ToIso()<span class="subtext"> (@manifest.CreatedUtc.Ago() ago)</span>
         </div>
     </div>
 

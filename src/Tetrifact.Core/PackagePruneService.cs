@@ -122,7 +122,7 @@ namespace Tetrifact.Core
                 bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
                 string flattenedTags = manifest.Tags.Count == 0 ? string.Empty : $"Tags : {string.Join(",", manifest.Tags)}";
                 int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
-                report.Add($"- {packageId}, added {TimeHelper.ToIsoString(manifest.CreatedUtc)} ({ageInDays}) days ago). {flattenedTags}");
+                report.Add($"- {packageId}, added {manifest.CreatedUtc.ToIso()} ({ageInDays}) days ago). {flattenedTags}");
 
                 if (isTaggedKeep){
                     taggedKeep.Add(packageId);
@@ -188,9 +188,9 @@ namespace Tetrifact.Core
             report.Add($"Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
             if (taggedKeep.Count > 0)
                 report.Add($"Kept due to tagging - {string.Join(",", taggedKeep)}.");
-            report.Add($"WEEKLY prune (before {TimeHelper.ToIsoString(weeklyPruneFloor)}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky}. {string.Join(",", weeklyKeep)}{weeklyPruneFlattened}.");
-            report.Add($"MONTHLY prune (before {TimeHelper.ToIsoString(monthlyPruneFloor)}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly}. {string.Join(",", monthlyKeep)}{monthlyPruneFlattened}.");
-            report.Add($"YEARLY prune (before {TimeHelper.ToIsoString(yearlyPruneFloor)}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly}. {string.Join(",", yearlyKeep)}{yearlyPruneFlattened}.");
+            report.Add($"WEEKLY prune (before {weeklyPruneFloor.ToIso()}, {_settings.PruneWeeklyThreshold} days ago) count is {_settings.PruneWeeklyKeep}. Keeping {weeklyKeep.Count()} of {inWeeky}. {string.Join(",", weeklyKeep)}{weeklyPruneFlattened}.");
+            report.Add($"MONTHLY prune (before {monthlyPruneFloor.ToIso()}, {_settings.PruneMonthlyThreshold} days ago) count is {_settings.PruneMonthlyKeep}. Keeping {monthlyKeep.Count()} of {inMonthly}. {string.Join(",", monthlyKeep)}{monthlyPruneFlattened}.");
+            report.Add($"YEARLY prune (before {yearlyPruneFloor.ToIso()}, {_settings.PruneYearlyThreshold} days ago) count is {_settings.PruneYearlyKeep}. Keeping {yearlyKeep.Count()} of {inYearly}. {string.Join(",", yearlyKeep)}{yearlyPruneFlattened}.");
             report.Add(string.Empty);
             report.Add($"Pruning {packageIds.Count} packages{pruneIdList}.");
             report.Add(" ******************************** Prune audit **********************************");

@@ -141,7 +141,7 @@ namespace Tetrifact.Web
             Pager pager = new Pager();
             ViewData["serverName"] = _settings.ServerName;
             ViewData["search"] = search;
-            ViewData["results"] = results;
+            ViewData["packages"] = results;
             ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, "/search", "page");
             return View();
         }
