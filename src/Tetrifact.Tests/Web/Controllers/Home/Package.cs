@@ -6,7 +6,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Package : FileSystemBase
+    public class Package : TestBase
     {
         [Fact]
         public void Index_happy_path()

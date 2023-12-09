@@ -3,7 +3,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class SpaceCheck : FileSystemBase
+    public class SpaceCheck : TestBase
     {
         [Fact]
         public void Happy_path()

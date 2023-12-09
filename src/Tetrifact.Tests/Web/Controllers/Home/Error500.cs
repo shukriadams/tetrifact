@@ -3,7 +3,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Error500 : FileSystemBase
+    public class Error500 : TestBase
     {
         /// <summary>
         /// coverage

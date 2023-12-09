@@ -93,14 +93,19 @@ namespace Tetrifact.Core
             string archivePath = this.GetPackageArchivePath(packageId);
             string temptPath = this.GetPackageArchiveTempPath(packageId);
 
-            // archive doesn't exist and isn't being created
-            if (!_fileSystem.File.Exists(archivePath) && !_fileSystem.File.Exists(temptPath))
-                return 0;
+            bool archiveExists = _fileSystem.File.Exists(archivePath);
+            bool archiveTemptExists = _fileSystem.File.Exists(temptPath);
+        
+            // archive exists already
+            if (archiveExists)
+                return 2;
 
-            if (_fileSystem.File.Exists(temptPath))
+            // archive is being created
+            if (archiveTemptExists)
                 return 1;
 
-            return 2;
+            // neither archive nor temp file exists
+            return 0;
         }
 
         /// <summary>

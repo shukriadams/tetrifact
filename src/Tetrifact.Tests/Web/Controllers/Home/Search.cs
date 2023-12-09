@@ -6,7 +6,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Search : FileSystemBase
+    public class Search : TestBase
     {
         /// <summary>
         /// 

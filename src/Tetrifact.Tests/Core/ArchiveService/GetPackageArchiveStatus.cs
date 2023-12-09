@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Moq;
+using System.IO;
+using System.IO.Abstractions;
 using Tetrifact.Core;
 using Xunit;
 
@@ -12,17 +14,36 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetNonExistent()
         {
-            Assert.Throws<PackageNotFoundException>(() => this.ArchiveService.GetPackageArchiveStatus("invalid-id"));
+            // mock a non-existent package
+            Mock<IIndexReadService> indexReader = new Mock<IIndexReadService>();
+            indexReader
+                .Setup(r => r.PackageExists(It.IsAny<string>()))
+                .Returns(false);
+
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ base.Settings, indexReader });
+            Assert.Throws<PackageNotFoundException>(()=> archiveService.GetPackageArchiveStatus("invalid-id"));
         }
 
         /// <summary>
-        /// Archive create status should be 0 (started)
+        /// Archive create status should be 0 (starting) when neither archive exists, nor archive creation has started yet
         /// </summary>
         [Fact]
         public void GetArchiveStarted()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-            Assert.Equal(0, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id));
+            // force package exists
+            Mock<IIndexReadService> indexReader = new Mock<IIndexReadService>();
+            indexReader
+                .Setup(r => r.PackageExists(It.IsAny<string>()))
+                .Returns(true);
+
+            // force filesystem to return false for all file checks (ie, archive + archive temp)
+            Mock<IFileSystem> filesystem = new Mock<IFileSystem>();
+            filesystem
+                .Setup(r => r.File.Exists(It.IsAny<string>()))
+                .Returns(false);
+
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { base.Settings, indexReader, filesystem });
+            Assert.Equal(0, archiveService.GetPackageArchiveStatus("any-package-id"));
         }
 
         /// <summary>

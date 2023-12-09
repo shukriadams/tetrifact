@@ -7,7 +7,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Index : FileSystemBase
+    public class Index : TestBase
     {
          /// <summary>
         /// Confirms that the controller initialized and can be called.

@@ -7,7 +7,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class PackagesWithTag : FileSystemBase
+    public class PackagesWithTag : TestBase
     {
         [Fact]
         public void Happy_path()

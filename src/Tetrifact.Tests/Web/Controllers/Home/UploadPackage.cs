@@ -4,7 +4,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class UploadPackage : FileSystemBase
+    public class UploadPackage : TestBase
     {
         [Fact]
         public void Happy_path()

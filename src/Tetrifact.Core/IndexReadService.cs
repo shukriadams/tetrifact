@@ -59,7 +59,7 @@ namespace Tetrifact.Core
             Directory.CreateDirectory(_settings.PackageDiffsPath);
         }
 
-        public bool PackageExists(string packageId)
+        public virtual bool PackageExists(string packageId)
         {
             return this.GetManifest(packageId) != null;
         }
