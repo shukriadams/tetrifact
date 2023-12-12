@@ -107,7 +107,7 @@
             @if (manifest.Tags.Any())
             {
                 <ul>
-                    @foreach (string tag in manifest.Tags)
+                    @foreach (string tag in manifest.Tags.OrderBy(t => t))
                     {
                         <li class="listItem">
                             <a class="package-removeTag" data-tag="@tag" href="javascript:void(null)">

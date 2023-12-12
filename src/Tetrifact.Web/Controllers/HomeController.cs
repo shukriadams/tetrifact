@@ -83,8 +83,8 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("package/{packageId}/{pageIndex?}")]
-        public IActionResult Package(string packageId, int pageIndex)
+        [Route("package/{packageId}")]
+        public IActionResult Package(string packageId, [FromQuery(Name = "pageIndex")] int pageIndex)
         {
             ViewData["serverName"] = _settings.ServerName;
             ViewData["packageId"] = packageId;
@@ -111,7 +111,7 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("packages/{page?}")]
-        public IActionResult Packages(int page)
+        public IActionResult Packages([FromQuery(Name = "page")] int page)
         {
             // user-facing page values start at 1 instead of 0. reset
             if (page != 0)
@@ -131,18 +131,21 @@ namespace Tetrifact.Web
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("search/{search?}/{page?}")]
-        public IActionResult Search(string search, int page)
+        public IActionResult Search(string search, [FromQuery(Name = "page")] int page)
         {
             // user-facing page values start at 1 instead of 0. reset
             if (page != 0)
                 page--;
+
+            if (search == null)
+                search = string.Empty;
 
             PageableData<Package> results = _packageList.Find(search, page, _settings.ListPageSize);
             Pager pager = new Pager();
             ViewData["serverName"] = _settings.ServerName;
             ViewData["search"] = search;
             ViewData["packages"] = results;
-            ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, "/search", "page");
+            ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, $"/search/{search}", "page");
             return View();
         }
 

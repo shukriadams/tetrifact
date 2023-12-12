@@ -123,12 +123,14 @@ namespace Tetrifact.Web
 
             s.Append($"<ul class='{this.CssClass}'>");
 
+            if (!baseurl.Contains("?"))
+                baseurl = $"{baseurl}?";
 
             // previous
             if (this.Currentgroup > 0)
             {
                 int back = ((this.Currentgroup * pagesPerGroup) - 1);
-                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{pageIndexName}={back + 1}{hash}'>");
+                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}&{pageIndexName}={back + 1}{hash}'>");
                 s.Append("<span class='pager-linkContent'>");
                 s.Append("..");
                 s.Append("</span>");
@@ -146,7 +148,7 @@ namespace Tetrifact.Web
                 if (isActive)
                     s.Append($"<a class='pager-link pager-link--active'>");
                 else
-                    s.Append($"<a class='pager-link' href='{baseurl}/{c + 1}{hash}'>");
+                    s.Append($"<a class='pager-link' href='{baseurl}&{pageIndexName}={c + 1}{hash}'>");
 
                 s.Append("<span class='pager-linkContent'>");
                 s.Append(c + 1);
@@ -159,7 +161,7 @@ namespace Tetrifact.Web
             if (this.Currentgroup < this.TotalGroups - 1)
             {
                 int forward = (this.Currentgroup + 1) * pagesPerGroup;
-                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}/{forward + 1}{hash}'>");
+                s.Append($"<li class='pager-item'><a class='pager-link' href='{baseurl}&{pageIndexName}={forward + 1}{hash}'>");
                 s.Append("<span class='pager-linkContent'>");
                 s.Append("..");
                 s.Append("</span>");

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<string>
 
 <ul class="tags">
-    @foreach (string tag in Model)
+    @foreach (string tag in Model.OrderBy(t => t))
     {
         <li class="tags-tag">
             <a class="tags-link" href="/packagesWithTag/@Uri.EscapeDataString(tag)">@tag</a>
