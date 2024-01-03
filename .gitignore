@@ -32,3 +32,7 @@
 /src/coverage
 /build/live/.stage
 
+utils/uploadPartial/1.zip
+utils/uploadPartial/2diff.json
+utils/uploadPartial/package2Partial.zip
+utils/uploadPartial/package2Partial
