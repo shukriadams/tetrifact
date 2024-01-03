@@ -84,8 +84,9 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public IEnumerable<string> SortFileArrayForHashing(IEnumerable<string> files)
         {
-            Array.Sort(files.ToArray(), (x, y) => String.Compare(x, y));
-            return files;
+            string[] sorted = files.ToArray();
+            Array.Sort(sorted, (x, y) => String.Compare(x, y));
+            return sorted;
         }
 
     }
