@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using Tetrifact.Core;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Tetrifact.Web
 {
@@ -69,6 +70,16 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, CleanerCron>();
             services.AddTransient<IDaemon, Daemon>();
             services.AddTransient<ITimeProvideer, TimeProvider>();
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
 
 
             // register filterws
