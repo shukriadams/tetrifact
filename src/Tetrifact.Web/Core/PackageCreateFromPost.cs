@@ -24,7 +24,7 @@ namespace Tetrifact.Web
         /// <summary>
         /// Optional. If partial upload, JSON-formated string for exsting files to link to. Must deserialize to IEnumerable<ManifestItem>
         /// </summary>
-        [FromForm] public string ExistingFiles { get; set; }
+        [FromForm] public IFormFile ExistingFiles { get; set; }
 
         /// <summary>
         /// True if the querystring IsArchive is set to true. If true, Files will be treated as an archive and unpacked.

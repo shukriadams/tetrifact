@@ -5,6 +5,8 @@ using Tetrifact.Core;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Web
 {
@@ -313,7 +315,8 @@ namespace Tetrifact.Web
                 { 
                     try 
                     {
-                        existingFiles = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<ManifestItem>>(post.ExistingFiles);
+                        string existingFileRaw = StreamsHelper.StreamToString(post.ExistingFiles.OpenReadStream());
+                        existingFiles = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<ManifestItem>>(existingFileRaw);
                     } 
                     catch(Exception) 
                     {
@@ -424,27 +427,33 @@ namespace Tetrifact.Web
         /// <param name="post"></param>
         /// <returns></returns>
         [HttpPost("filterexistingfiles")]
-        public ActionResult FilterExistingFiles([FromForm] PackageExistingLookupFromPost post)
+        public ActionResult FilterExistingFiles()
         {
             Manifest incomingManifest;
             try 
             {
-                incomingManifest = Newtonsoft.Json.JsonConvert.DeserializeObject<Manifest>(post.Manifest);
+                string postData;
+                using (var reader = new StreamReader(HttpContext.Request.Body))
+                {
+                    postData = reader.ReadToEnd();
+
+                    incomingManifest = Newtonsoft.Json.JsonConvert.DeserializeObject<Manifest>(postData);
+
+                    PartialPackageLookupResult re = _indexService.FindExisting(new PartialPackageLookupArguments { Files = incomingManifest.Files });
+
+                    return new JsonResult(new
+                    {
+                        success = new
+                        {
+                            Manifest = re
+                        }
+                    });
+                }
             } 
-            catch
+            catch (Exception ex)
             {
                 return Responses.InvalidJSONError();
             }
-
-            PartialPackageLookupResult re = _indexService.FindExisting(new PartialPackageLookupArguments { Files = incomingManifest.Files });
-
-            return new JsonResult(new
-            {
-                success = new
-                {
-                    Manifest = re
-                }
-            });
         }
 
         #endregion
