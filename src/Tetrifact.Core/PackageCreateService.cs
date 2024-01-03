@@ -131,6 +131,10 @@ namespace Tetrifact.Core
                                 throw new Exception($"Expected local file {filePath} @ hash {hashes[filePath]} does not exist");
 
                             _workspace.SubscribeToHash(filePath, hashes[filePath], newPackage.Id, filePropertiesOnDisk.Size, false);
+                            
+                            // overwrite content hash with filepath hash + content hash, needed to calc full package hash
+                            hashes[filePath] = _hashService.FromString(filePath) + hashes[filePath];
+                            
                             return;
                         }
                         
