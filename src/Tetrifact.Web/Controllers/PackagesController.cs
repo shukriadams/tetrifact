@@ -422,7 +422,8 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// 
+        /// Processes a manifest, filtering out files that already exist on server. The returned manifest can be used
+        /// to upload a reduced package that is pre-deduped.
         /// </summary>
         /// <param name="post"></param>
         /// <returns></returns>

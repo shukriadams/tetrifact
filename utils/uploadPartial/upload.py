@@ -8,29 +8,54 @@ from os import walk
 from hashlib import sha256
 import json
 import shutil
+import argparse
 
-address = 'http://localhost:5000'
+parser = argparse.ArgumentParser()
+parser.add_argument('--address', default='localhost:5000')
+parser.add_argument('--zip', default=False)
+parser.add_argument('--clean', default='') # can be "", "partial" "both"
+parser.add_argument('--package1_path', default='./package1')
+parser.add_argument('--package2_path', default='./package2')
 
-# delete existing packages 1+2
-run(['curl', '-X', 'DELETE', f'{address}/v1/packages/1'])
-run(['curl', '-X', 'DELETE', f'{address}/v1/packages/2'])
 
-# zip and upload package1
-zipPath = os.path.join(f'1.zip')
+args = parser.parse_args()
+address = f'http://{args.address}'
 
-try:
-    if os.path.exists(zipPath):
-        os.remove(zipPath)
-except OSError as e:
-    print(f'Error removing zip: {zipPath} : {e}')
+# ensure package paths exist
+if not os.path.exists(args.package1_path):
+    print(f'Package 1 path {args.package1_path} does not exist')
     sys.exit(1)
 
-run(
-    ['7z', 
-    'a' ,
-    zipPath, 
-    os.path.join('./package1', '*')] 
-)
+if not os.path.exists(args.package2_path):
+    print(f'Package 2 path {args.package2_path} does not exist')
+    sys.exit(1)
+
+# delete existing packages 1+2
+package1Name='package1'
+package2Name='package2'
+
+# remove first package only if
+if args.clean == 'both':
+    run(['curl', '-X', 'DELETE', f'{address}/v1/packages/{package1Name}'])
+
+run(['curl', '-X', 'DELETE', f'{address}/v1/packages/{package2Name}'])
+
+# generate archive of project 1
+zipPath = os.path.join(f'1.zip')
+if args.zip == True:
+    try:
+        if os.path.exists(zipPath):
+            os.remove(zipPath)
+    except OSError as e:
+        print(f'Error removing zip: {zipPath} : {e}')
+        sys.exit(1)
+
+    run(
+        ['7z', 
+        'a' ,
+        zipPath, 
+        os.path.join('./package1', '*')] 
+    )
 
 run(
     [
@@ -39,10 +64,9 @@ run(
         '-H', 'Transfer-Encoding:chunked', 
         '-H', 'Content-Type:multipart/form-data', 
         '-F', f'Files=@{zipPath}',
-        f'{address}/v1/packages/1?IsArchive=true'
+        f'{address}/v1/packages/{package1Name}?IsArchive=true'
     ]
 )
-
 
 # generate a manifest of package2 files
 files = os.listdir('./package2')
@@ -65,7 +89,8 @@ for file in files:
     package2HashContent += sha256(file.encode('utf-8')).hexdigest() + fileData['hash']
 
 package2LocalHash = sha256(package2HashContent.encode('utf-8')).hexdigest()
-# use package2 manifest to request a diff list against package1
+
+# use package2 manifest to determine which files in that package are unique vs files that already exist on server
 result = subprocess.run([
         'curl',
         '-X', 'POST', 
@@ -124,7 +149,7 @@ result = subprocess.run(
         '-H', 'Content-Type:multipart/form-data', 
         '-F', f'Files=@{zipPath}',
         '-F', f'ExistingFiles=@{commonFiles}',
-        f'{address}/v1/packages/2?IsArchive=true'
+        f'{address}/v1/packages/{package2Name}?IsArchive=true'
     ],
     shell=True, 
     stderr=subprocess.PIPE,
