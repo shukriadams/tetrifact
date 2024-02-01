@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Tetrifact.Web
 {
@@ -7,6 +8,6 @@ namespace Tetrifact.Web
         /// <summary>
         /// Files to upload to package (multipart/form-data).
         /// </summary>
-        [FromForm] public string Manifest { get; set; }
+        [FromForm] public IFormFile Manifest { get; set; }
     }
 }

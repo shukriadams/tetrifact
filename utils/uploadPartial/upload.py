@@ -9,14 +9,14 @@ from hashlib import sha256
 import json
 import shutil
 import argparse
+import glob
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--address', default='localhost:5000')
-parser.add_argument('--zip', default=False)
+parser.add_argument('--zip', default='false')
 parser.add_argument('--clean', default='') # can be "", "partial" "both"
 parser.add_argument('--package1_path', default='./package1')
 parser.add_argument('--package2_path', default='./package2')
-
 
 args = parser.parse_args()
 address = f'http://{args.address}'
@@ -38,65 +38,106 @@ package2Name='package2'
 if args.clean == 'both':
     run(['curl', '-X', 'DELETE', f'{address}/v1/packages/{package1Name}'])
 
-run(['curl', '-X', 'DELETE', f'{address}/v1/packages/{package2Name}'])
+if args.clean == 'both' or args.clean == 'partial':
+    run(['curl', '-X', 'DELETE', f'{address}/v1/packages/{package2Name}'])
 
 # generate archive of project 1
 zipPath = os.path.join(f'1.zip')
-if args.zip == True:
+if args.zip == 'true':
     try:
         if os.path.exists(zipPath):
+            print(f'removing archive {zipPath}')
             os.remove(zipPath)
     except OSError as e:
         print(f'Error removing zip: {zipPath} : {e}')
         sys.exit(1)
 
+    print(f'generating archive for package 1 at {zipPath}')
+
     run(
         ['7z', 
         'a' ,
         zipPath, 
-        os.path.join('./package1', '*')] 
+        os.path.join(args.package1_path, '*')] 
     )
 
-run(
-    [
-        'curl',
-        '-X', 'POST', 
-        '-H', 'Transfer-Encoding:chunked', 
-        '-H', 'Content-Type:multipart/form-data', 
-        '-F', f'Files=@{zipPath}',
-        f'{address}/v1/packages/{package1Name}?IsArchive=true'
-    ]
-)
+if args.clean == 'both':
+    run(
+        [
+            'curl',
+            '-X', 'POST', 
+            '-H', 'Transfer-Encoding:chunked', 
+            '-H', 'Content-Type:multipart/form-data', 
+            '-F', f'Files=@{zipPath}',
+            f'{address}/v1/packages/{package1Name}?IsArchive=true'
+        ]
+    )
 
 # generate a manifest of package2 files
-files = os.listdir('./package2')
+print(f'Looking up files in {args.package2_path}')
+files = glob.glob(args.package2_path + '/**/*', recursive=True) 
 sorted(files)
 
-manifest = {}
-manifest['files'] = []
-package2HashContent = ''
+def shortenFilePath(path, root):
+    path = path.replace('\\', '/')
+    clipStart = len(root) + 1 # clip off root + first slash
+    path = path[ clipStart : clipStart + len(path)]
+    return path
 
-for file in files:
-    fileData = {}
-    fileData['path'] = file
-    filePathFull = os.path.join('./package2', file)
+if args.clean == 'both' or args.clean == 'partial':
 
-    with open(filePathFull) as f:
-        fileContent = f.read()
 
-    fileData['hash'] = sha256(fileContent.encode('utf-8')).hexdigest()
-    manifest['files'].append(fileData)
-    package2HashContent += sha256(file.encode('utf-8')).hexdigest() + fileData['hash']
+    manifest = {}
+    manifest['files'] = []
+    package2HashContent = ''
 
-package2LocalHash = sha256(package2HashContent.encode('utf-8')).hexdigest()
+    print('building manifest for package2')
+
+    count = 0
+    files_count = len(files)
+    for file in files:
+        
+        count = count + 1
+
+        fileData = {}
+        fileData['path'] = shortenFilePath(file, args.package2_path)
+
+        filePathFull = os.path.join(args.package2_path, file)
+
+        whateverPython = fileData['path']
+
+        print(f'manifest file {count}/{files_count} : {whateverPython}')
+
+        if os.path.isdir(filePathFull):
+            continue
+
+        fileContent=''
+        with open(filePathFull, mode='rb') as f:
+            fileContent = f.read()
+
+        fileData['hash'] = sha256(fileContent).hexdigest()
+        manifest['files'].append(fileData)
+        package2HashContent += sha256(file.encode('utf-8')).hexdigest() + fileData['hash']
+
+    package2LocalHash = sha256(package2HashContent.encode('utf-8')).hexdigest()
+
+    print('Dumping manifest for package2')
+    with open('./2manifest.json', 'w') as out:
+        json.dump(manifest, out, indent = 4)
+
+
+print('reloading manifest2')
+with open('./2manifest.json') as f:
+    jsonstring = f.read()
+    manifest = json.loads(jsonstring)
 
 # use package2 manifest to determine which files in that package are unique vs files that already exist on server
 result = subprocess.run([
         'curl',
         '-X', 'POST', 
-        '-H', 'Accept: application/json',
-        '-H', 'Content-Type: application/json', 
-        '-d', json.dumps(manifest),
+        '-H', 'Transfer-Encoding:chunked', 
+        '-H', 'Content-Type:multipart/form-data', 
+        '-F', 'Manifest=@./2manifest.json',
         f'{address}/v1/packages/filterexistingfiles'
     ],
     shell=True, 
@@ -105,6 +146,9 @@ result = subprocess.run([
 
 result = json.loads(result)
 common = result['success']['manifest']['files']
+
+print(common)
+sys.exit(0)
 
 # copy unique files in package2 to dir to zip up
 package2Partial = './package2Partial'
@@ -123,7 +167,17 @@ for file in files:
     if skip:
         continue
 
-    shutil.copyfile(os.path.join('./package2', file), os.path.join('./package2Partial', file))
+    shortened_path = shortenFilePath(file, args.package2_path)
+    sourcePath = os.path.join(args.package2_path, file)
+
+    if os.path.isdir(sourcePath):
+        continue
+
+    targetPath = os.path.join('./package2Partial', shortened_path)
+    shutil.copyfile(sourcePath, targetPath)
+    
+    print (f'copied {targetPath}')
+    
 
 # zip and upload package2 unique files, along with list of files to reuse from package1
 zipPath = os.path.join(f'package2Partial.zip')

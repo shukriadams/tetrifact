@@ -428,28 +428,32 @@ namespace Tetrifact.Web
         /// <param name="post"></param>
         /// <returns></returns>
         [HttpPost("filterexistingfiles")]
-        public ActionResult FilterExistingFiles()
+        [RequestSizeLimit(long.MaxValue)]
+        public ActionResult FilterExistingFiles([FromForm] PackageExistingLookupFromPost post)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             Manifest incomingManifest;
+            string postData;
+
             try 
             {
-                string postData;
-                using (var reader = new StreamReader(HttpContext.Request.Body))
+                if (post.Manifest == null)
+                    return Responses.InvalidJSONError();
+
+                postData = StreamsHelper.StreamToString(post.Manifest.OpenReadStream());
+                incomingManifest = Newtonsoft.Json.JsonConvert.DeserializeObject<Manifest>(postData);
+
+                PartialPackageLookupResult re = _indexService.FindExisting(new PartialPackageLookupArguments { Files = incomingManifest.Files });
+
+                return new JsonResult(new
                 {
-                    postData = reader.ReadToEnd();
-
-                    incomingManifest = Newtonsoft.Json.JsonConvert.DeserializeObject<Manifest>(postData);
-
-                    PartialPackageLookupResult re = _indexService.FindExisting(new PartialPackageLookupArguments { Files = incomingManifest.Files });
-
-                    return new JsonResult(new
+                    success = new
                     {
-                        success = new
-                        {
-                            Manifest = re
-                        }
-                    });
-                }
+                        Manifest = re
+                    }
+                });
             } 
             catch (Exception ex)
             {
