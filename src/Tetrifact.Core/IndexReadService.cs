@@ -305,6 +305,8 @@ namespace Tetrifact.Core
         PartialPackageLookupResult IIndexReadService.FindExisting(PartialPackageLookupArguments newPackage)
         {
             IList<ManifestItem> existing = new List<ManifestItem>();
+            
+            bool errors = false;
 
             // write incoming files to repo, get hash of each
             newPackage.Files.AsParallel().ForAll(delegate (ManifestItem file) {
@@ -314,14 +316,24 @@ namespace Tetrifact.Core
                 {
                     repositoryPathDir = _fileSystem.Path.Join(_settings.RepositoryPath, file.Path, file.Hash);
                     if (_fileSystem.Directory.Exists(repositoryPathDir))
-                        existing.Add(file);
+                    {
+                        lock(existing)
+                            existing.Add(file);
+                    }
                 }
                 catch (Exception ex)
                 {
                     // give exception more context, AsParallel should pass exception back up to waiting parenting thread
-                    throw new Exception($"Error looking up existing repo file {repositoryPathDir} {file}", ex);
+                    _logger.LogError($"Error looking up existing repo file {repositoryPathDir} {file}", ex);
+                    errors = true;
                 }
             });
+
+            // throw latest exception, if any were raised
+            if (errors)
+                throw new Exception("An error occurred trying to read from local file repository. Please check logs for more info");
+
+            existing = existing.OrderBy(f => f.Path).ToList();
 
             return new PartialPackageLookupResult
             {
