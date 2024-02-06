@@ -105,7 +105,6 @@ namespace Tetrifact.Core
                                 using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                                 {
                                     itemStream.CopyTo(entryStream);
-                                    _log.LogInformation($"PACKAGE CREATE : placed compressed file {targetPath}");
                                 }
                             }
                         }
@@ -113,7 +112,6 @@ namespace Tetrifact.Core
 
                 } else {
                     _filesystem.File.Move(incomingPath,targetPath);
-                    _log.LogInformation($"PACKAGE CREATE : placed file {targetPath}");
                 }
 
                 onDisk = true;
