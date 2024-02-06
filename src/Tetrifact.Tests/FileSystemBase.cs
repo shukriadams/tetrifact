@@ -97,7 +97,7 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
+            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
             ArchiveService = new Core.ArchiveService(IndexReader, ThreadDefault, LockProvider, FileSystem, ArchiveLogger, Settings);
 
             IndexReader.Initialize();

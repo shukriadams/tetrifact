@@ -4,7 +4,7 @@ namespace Tetrifact.Core
 {
     public class PackageListCache : IPackageListCache
     {
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
 
         public PackageListCache(IMemoryCache cache)
         {

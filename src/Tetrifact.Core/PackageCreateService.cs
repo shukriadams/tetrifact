@@ -121,20 +121,27 @@ namespace Tetrifact.Core
                     foreach(ManifestItem item in newPackage.ExistingFiles)
                         hashes[item.Path] = item.Hash;
 
+                List<string> errors = new List<string>();
+
                 // write incoming files to repo, get hash of each
                 files.AsParallel().ForAll(delegate(string filePath) {
                     try 
                     {
-                        if (existingFiles.Contains(filePath)){ 
+                        if (existingFiles.Contains(filePath))
+                        { 
                             FileOnDiskProperties filePropertiesOnDisk = _indexReader.GetRepositoryFileProperties(filePath, hashes[filePath]);
                             if (filePropertiesOnDisk == null)
-                                throw new Exception($"Expected local file {filePath} @ hash {hashes[filePath]} does not exist");
+                            {
+                                lock(errors)
+                                    errors.Add($"Expected local file {filePath} @ hash {hashes[filePath]} does not exist");
+
+                                return;
+                            }
 
                             _workspace.SubscribeToHash(filePath, hashes[filePath], newPackage.Id, filePropertiesOnDisk.Size, false);
                             
                             // overwrite content hash with filepath hash + content hash, needed to calc full package hash
                             hashes[filePath] = _hashService.FromString(filePath) + hashes[filePath];
-                            
                             return;
                         }
                         
@@ -152,10 +159,13 @@ namespace Tetrifact.Core
                     }
                     catch (Exception ex)
                     {
-                        // give exception more context, AsParallel should pass exception back up to waiting parenting thread
-                        throw new Exception($"Error processing hash for file {filePath}", ex);
+                        lock(errors)
+                            errors.Add($"Error processing hash for file {filePath} {ex}");
                     }
                 });
+
+                if (errors.Any())
+                    throw new Exception($"{errors.Count} errors occurred. Up to ten summarized are : {string.Join("/r", errors.Take(10))}");
 
                 _workspace.Manifest.Description = newPackage.Description;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
@@ -33,11 +34,13 @@ namespace Tetrifact.Core
 
         public int LockPasses {private set ; get;}
 
+        private readonly IMemoryCache _cache;
+
         #endregion
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, ILockProvider lockerProvider, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, ILockProvider lockerProvider, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
@@ -45,6 +48,7 @@ namespace Tetrifact.Core
             _log = log;
             _indexReader = indexReader;
             _lock = lockerProvider.Instance;
+            _cache = cache;
         }
 
         #endregion
@@ -156,6 +160,12 @@ namespace Tetrifact.Core
                 {
                     foreach (string file in files)
                     {
+                        if (_cache.Get($"{file}::LOOKUP_RESERVE::") != null)
+                        {
+                            _log.LogInformation($"Skipping clean for {file}, lookup reserve detected.");
+                            continue;
+                        }
+
                         if (!existingPackageIds.Contains(Path.GetFileName(file)))
                         {
                             try

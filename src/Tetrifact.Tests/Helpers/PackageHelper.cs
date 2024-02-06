@@ -41,7 +41,8 @@ namespace Tetrifact.Tests
             IFileSystem filesystem = new FileSystem();
             ILockProvider lockProvider = new Core.LockProvider();
             IIndexReadService indexReader = new IndexReadService(
-                settings, 
+                settings,
+                new TestMemoryCache(),
                 new Core.TagsService(settings, filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())), 
                 new TestLogger<IIndexReadService>(),
                 filesystem, 

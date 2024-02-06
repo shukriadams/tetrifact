@@ -131,7 +131,6 @@ namespace Tetrifact.Core
 
             _filesystem.Directory.CreateDirectory(packagesSubscribeDirectory);
             _filesystem.File.WriteAllText(Path.Join(packagesSubscribeDirectory, packageId), string.Empty);
-            _log.LogInformation($"PACKAGE CREATE : subscribed package \"{packageId}\" to file \"{filePath}\", hash {hash} ");
 
             string pathAndHash = FileIdentifier.Cloak(filePath, hash);
             lock (this.Manifest)
@@ -179,7 +178,6 @@ namespace Tetrifact.Core
                     _filesystem.Directory.CreateDirectory(targetDirectory);
                     entry.ExtractToFile(targetFile);
                     count ++;
-                    _log.LogInformation($"Unpacked file ${targetFile} ({count} / {total})");
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -26,15 +27,18 @@ namespace Tetrifact.Core
 
         private readonly ILock _lock;
 
+        private readonly IMemoryCache _cache;
+
         #endregion
 
         #region CTORS
 
-        public IndexReadService(ISettings settings, ITagsService tagService, ILogger<IIndexReadService> logger, IFileSystem fileSystem, IHashService hashService, ILockProvider lockProvider)
+        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> logger, IFileSystem fileSystem, IHashService hashService, ILockProvider lockProvider)
         {
             _settings = settings;
             _tagService = tagService;
             _logger = logger;
+            _cache = cache;
             _fileSystem = fileSystem;
             _hashService = hashService;
             _lock = lockProvider.Instance;
@@ -317,6 +321,9 @@ namespace Tetrifact.Core
                     repositoryPathDir = _fileSystem.Path.Join(_settings.RepositoryPath, file.Path, file.Hash);
                     if (_fileSystem.Directory.Exists(repositoryPathDir))
                     {
+                        // block file from cleanup for 1 hour
+                        _cache.Set($"{repositoryPathDir}::LOOKUP_RESERVE::", true, new DateTimeOffset(DateTime.UtcNow.AddHours(1)));
+
                         lock(existing)
                             existing.Add(file);
                     }
