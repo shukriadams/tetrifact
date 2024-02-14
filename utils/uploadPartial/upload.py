@@ -1,4 +1,5 @@
 # script to test partial uploading of packages. Run against local tetrifact instance
+# requires python3.
 
 import os
 import sys
@@ -22,6 +23,7 @@ parser.add_argument('--manifest', default='false')
 args = parser.parse_args()
 address = f'http://{args.address}'
 
+
 def packageExistsOnServer(package):
     lookup = run(
         [
@@ -32,7 +34,6 @@ def packageExistsOnServer(package):
             '-I',
             f'{address}/v1/packages/{package}'
         ],
-        shell=True, 
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE).stdout.decode('utf8')    
 
@@ -74,6 +75,7 @@ if not os.path.exists(zipPath):
     )
 
 if not packageExistsOnServer(package1Name):
+    print('uploading package 1')
     uploadResult = run(
         [
             'curl',
@@ -83,7 +85,6 @@ if not packageExistsOnServer(package1Name):
             '-F', f'Files=@{zipPath}',
             f'{address}/v1/packages/{package1Name}?IsArchive=true'
         ],
-        shell=True, 
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE).stdout.decode('utf8')    
 
@@ -108,13 +109,21 @@ files_count = len(package2_allFiles)
 
 if args.manifest == 'true':
     for file in package2_allFiles:
-        
+
+        # on windows lookup returns relative paths, in linux full, remove absolute root on linux to standardize path handling        
+        #if file.startswith(args.package2_path):
+        #    file = file[len(args.package2_path) + 1:len(file)] 
+
+
+
         count = count + 1
 
         fileData = {}
         fileData['path'] = shortenFilePath(file, args.package2_path)
 
-        filePathFull = os.path.join(args.package2_path, file)
+        filePathFull = file
+
+        print(fileData['path'])
 
         if filePathFull in known_dirs:
             continue
@@ -160,7 +169,6 @@ result = subprocess.run([
         '-F', 'Manifest=@./2manifest.json',
         f'{address}/v1/packages/filterexistingfiles'
     ],
-    shell=True, 
     stderr=subprocess.PIPE,
     stdout=subprocess.PIPE).stdout.decode('utf8')
 
@@ -237,34 +245,33 @@ if not os.path.exists(zipPath):
 with open(commonFiles, 'w') as out:
     json.dump(common, out, indent = 4)
 
-result = subprocess.run(
-    [
-        'curl',
-        '-X', 'POST', 
-        '-H', 'Transfer-Encoding:chunked', 
-        '-H', 'Content-Type:multipart/form-data', 
-        '-F', f'Files=@{zipPath}',
-        '-F', f'ExistingFiles=@{commonFiles}',
-        f'{address}/v1/packages/{package2Name}?IsArchive=true'
-    ],
-    shell=True, 
-    stderr=subprocess.PIPE,
-    stdout=subprocess.PIPE).stdout.decode('utf8')
+if packageExistsOnServer(package1Name):
+    print('skipping package2 upload, already exists')
+else:
+    result = subprocess.run(
+        [
+            'curl',
+            '-X', 'POST', 
+            '-H', 'Transfer-Encoding:chunked', 
+            '-H', 'Content-Type:multipart/form-data', 
+            '-F', f'Files=@{zipPath}',
+            '-F', f'ExistingFiles=@{commonFiles}',
+            f'{address}/v1/packages/{package2Name}?IsArchive=true'
+        ],
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE).stdout.decode('utf8')
 
-print (result)
+    result = json.loads(result)
+    package2RemoteHash = result['success']['hash']
 
-result = json.loads(result)
-package2RemoteHash = result['success']['hash']
-
-assert result['success'] != None
-print (f'remote hash : {package2RemoteHash}  localhash : {package2LocalHash}')
+    assert result['success'] != None
+    print (f'remote hash : {package2RemoteHash}  localhash : {package2LocalHash}')
 
 remoteManifest = run(['curl', f'{address}/v1/packages/{package2Name}'],
-    shell=True, 
     stderr=subprocess.PIPE,
     stdout=subprocess.PIPE).stdout.decode('utf8')    
 
-print(remoteManifest)
+
 print('Dumping remote manifest for package2')
 with open('./remoteManifest.json', 'w') as out:
     json.dump(remoteManifest, out, indent = 4)

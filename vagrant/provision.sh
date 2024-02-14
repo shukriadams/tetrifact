@@ -12,6 +12,9 @@ sudo apt-get install dotnet-sdk-3.1 -y
 # altecover report generator
 dotnet tool install --global dotnet-reportgenerator-globaltool --version 4.1.5
 
+# utils
+sudo apt install p7zip-full
+
 # docker
 sudo apt install docker.io -y
 sudo apt install docker-compose -y
