@@ -17,10 +17,6 @@ sudo apt install docker.io -y
 sudo apt install docker-compose -y
 sudo usermod -aG docker vagrant
 
-# force github into known hosts so build script can clone without prompt. yes, this is 
-# insecure because it opens for MITM attack, but I don't have anything better right now.
-ssh-keyscan github.com >> ~/.ssh/known_hosts
-
 # force startup folder to vagrant project
 echo "cd /vagrant/src" >> /home/vagrant/.bashrc
 
