@@ -457,7 +457,7 @@ namespace Tetrifact.Web
             } 
             catch (Exception ex)
             {
-                return Responses.InvalidJSONError();
+                return Responses.UnexpectedError();
             }
         }
 
