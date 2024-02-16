@@ -114,8 +114,6 @@ if args.manifest == 'true':
         #if file.startswith(args.package2_path):
         #    file = file[len(args.package2_path) + 1:len(file)] 
 
-
-
         count = count + 1
 
         fileData = {}
