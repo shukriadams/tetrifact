@@ -31,10 +31,10 @@
 /src/Tetrifact.Tests/coverage
 /src/coverage
 /build/live/.stage
-
 utils/uploadPartial/1.zip
 utils/uploadPartial/2diff.json
 utils/uploadPartial/package2Partial.zip
 utils/uploadPartial/package2Partial
 utils/uploadPartial/2manifest.json
 utils/uploadPartial/remoteManifest.json
+src/packages

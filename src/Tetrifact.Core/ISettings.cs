@@ -209,5 +209,10 @@ namespace Tetrifact.Core
         /// Time (hours) metric regeneration is allowed to be late before an error is flagged
         /// </summary>
         int MetricsGenerationBufferTime { get; set; }
+
+        /// <summary>
+        /// /
+        /// </summary>
+        bool WipeTempOnStart { get; set; }
     }
 }

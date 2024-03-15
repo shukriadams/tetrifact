@@ -51,8 +51,15 @@ namespace Tetrifact.Core
         public void Initialize()
         {
             // wipe and recreate temp folder on app start
-            if (Directory.Exists(_settings.TempPath))
-                Directory.Delete(_settings.TempPath, true);
+            if (_settings.WipeTempOnStart)
+            {
+                if (Directory.Exists(_settings.TempPath))
+                    Directory.Delete(_settings.TempPath, true);
+            } 
+            else
+            {
+                _logger.LogInformation("Temp dir wipe disabled, skipping");
+            }
 
             Directory.CreateDirectory(_settings.PackagePath);
             Directory.CreateDirectory(_settings.ArchivePath);
@@ -184,10 +191,15 @@ namespace Tetrifact.Core
             }
         }
 
+        string IIndexReadService.GetFileAbsolutePath(IPackageFile item)
+        {
+            return Path.Combine(_settings.RepositoryPath, item.Path, item.Hash, "bin");
+        }
+
         GetFileResponse IIndexReadService.GetFile(string id)
         {
             FileIdentifier fileIdentifier = FileIdentifier.Decloak(id);
-            string directFilePath = Path.Combine(_settings.RepositoryPath, fileIdentifier.Path, fileIdentifier.Hash, "bin");
+            string directFilePath = ((IIndexReadService)this).GetFileAbsolutePath(fileIdentifier);
             
             if (_fileSystem.File.Exists(directFilePath))
                 return new GetFileResponse(new FileStream(directFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), Path.GetFileName(fileIdentifier.Path));

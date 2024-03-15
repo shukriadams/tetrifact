@@ -36,6 +36,13 @@ namespace Tetrifact.Core
         void Initialize();
 
         /// <summary>
+        /// Gets local path a package item would be expected to exist it. Path existence is unverified.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        string GetFileAbsolutePath(IPackageFile item);
+
+        /// <summary>
         /// Returns true if the package is being used. This doesn't mean the package is available, just that the package folder 
         /// exists.
         /// </summary>

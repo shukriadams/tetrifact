@@ -21,14 +21,16 @@ namespace Tetrifact.Web
         
         private readonly IDaemon _daemonrunner;
 
+        private readonly ISettings _settings;
+
         #endregion
 
         #region CTORS
 
         public CleanerCron(IRepositoryCleanService repositoryCleaner, IDaemon daemonrunner, IArchiveService archiveService, ILockProvider lockProvider, ILogger<CleanerCron> log)
         {
-            Settings s = new Settings();
-            this.CronMask = s.CleanCronMask;
+            _settings = new Settings();
+            this.CronMask = _settings.CleanCronMask;
 
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
@@ -51,6 +53,13 @@ namespace Tetrifact.Web
         /// </summary>
         public override void Work()
         {
+            if (!_settings.Prune)
+            {
+                _log.LogInformation("Prune disabled, daeemon skipping scheduled run.");
+                return;
+            }
+                
+
             try
             {
                 _lock.ClearExpired();

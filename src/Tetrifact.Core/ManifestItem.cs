@@ -3,7 +3,7 @@
     /// <summary>
     /// File in a manifest
     /// </summary>
-    public class ManifestItem
+    public class ManifestItem : IPackageFile
     {
         /// <summary>
         /// Relative path of file in manifest

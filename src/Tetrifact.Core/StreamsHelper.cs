@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -77,5 +78,45 @@ namespace Tetrifact.Core
 
             return items;
         }
+
+        public static void Copy(Stream source, Stream target, int bufSize)
+        {
+            while (source.Position < source.Length)
+            {
+                long lookup = source.Length - source.Position;
+                int blockSize = lookup < bufSize ? (int)lookup : bufSize;
+                byte[] buffer = new byte[blockSize];
+
+                source.Read(buffer, 0, blockSize);
+                target.Write(buffer);
+            }
+        }
+
+        public async static Task CopyAsyncNoWait(Stream source, Stream target, int bufSize)
+        {
+            while (source.Position < source.Length)
+            {
+                long lookup = source.Length - source.Position;
+                int blockSize = lookup < bufSize ? (int)lookup : bufSize;
+                byte[] buffer = new byte[blockSize];
+
+                await source.ReadAsync(buffer, 0, blockSize);
+                target.WriteAsync(buffer);
+            }
+        }
+
+        public async static Task CopyAsync(Stream source, Stream target, int bufSize)
+        {
+            while (source.Position < source.Length)
+            {
+                long lookup = source.Length - source.Position;
+                int blockSize = lookup < bufSize ? (int)lookup : bufSize;
+                byte[] buffer = new byte[blockSize];
+
+                await source.ReadAsync(buffer, 0, blockSize);
+                await target.WriteAsync(buffer);
+            }
+        }
+
     }
 }

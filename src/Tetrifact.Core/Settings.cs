@@ -91,6 +91,8 @@ namespace Tetrifact.Core
 
         public int MetricsGenerationBufferTime { get; set; }
 
+        public bool WipeTempOnStart { get; set; }
+
         #endregion
 
         #region CTORS
@@ -101,6 +103,7 @@ namespace Tetrifact.Core
             this.ServerName = "Tetrifact";
             this.AllowPackageDelete = true;
             this.AllowPackageCreate = true;
+            this.WipeTempOnStart = true;
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.LinkLockWaitTime = 1000;               // 1 second
@@ -171,6 +174,7 @@ namespace Tetrifact.Core
             this.MetricsPath = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsPath);
             this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
+            this.WipeTempOnStart = this.TryGetSetting("WIPE_TEMP_ON_START", this.WipeTempOnStart);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")
