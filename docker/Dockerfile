@@ -28,5 +28,6 @@ USER tetrifact
 # set Tetrifact default log level
 ENV LOGGING__LOGLEVEL__DEFAULT=Warning
 ENV Logging__LogLevel__Microsoft=Warning
+ENV SEVEN_ZIP_BINARY_PATH=/usr/lib/p7zip/7z
 
 CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll'

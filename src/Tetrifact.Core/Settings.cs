@@ -181,6 +181,7 @@ namespace Tetrifact.Core
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
             this.WipeTempOnStart = this.TryGetSetting("WIPE_TEMP_ON_START", this.WipeTempOnStart);
             this.ArchiveCPUThreads = this.TryGetSetting("ARCHIVE_CPU_THREADS", this.ArchiveCPUThreads);
+            this.SevenZipBinaryPath = this.TryGetSetting("SEVEN_ZIP_BINARY_PATH", this.SevenZipBinaryPath);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")
