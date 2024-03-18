@@ -38,3 +38,4 @@ utils/uploadPartial/package2Partial
 utils/uploadPartial/2manifest.json
 utils/uploadPartial/remoteManifest.json
 src/packages
+*.user
