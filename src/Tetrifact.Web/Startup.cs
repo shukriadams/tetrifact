@@ -167,6 +167,7 @@ namespace Tetrifact.Web
             Console.WriteLine("");
             Console.WriteLine("Settings:");
             Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
+            Console.WriteLine($"Archive CPU Threads: {settings.ArchiveCPUThreads}");
             Console.WriteLine($"Archive path: {settings.ArchivePath}");
             Console.WriteLine($"Archive wait timeout: {settings.ArchiveWaitTimeout}");
             Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");

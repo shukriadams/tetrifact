@@ -104,6 +104,7 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
+            this.ArchiveCPUThreads = 4;                 // for 7zip only
             this.ServerName = "Tetrifact";
             this.AllowPackageDelete = true;
             this.AllowPackageCreate = true;
@@ -179,6 +180,7 @@ namespace Tetrifact.Core
             this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
             this.WipeTempOnStart = this.TryGetSetting("WIPE_TEMP_ON_START", this.WipeTempOnStart);
+            this.ArchiveCPUThreads = this.TryGetSetting("ARCHIVE_CPU_THREADS", this.ArchiveCPUThreads);
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")

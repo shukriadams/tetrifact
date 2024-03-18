@@ -24,7 +24,6 @@ namespace Tetrifact.Web
                     logging.AddCustomFormatter();
                 })
                 .UseStartup<Startup>();
-                
 
             bool isIIS = Environment.GetEnvironmentVariable("IS_IIS") == "true";
             bool useHTTPS = EnvironmentArgsHelper.GetAsBool("TETRIFACT_USE_HTTPS");

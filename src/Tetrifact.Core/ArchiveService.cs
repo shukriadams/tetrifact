@@ -142,7 +142,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private void Archive7Zip(string packageId, string archivePathTemp) 
+        private void Archive7Zip(string packageId, string archivePathTemp)
         {
             // create staging directory
             string tempDir1 = Path.Join(_settings.TempPath, $"__repack_{packageId}");
@@ -194,22 +194,19 @@ namespace Tetrifact.Core
 
             _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
 
-            DateTime compressStart = DateTime.Now;
-            // todo : fix dll ref for linux
-            SevenZipCompressor.SetLibraryPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "7z.dll"));
+            SevenZipCompressor.SetLibraryPath(_settings.SevenZipBinaryPath);
             SevenZipCompressor sevenZipArchive = new SevenZipCompressor();
             sevenZipArchive.FastCompression = true;
             sevenZipArchive.CompressionMethod = CompressionMethod.Lzma2; // apparently, fastest
-            sevenZipArchive.CompressionLevel = SevenZip.CompressionLevel.None;
+            sevenZipArchive.CompressionLevel = SevenZip.CompressionLevel.None; // fastest ?
             sevenZipArchive.ArchiveFormat = OutArchiveFormat.Zip;
-            // todo fix threadcount
-            int threads = 32;
-            sevenZipArchive.CustomParameters.Add("mt", threads.ToString());
+            sevenZipArchive.CustomParameters.Add("mt", _settings.ArchiveCPUThreads.ToString());
+
+            DateTime compressStart = DateTime.Now;
             sevenZipArchive.CompressDirectory(tempDir2, archivePathTemp);
 
             TimeSpan compressTaken = DateTime.Now - compressStart;
             _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
-
         }
 
         private void ArchiveDefaultMode(string packageId, string archivePathTemp)
