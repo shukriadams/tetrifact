@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -141,6 +142,127 @@ namespace Tetrifact.Core
             }
         }
 
+        private async Task Archive7Zip(string packageId, string archivePathTemp) 
+        {
+            // create staging directory
+            string tempDir1 = Path.Join(_settings.TempPath, $"__repack_{packageId}");
+            string tempDir2 = Path.Join(_settings.TempPath, $"_repack_{packageId}");
+
+            const int bufSize = 6024;
+
+            Manifest manifest = _indexReader.GetManifest(packageId);
+
+            // copy all files to single Direct
+            if (!Directory.Exists(tempDir2))
+            {
+                _logger.LogInformation($"Archive generation : gathering files for package {packageId}");
+                Directory.CreateDirectory(tempDir1);
+                manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
+                {
+                    string targetPath = Path.Join(tempDir1, file.Path);
+
+                    if (manifest.IsCompressed)
+                    {
+                        GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                        if (fileLookup == null)
+                            throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
+
+                        using (var storageArchive = new ZipArchive(fileLookup.Content))
+                        {
+                            ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
+                            using (var storageArchiveStream = storageArchiveEntry.Open())
+                            using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
+                                StreamsHelper.Copy(storageArchiveStream, writeStream, bufSize);
+                        }
+                    }
+                    else
+                    {
+                        GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                        if (fileLookup == null)
+                            throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
+
+                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+
+                        using (Stream fileStream = fileLookup.Content)
+                        using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
+                            StreamsHelper.Copy(fileStream, writeStream, bufSize);
+                    }
+                });
+
+                Directory.Move(tempDir1, tempDir2);
+            }
+
+            _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
+
+            DateTime compressStart = DateTime.Now;
+            // todo : fix dll ref for linux
+            SevenZipCompressor.SetLibraryPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "7z.dll"));
+            SevenZipCompressor sevenZipArchive = new SevenZipCompressor();
+            sevenZipArchive.FastCompression = true;
+            sevenZipArchive.CompressionMethod = CompressionMethod.Lzma2; // apparently, fastest
+            sevenZipArchive.CompressionLevel = SevenZip.CompressionLevel.None;
+            sevenZipArchive.ArchiveFormat = OutArchiveFormat.Zip;
+            // todo fix threadcount
+            int threads = 32;
+            sevenZipArchive.CustomParameters.Add("mt", threads.ToString());
+            sevenZipArchive.CompressDirectory(tempDir2, archivePathTemp);
+
+            TimeSpan compressTaken = DateTime.Now - compressStart;
+            _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+
+        }
+
+        private async Task ArchiveDefaultMode(string packageId, string archivePathTemp)
+        {
+            DateTime compressStart = DateTime.Now;
+
+            // create zip file on disk asap to lock file name off
+            using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
+            {
+                // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
+                Manifest manifest = _indexReader.GetManifest(packageId);
+
+                using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                {
+                    foreach (ManifestItem file in manifest.Files)
+                    {
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.DownloadArchiveCompression);
+
+                        using (Stream zipEntryStream = zipEntry.Open())
+                        {
+                            if (manifest.IsCompressed)
+                            {
+                                GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                                if (fileLookup == null)
+                                    throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
+
+                                using (var storageArchive = new ZipArchive(fileLookup.Content))
+                                {
+                                    ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
+                                    using (var storageArchiveStream = storageArchiveEntry.Open())
+                                        storageArchiveStream.CopyTo(zipEntryStream);
+                                }
+                            }
+                            else
+                            {
+                                GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                                if (fileLookup == null)
+                                    throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
+
+                                using (Stream fileStream = fileLookup.Content)
+                                    fileStream.CopyTo(zipEntryStream);
+                            }
+
+                            _logger.LogInformation($"Added file {file.Path} to archive");
+                        }
+                    }
+                }
+            }
+
+            TimeSpan compressTaken = DateTime.Now - compressStart;
+            _logger.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+        }
+
         private async void CreateArchive(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
@@ -165,75 +287,15 @@ namespace Tetrifact.Core
                 // Dotnet are unreliable
                 _lock.Lock(archivePathTemp);
 
-
-                // create staging directory
-                string tempDir1 = Path.Join(_settings.TempPath, $"__repack_{packageId}");
-                string tempDir2 = Path.Join(_settings.TempPath, $"_repack_{packageId}");
-                
-                const int bufSize = 6024;
-
-                Manifest manifest = _indexReader.GetManifest(packageId);
-
-                // copy all files to single Direct
-                if (!Directory.Exists(tempDir2))
-                {
-                    _logger.LogInformation($"Archive generation : gathering files for package {packageId}");
-                    Directory.CreateDirectory(tempDir1);
-                    manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
-                    { 
-                        string targetPath = Path.Join(tempDir1, file.Path);
-
-                        if (manifest.IsCompressed)
-                        {
-                            GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                            if (fileLookup == null)
-                                throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
-
-                            using (var storageArchive = new ZipArchive(fileLookup.Content))
-                            {
-                                ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
-                                using (var storageArchiveStream = storageArchiveEntry.Open())
-                                using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                                    StreamsHelper.Copy(storageArchiveStream, writeStream, bufSize);
-                            }
-                        }
-                        else
-                        {
-                            GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                            if (fileLookup == null)
-                                throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
-
-                            Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-
-                            using (Stream fileStream = fileLookup.Content)
-                            using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                                StreamsHelper.Copy(fileStream, writeStream, bufSize);
-                        }
-                    });
-
-                    Directory.Move(tempDir1, tempDir2);
-                }
-                
-                _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
-
-                DateTime compressStart = DateTime.Now;
-                // todo : fix dll ref for linux
-                SevenZipCompressor.SetLibraryPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "7z.dll"));
-                SevenZipCompressor sevenZipArchive = new SevenZipCompressor();
-                sevenZipArchive.FastCompression = true;
-                sevenZipArchive.CompressionMethod = CompressionMethod.Lzma2; // apparently, fastest
-                sevenZipArchive.CompressionLevel = SevenZip.CompressionLevel.None;
-                sevenZipArchive.ArchiveFormat = OutArchiveFormat.Zip;
-                // todo fix threadcount
-                int threads = 32;
-                sevenZipArchive.CustomParameters.Add("mt", threads.ToString());
-                sevenZipArchive.CompressDirectory(tempDir2, archivePathTemp);
+                if (string.IsNullOrEmpty(_settings.SevenZipBinaryPath))
+                    await ArchiveDefaultMode(packageId, archivePathTemp);
+                else
+                    await Archive7Zip(packageId, archivePathTemp);
 
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);
                 TimeSpan totalTaken = DateTime.Now - totalStart;
-                TimeSpan compressTaken = DateTime.Now - compressStart;
-                _logger.LogInformation($"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds, compress time {Math.Round(compressTaken.TotalSeconds, 0)}.");
+                _logger.LogInformation($"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds.");
             }
             finally
             {

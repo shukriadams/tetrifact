@@ -187,6 +187,8 @@ namespace Tetrifact.Web
             Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
             Console.WriteLine($"Tags path: {settings.TagsPath}");
             Console.WriteLine($"Temp path: {settings.TempPath}");
+            Console.WriteLine($"Zip method: {(string.IsNullOrEmpty(settings.SevenZipBinaryPath) ? "ZipArchive (slow, set SevenZipBinaryPath to enable 7zip)" : "7Zip (faster, multithreaded)")}");
+
             Console.WriteLine("*********************************************************************");
 
         }

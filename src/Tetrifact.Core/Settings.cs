@@ -93,6 +93,10 @@ namespace Tetrifact.Core
 
         public bool WipeTempOnStart { get; set; }
 
+        public string SevenZipBinaryPath { get; set; }
+
+        public int ArchiveCPUThreads { get; set; }
+
         #endregion
 
         #region CTORS

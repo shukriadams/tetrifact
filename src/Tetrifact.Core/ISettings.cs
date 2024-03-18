@@ -214,5 +214,15 @@ namespace Tetrifact.Core
         /// /
         /// </summary>
         bool WipeTempOnStart { get; set; }
+
+        /// <summary>
+        /// Path to  7ip binary. 
+        /// </summary>
+        string SevenZipBinaryPath { get; set; }
+
+        /// <summary>
+        /// Nr of threads to use for archiving process.
+        /// </summary>
+        int ArchiveCPUThreads { get; set; }
     }
 }
