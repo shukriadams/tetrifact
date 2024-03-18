@@ -142,7 +142,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private async Task Archive7Zip(string packageId, string archivePathTemp) 
+        private void Archive7Zip(string packageId, string archivePathTemp) 
         {
             // create staging directory
             string tempDir1 = Path.Join(_settings.TempPath, $"__repack_{packageId}");
@@ -212,7 +212,7 @@ namespace Tetrifact.Core
 
         }
 
-        private async Task ArchiveDefaultMode(string packageId, string archivePathTemp)
+        private void ArchiveDefaultMode(string packageId, string archivePathTemp)
         {
             DateTime compressStart = DateTime.Now;
 
@@ -263,7 +263,7 @@ namespace Tetrifact.Core
             _logger.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
-        private async void CreateArchive(string packageId)
+        private void CreateArchive(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
                 throw new PackageNotFoundException(packageId);
@@ -288,9 +288,9 @@ namespace Tetrifact.Core
                 _lock.Lock(archivePathTemp);
 
                 if (string.IsNullOrEmpty(_settings.SevenZipBinaryPath))
-                    await ArchiveDefaultMode(packageId, archivePathTemp);
+                    ArchiveDefaultMode(packageId, archivePathTemp);
                 else
-                    await Archive7Zip(packageId, archivePathTemp);
+                    Archive7Zip(packageId, archivePathTemp);
 
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);
