@@ -11,6 +11,7 @@ RUN apt-get update \
     && apt-get install apt-transport-https -y \
     && apt-get update \
     && apt-get install aspnetcore-runtime-3.1 -y \
+    && apt-get install p7zip-full -y \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \
@@ -25,6 +26,7 @@ COPY ./.artefacts/. /var/tetrifact
 USER tetrifact
 
 # set Tetrifact default log level
+ENV LOGGING__LOGLEVEL__DEFAULT=Warning
 ENV Logging__LogLevel__Microsoft=Warning
 
 CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll'

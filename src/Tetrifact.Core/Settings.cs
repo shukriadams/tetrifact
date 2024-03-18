@@ -261,7 +261,7 @@ namespace Tetrifact.Core
                 return defaultValue;
 
             bool attempt;
-            if (!Boolean.TryParse(settingsRawVariable, out attempt)){
+            if (!bool.TryParse(settingsRawVariable, out attempt)){
                 Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
                 return defaultValue;
             }
