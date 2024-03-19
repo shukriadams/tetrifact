@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using Tetrifact.Core;
 using Xunit;
 
@@ -55,6 +56,69 @@ namespace Tetrifact.Tests.PackageCreate
 
             // ensure that workspace has been cleaned up
             Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
+        }
+
+        [Fact]
+        public void CreatePartial() 
+        {
+            // create package 1
+            List<PackageCreateItem> files1 = new List<PackageCreateItem>();
+            string fileContent1 = "some file 1 content";
+            int filesToAdd = 5;
+            string packageId1 = "my-package1";
+
+            for (int i = 0; i < filesToAdd; i++)
+            {
+                Stream fileStream = StreamsHelper.StreamFromString(fileContent1);
+                files1.Add(new PackageCreateItem(fileStream, $"folder{i}/file{i}"));
+            }
+
+            PackageCreate.Create(new PackageCreateArguments
+            {
+                Id = packageId1,
+                Files = files1
+            });
+            
+            Manifest package1Manifest = IndexReader.GetManifest(packageId1);
+
+            // create package2, it shares 5 files with package, these will not be uploaded again
+            List<PackageCreateItem> files2 = new List<PackageCreateItem>();
+            filesToAdd = 5;
+            string file2Content = "some file 2 content";
+            string packageId2 = "my-package2";
+
+            for (int i = filesToAdd; i < filesToAdd + filesToAdd; i++)
+            {
+                Stream fileStream = StreamsHelper.StreamFromString(file2Content);
+                files2.Add(new PackageCreateItem(fileStream, $"folder{i}/file{i}"));
+            }
+
+            PackageCreate.Create(new PackageCreateArguments
+            {
+                Id = packageId2,
+                Files = files2,
+                ExistingFiles = new List<ManifestItem>
+                {
+                    new ManifestItem{Path = package1Manifest.Files[0].Path, Hash = package1Manifest.Files[0].Hash },
+                    new ManifestItem{Path = package1Manifest.Files[1].Path, Hash = package1Manifest.Files[1].Hash },
+                    new ManifestItem{Path = package1Manifest.Files[2].Path, Hash = package1Manifest.Files[2].Hash },
+                    new ManifestItem{Path = package1Manifest.Files[3].Path, Hash = package1Manifest.Files[3].Hash },
+                    new ManifestItem{Path = package1Manifest.Files[4].Path, Hash = package1Manifest.Files[4].Hash }
+                }
+            });
+
+            Manifest package2Manifest = IndexReader.GetManifest(packageId2);
+            Assert.Equal(10, package2Manifest.Files.Count);
+            Assert.Contains<string>("folder0/file0", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder1/file1", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder2/file2", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder3/file3", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder4/file4", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder5/file5", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder6/file6", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder7/file7", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder8/file8", package2Manifest.Files.Select(r => r.Path));
+            Assert.Contains<string>("folder9/file9", package2Manifest.Files.Select(r => r.Path));
         }
 
         /// <summary>

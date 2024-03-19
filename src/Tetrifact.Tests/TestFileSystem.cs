@@ -9,6 +9,146 @@ using System.Threading.Tasks;
 
 namespace Tetrifact.Tests
 {
+    public class TestPath : IPath
+    {
+        public char AltDirectorySeparatorChar => throw new NotImplementedException();
+
+        public char DirectorySeparatorChar => throw new NotImplementedException();
+
+        public IFileSystem FileSystem => throw new NotImplementedException();
+
+        public char PathSeparator => '/';
+
+        public char VolumeSeparatorChar => '/';
+
+        public char[] InvalidPathChars => throw new NotImplementedException();
+
+        public string ChangeExtension(string path, string extension)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Combine(params string[] paths)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Combine(string path1, string path2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Combine(string path1, string path2, string path3)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Combine(string path1, string path2, string path3, string path4)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetDirectoryName(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetExtension(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetFileName(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetFileNameWithoutExtension(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetFullPath(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetFullPath(string path, string basePath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public char[] GetInvalidFileNameChars()
+        {
+            throw new NotImplementedException();
+        }
+
+        public char[] GetInvalidPathChars()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetPathRoot(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetRandomFileName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetRelativePath(string relativeTo, string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetTempFileName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetTempPath()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasExtension(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsPathFullyQualified(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsPathRooted(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2)
+        {
+            return $"{path1.ToString()}{this.PathSeparator}{path2.ToString()}{this.PathSeparator}";
+        }
+
+        public string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3)
+        {
+            return $"{path1.ToString()}{this.PathSeparator}{path2.ToString()}{this.PathSeparator}{path3.ToString()}";
+        }
+
+        public bool TryJoin(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, Span<char> destination, out int charsWritten)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryJoin(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, Span<char> destination, out int charsWritten)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class TestFile : IFile
     {
         IFileSystem IFile.FileSystem => throw new NotImplementedException();
@@ -619,6 +759,7 @@ namespace Tetrifact.Tests
         IFile _file = new TestFile();
         
         IDirectory _directory = new TestDirectory();
+        IPath _path = new TestPath();
 
         public virtual IFile File { get { return _file; } }
 
@@ -628,7 +769,7 @@ namespace Tetrifact.Tests
 
         public IFileStreamFactory FileStream => throw new NotImplementedException();
 
-        public IPath Path => throw new NotImplementedException();
+        public IPath Path { get { return _path; } }
 
         public IDirectoryInfoFactory DirectoryInfo => throw new NotImplementedException();
 
