@@ -17,6 +17,12 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public IEnumerable<ProcessLockItem> GetCurrent()
+        {
+            lock (_items)
+                return _items.Values.Select(v => v.Clone());
+        }
+
         /// <summary>
         /// Returns true if any package is locked.
         /// </summary>

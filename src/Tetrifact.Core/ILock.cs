@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Tetrifact.Core
 {
     public interface ILock
     {
+        IEnumerable<ProcessLockItem> GetCurrent();
+
         bool IsAnyLocked(ProcessLockCategories category);
 
         bool IsAnyLocked();

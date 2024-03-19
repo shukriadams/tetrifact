@@ -1,0 +1,42 @@
+﻿@using Tetrifact.Core;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IEnumerable<ProcessLockItem> processes = ViewData["processes"] as IEnumerable<ProcessLockItem>;
+}
+
+<div class="layout-section">
+
+    <h2>Current Processes</h2>
+
+    @if (processes.Any())
+    {
+        <ul class="list">
+            @foreach (ProcessLockItem process in processes)
+            {
+                <li class="listItem">
+                    <span>
+                        @process.Id
+                    </span>
+                    <span>
+                        @process.Category
+                    </span>
+                    <span>
+                        @process.AddedUTC.HasValue
+                        {
+                            <text>
+                                at @process.AddedUTC.ToHumanString()
+                            </text>
+                        }
+                    </span>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <text>
+            No active processes found.
+        </text>
+    }
+</div>
+

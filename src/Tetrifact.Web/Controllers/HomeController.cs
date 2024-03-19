@@ -15,17 +15,18 @@ namespace Tetrifact.Web
         private readonly IIndexReadService _indexService;
         private readonly IPackageListService _packageList;
         private readonly ILogger<HomeController> _log;
-
+        private readonly ILock _processes;
         #endregion
 
         #region CTORS
 
-        public HomeController(ISettings settings, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, ILock processes, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;
             _packageList = packageList;
             _log = log;
+            _processes = processes;
         }
 
         #endregion
@@ -63,6 +64,17 @@ namespace Tetrifact.Web
             return View();
         }
 
+        /// <returns></returns>
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("processes")]
+        public IActionResult Processes()
+        {
+            IEnumerable<ProcessLockItem> processes = _processes.GetCurrent();
+
+            ViewData["processes"] = processes;
+            ViewData["serverName"] = _settings.ServerName;
+            return View();
+        }
 
         /// <summary>
         /// 

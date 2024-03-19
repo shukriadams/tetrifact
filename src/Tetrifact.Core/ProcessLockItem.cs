@@ -23,5 +23,10 @@ namespace Tetrifact.Core
         /// If set, the max age lock item can have before being autopurged.
         /// </summary>
         public TimeSpan? MaxLifespan { get; set; }
+
+        public ProcessLockItem Clone() 
+        { 
+            return this.MemberwiseClone() as ProcessLockItem;
+        }
     }
 }
