@@ -4,16 +4,18 @@ namespace Tetrifact.Core
 {
     public interface ILock
     {
+        bool IsAnyLocked(ProcessLockCategories category);
+
         bool IsAnyLocked();
 
-        bool IsLocked(string name);
+        bool IsLocked(string id);
 
-        void Lock(string name);
+        void Lock(ProcessLockCategories category, string id);
         
-        void Lock(string name, TimeSpan timespan);
+        void Lock(ProcessLockCategories category, string id, TimeSpan timespan);
 
         void ClearExpired();
 
-        void Unlock(string name);
+        void Unlock(string id);
     }
 }

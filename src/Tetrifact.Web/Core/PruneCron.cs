@@ -14,8 +14,8 @@ namespace Tetrifact.Web
 
         public PruneCron(IPackagePruneService packagePrune, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
-            Settings s = new Settings();
-            this.CronMask = s.PruneCronMask;
+            Settings settings = new Settings();
+            this.CronMask = settings.PruneCronMask;
 
             _log = log;
             _packagePrune = packagePrune;

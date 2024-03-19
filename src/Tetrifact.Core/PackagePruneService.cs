@@ -17,16 +17,19 @@ namespace Tetrifact.Core
 
         ITimeProvideer _timeprovider;
 
+        ILock _processLock;
+
         #endregion
 
         #region CTORS
 
-        public PackagePruneService(ISettings settings, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> logger)
+        public PackagePruneService(ISettings settings, ILock processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> logger)
         {
             _settings = settings;
             _indexReader = indexReader;
             _logger = logger;
             _timeprovider = timeprovider;
+            _processLock = processLock;
         }
 
         #endregion
@@ -51,7 +54,16 @@ namespace Tetrifact.Core
         public void Prune()
         {
             if (!_settings.Prune)
+            {
+                _logger.LogInformation("Prune exited on start, disabled.");
                 return;
+            }
+
+            if (_processLock.IsAnyLocked())
+            {
+                _logger.LogInformation("Prune exited on start, locks detected.");
+                return;
+            }
 
             PruneReport report = this.Report();
 
@@ -91,7 +103,7 @@ namespace Tetrifact.Core
             report.Add(" ******************************** Prune audit **********************************");
 
             IList<string> packageIds = _indexReader.GetAllPackageIds().ToList();
-            packageIds = packageIds.OrderBy(n => Guid.NewGuid()).ToList(); // randomize
+            packageIds = packageIds.OrderBy(n => Guid.NewGuid()).ToList(); // randomize collection order
 
             // calculate periods for weekly, monthly and year pruning - weekly happens first, and after some time from NOW passes. Monthly starts at some point after weekly starts
             // and yearl starst some point after that and runs indefinitely.

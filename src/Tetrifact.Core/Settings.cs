@@ -140,7 +140,7 @@ namespace Tetrifact.Core
             this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
-            this.CleanCronMask = "0 * * * *"; // ever hour on the hour
+            this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.PruneCronMask = "0 0 * * *"; // once a day at midnight
             this.MetricsCronMask = "0 */12 * * *"; // every 12 hours
 
@@ -166,7 +166,10 @@ namespace Tetrifact.Core
             this.AutoCreateArchiveOnPackageCreate = this.TryGetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
             this.PruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
             this.LogPath = this.TryGetSetting("LOG_PATH", this.LogPath);
+
+            // breaks case convention, but this is what dotnet uses under the hood, so might as well use that too
             this.LogLevel = this.TryGetSetting("Logging__LogLevel__System", this.LogLevel);
+
             this.PackageDiffsPath = this.TryGetSetting("PACKAGE_DIFFS_PATH", this.PackageDiffsPath);
             this.PackagePath = this.TryGetSetting("PACKAGE_PATH", this.PackagePath);
             this.TempPath = this.TryGetSetting("TEMP_PATH", this.TempPath);

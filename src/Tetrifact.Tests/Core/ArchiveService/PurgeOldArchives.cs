@@ -42,7 +42,7 @@ namespace Tetrifact.Tests.ArchiveService
             File.WriteAllText(path, string.Empty);
 
             // force create dummy zip file in archive folder
-            LockProvider.Instance.Lock(path);
+            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, path);
 
             // attempt to purge content of archive folder
             base.ArchiveService.PurgeOldArchives();

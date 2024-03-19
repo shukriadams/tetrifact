@@ -58,7 +58,7 @@ namespace Tetrifact.Tests.IndexReader
             File.WriteAllText(Path.Join(Settings.ArchivePath, $"{testPackage.Id}.zip"), string.Empty);
 
             // lock archive file
-            LockProvider.Instance.Lock(base.ArchiveService.GetPackageArchivePath(testPackage.Id));
+            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, base.ArchiveService.GetPackageArchivePath(testPackage.Id));
 
             // attempt to delete package
             this.IndexReader.DeletePackage(testPackage.Id);

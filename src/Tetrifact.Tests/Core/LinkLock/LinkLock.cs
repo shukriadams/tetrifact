@@ -16,7 +16,7 @@ namespace Tetrifact.Tests.LinkLock
         public void AnyPackageLocksAll()
         {
             ILock processLock = new ProcessLock();
-            processLock.Lock("some package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "some package");
             Assert.True(processLock.IsAnyLocked());
         }
 
@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.LinkLock
         public void IsNamedLocked()
         {
             ILock processLock = new ProcessLock();
-            processLock.Lock("some package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "some package");
             Assert.True(processLock.IsLocked("some package"));
         }
 
@@ -32,7 +32,7 @@ namespace Tetrifact.Tests.LinkLock
         public void Unlock()
         {
             ILock processLock = new ProcessLock();
-            processLock.Lock("some package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "some package");
             processLock.Unlock("some package");
             Assert.False(processLock.IsAnyLocked());
         }
@@ -41,8 +41,8 @@ namespace Tetrifact.Tests.LinkLock
         public void OverlappingLocks()
         {
             ILock processLock = new ProcessLock();
-            processLock.Lock("some package");
-            processLock.Lock("another package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "some package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "another package");
             processLock.Unlock("some package");
             Assert.True(processLock.IsAnyLocked());
         }
@@ -51,8 +51,8 @@ namespace Tetrifact.Tests.LinkLock
         public void OverlappingUnlocks()
         {
             ILock processLock = new ProcessLock();
-            processLock.Lock("some package");
-            processLock.Lock("another package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "some package");
+            processLock.Lock(ProcessLockCategories.Archive_Create, "another package");
             processLock.Unlock("another package");
             processLock.Unlock("some package");
             Assert.False(processLock.IsAnyLocked());

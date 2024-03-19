@@ -13,8 +13,8 @@ namespace Tetrifact.Tests.LockProvider
         public void Existing()
         { 
             ILock lck = new ProcessLock();
-            lck.Lock("123");
-            lck.Lock("123");
+            lck.Lock(ProcessLockCategories.Archive_Create, "123");
+            lck.Lock(ProcessLockCategories.Archive_Create, "123");
         }
 
         /// <summary>
@@ -24,8 +24,8 @@ namespace Tetrifact.Tests.LockProvider
         public void Existing_with_timeout()
         {
             ILock lck = new ProcessLock();
-            lck.Lock("123", new TimeSpan(1,1,1));
-            lck.Lock("123", new TimeSpan(1, 1, 1));
+            lck.Lock(ProcessLockCategories.Archive_Create, "123", new TimeSpan(1,1,1));
+            lck.Lock(ProcessLockCategories.Archive_Create, "123", new TimeSpan(1, 1, 1));
         }
     }
 }

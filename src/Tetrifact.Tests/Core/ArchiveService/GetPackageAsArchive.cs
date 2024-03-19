@@ -80,7 +80,7 @@ namespace Tetrifact.Tests.ArchiveService
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             // lock the temp archive file in the system, this will block creating a new archive
-            LockProvider.Instance.Lock(ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
+            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
 
             Assert.Throws<TimeoutException>(() => {
                 using (Stream zipStream = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
@@ -189,7 +189,7 @@ namespace Tetrifact.Tests.ArchiveService
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             // lock archive
-            LockProvider.Instance.Lock(ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
+            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
             
             Settings.ArchiveWaitTimeout = 0;
 

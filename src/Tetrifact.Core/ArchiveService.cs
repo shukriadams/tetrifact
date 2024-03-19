@@ -6,7 +6,6 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -83,7 +82,7 @@ namespace Tetrifact.Core
                 _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
             }
 
-            _lock.Lock(archivePath, new TimeSpan(1, 0, 0));
+            _lock.Lock(ProcessLockCategories.Archive_Create, archivePath, new TimeSpan(1, 0, 0));
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
@@ -282,7 +281,7 @@ namespace Tetrifact.Core
             {
                 // lock process - we use an in-memory lock instead of just locking the file on disk because linux file locks in 
                 // Dotnet are unreliable
-                _lock.Lock(archivePathTemp);
+                _lock.Lock(ProcessLockCategories.Archive_Create, archivePathTemp);
 
                 if (string.IsNullOrEmpty(_settings.SevenZipBinaryPath))
                     ArchiveDefaultMode(packageId, archivePathTemp);

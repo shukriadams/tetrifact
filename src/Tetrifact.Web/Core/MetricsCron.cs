@@ -17,8 +17,8 @@ namespace Tetrifact.Web
 
         public MetricsCron(IMetricsService metricsService, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
         {
-            Settings s = new Settings();
-            this.CronMask = s.MetricsCronMask;
+            Settings settings = new Settings();
+            this.CronMask = settings.MetricsCronMask;
 
             _log = log;
             _metricsService = metricsService;

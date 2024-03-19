@@ -36,6 +36,10 @@ namespace Tetrifact.Core
 
         private readonly IMemoryCache _cache;
 
+        private IEnumerable<string> _existingPackageIds = new string[0];
+
+        private bool _forceExit;
+
         #endregion
 
         #region CTORS
@@ -60,22 +64,22 @@ namespace Tetrifact.Core
         /// </summary>
         public CleanResult Clean()
         {
-            IEnumerable<string> existingPackageIds = new List<string>();
+            
             try 
             {
                 // get a list of existing packages at time of calling. It is vital that new packages not be created
                 // while clean running, they will be cleaned up as they are not on this list
-                existingPackageIds = _indexReader.GetAllPackageIds();
-                _log.LogInformation($"CLEANUP started, existing packages : {string.Join(",", existingPackageIds)}.");
+                _existingPackageIds = _indexReader.GetAllPackageIds();
+                _log.LogInformation($"CLEANUP started, existing packages : {string.Join(",", _existingPackageIds)}.");
                 this.LockPasses = 0;
-                this.Clean_Internal(_settings.RepositoryPath, existingPackageIds, false);
+                this.Clean_Internal(_settings.RepositoryPath, false);
 
                 return new CleanResult{ 
                     Cleaned = _cleaned, 
                     Failed = _failed, 
                     DirectoriesScanned = _directoriesScanned, 
                     FilesScanned = _filesScanned, 
-                    PackagesInSystem = existingPackageIds.Count(),
+                    PackagesInSystem = _existingPackageIds.Count(),
                     Description = "Clean completed"
                 };
             }
@@ -89,7 +93,7 @@ namespace Tetrifact.Core
                         Failed = _failed, 
                         DirectoriesScanned = _directoriesScanned, 
                         FilesScanned = _filesScanned, 
-                        PackagesInSystem = existingPackageIds.Count(),
+                        PackagesInSystem = _existingPackageIds.Count(),
                         Description = "Clean aborted, locked detected"
                     };
                 }
@@ -112,7 +116,7 @@ namespace Tetrifact.Core
         /// remove directories from above while recursing.
         /// </summary>
         /// <param name="currentDirectory"></param>
-        private void Clean_Internal(string currentDirectory, IEnumerable<string> existingPackageIds, bool currentDirectoryIsPackageSubscriberList)
+        private void Clean_Internal(string currentDirectory, bool currentDirectoryIsPackageSubscriberList)
         {
             EnsureNoLock();
 
@@ -166,7 +170,7 @@ namespace Tetrifact.Core
                             continue;
                         }
 
-                        if (!existingPackageIds.Contains(Path.GetFileName(file)))
+                        if (!_existingPackageIds.Contains(Path.GetFileName(file)))
                         {
                             try
                             {
@@ -220,13 +224,12 @@ namespace Tetrifact.Core
                 }
             }
 
-
             foreach (string childDirectory in directories)
             {
                 // if the dir about to processed is called "packages" and there is a bin file present in current (parent) dir,
                 // then child is the packages directory
                 bool isPackageDir = Path.GetFileName(childDirectory) == "packages" && binFilePresent;
-                Clean_Internal(childDirectory, existingPackageIds, isPackageDir);
+                Clean_Internal(childDirectory, isPackageDir);
             }
         }
 

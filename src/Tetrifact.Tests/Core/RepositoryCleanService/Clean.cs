@@ -220,7 +220,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void EnsureNoLock_Coverage()
         {
-            LockProvider.Instance.Lock("some-package");
+            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, "some-package");
             _respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }

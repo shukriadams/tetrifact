@@ -11,7 +11,7 @@ namespace Tetrifact.Core
     {
         #region FIELDS
 
-        private readonly Dictionary<string, (TimeSpan, DateTime)?> _items = new Dictionary<string, (TimeSpan, DateTime)?>();
+        private readonly Dictionary<string, ProcessLockItem> _items = new Dictionary<string, ProcessLockItem>();
 
         #endregion
 
@@ -21,51 +21,54 @@ namespace Tetrifact.Core
         /// Returns true if any package is locked.
         /// </summary>
         /// <returns></returns>
-        public bool IsAnyLocked()
+        public bool IsAnyLocked(ProcessLockCategories category)
         {
             lock(_items)
-                return _items.Count > 0;
+                return _items.Where(i => i.Value.Category == category).Any();
         }
 
-        public bool IsLocked(string name)
+        public bool IsAnyLocked()
         {
+            lock (_items)
+                return _items.Any();
+        }
 
+        public bool IsLocked(string id)
+        {
+            lock (_items)
+                return _items.ContainsKey(id);
+        }
+
+        public void Lock(ProcessLockCategories category, string id)
+        {
             lock (_items)
             {
-                return _items.ContainsKey(name);
+                if (_items.ContainsKey(id))
+                    return;
+
+                _items.Add(id, new ProcessLockItem { Id = id, Category = category });
             }
         }
 
-        public void Lock(string name)
+        public void Lock(ProcessLockCategories category, string id, TimeSpan timespan)
         {
             lock (_items)
             {
-                if (_items.ContainsKey(name))
+                if (_items.ContainsKey(id))
                     return;
 
-                _items.Add(name, null);
+                _items.Add(id, new ProcessLockItem{ Id = id, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
             }
         }
 
-        public void Lock(string name, TimeSpan timespan)
+        public void Unlock(string id)
         {
             lock (_items)
             {
-                if (_items.ContainsKey(name))
+                if (!_items.ContainsKey(id))
                     return;
 
-                _items.Add(name, (timespan, DateTime.UtcNow));
-            }
-        }
-
-        public void Unlock(string name)
-        {
-            lock (_items)
-            {
-                if (!_items.ContainsKey(name))
-                    return;
-
-                _items.Remove(name);
+                _items.Remove(id);
             }
         }
 
@@ -74,11 +77,11 @@ namespace Tetrifact.Core
             for (int i = 0 ; i < _items.Count; i ++)
             {
                 string key = _items.Keys.ElementAt(_items.Count - 1 - i);
-                if (!_items[key].HasValue)
+                if (!_items[key].AddedUTC.HasValue || !_items[key].MaxLifespan.HasValue)
                     continue;
 
-                TimeSpan ts = _items[key].Value.Item1;
-                DateTime dt = _items[key].Value.Item2;
+                TimeSpan ts = _items[key].MaxLifespan.Value;
+                DateTime dt = _items[key].AddedUTC.Value;
                 if (DateTime.UtcNow - dt < ts)
                     continue;
 
