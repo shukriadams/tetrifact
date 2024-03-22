@@ -1,0 +1,1 @@
+Static 7zip libs. These are for dev only - unit tests require an absolute location for 7z.
