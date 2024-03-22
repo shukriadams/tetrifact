@@ -65,16 +65,13 @@ namespace Tetrifact.Core
         {
             Dictionary<string, byte[]> items = new Dictionary<string, byte[]>();
 
-            using (var archive = new ZipArchive(archiveStream))
-            {
-                foreach (ZipArchiveEntry entry in archive.Entries.Where(entry => entry != null))
+            using (ZipArchive archive = new ZipArchive(archiveStream))
+                //  filter out null and empty entries, these are directories
+                foreach (ZipArchiveEntry entry in archive.Entries.Where(entry => entry != null && entry.Length > 0))
                 {
                     using (Stream unzipStream = entry.Open())
-                    {
                         items.Add(entry.FullName, StreamToByteArray(unzipStream));
-                    }
                 }
-            }
 
             return items;
         }

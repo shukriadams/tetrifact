@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using Tetrifact.Core;
 using Xunit;
 
@@ -43,13 +42,25 @@ namespace Tetrifact.Tests.ArchiveService
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
 
             using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
-                // get again
-                using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
-                {
-                    Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
-                    Assert.Single(items);
-                }
+                Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
+                Assert.Single(items);
+            }
+        }
+
+        [Fact]
+        public void GetWithSevenZip()
+        {
+            this.Settings.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "packages", "7z.libs", "23.1.0", "bin", "x64", "7z.dll"); 
+
+            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+
+            using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            {
+                Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
+                Assert.Single(items);
             }
         }
 
