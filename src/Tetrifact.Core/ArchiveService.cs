@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -193,19 +192,22 @@ namespace Tetrifact.Core
 
             _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
 
-            SevenZipCompressor.SetLibraryPath(_settings.SevenZipBinaryPath);
-            SevenZipCompressor sevenZipArchive = new SevenZipCompressor();
-            sevenZipArchive.FastCompression = true;
-            sevenZipArchive.CompressionMethod = CompressionMethod.Lzma2; // apparently, fastest
-            sevenZipArchive.CompressionLevel = SevenZip.CompressionLevel.None; // fastest ?
-            sevenZipArchive.ArchiveFormat = OutArchiveFormat.Zip;
-            sevenZipArchive.CustomParameters.Add("mt", _settings.ArchiveCPUThreads.ToString());
-
             DateTime compressStart = DateTime.Now;
-            sevenZipArchive.CompressDirectory(tempDir2, archivePathTemp);
+            string command = $"{_settings.SevenZipBinaryPath} a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
 
+            ShellResult result = Shell.Run(command);
             TimeSpan compressTaken = DateTime.Now - compressStart;
-            _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+            if (result.ExitCode == 0)
+            {
+                _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+                if (result.StdErr.Any())
+                    _logger.LogError($"Archive comression with 7zip succeeded, but with errors. Took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
+
+            }
+            else
+            {
+                _logger.LogError($"Archive comression with 7zip failed, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
+            }
         }
 
         private void ArchiveDefaultMode(string packageId, string archivePathTemp)

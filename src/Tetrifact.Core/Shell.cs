@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Tetrifact.Core
 {
@@ -28,39 +30,82 @@ namespace Tetrifact.Core
         public static ShellResult Run(string command, bool verbose=false)
         {
             Process cmd = new Process();
-            cmd.StartInfo.FileName = "sh";
-            cmd.StartInfo.Arguments = $"-c \"{command}\"";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                cmd.StartInfo.FileName = "sh";
+                cmd.StartInfo.Arguments = $"-c \"{command}\"";
+            }
+            else
+            {
+                cmd.StartInfo.FileName = "cmd.exe";
+                cmd.StartInfo.Arguments = $"/k {command}";
+            }
+
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.RedirectStandardError = true;
             cmd.StartInfo.CreateNoWindow = true;
             cmd.StartInfo.UseShellExecute = false;
-            cmd.Start();
-
-            cmd.StandardInput.Flush();
-            cmd.StandardInput.Close();
-            cmd.WaitForExit();
-
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();
+            int timeout = 50000;
 
-            while (!cmd.StandardOutput.EndOfStream)
-            {
-                string line = cmd.StandardOutput.ReadLine();
-                stdOut.Add(line);
-                if (verbose)
-                    Console.WriteLine(line);
-            }
 
-            while (!cmd.StandardError.EndOfStream)
+            //cmd.Start();
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                string line = cmd.StandardError.ReadLine();
-                stdErr.Add(line);
-                if (verbose)
-                    Console.WriteLine(line);
+                using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+                {
+                    cmd.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                            outputWaitHandle.Set();
+                        else
+                            stdOut.Add(e.Data);
+                    };
+
+                    cmd.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                            errorWaitHandle.Set();
+                        else
+                            stdErr.Add(e.Data);
+                    };
+
+                    cmd.Start();
+                    cmd.BeginOutputReadLine();
+                    cmd.BeginErrorReadLine();
+
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || (cmd.WaitForExit(timeout) && outputWaitHandle.WaitOne(timeout) && errorWaitHandle.WaitOne(timeout)))
+                        return new ShellResult(cmd.ExitCode, stdOut, stdErr);
+                    else
+                        throw new Exception("Time out");
+                }
             }
-            
-            return new ShellResult(cmd.ExitCode, stdOut, stdErr);
+            else
+            {
+                cmd.Start();
+                cmd.StandardInput.Flush();
+                cmd.StandardInput.Close();
+
+
+                while (!cmd.StandardOutput.EndOfStream)
+                {
+                    string line = cmd.StandardOutput.ReadLine();
+                    stdOut.Add(line);
+                }
+
+                while (!cmd.StandardError.EndOfStream)
+                {
+                    string line = cmd.StandardError.ReadLine();
+                    stdErr.Add(line);
+                }
+
+                return new ShellResult(cmd.ExitCode, stdOut, stdErr);
+            }
         }
     }
 }
