@@ -193,7 +193,8 @@ namespace Tetrifact.Core
             _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
 
             DateTime compressStart = DateTime.Now;
-            string command = $"{_settings.SevenZipBinaryPath} a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
+            // -aoa swtich forces overwriting of existing zip file should it exist
+            string command = $"{_settings.SevenZipBinaryPath} a -tzip -mx={_settings.ArchiveCPUThreads} -aoa -mmt=on {archivePathTemp} {tempDir2}/*";
 
             ShellResult result = Shell.Run(command);
             TimeSpan compressTaken = DateTime.Now - compressStart;
@@ -202,7 +203,6 @@ namespace Tetrifact.Core
                 _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
                 if (result.StdErr.Any())
                     _logger.LogError($"Archive comression with 7zip succeeded, but with errors. Took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
-
             }
             else
             {
