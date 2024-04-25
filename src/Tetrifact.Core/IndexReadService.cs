@@ -55,14 +55,15 @@ namespace Tetrifact.Core
             {
                 if (Directory.Exists(_settings.TempPath))
                     Directory.Delete(_settings.TempPath, true);
-            } 
+            }
             else
             {
                 _logger.LogInformation("Temp dir wipe disabled, skipping");
             }
 
-            Directory.CreateDirectory(_settings.PackagePath);
             Directory.CreateDirectory(_settings.ArchivePath);
+            Directory.CreateDirectory(_settings.ArchiveQueuePath);
+            Directory.CreateDirectory(_settings.PackagePath);
             Directory.CreateDirectory(_settings.TempPath);
             Directory.CreateDirectory(_settings.RepositoryPath);
             Directory.CreateDirectory(_settings.TagsPath);

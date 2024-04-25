@@ -81,6 +81,8 @@ namespace Tetrifact.Core
 
         public string LogLevel{ get; set; }
 
+        public string ArchiveQueuePath { get; set; }
+
         public string CleanCronMask { get; set; }
 
         public string PruneCronMask { get; set; }
@@ -137,6 +139,7 @@ namespace Tetrifact.Core
             this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
             this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
             this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
+            this.ArchiveQueuePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archiveQueue");
             this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");

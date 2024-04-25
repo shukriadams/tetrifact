@@ -24,32 +24,6 @@ namespace Tetrifact.Tests.ArchiveService
             archives = Directory.GetFiles(this.Settings.ArchivePath);
             Assert.Equal(this.Settings.MaxArchives, archives.Length);
         }
-
-        /// <summary>
-        /// Confirms that attempting to purge an archive that's in use is handled gracefully and
-        /// logs an error. The error loggging is mainly used to indicate that the lock has been 
-        /// effective.
-        /// </summary>
-        [Fact/* (Skip = "fails consistently on travis")*/] 
-        public void PurgeLockedArchive()
-        {
-            Assert.Empty(base.IndexReaderLogger.LogEntries);
-
-            this.Settings.MaxArchives = 0;
-
-            string path = Path.Join(Settings.ArchivePath, "dummy.zip");
-            
-            File.WriteAllText(path, string.Empty);
-
-            // force create dummy zip file in archive folder
-            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, path);
-
-            // attempt to purge content of archive folder
-            base.ArchiveService.PurgeOldArchives();
-
-            Assert.Single(base.ArchiveLogger.LogEntries);
-            Assert.Contains("Failed to purge archive", base.ArchiveLogger.LogEntries[0]);
-        }
         
         
         /// <summary>

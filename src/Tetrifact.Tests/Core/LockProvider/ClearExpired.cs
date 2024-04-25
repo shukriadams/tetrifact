@@ -10,9 +10,9 @@ namespace Tetrifact.Tests.LockProvider
         public void Happy_path()
         { 
             ILock lck = new ProcessLock();
-            lck.Lock(ProcessLockCategories.Archive_Create, "1", new TimeSpan(0,0,0)); // expires
-            lck.Lock(ProcessLockCategories.Archive_Create, "2", new TimeSpan(1, 1, 1)); // doesn't expire
-            lck.Lock(ProcessLockCategories.Archive_Create, "3");
+            lck.Lock(ProcessLockCategories.Package_Create, "1", new TimeSpan(0,0,0)); // expires
+            lck.Lock(ProcessLockCategories.Package_Create, "2", new TimeSpan(1, 1, 1)); // doesn't expire
+            lck.Lock(ProcessLockCategories.Package_Create, "3");
             lck.ClearExpired();
         }
     }

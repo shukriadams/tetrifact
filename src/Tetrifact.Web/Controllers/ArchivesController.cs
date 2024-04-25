@@ -38,6 +38,34 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        [ServiceFilter(typeof(ReadLevel))]
+        [HttpPost("{packageId}")]
+        public ActionResult QueueArchiveGeneration(string packageId)
+        {
+            try
+            {
+                _archiveService.QueueArchiveCreation(packageId);
+
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        status = _archiveService.GetPackageArchiveStatus(packageId)
+                    }
+                });
+            }
+            catch (PackageNotFoundException ex)
+            {
+                _log.LogInformation($"{ex}");
+                return Responses.NotFoundError(this, packageId);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
+        }
+
         /// <summary>
         /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
         /// </summary>

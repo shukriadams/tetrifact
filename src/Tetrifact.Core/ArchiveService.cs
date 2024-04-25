@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +41,7 @@ namespace Tetrifact.Core
 
         #endregion
 
-        #region METHODs
+        #region METHODS
 
         public void EnsurePackageArchive(string packageId)
         {
@@ -55,9 +56,42 @@ namespace Tetrifact.Core
             return Path.Combine(_settings.ArchivePath, $"{packageId}.zip");
         }
 
+        public string GetPackageArchiveQueuePath(string packageId)
+        {
+            return Path.Combine(_settings.ArchiveQueuePath, $"{packageId}.json");
+        }
+
         public string GetPackageArchiveTempPath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, $"{packageId}.zip.tmp");
+        }
+
+        public virtual void QueueArchiveCreation(string packageId)
+        {
+            // check if archive already exists
+            string archivePath = this.GetPackageArchivePath(packageId);
+            if (_fileSystem.File.Exists(archivePath))
+                return;
+
+            // check if archive creation in progress
+            string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
+            if (_fileSystem.File.Exists(archiveQueuePath))
+                return;
+
+            // create info file
+            Manifest manifest =_indexReader.GetManifest(packageId);
+
+            // hardcode the compression factor, this needs its own calculation routine
+            double compressionFactor = 0.5;
+
+            ArchiveQueueInfo queueInfo = new ArchiveQueueInfo
+            { 
+                CreatedUtc = DateTime.UtcNow,
+                PackageId = packageId,
+                ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor)
+            };
+
+            _fileSystem.File.WriteAllText(archiveQueuePath, JsonConvert.SerializeObject(queueInfo));
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -66,46 +100,81 @@ namespace Tetrifact.Core
 
             // trigger archive creation
             if (!_fileSystem.File.Exists(archivePath))
-                this.CreateArchive(packageId);
+                throw new ArchiveNotFoundException();
 
-            // wait for archive to be built
-            string tempPath = this.GetPackageArchiveTempPath(packageId);
-            DateTime start = DateTime.Now;
-            TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
-
-            while (_lock.IsLocked(tempPath))
-            {
-                if (DateTime.Now - start > timeout)
-                    throw new TimeoutException($"Timed out waiting for archive {packageId} to build");
-
-                _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
-            }
-
-            _lock.Lock(ProcessLockCategories.Archive_Create, archivePath, new TimeSpan(1, 0, 0));
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public int GetPackageArchiveStatus(string packageId)
+        public PackageArchiveCreationStatus GetPackageArchiveStatus(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
-                throw new PackageNotFoundException(packageId);
+                return new PackageArchiveCreationStatus
+                {
+                    State = PackageArchiveCreationStates.PackageNotFound
+                };
 
             string archivePath = this.GetPackageArchivePath(packageId);
-            string temptPath = this.GetPackageArchiveTempPath(packageId);
-
+            string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
             bool archiveExists = _fileSystem.File.Exists(archivePath);
-            bool archiveTemptExists = _fileSystem.File.Exists(temptPath);
 
             // archive exists already
             if (archiveExists)
-                return 2;
+                return new PackageArchiveCreationStatus 
+                {
+                    State = PackageArchiveCreationStates.ArchiveAvailable     
+                };
 
-            // archive is being created
-            if (archiveTemptExists)
-                return 1;
+            // archive not available and not queued
+            if (!_fileSystem.File.Exists(archiveQueuePath))
+                return new PackageArchiveCreationStatus
+                {
+                    State = PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated
+                };
 
-            // neither archive nor temp file exists
-            return 0;
+            string queuFileContent;
+            ArchiveQueueInfo info;
+
+            try
+            {
+                queuFileContent = _fileSystem.File.ReadAllText(archiveQueuePath);
+            }
+            catch (Exception ex) 
+            { 
+                throw new Exception($"could not read archive queue file {archiveQueuePath} for package {packageId}.", ex);
+            }
+
+            try
+            {
+                info = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queuFileContent);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not json parse  queue file {archiveQueuePath} for package {packageId}.", ex);
+            }
+
+            string archiveTempPath = this.GetPackageArchiveTempPath(packageId);
+            long tempArchiveSize = 0;
+
+            try
+            {
+                FileInfo tempArchiveFileInfo = new FileInfo(archiveTempPath);
+                tempArchiveSize = tempArchiveFileInfo.Length;
+            }
+            catch(Exception ex)
+            { 
+                _logger.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
+                // ignore error if w
+            }
+
+            int percentDone = 0;
+            if (info.ProjectedSize != 0)
+                percentDone = (int)((100 * tempArchiveSize) / info.ProjectedSize);
+
+            return new PackageArchiveCreationStatus
+            {
+                State = PackageArchiveCreationStates.ArchiveGenerating,
+                ProgressPercent = percentDone
+            };
         }
 
         /// <summary>
@@ -261,15 +330,20 @@ namespace Tetrifact.Core
             _logger.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
-        private void CreateArchive(string packageId)
+        public void CreateArchive(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
                 throw new PackageNotFoundException(packageId);
 
-            // store path with .tmp extension while building, this is used to detect if archiving has already started
             string archivePath = this.GetPackageArchivePath(packageId);
             string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
+
+            if (_fileSystem.File.Exists(archivePath))
+                return;
+
+            // store path with .tmp extension while building, this is used to detect if archiving has already started
             DateTime totalStart = DateTime.Now;
+
             // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
             // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
@@ -281,10 +355,6 @@ namespace Tetrifact.Core
 
             try
             {
-                // lock process - we use an in-memory lock instead of just locking the file on disk because linux file locks in 
-                // Dotnet are unreliable
-                _lock.Lock(ProcessLockCategories.Archive_Create, archivePathTemp);
-
                 if (string.IsNullOrEmpty(_settings.SevenZipBinaryPath))
                     ArchiveDefaultMode(packageId, archivePathTemp);
                 else
