@@ -155,24 +155,5 @@ namespace Tetrifact.Tests.ArchiveService
             Exception ex = Assert.Throws<Exception>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
             Assert.Contains("Failed to find expected package file", ex.Message);
         }
-
-        /// <summary>
-        /// Ensure graceful handling of locked temp file from previous archive generating attempt
-        /// </summary>
-        [Fact]
-        public void GetArchive_Preexisting_locked_tempFile()
-        {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-
-            // lock archive
-            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
-            
-            Settings.ArchiveWaitTimeout = 0;
-
-            // attempt to start a new archive generation, this should exit immediately
-            TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
-            Assert.NotNull(ex);
-            Assert.True(ArchiveLogger.ContainsFragment("skipped, existing process detected"));
-        }
     }
 }

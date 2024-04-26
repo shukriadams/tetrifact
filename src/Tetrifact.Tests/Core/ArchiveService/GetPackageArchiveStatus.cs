@@ -43,7 +43,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Returns(false);
 
             IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { base.Settings, indexReader, filesystem });
-            Assert.Equal(0, archiveService.GetPackageArchiveStatus("any-package-id"));
+            Assert.Equal(PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated, archiveService.GetPackageArchiveStatus("any-package-id").State);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Tetrifact.Tests.ArchiveService
             // mock temp archive (temp = in progress)
             File.WriteAllText(this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id), string.Empty);
 
-            Assert.Equal(1, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id));
+            Assert.Equal(PackageArchiveCreationStates.ArchiveGenerating, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id).State);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Tetrifact.Tests.ArchiveService
             // mock existing archive file
             File.WriteAllText(this.ArchiveService.GetPackageArchivePath(testPackage.Id), string.Empty);
 
-            Assert.Equal(2, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id));
+            Assert.Equal(PackageArchiveCreationStates.ArchiveAvailable, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id).State);
         }
     }
 }
