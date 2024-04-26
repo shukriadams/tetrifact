@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -15,7 +16,11 @@ namespace Tetrifact.Web
 
         private readonly IArchiveService _archiveService;
 
+        private readonly IIndexReadService _indexReader;
+
         private readonly ILogger<ArchivesController> _log;
+
+        private readonly IFileSystem _fileSystem;
 
         #endregion
 
@@ -28,9 +33,11 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ArchivesController(IArchiveService archiveService, ILogger<ArchivesController> log)
+        public ArchivesController(IArchiveService archiveService, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
         {
             _archiveService = archiveService;
+            _indexReader = indexReader;
+            _fileSystem = fileSystem;
             _log = log;
         }
 
@@ -39,12 +46,14 @@ namespace Tetrifact.Web
         #region METHODS
 
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpPost("{packageId}")]
+        [HttpGet("{packageId}/queue")]
         public ActionResult QueueArchiveGeneration(string packageId)
         {
             try
             {
                 _archiveService.QueueArchiveCreation(packageId);
+
+                return Redirect($"/package/{packageId}");
 
                 return new JsonResult(new
                 {
@@ -77,6 +86,17 @@ namespace Tetrifact.Web
         {
             try
             {
+                // if not exists, queue and redirect back to view
+                if (!_indexReader.PackageExists(packageId))
+                    throw new PackageNotFoundException(packageId);
+
+                string archivePath = _archiveService.GetPackageArchivePath(packageId);
+                if (!_fileSystem.File.Exists(archivePath))
+                {
+                    _archiveService.QueueArchiveCreation(packageId);
+                    return Redirect($"/package/{packageId}");
+                }
+
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 

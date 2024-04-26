@@ -1,4 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
+using System.IO.Abstractions;
+using System.Linq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -15,15 +19,18 @@ namespace Tetrifact.Web
 
         private readonly IArchiveService _archiveService;
 
+        private readonly IFileSystem _fileSystem;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveGenerator(IDaemon daemonrunner, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
+        public ArchiveGenerator(IDaemon daemonrunner, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
         {
             _settings = new Settings();
             _archiveService = archiveService;
-            this.CronMask = "* * * * *"; // 1 minute, move to settings?
+            _fileSystem = fileSystem;
+            _daemonrunner = daemonrunner;
             _log = log;
         }
 
@@ -33,7 +40,7 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _daemonrunner.Start(this);
+            _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
         }
 
         /// <summary>
@@ -42,10 +49,34 @@ namespace Tetrifact.Web
         public override void Work()
         {
             // process flags in series, as we assume disk cannot handle more than one archive at a time
+            string[] files = _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath);
+            foreach(string file in files)
+            {
+                try 
+                {
+                    string queueFileContent = _fileSystem.File.ReadAllText(file);
+                    ArchiveQueueInfo archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+                    _archiveService.CreateArchive(archiveQueueInfo.PackageId);
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Error generating archive from queue file {file}", ex);
+                }
+                finally
+                { 
+                    try 
+                    {
+                        // always delete queue file after processing
+                        _fileSystem.File.Delete(file);
+                    }
+                    catch (Exception ex)
+                    { 
+                        _log.LogError($"Error deleting archive queue file {file}", ex);
+                    }
+                }
+            }
 
-            string packageId= "ready from flag";
             // 
-            _archiveService.CreateArchive(packageId);
         }
 
         #endregion

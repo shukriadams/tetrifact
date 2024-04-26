@@ -6,6 +6,8 @@ namespace Tetrifact.Web
     {
         void Start(Cron Daemon);
 
+        void Start(int interval, DaemonWorkMethod work);
+
         new void Dispose();
     }
 }
