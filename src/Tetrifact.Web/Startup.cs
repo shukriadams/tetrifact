@@ -69,6 +69,7 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
             services.AddTransient<ICron, ArchiveGenerator>();
+            services.AddTransient<ICron, ArchiveStatusChecker>();
             services.AddTransient<IDaemon, Daemon>();
             services.AddTransient<ITimeProvideer, TimeProvider>();
 

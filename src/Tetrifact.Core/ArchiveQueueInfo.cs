@@ -10,6 +10,6 @@ namespace Tetrifact.Core
 
         public long ProjectedSize { get; set; }
 
-
+        public long FilesInPackage { get; set; }
     }
 }

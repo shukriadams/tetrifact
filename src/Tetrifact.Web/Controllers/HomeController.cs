@@ -107,7 +107,7 @@ namespace Tetrifact.Web
             if (manifest == null)
                 return View("Error404");
 
-            PackageArchiveCreationStatus archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+            ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
 
             ViewData["manifest"] = manifest;
             ViewData["archiveGenerationStatus"] = archiveGenerationStatus;
@@ -127,7 +127,11 @@ namespace Tetrifact.Web
         [Route("archiveStatus/{packageId}")]
         public IActionResult ArchiveStatus(string packageId)
         {
-            PackageArchiveCreationStatus archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+            ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+            if (archiveGenerationStatus == null)
+                return new EmptyResult();
+
+            archiveGenerationStatus.PackageId = packageId;
             return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
         }
 

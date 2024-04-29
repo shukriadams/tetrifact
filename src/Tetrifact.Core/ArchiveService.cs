@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,16 @@ namespace Tetrifact.Core
 
         private readonly ILock _lock;
 
+        private readonly IMemoryCache _cache;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IThread thread, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IThread thread, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
+            _cache = cache;
             _thread = thread;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
@@ -42,6 +46,11 @@ namespace Tetrifact.Core
         #endregion
 
         #region METHODS
+
+        public string GetArchiveProgressKey(string packageId)
+        {
+            return $"archive_progress_{packageId}";
+        }
 
         public void EnsurePackageArchive(string packageId)
         {
@@ -88,6 +97,7 @@ namespace Tetrifact.Core
             { 
                 CreatedUtc = DateTime.UtcNow,
                 PackageId = packageId,
+                FilesInPackage = manifest.Files.Count,
                 ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor)
             };
 
@@ -105,10 +115,10 @@ namespace Tetrifact.Core
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public PackageArchiveCreationStatus GetPackageArchiveStatus(string packageId)
+        public ArchiveProgressInfo GetPackageArchiveStatus(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
-                return new PackageArchiveCreationStatus
+                return new ArchiveProgressInfo
                 {
                     State = PackageArchiveCreationStates.PackageNotFound
                 };
@@ -119,62 +129,21 @@ namespace Tetrifact.Core
 
             // archive exists already
             if (archiveExists)
-                return new PackageArchiveCreationStatus 
+                return new ArchiveProgressInfo 
                 {
                     State = PackageArchiveCreationStates.ArchiveAvailable     
                 };
 
             // archive not available and not queued
             if (!_fileSystem.File.Exists(archiveQueuePath))
-                return new PackageArchiveCreationStatus
+                return new ArchiveProgressInfo
                 {
                     State = PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated
                 };
 
-            string queuFileContent;
-            ArchiveQueueInfo info;
-
-            try
-            {
-                queuFileContent = _fileSystem.File.ReadAllText(archiveQueuePath);
-            }
-            catch (Exception ex) 
-            { 
-                throw new Exception($"could not read archive queue file {archiveQueuePath} for package {packageId}.", ex);
-            }
-
-            try
-            {
-                info = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queuFileContent);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Could not json parse  queue file {archiveQueuePath} for package {packageId}.", ex);
-            }
-
-            string archiveTempPath = this.GetPackageArchiveTempPath(packageId);
-            long tempArchiveSize = 0;
-
-            try
-            {
-                FileInfo tempArchiveFileInfo = new FileInfo(archiveTempPath);
-                tempArchiveSize = tempArchiveFileInfo.Length;
-            }
-            catch(Exception ex)
-            { 
-                _logger.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
-                // ignore error if w
-            }
-
-            int percentDone = 0;
-            if (info.ProjectedSize != 0)
-                percentDone = (int)((100 * tempArchiveSize) / info.ProjectedSize);
-
-            return new PackageArchiveCreationStatus
-            {
-                State = PackageArchiveCreationStates.ArchiveGenerating,
-                ProgressPercent = percentDone
-            };
+            string progressKey = this.GetArchiveProgressKey(packageId);
+            ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
+            return cachedProgress;
         }
 
         /// <summary>
@@ -224,6 +193,9 @@ namespace Tetrifact.Core
             {
                 _logger.LogInformation($"Archive generation : gathering files for package {packageId}");
                 Directory.CreateDirectory(tempDir1);
+                long cacheUpdateIncrements = manifest.Files.Count / 100;
+                long counter = 0;
+
                 manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
@@ -254,6 +226,23 @@ namespace Tetrifact.Core
                         using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
                             StreamsHelper.Copy(fileStream, writeStream, bufSize);
                     }
+
+                    counter ++;
+                    if (counter % cacheUpdateIncrements == 0)
+                    { 
+                        string key = this.GetArchiveProgressKey(packageId);
+                        ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
+                        if (progress == null)
+                            progress = new ArchiveProgressInfo
+                            { 
+                                PackageId = packageId,
+                                StartedUtc = DateTime.UtcNow,
+                                State = PackageArchiveCreationStates.ArchiveGenerating
+                            };
+
+                        progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
+                        _cache.Set(key, progress);
+                    }
                 });
 
                 Directory.Move(tempDir1, tempDir2);
@@ -271,7 +260,6 @@ namespace Tetrifact.Core
                 _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
                 if (result.StdErr.Any())
                     _logger.LogError($"Archive comression with 7zip succeeded, but with errors. Took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
-
             }
             else
             {
@@ -338,6 +326,7 @@ namespace Tetrifact.Core
             string archivePath = this.GetPackageArchivePath(packageId);
             string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
 
+            // archive already exists, no need to recreate
             if (_fileSystem.File.Exists(archivePath))
                 return;
 

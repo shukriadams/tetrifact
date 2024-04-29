@@ -50,7 +50,8 @@ namespace Tetrifact.Tests
                 lockProvider);
 
             IArchiveService archiveService = new Core.ArchiveService(
-                indexReader, 
+                indexReader,
+                new TestMemoryCache(),
                 new ThreadDefault(),
                 lockProvider,
                 filesystem, 

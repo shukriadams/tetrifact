@@ -58,15 +58,46 @@ async function onClick(e) {
 
 document.addEventListener('click', onClick, false);
 
-(() => {
-    const packageId = document.querySelector('.packageId').value,
-        statusNode = document.querySelector('[data-archiveStatus]'),
-        url = `/archiveStatus/${packageId}`
+(async () => {
+    let packageId = document.querySelector('.packageId').value,
+        timer = null,
+        busy = false,
+        statusNode = document.querySelector('[data-archiveStatus]')
 
-    function checkStatus() {
-        
+    async function checkStatus() {
+        try {
+            if (busy)
+                return
+
+            busy = true
+
+            await fetch(`/archiveStatus/${packageId}`).then((body) => {
+                body.text().then((html) => {
+                    // check if package is done
+                    if (timer !== null) {
+                        const node = document.createElement('div')
+                        node.innerHTML = html
+                        const isComplete = node.getAttribute('data-complete')
+
+                        if (isComplete == 'true') {
+                            window.clearInterval(timer)
+                            timer = null
+                        }
+                    }
+
+                    statusNode.innerHTML = html
+                    busy = false
+                })
+            })
+        }
+        catch (ex)
+        {
+            console.log(ex)
+            busy = false
+        }
+ 
     }
 
-    let timer = window.setInterval(checkStatus, 1000)
-
+    timer = window.setInterval(checkStatus, 1000)
+    await checkStatus()
 })()

@@ -11,7 +11,7 @@ namespace Tetrifact.Core
     /// archive generation failed
     /// 
     /// </summary>
-    public class PackageArchiveCreationStatus
+    public class ArchiveProgressInfo
     {
         public string PackageId { get;set;}
 
@@ -31,8 +31,17 @@ namespace Tetrifact.Core
         public PackageArchiveCreationStates State { get;set;}
 
         /// <summary>
-        /// If being generated, percent of archive generation complete
+        /// 
         /// </summary>
-        public int ProgressPercent { get ; set;} 
+        public decimal FileCopyProgress { get ; set;}
+
+        public decimal CompressProgress { get; set; }
+
+        public decimal CombinedPercent { get; set; }
+
+        /// <summary>
+        /// Used for view only
+        /// </summary>
+        public ArchiveQueueInfo Queue { get; set;}
     }
 }

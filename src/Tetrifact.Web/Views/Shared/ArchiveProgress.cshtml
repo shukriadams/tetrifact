@@ -1,5 +1,5 @@
 ﻿@using Tetrifact.Core;
-@model PackageArchiveCreationStatus
+@model ArchiveProgressInfo
 
 <div data-complete="@Model.State == PackageArchiveCreationStates.ArchiveAvailable">
 
@@ -18,7 +18,7 @@
             @Model.QueuedUtc.Ago()
         }
         <text>
-            Archive currently being generated : @Model.ProgressPercent % complete
+            Archive currently being generated : @Model.CombinedPercent % complete
         </text>
     }
 

@@ -44,7 +44,7 @@ namespace Tetrifact.Core
         /// throw a PackageNotFoundException if the package does not exist or is marked for delete
         /// </summary>
         /// <returns></returns>
-        PackageArchiveCreationStatus GetPackageArchiveStatus(string packageId);
+        ArchiveProgressInfo GetPackageArchiveStatus(string packageId);
 
         /// <summary>
         /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
@@ -61,5 +61,7 @@ namespace Tetrifact.Core
         /// <param name="packageId"></param>
         /// <returns></returns>
         string GetPackageArchivePath(string packageId);
+
+        string GetArchiveProgressKey(string packageId);
     }
 }

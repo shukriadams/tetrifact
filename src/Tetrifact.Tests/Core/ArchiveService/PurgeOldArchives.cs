@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Setup(f => f.File.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IArchiveService archiveService = new Core.ArchiveService(IndexReader, new ThreadDefault(), LockProvider, fileSystem, ArchiveLogger , Settings);
+            Core.ArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ Settings }); //Core.ArchiveService(IndexReader, new ThreadDefault(), LockProvider, fileSystem, ArchiveLogger , );
 
             // force an archive and ensure that all archives will be purged
             Settings.MaxArchives = 0;

@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.IO.Abstractions;
-using System.Linq;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
