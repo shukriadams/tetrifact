@@ -17,29 +17,8 @@
     <div class="layout-row">
         <div class="layout-label">
         </div>
-        <div class="layout-value">
-            @if (archiveGenerationStatus.State == PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated || archiveGenerationStatus.State == PackageArchiveCreationStates.ArchiveAvailable)
-            { 
-                <a class="button button-header" href="/v1/archives/@packageId">&#10515; Download</a>
-            }
-            else if (archiveGenerationStatus.State == PackageArchiveCreationStates.ArchiveGenerating)
-            {
-                <div>
-                    @if (archiveGenerationStatus.StartedUtc.HasValue)
-                    { 
-                        @archiveGenerationStatus.StartedUtc.Value.Ago()
-                    }
-                    else if (archiveGenerationStatus.QueuedUtc.HasValue)
-                    { 
-                        @archiveGenerationStatus.QueuedUtc.Value.Ago()
-                    }
-                    Archive currently being generated : @archiveGenerationStatus.ProgressPercent % complete
-                </div>
-            }
-            else
-            {
-                // do not handle other cases, 404 will catch package not found
-            }
+        <div class="layout-value" data-archiveStatus>
+
 
         </div>
     </div>

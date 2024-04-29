@@ -123,6 +123,14 @@ namespace Tetrifact.Web
         }
 
 
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("archiveStatus/{packageId}")]
+        public IActionResult ArchiveStatus(string packageId)
+        {
+            PackageArchiveCreationStatus archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+            return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
+        }
+
         /// <summary>
         /// Renders view.
         /// </summary>

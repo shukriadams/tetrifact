@@ -57,3 +57,16 @@ async function onClick(e) {
 }
 
 document.addEventListener('click', onClick, false);
+
+(() => {
+    const packageId = document.querySelector('.packageId').value,
+        statusNode = document.querySelector('[data-archiveStatus]'),
+        url = `/archiveStatus/${packageId}`
+
+    function checkStatus() {
+        
+    }
+
+    let timer = window.setInterval(checkStatus, 1000)
+
+})()

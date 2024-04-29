@@ -13,5 +13,10 @@ namespace Tetrifact.Tests
         {
             
         }
+
+        public void Start(int interval, DaemonWorkMethod work)
+        {
+            
+        }
     }
 }

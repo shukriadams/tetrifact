@@ -13,6 +13,8 @@ namespace Tetrifact.Core
     /// </summary>
     public class PackageArchiveCreationStatus
     {
+        public string PackageId { get;set;}
+
         /// <summary>
         /// If archive generation queued, time queue added.
         /// </summary>
