@@ -73,6 +73,7 @@ document.addEventListener('click', onClick, false);
 
             await fetch(`/archiveStatus/${packageId}`).then((body) => {
                 body.text().then((html) => {
+
                     // check if package is done
                     if (timer !== null) {
                         const node = document.createElement('div')
@@ -85,7 +86,10 @@ document.addEventListener('click', onClick, false);
                         }
                     }
 
-                    statusNode.innerHTML = html
+                    html = html.trim()
+                    if (html)
+                        statusNode.innerHTML = html
+
                     busy = false
                 })
             })

@@ -70,25 +70,26 @@ namespace Tetrifact.Web
 
                 string archiveTempPath = _archiveService.GetPackageArchiveTempPath(archiveQueueInfo.PackageId);
                 FileInfo tempArchiveFileInfo;
-                if (!_fileSystem.File.Exists(archiveTempPath))
-                    continue;
-
-                long length = 0;
-                try
+                decimal compressionPercentDone = 0;
+                if (_fileSystem.File.Exists(archiveTempPath))
                 {
-                    tempArchiveFileInfo = new FileInfo(archiveTempPath);
-                    length = tempArchiveFileInfo.Length;
-                }
-                catch (Exception ex)
-                {
-                    _log.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
-                    // ignore error if w
-                    continue;
-                }
+                    long length = 0;
+                    try
+                    {
+                        tempArchiveFileInfo = new FileInfo(archiveTempPath);
+                        length = tempArchiveFileInfo.Length;
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
+                        // ignore error if w
+                        continue;
+                    }
 
-                decimal percentDone = 0;
-                if (archiveQueueInfo.ProjectedSize != 0)
-                    percentDone = (100 * length) / archiveQueueInfo.ProjectedSize;
+                    
+                    if (archiveQueueInfo.ProjectedSize != 0)
+                        compressionPercentDone = (100 * length) / archiveQueueInfo.ProjectedSize;
+                }
 
                 string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
                 ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
@@ -101,7 +102,7 @@ namespace Tetrifact.Web
                         State = PackageArchiveCreationStates.ArchiveGenerating
                     };
 
-                cachedProgress.CompressProgress = percentDone;
+                cachedProgress.CompressProgress = compressionPercentDone;
                 cachedProgress.CombinedPercent = (cachedProgress.CompressProgress + cachedProgress.FileCopyProgress) / 2;
                 _cache.Set(progressKey, cachedProgress);
             }

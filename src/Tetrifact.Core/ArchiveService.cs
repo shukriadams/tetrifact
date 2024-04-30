@@ -199,7 +199,7 @@ namespace Tetrifact.Core
                 manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
-
+                    List<string> knownDirectories = new List<string>();
                     if (manifest.IsCompressed)
                     {
                         GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
@@ -220,15 +220,21 @@ namespace Tetrifact.Core
                         if (fileLookup == null)
                             throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
-                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+                        string dir = Path.GetDirectoryName(targetPath);
+                        if (!knownDirectories.Contains(dir)) 
+                        {
+                            Directory.CreateDirectory(dir);
+                            knownDirectories.Add(dir);
+                        }
 
+                        // is this the fastest way of copying? benchmark
                         using (Stream fileStream = fileLookup.Content)
                         using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
                             StreamsHelper.Copy(fileStream, writeStream, bufSize);
                     }
 
                     counter ++;
-                    if (counter % cacheUpdateIncrements == 0)
+                    if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
                     { 
                         string key = this.GetArchiveProgressKey(packageId);
                         ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);

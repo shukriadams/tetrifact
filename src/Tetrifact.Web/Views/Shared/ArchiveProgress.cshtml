@@ -11,14 +11,19 @@
     {
         @if (Model.StartedUtc.HasValue)
         { 
-            @Model.StartedUtc.Value.Ago()
+            <text>
+                Started @Model.StartedUtc.Value.Ago() ago
+            </text>
         }
         else
         { 
-            @Model.QueuedUtc.Ago()
+            <text>
+                Queued @Model.QueuedUtc.Ago() ago
+            </text>
         }
+
         <text>
-            Archive currently being generated : @Model.CombinedPercent % complete
+            @(Math.Round(Model.CombinedPercent, 0))  % complete
         </text>
     }
 
