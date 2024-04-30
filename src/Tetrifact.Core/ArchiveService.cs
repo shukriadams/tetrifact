@@ -18,8 +18,6 @@ namespace Tetrifact.Core
 
         private readonly IIndexReadService _indexReader;
 
-        private readonly IThread _thread;
-
         private readonly ILogger<IArchiveService> _logger;
 
         private readonly IFileSystem _fileSystem;
@@ -32,11 +30,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IThread thread, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
             _cache = cache;
-            _thread = thread;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
             _logger = logger;
@@ -91,7 +88,7 @@ namespace Tetrifact.Core
             Manifest manifest =_indexReader.GetManifest(packageId);
 
             // hardcode the compression factor, this needs its own calculation routine
-            double compressionFactor = 0.5;
+            double compressionFactor = 0.6;
 
             ArchiveQueueInfo queueInfo = new ArchiveQueueInfo
             { 
@@ -256,8 +253,13 @@ namespace Tetrifact.Core
 
             _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
 
+            // force delete temp file if it already exists, this can sometimes fail and we want an exception to be thrown to block 7zip being called.
+            // if 7zip encounted
+            if (_fileSystem.File.Exists(archivePathTemp))
+                _fileSystem.File.Delete(archivePathTemp);
+
             DateTime compressStart = DateTime.Now;
-            string command = $"{_settings.SevenZipBinaryPath} a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
+            string command = $"{_settings.SevenZipBinaryPath} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
 
             ShellResult result = Shell.Run(command);
             TimeSpan compressTaken = DateTime.Now - compressStart;

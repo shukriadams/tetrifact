@@ -50,17 +50,35 @@ namespace Tetrifact.Core
 
         public void Initialize()
         {
-            // wipe and recreate temp folder on app start
+            // wipe data that should not persist, server restart is a good time to do some forced garbage collection
+            if (Directory.Exists(_settings.ArchiveQueuePath))
+                try 
+                {
+                    Directory.Delete(_settings.ArchiveQueuePath, true);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"Error attemtping to purge ArchiveQueuePath on app start, ignoring. {ex}");
+                }
+
             if (_settings.WipeTempOnStart)
             {
                 if (Directory.Exists(_settings.TempPath))
-                    Directory.Delete(_settings.TempPath, true);
+                    try
+                    {
+                        Directory.Delete(_settings.TempPath, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Error attemtping to purge TempPath on app start, ignoring. {ex}");
+                    }
             }
             else
             {
                 _logger.LogInformation("Temp dir wipe disabled, skipping");
             }
 
+            // force recreate all again
             Directory.CreateDirectory(_settings.ArchivePath);
             Directory.CreateDirectory(_settings.ArchiveQueuePath);
             Directory.CreateDirectory(_settings.PackagePath);

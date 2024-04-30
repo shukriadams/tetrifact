@@ -12,18 +12,18 @@
         @if (Model.StartedUtc.HasValue)
         { 
             <text>
-                Started @Model.StartedUtc.Value.Ago() ago
+                Preparing package for dowload, started @Model.StartedUtc.Value.Ago() ago
             </text>
         }
         else
         { 
             <text>
-                Queued @Model.QueuedUtc.Ago() ago
+                Preparing package for dowload, queued @Model.QueuedUtc.Ago() ago
             </text>
         }
 
         <text>
-            @(Math.Round(Model.CombinedPercent, 0))  % complete
+            @(Math.Round(Model.CombinedPercent, 0))% complete
         </text>
     }
 

@@ -88,7 +88,7 @@ namespace Tetrifact.Web
 
                     
                     if (archiveQueueInfo.ProjectedSize != 0)
-                        compressionPercentDone = (100 * length) / archiveQueueInfo.ProjectedSize;
+                        compressionPercentDone = 100 * ((decimal)length / (decimal)archiveQueueInfo.ProjectedSize);
                 }
 
                 string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);

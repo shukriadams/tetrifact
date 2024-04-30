@@ -153,15 +153,15 @@ namespace Tetrifact.Web
             ISettings settings = serviceProvider.GetService<ISettings>();
             loggerFactory.AddFile(settings.LogPath);
 
-            // start daemons
-            IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
-            foreach (ICron cron in crons)
-                cron.Start();
-
             // initialize indexes
             IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
             foreach (IIndexReadService indexReader in indexReaders)
                 indexReader.Initialize();
+
+            // start daemons after index initialization
+            IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
+            foreach (ICron cron in crons)
+                cron.Start();
 
             Console.WriteLine("*********************************************************************");
             Console.WriteLine("TETRIFACT : server starting");
