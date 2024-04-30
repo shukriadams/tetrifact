@@ -2,7 +2,6 @@
 {
     public enum ProcessLockCategories 
     {
-        Archive_Create,
         Package_Create
     }
 }

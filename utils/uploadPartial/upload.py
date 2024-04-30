@@ -96,9 +96,7 @@ sorted(package2_allFiles)
 
 count = 0
 package2LocalHash=''
-
 known_dirs=[]
-
 manifest = {}
 manifest['files'] = []
 package2HashContent = ''
@@ -149,7 +147,6 @@ if args.manifest == 'true':
 if not os.path.isfile('./2manifest.json'):
     print('2manifest.json not found, be sure run script with "--manifest true" arg')
     sys.exit(0)
-
 
 print('reloading manifest2')
 with open('./2manifest.json') as f:

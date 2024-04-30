@@ -5,6 +5,18 @@ namespace Tetrifact.Core
     public interface IArchiveService
     {
         /// <summary>
+        /// Generates an archive for the given package id. Exits
+        /// </summary>
+        /// <param name="packageId"></param>
+        void CreateArchive(string packageId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packageId"></param>
+        void QueueArchiveCreation(string packageId);
+
+        /// <summary>
         /// Creates a package archive without locking up package stream
         /// </summary>
         /// <param name="packageId"></param>
@@ -32,7 +44,7 @@ namespace Tetrifact.Core
         /// throw a PackageNotFoundException if the package does not exist or is marked for delete
         /// </summary>
         /// <returns></returns>
-        int GetPackageArchiveStatus(string packageId);
+        ArchiveProgressInfo GetPackageArchiveStatus(string packageId);
 
         /// <summary>
         /// Gets the path for a package archive while archive is being generated. This file will be renamed to the
@@ -49,5 +61,7 @@ namespace Tetrifact.Core
         /// <param name="packageId"></param>
         /// <returns></returns>
         string GetPackageArchivePath(string packageId);
+
+        string GetArchiveProgressKey(string packageId);
     }
 }

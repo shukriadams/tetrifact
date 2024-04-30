@@ -57,3 +57,51 @@ async function onClick(e) {
 }
 
 document.addEventListener('click', onClick, false);
+
+(async () => {
+    let packageId = document.querySelector('.packageId').value,
+        timer = null,
+        busy = false,
+        statusNode = document.querySelector('[data-archiveStatus]')
+
+    async function checkStatus() {
+        try {
+            if (busy)
+                return
+
+            busy = true
+
+            await fetch(`/archiveStatus/${packageId}`).then((body) => {
+                body.text().then((html) => {
+
+                    // check if package is done
+                    if (timer !== null) {
+                        const node = document.createElement('div')
+                        node.innerHTML = html
+                        const isComplete = node.getAttribute('data-complete')
+
+                        if (isComplete == 'true') {
+                            window.clearInterval(timer)
+                            timer = null
+                        }
+                    }
+
+                    html = html.trim()
+                    if (html)
+                        statusNode.innerHTML = html
+
+                    busy = false
+                })
+            })
+        }
+        catch (ex)
+        {
+            console.log(ex)
+            busy = false
+        }
+ 
+    }
+
+    timer = window.setInterval(checkStatus, 1000)
+    await checkStatus()
+})()

@@ -16,17 +16,19 @@ namespace Tetrifact.Web
         private readonly IPackageListService _packageList;
         private readonly ILogger<HomeController> _log;
         private readonly ILock _processes;
+        private readonly IArchiveService _archiveService;
         #endregion
 
         #region CTORS
 
-        public HomeController(ISettings settings, ILock processes, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, ILock processes, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;
             _packageList = packageList;
             _log = log;
             _processes = processes;
+            _archiveService = archiveService;
         }
 
         #endregion
@@ -101,10 +103,14 @@ namespace Tetrifact.Web
             ViewData["serverName"] = _settings.ServerName;
             ViewData["packageId"] = packageId;
             Manifest manifest = _indexService.GetManifest(packageId);
+
             if (manifest == null)
                 return View("Error404");
 
+            ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+
             ViewData["manifest"] = manifest;
+            ViewData["archiveGenerationStatus"] = archiveGenerationStatus;
 
             if (pageIndex != 0)
                 pageIndex--;
@@ -116,6 +122,18 @@ namespace Tetrifact.Web
             return View();
         }
 
+
+        [ServiceFilter(typeof(ReadLevel))]
+        [Route("archiveStatus/{packageId}")]
+        public IActionResult ArchiveStatus(string packageId)
+        {
+            ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+            if (archiveGenerationStatus == null)
+                return new EmptyResult();
+
+            archiveGenerationStatus.PackageId = packageId;
+            return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
+        }
 
         /// <summary>
         /// Renders view.

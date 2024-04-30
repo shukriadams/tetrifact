@@ -47,26 +47,7 @@ namespace Tetrifact.Tests.IndexReader
 
             Assert.False(File.Exists(archivePath));
         }
-
-        
-        [Fact]  
-        public void DeleteWithLockedArchive()
-        {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-
-            // create a fake archive file
-            File.WriteAllText(Path.Join(Settings.ArchivePath, $"{testPackage.Id}.zip"), string.Empty);
-
-            // lock archive file
-            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, base.ArchiveService.GetPackageArchivePath(testPackage.Id));
-
-            // attempt to delete package
-            this.IndexReader.DeletePackage(testPackage.Id);
-
-            Assert.Single(base.IndexReaderLogger.LogEntries);
-            Assert.Contains("Failed to purge archive", base.IndexReaderLogger.LogEntries[0]);
-        }
-        
+       
 
         [Fact]
         public void InvalidPackage()

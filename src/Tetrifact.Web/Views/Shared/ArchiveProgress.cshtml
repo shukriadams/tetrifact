@@ -1,0 +1,30 @@
+﻿@using Tetrifact.Core;
+@model ArchiveProgressInfo
+
+<div data-complete="@Model.State == PackageArchiveCreationStates.ArchiveAvailable">
+
+    @if (Model.State == PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated || Model.State == PackageArchiveCreationStates.ArchiveAvailable)
+    { 
+        <a class="button button-header" href="/v1/archives/@Model.PackageId">&#10515; Download</a>
+    }
+    else if (Model.State == PackageArchiveCreationStates.ArchiveGenerating)
+    {
+        @if (Model.StartedUtc.HasValue)
+        { 
+            <text>
+                Preparing package for dowload, started @Model.StartedUtc.Value.Ago() ago
+            </text>
+        }
+        else
+        { 
+            <text>
+                Preparing package for dowload, queued @Model.QueuedUtc.Ago() ago
+            </text>
+        }
+
+        <text>
+            @(Math.Round(Model.CombinedPercent, 0))% complete
+        </text>
+    }
+
+</div>

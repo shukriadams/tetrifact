@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,22 +18,22 @@ namespace Tetrifact.Core
 
         private readonly IIndexReadService _indexReader;
 
-        private readonly IThread _thread;
-
         private readonly ILogger<IArchiveService> _logger;
 
         private readonly IFileSystem _fileSystem;
 
         private readonly ILock _lock;
 
+        private readonly IMemoryCache _cache;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IThread thread, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
-            _thread = thread;
+            _cache = cache;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
             _logger = logger;
@@ -40,7 +42,12 @@ namespace Tetrifact.Core
 
         #endregion
 
-        #region METHODs
+        #region METHODS
+
+        public string GetArchiveProgressKey(string packageId)
+        {
+            return $"archive_progress_{packageId}";
+        }
 
         public void EnsurePackageArchive(string packageId)
         {
@@ -55,9 +62,43 @@ namespace Tetrifact.Core
             return Path.Combine(_settings.ArchivePath, $"{packageId}.zip");
         }
 
+        public string GetPackageArchiveQueuePath(string packageId)
+        {
+            return Path.Combine(_settings.ArchiveQueuePath, $"{packageId}.json");
+        }
+
         public string GetPackageArchiveTempPath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, $"{packageId}.zip.tmp");
+        }
+
+        public virtual void QueueArchiveCreation(string packageId)
+        {
+            // check if archive already exists
+            string archivePath = this.GetPackageArchivePath(packageId);
+            if (_fileSystem.File.Exists(archivePath))
+                return;
+
+            // check if archive creation in progress
+            string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
+            if (_fileSystem.File.Exists(archiveQueuePath))
+                return;
+
+            // create info file
+            Manifest manifest =_indexReader.GetManifest(packageId);
+
+            // hardcode the compression factor, this needs its own calculation routine
+            double compressionFactor = 0.6;
+
+            ArchiveQueueInfo queueInfo = new ArchiveQueueInfo
+            { 
+                CreatedUtc = DateTime.UtcNow,
+                PackageId = packageId,
+                FilesInPackage = manifest.Files.Count,
+                ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor)
+            };
+
+            _fileSystem.File.WriteAllText(archiveQueuePath, JsonConvert.SerializeObject(queueInfo));
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -66,46 +107,40 @@ namespace Tetrifact.Core
 
             // trigger archive creation
             if (!_fileSystem.File.Exists(archivePath))
-                this.CreateArchive(packageId);
+                throw new ArchiveNotFoundException();
 
-            // wait for archive to be built
-            string tempPath = this.GetPackageArchiveTempPath(packageId);
-            DateTime start = DateTime.Now;
-            TimeSpan timeout = new TimeSpan(0, 0, _settings.ArchiveWaitTimeout);
-
-            while (_lock.IsLocked(tempPath))
-            {
-                if (DateTime.Now - start > timeout)
-                    throw new TimeoutException($"Timed out waiting for archive {packageId} to build");
-
-                _thread.Sleep(this._settings.ArchiveAvailablePollInterval);
-            }
-
-            _lock.Lock(ProcessLockCategories.Archive_Create, archivePath, new TimeSpan(1, 0, 0));
             return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public int GetPackageArchiveStatus(string packageId)
+        public ArchiveProgressInfo GetPackageArchiveStatus(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
-                throw new PackageNotFoundException(packageId);
+                return new ArchiveProgressInfo
+                {
+                    State = PackageArchiveCreationStates.PackageNotFound
+                };
 
             string archivePath = this.GetPackageArchivePath(packageId);
-            string temptPath = this.GetPackageArchiveTempPath(packageId);
-
+            string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
             bool archiveExists = _fileSystem.File.Exists(archivePath);
-            bool archiveTemptExists = _fileSystem.File.Exists(temptPath);
 
             // archive exists already
             if (archiveExists)
-                return 2;
+                return new ArchiveProgressInfo 
+                {
+                    State = PackageArchiveCreationStates.ArchiveAvailable     
+                };
 
-            // archive is being created
-            if (archiveTemptExists)
-                return 1;
+            // archive not available and not queued
+            if (!_fileSystem.File.Exists(archiveQueuePath))
+                return new ArchiveProgressInfo
+                {
+                    State = PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated
+                };
 
-            // neither archive nor temp file exists
-            return 0;
+            string progressKey = this.GetArchiveProgressKey(packageId);
+            ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
+            return cachedProgress;
         }
 
         /// <summary>
@@ -155,10 +190,13 @@ namespace Tetrifact.Core
             {
                 _logger.LogInformation($"Archive generation : gathering files for package {packageId}");
                 Directory.CreateDirectory(tempDir1);
+                long cacheUpdateIncrements = manifest.Files.Count / 100;
+                long counter = 0;
+
                 manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
-
+                    List<string> knownDirectories = new List<string>();
                     if (manifest.IsCompressed)
                     {
                         GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
@@ -179,11 +217,34 @@ namespace Tetrifact.Core
                         if (fileLookup == null)
                             throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
-                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+                        string dir = Path.GetDirectoryName(targetPath);
+                        if (!knownDirectories.Contains(dir)) 
+                        {
+                            Directory.CreateDirectory(dir);
+                            knownDirectories.Add(dir);
+                        }
 
+                        // is this the fastest way of copying? benchmark
                         using (Stream fileStream = fileLookup.Content)
                         using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
                             StreamsHelper.Copy(fileStream, writeStream, bufSize);
+                    }
+
+                    counter ++;
+                    if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
+                    { 
+                        string key = this.GetArchiveProgressKey(packageId);
+                        ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
+                        if (progress == null)
+                            progress = new ArchiveProgressInfo
+                            { 
+                                PackageId = packageId,
+                                StartedUtc = DateTime.UtcNow,
+                                State = PackageArchiveCreationStates.ArchiveGenerating
+                            };
+
+                        progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
+                        _cache.Set(key, progress);
                     }
                 });
 
@@ -192,9 +253,15 @@ namespace Tetrifact.Core
 
             _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
 
+            // force delete temp file if it already exists, this can sometimes fail and we want an exception to be thrown to block 7zip being called.
+            // if 7zip encounted
+            if (_fileSystem.File.Exists(archivePathTemp))
+                _fileSystem.File.Delete(archivePathTemp);
+
             DateTime compressStart = DateTime.Now;
+
             // -aoa swtich forces overwriting of existing zip file should it exist
-            string command = $"{_settings.SevenZipBinaryPath} a -tzip -mx={_settings.ArchiveCPUThreads} -aoa -mmt=on {archivePathTemp} {tempDir2}/*";
+            string command = $"{_settings.SevenZipBinaryPath} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
 
             ShellResult result = Shell.Run(command);
             TimeSpan compressTaken = DateTime.Now - compressStart;
@@ -261,15 +328,21 @@ namespace Tetrifact.Core
             _logger.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
-        private void CreateArchive(string packageId)
+        public void CreateArchive(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
                 throw new PackageNotFoundException(packageId);
 
-            // store path with .tmp extension while building, this is used to detect if archiving has already started
             string archivePath = this.GetPackageArchivePath(packageId);
             string archivePathTemp = this.GetPackageArchiveTempPath(packageId);
+
+            // archive already exists, no need to recreate
+            if (_fileSystem.File.Exists(archivePath))
+                return;
+
+            // store path with .tmp extension while building, this is used to detect if archiving has already started
             DateTime totalStart = DateTime.Now;
+
             // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
             // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
@@ -281,10 +354,6 @@ namespace Tetrifact.Core
 
             try
             {
-                // lock process - we use an in-memory lock instead of just locking the file on disk because linux file locks in 
-                // Dotnet are unreliable
-                _lock.Lock(ProcessLockCategories.Archive_Create, archivePathTemp);
-
                 if (string.IsNullOrEmpty(_settings.SevenZipBinaryPath))
                     ArchiveDefaultMode(packageId, archivePathTemp);
                 else

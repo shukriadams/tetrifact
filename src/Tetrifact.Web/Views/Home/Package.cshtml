@@ -3,6 +3,7 @@
     string packageId = ViewData["packageId"] as string;
     Manifest manifest = ViewData["manifest"] as Manifest;
     PageableData<ManifestItem> filesPage = ViewData["filesPage"] as PageableData<ManifestItem>;
+    ArchiveProgressInfo archiveGenerationStatus = ViewData["archiveGenerationStatus"] as ArchiveProgressInfo;
     string pager = ViewData["filesPager"] as string;
 
     ViewData["Title"] = $"Package : {packageId}";
@@ -16,8 +17,9 @@
     <div class="layout-row">
         <div class="layout-label">
         </div>
-        <div class="layout-value">
-            <a class="button button-header" href="/v1/archives/@packageId">&#10515; Download</a>
+        <!-- fetched in brownser, see /wwwroot/scripts/package.js -->
+        <div class="layout-value" data-archiveStatus>
+            Fetching downloading status ...
         </div>
     </div>
 

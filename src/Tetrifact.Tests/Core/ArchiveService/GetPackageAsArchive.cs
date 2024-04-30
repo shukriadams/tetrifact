@@ -78,30 +78,6 @@ namespace Tetrifact.Tests.ArchiveService
         }
 
         /// <summary>
-        /// Confirms that a timeout exception is thrown if package creation takes too long.
-        /// </summary>
-        [Fact/* (Skip = "locking file doesn't work on linux, find cross-platform solution")*/]
-        public void GetTimesOut()
-        {
-            // zero wait times to speed up test, this should trigger an instant timeout
-            base.Settings.ArchiveWaitTimeout = 1; // second
-            base.Settings.ArchiveAvailablePollInterval = 0; // no poll interval, so reads instantly
-
-            // we need a valid package first
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-
-            // lock the temp archive file in the system, this will block creating a new archive
-            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
-
-            Assert.Throws<TimeoutException>(() => {
-                using (Stream zipStream = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
-                {
-                    // do nothing, exception expected
-                }
-            });
-        }
-
-        /// <summary>
         /// Confirms that waiting-for-archive to generate goes into loop, which exits when the archive temp file is replaced with the completed archive.
         /// </summary>
         [Fact]
@@ -189,25 +165,6 @@ namespace Tetrifact.Tests.ArchiveService
 
             Exception ex = Assert.Throws<Exception>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
             Assert.Contains("Failed to find expected package file", ex.Message);
-        }
-
-        /// <summary>
-        /// Ensure graceful handling of locked temp file from previous archive generating attempt
-        /// </summary>
-        [Fact]
-        public void GetArchive_Preexisting_locked_tempFile()
-        {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-
-            // lock archive
-            LockProvider.Instance.Lock(ProcessLockCategories.Archive_Create, ArchiveService.GetPackageArchiveTempPath(testPackage.Id));
-            
-            Settings.ArchiveWaitTimeout = 0;
-
-            // attempt to start a new archive generation, this should exit immediately
-            TimeoutException ex = Assert.Throws<TimeoutException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
-            Assert.NotNull(ex);
-            Assert.True(ArchiveLogger.ContainsFragment("skipped, existing process detected"));
         }
     }
 }

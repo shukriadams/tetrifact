@@ -21,6 +21,11 @@ namespace Tetrifact.Core
         string TempPath { get; set; }
 
         /// <summary>
+        /// Directory archive generation files are stored in. Wiped on app start.
+        /// </summary>
+        string ArchiveQueuePath { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         string LogPath { get; set; }

@@ -56,6 +56,35 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="interval">milliseconds</param>
+        public void Start(int interval, DaemonWorkMethod work)
+        {
+            _lastRun = DateTime.UtcNow;
+
+            Task.Run(() => {
+                while (_running)
+                {
+                    try
+                    {
+                        if (_busy)
+                            continue;
+
+                        _busy = true;
+                        _lastRun = DateTime.UtcNow;
+                        work();
+                    }
+                    finally
+                    {
+                        Thread.Sleep(interval);
+                        _busy = false;
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             _running = false;
