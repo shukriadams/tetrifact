@@ -59,7 +59,7 @@ namespace Tetrifact.Web
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Error generating archive from queue file {file}", ex);
+                    _log.LogError($"Error generating archive from queue file {file} : {ex.Message}", ex);
                 }
                 finally
                 { 
@@ -70,7 +70,7 @@ namespace Tetrifact.Web
                     }
                     catch (Exception ex)
                     { 
-                        _log.LogError($"Error deleting archive queue file {file}", ex);
+                        _log.LogError($"Error deleting archive queue file {file} : {ex.Message}", ex);
                     }
                 }
             }
