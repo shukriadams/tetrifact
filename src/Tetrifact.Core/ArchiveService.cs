@@ -193,7 +193,7 @@ namespace Tetrifact.Core
                 long cacheUpdateIncrements = manifest.Files.Count / 100;
                 long counter = 0;
 
-                manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
+                manifest.Files.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
                     List<string> knownDirectories = new List<string>();
@@ -263,7 +263,7 @@ namespace Tetrifact.Core
             // -aoa swtich forces overwriting of existing zip file should it exist
             string command = $"{_settings.SevenZipBinaryPath} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
 
-            ShellResult result = Shell.Run(command);
+            ShellResult result = Shell.Run(command, false, 3600000); // set timeout to 1 hour
             TimeSpan compressTaken = DateTime.Now - compressStart;
             if (result.ExitCode == 0)
             {

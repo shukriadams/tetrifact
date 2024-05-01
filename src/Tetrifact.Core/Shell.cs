@@ -26,8 +26,9 @@ namespace Tetrifact.Core
         /// Runs a shell command SYNCHRONOUSLY, returns a tuple with exit code, stdout and stderr.
         /// </summary>
         /// <param name="command"></param>
+        /// <param name="timeout">milliseconds to timeout</param>
         /// <returns></returns>
-        public static ShellResult Run(string command, bool verbose=false)
+        public static ShellResult Run(string command, bool verbose=false, int timeout= 50000)
         {
             Process cmd = new Process();
 
@@ -49,8 +50,6 @@ namespace Tetrifact.Core
             cmd.StartInfo.UseShellExecute = false;
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();
-            int timeout = 50000;
-
 
             //cmd.Start();
 
@@ -90,7 +89,6 @@ namespace Tetrifact.Core
                 cmd.Start();
                 cmd.StandardInput.Flush();
                 cmd.StandardInput.Close();
-
 
                 while (!cmd.StandardOutput.EndOfStream)
                 {
