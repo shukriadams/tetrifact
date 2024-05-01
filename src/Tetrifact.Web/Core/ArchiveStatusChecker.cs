@@ -24,16 +24,19 @@ namespace Tetrifact.Web
 
         private readonly IMemoryCache _cache;
 
+        private IIndexReadService _indexReader;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveStatusChecker(IDaemon daemonrunner, IMemoryCache cache, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveStatusChecker> log)
+        public ArchiveStatusChecker(IDaemon daemonrunner, IIndexReadService indexReader, IMemoryCache cache, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveStatusChecker> log)
         {
             _settings = new Settings();
             _archiveService = archiveService;
             _fileSystem = fileSystem;
             _daemonrunner = daemonrunner;
+            _indexReader = indexReader;
             _log = log;
             _cache = cache;
         }
@@ -68,12 +71,34 @@ namespace Tetrifact.Web
                     continue;
                 }
 
+                string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+                ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressKey);
+
+                if (progress == null)
+                {
+                    Manifest manifest = _indexReader.GetManifest(archiveQueueInfo.PackageId);
+
+                    // hardcode the compression factor, this needs its own calculation routine
+                    double compressionFactor = 0.6;
+                    progress = new ArchiveProgressInfo
+                    {
+                        PackageId = archiveQueueInfo.PackageId,
+                        ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor),
+                        State = PackageArchiveCreationStates.Queued,
+                        QueuedUtc = archiveQueueInfo.QueuedUtc,
+                    };
+                }
+
+                _cache.Set(progressKey, progress);
+
+                // attemtpt to calculate compression progress by measuring size of temp zip on disk
                 string archiveTempPath = _archiveService.GetPackageArchiveTempPath(archiveQueueInfo.PackageId);
                 FileInfo tempArchiveFileInfo;
                 decimal compressionPercentDone = 0;
+
                 if (_fileSystem.File.Exists(archiveTempPath))
                 {
-                    long length = 0;
+                    long length;
                     try
                     {
                         tempArchiveFileInfo = new FileInfo(archiveTempPath);
@@ -87,23 +112,14 @@ namespace Tetrifact.Web
                     }
 
                     
-                    if (archiveQueueInfo.ProjectedSize != 0)
-                        compressionPercentDone = 100 * ((decimal)length / (decimal)archiveQueueInfo.ProjectedSize);
+                    if (progress.ProjectedSize != 0)
+                        compressionPercentDone = 100 * ((decimal)length / (decimal)progress.ProjectedSize);
                 }
 
-                string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
                 ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
-                if (cachedProgress == null)
-                    cachedProgress = new ArchiveProgressInfo
-                    {
-                        PackageId = archiveQueueInfo.PackageId,
-                        Queue = archiveQueueInfo,
-                        StartedUtc = DateTime.UtcNow,
-                        State = PackageArchiveCreationStates.ArchiveGenerating
-                    };
-
                 cachedProgress.CompressProgress = compressionPercentDone;
                 cachedProgress.CombinedPercent = (cachedProgress.CompressProgress + cachedProgress.FileCopyProgress) / 2;
+
                 _cache.Set(progressKey, cachedProgress);
             }
             // 

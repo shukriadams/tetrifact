@@ -1,11 +1,14 @@
 ﻿@using Tetrifact.Core;
 @model ArchiveProgressInfo
+@{
+    string packageId = ViewData["packageId"] as string;
+}
 
-<div data-complete="@Model.State == PackageArchiveCreationStates.ArchiveAvailable">
+<div data-complete="@(Model != null && Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable)">
 
-    @if (Model.State == PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated || Model.State == PackageArchiveCreationStates.ArchiveAvailable)
+    @if (Model == null || Model.State == PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated || Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable || Model.State == PackageArchiveCreationStates.Processed_CleanupRequired)
     { 
-        <a class="button button-header" href="/v1/archives/@Model.PackageId">&#10515; Download</a>
+        <a class="button button-header" href="/v1/archives/@packageId">&#10515; Download</a>
     }
     else if (Model.State == PackageArchiveCreationStates.ArchiveGenerating)
     {
@@ -18,7 +21,7 @@
         else
         { 
             <text>
-                Preparing package for dowload, queued @Model.QueuedUtc.Ago() ago
+                Package generation waiting in queue for @Model.QueuedUtc.Ago() 
             </text>
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO.Abstractions;
@@ -20,15 +21,18 @@ namespace Tetrifact.Web
 
         private readonly IFileSystem _fileSystem;
 
+        private readonly IMemoryCache _cache;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveGenerator(IDaemon daemonrunner, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
+        public ArchiveGenerator(IDaemon daemonrunner, IMemoryCache cache, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
         {
             _settings = new Settings();
             _archiveService = archiveService;
             _fileSystem = fileSystem;
+            _cache = cache;
             _daemonrunner = daemonrunner;
             _log = log;
         }
@@ -51,10 +55,20 @@ namespace Tetrifact.Web
             string[] files = _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath);
             foreach(string file in files)
             {
+                ArchiveQueueInfo archiveQueueInfo = null;
+                ArchiveProgressInfo progress = null;
+                string key = null;
                 try 
                 {
                     string queueFileContent = _fileSystem.File.ReadAllText(file);
-                    ArchiveQueueInfo archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+                    archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+                    key = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+                    progress = _cache.Get<ArchiveProgressInfo>(key);
+                    if (progress == null || progress.State != PackageArchiveCreationStates.Queued)
+                        continue;
+
+                    progress.State = PackageArchiveCreationStates.ArchiveGenerating;
+                    _cache.Set(key, progress);
                     _archiveService.CreateArchive(archiveQueueInfo.PackageId);
                 }
                 catch (Exception ex)
@@ -65,17 +79,19 @@ namespace Tetrifact.Web
                 { 
                     try 
                     {
-                        // always delete queue file after processing
-                        _fileSystem.File.Delete(file);
+                        // always mark for cleanup, even if fail
+                        if (progress != null)
+                        {
+                            progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
+                            _cache.Set(key, progress);
+                        }
                     }
                     catch (Exception ex)
                     { 
-                        _log.LogError($"Error deleting archive queue file {file} : {ex.Message}", ex);
+                        _log.LogError($"Error updating archive queue file {file} : {ex.Message}", ex);
                     }
                 }
             }
-
-            // 
         }
 
         #endregion

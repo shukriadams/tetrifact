@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tetrifact.Web
 {
@@ -17,17 +18,20 @@ namespace Tetrifact.Web
         private readonly ILogger<HomeController> _log;
         private readonly ILock _processes;
         private readonly IArchiveService _archiveService;
+        private readonly IMemoryCache _cache;
+
         #endregion
 
         #region CTORS
 
-        public HomeController(ISettings settings, ILock processes, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, ILock processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;
             _packageList = packageList;
             _log = log;
             _processes = processes;
+            _cache = cache;
             _archiveService = archiveService;
         }
 
@@ -127,11 +131,9 @@ namespace Tetrifact.Web
         [Route("archiveStatus/{packageId}")]
         public IActionResult ArchiveStatus(string packageId)
         {
-            ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
-            if (archiveGenerationStatus == null)
-                return new EmptyResult();
-
-            archiveGenerationStatus.PackageId = packageId;
+            string key = _archiveService.GetArchiveProgressKey(packageId);
+            ArchiveProgressInfo archiveGenerationStatus = _cache.Get<ArchiveProgressInfo>(key);
+            ViewData["packageId"] = packageId;
             return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
         }
 

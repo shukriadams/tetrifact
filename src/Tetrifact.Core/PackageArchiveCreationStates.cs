@@ -2,9 +2,11 @@
 {
     public enum PackageArchiveCreationStates
     {
-        PackageNotFound,
-        ArchiveAvailable,
-        ArchiveNotAvailableNotGenerated,
-        ArchiveGenerating
+        Queued,
+        ArchiveGenerating,
+        Processed_PackageNotFound,
+        Processed_ArchiveAvailable,
+        Processed_ArchiveNotAvailableNotGenerated,
+        Processed_CleanupRequired
     }
 }
