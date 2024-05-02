@@ -83,7 +83,7 @@ namespace Tetrifact.Core
                 } 
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Prune failed for package {packageId}", ex);
+                    _logger.LogError($"Prune failed for package {packageId} {ex}");
                 }
             }
         }

@@ -131,7 +131,7 @@ namespace Tetrifact.Core
             }
             catch (IOException ex)
             {
-                _log.LogError($"Failed to read content of directory {currentDirectory} ", ex);
+                _log.LogError($"Failed to read content of directory {currentDirectory} {ex}");
                 _failed.Add(currentDirectory);
                 // if we can't read the files or directories in the current path, skip it and try to clean up other paths
                 return;
@@ -150,7 +150,7 @@ namespace Tetrifact.Core
                 }
                 catch (IOException ex)
                 {
-                    _log.LogError($"ERROR : Failed to delete directory {currentDirectory} ", ex);
+                    _log.LogError($"ERROR : Failed to delete directory {currentDirectory} {ex}");
                     _failed.Add(currentDirectory);
                 }
             }
@@ -181,7 +181,7 @@ namespace Tetrifact.Core
                             }
                             catch (IOException ex)
                             {
-                                _log.LogError($"ERROR : Failed to delete file {file} ", ex);
+                                _log.LogError($"ERROR : Failed to delete file {file} {ex}");
                                 _failed.Add(file);
                             }
                         }
@@ -215,7 +215,7 @@ namespace Tetrifact.Core
                     }
                     catch (IOException ex)
                     {
-                        _log.LogError($"ERROR deleting bin file file {currentDirectory} ", ex);
+                        _log.LogError($"ERROR deleting bin file file {currentDirectory} {ex}");
                         _failed.Add(currentDirectory);
                     }
 

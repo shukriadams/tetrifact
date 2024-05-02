@@ -59,7 +59,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon repository clean error", ex);
+                _log.LogError($"Daemon repository clean error {ex}");
             }
 
             try
@@ -68,7 +68,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon lock clear error", ex);
+                _log.LogError($"Daemon lock clear error {ex}");
             }
 
             try
@@ -77,7 +77,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon Purge archives error", ex);
+                _log.LogError($"Daemon Purge archives error {ex}");
             }
         }
 

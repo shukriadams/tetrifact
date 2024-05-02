@@ -5,23 +5,29 @@
 }
 
 <div data-complete="@(Model != null && Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable)">
-
+    @{ 
+        // TODO :simply this if statement
+    }
     @if (Model == null || Model.State == PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated || Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable || Model.State == PackageArchiveCreationStates.Processed_CleanupRequired)
     { 
         <a class="button button-header" href="/v1/archives/@packageId">&#10515; Download</a>
     }
+    else if (Model.State == PackageArchiveCreationStates.Queued)
+    { 
+        <text>
+            Package generation waiting in queue for @Model.QueuedUtc.Ago() 
+        </text>
+    }
     else if (Model.State == PackageArchiveCreationStates.ArchiveGenerating)
     {
+        <text>
+            Preparing package for dowload.
+        </text>
+
         @if (Model.StartedUtc.HasValue)
         { 
             <text>
-                Preparing package for dowload, started @Model.StartedUtc.Value.Ago() ago
-            </text>
-        }
-        else
-        { 
-            <text>
-                Package generation waiting in queue for @Model.QueuedUtc.Ago() 
+               Started @Model.StartedUtc.Value.Ago() ago
             </text>
         }
 

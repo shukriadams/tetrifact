@@ -67,13 +67,14 @@ namespace Tetrifact.Web
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Error generating archive from queue file {queueFile}", ex);
+                    _log.LogError($"Error generating archive from queue file {queueFile} {ex}");
                     continue;
                 }
 
                 string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
                 ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressKey);
 
+                // progress has not yet been calculated, generate it
                 if (progress == null)
                 {
                     Manifest manifest = _indexReader.GetManifest(archiveQueueInfo.PackageId);
@@ -87,40 +88,43 @@ namespace Tetrifact.Web
                         State = PackageArchiveCreationStates.Queued,
                         QueuedUtc = archiveQueueInfo.QueuedUtc,
                     };
+                    _cache.Set(progressKey, progress);
                 }
 
-                _cache.Set(progressKey, progress);
 
                 // attemtpt to calculate compression progress by measuring size of temp zip on disk
-                string archiveTempPath = _archiveService.GetPackageArchiveTempPath(archiveQueueInfo.PackageId);
-                FileInfo tempArchiveFileInfo;
-                decimal compressionPercentDone = 0;
-
-                if (_fileSystem.File.Exists(archiveTempPath))
+                if (progress.State == PackageArchiveCreationStates.ArchiveGenerating)
                 {
-                    long length;
-                    try
+                    string archiveTempPath = _archiveService.GetPackageArchiveTempPath(archiveQueueInfo.PackageId);
+                    FileInfo tempArchiveFileInfo;
+                    decimal compressionPercentDone = 0;
+
+                    if (_fileSystem.File.Exists(archiveTempPath))
                     {
-                        tempArchiveFileInfo = new FileInfo(archiveTempPath);
-                        length = tempArchiveFileInfo.Length;
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
-                        // ignore error if w
-                        continue;
+                        long length;
+                        try
+                        {
+                            tempArchiveFileInfo = new FileInfo(archiveTempPath);
+                            length = tempArchiveFileInfo.Length;
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
+                            // ignore error if w
+                            continue;
+                        }
+
+
+                        if (progress.ProjectedSize != 0)
+                            compressionPercentDone = 100 * ((decimal)length / (decimal)progress.ProjectedSize);
                     }
 
-                    
-                    if (progress.ProjectedSize != 0)
-                        compressionPercentDone = 100 * ((decimal)length / (decimal)progress.ProjectedSize);
+                    ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
+                    cachedProgress.CompressProgress = compressionPercentDone;
+                    cachedProgress.CombinedPercent = (cachedProgress.CompressProgress + cachedProgress.FileCopyProgress) / 2;
+
+                    _cache.Set(progressKey, cachedProgress);
                 }
-
-                ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
-                cachedProgress.CompressProgress = compressionPercentDone;
-                cachedProgress.CombinedPercent = (cachedProgress.CompressProgress + cachedProgress.FileCopyProgress) / 2;
-
-                _cache.Set(progressKey, cachedProgress);
             }
             // 
         }

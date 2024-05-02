@@ -351,7 +351,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // give exception more context, AsParallel should pass exception back up to waiting parenting thread
-                    _logger.LogError($"Error looking up existing repo file {repositoryPathDir} {file}", ex);
+                    _logger.LogError($"Error looking up existing repo file {repositoryPathDir} {file} {ex}");
                     errors = true;
                 }
             });

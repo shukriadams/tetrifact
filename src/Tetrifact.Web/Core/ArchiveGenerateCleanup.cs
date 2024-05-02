@@ -76,7 +76,7 @@ namespace Tetrifact.Web
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Error cleaning up archive from queue file {queueFile}", ex);
+                    _log.LogError($"Error cleaning up archive from queue file {queueFile} {ex}");
                     continue;
                 }
             }

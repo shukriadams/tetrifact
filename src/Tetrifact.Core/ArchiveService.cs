@@ -188,6 +188,7 @@ namespace Tetrifact.Core
                 long cacheUpdateIncrements = manifest.Files.Count / 100;
                 long counter = 0;
 
+
                 manifest.Files.AsParallel().ForAll(delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
@@ -226,20 +227,16 @@ namespace Tetrifact.Core
                     }
 
                     counter ++;
+
                     if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
-                    { 
+                    {
                         string key = this.GetArchiveProgressKey(packageId);
                         ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
-                        if (progress == null)
-                            progress = new ArchiveProgressInfo
-                            { 
-                                PackageId = packageId,
-                                StartedUtc = DateTime.UtcNow,
-                                State = PackageArchiveCreationStates.ArchiveGenerating
-                            };
-
-                        progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
-                        _cache.Set(key, progress);
+                        if (progress != null)
+                        {
+                            progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
+                            _cache.Set(key, progress);
+                        }
                     }
                 });
 

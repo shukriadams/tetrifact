@@ -68,12 +68,13 @@ namespace Tetrifact.Web
                         continue;
 
                     progress.State = PackageArchiveCreationStates.ArchiveGenerating;
+                    progress.StartedUtc = DateTime.UtcNow;
                     _cache.Set(key, progress);
                     _archiveService.CreateArchive(archiveQueueInfo.PackageId);
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Error generating archive from queue file {file} : {ex.Message}", ex);
+                    _log.LogError($"Error generating archive from queue file {file} : {ex}");
                 }
                 finally
                 { 
@@ -88,7 +89,7 @@ namespace Tetrifact.Web
                     }
                     catch (Exception ex)
                     { 
-                        _log.LogError($"Error updating archive queue file {file} : {ex.Message}", ex);
+                        _log.LogError($"Error updating archive queue file {file} : {ex}");
                     }
                 }
             }
