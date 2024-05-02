@@ -69,7 +69,7 @@ namespace Tetrifact.Web
 
                     string tempDir2 = Path.Join(_settings.TempPath, $"_repack_{archiveQueueInfo.PackageId}");
                     if (_fileSystem.Directory.Exists(tempDir2))
-                        _fileSystem.Directory.Delete(tempDir2);
+                        _fileSystem.Directory.Delete(tempDir2, true);
 
                     _fileSystem.File.Delete(queueFile);
                     _cache.Remove(key);
