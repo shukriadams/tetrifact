@@ -4,21 +4,18 @@ namespace Tetrifact.Core
 {
     /// <summary>
     /// 
-    /// package not found
-    /// archive available
-    /// archive not available and not being generated
-    /// archive being generated
-    /// archive generation failed
-    /// 
     /// </summary>
     public class ArchiveProgressInfo
     {
-        public string PackageId { get;set;}
+        /// <summary>
+        /// 
+        /// </summary>
+        public string PackageId { get; set; }
 
         /// <summary>
         /// If archive generation queued, time queue added.
         /// </summary>
-        public DateTime? QueuedUtc { get; set; }
+        public DateTime QueuedUtc { get; set; }
 
         /// <summary>
         /// If archive generation underway, time it was started
@@ -39,9 +36,6 @@ namespace Tetrifact.Core
 
         public decimal CombinedPercent { get; set; }
 
-        /// <summary>
-        /// Used for view only
-        /// </summary>
-        public ArchiveQueueInfo Queue { get; set;}
+        public long ProjectedSize { get; set; }
     }
 }

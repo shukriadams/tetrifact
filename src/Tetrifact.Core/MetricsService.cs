@@ -51,7 +51,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // if we reach here, last_run is corrupt, force delete
-                    _logger.LogError($"last_run for metrics generation is corrupt, attempting hard wipe of file", ex);
+                    _logger.LogError($"last_run for metrics generation is corrupt, attempting hard wipe of file {ex}");
 
                     try 
                     {
@@ -160,7 +160,7 @@ namespace Tetrifact.Core
                 if (ex is MetricsStaleException)
                     throw ex;
 
-                _logger.LogError("Unexpected error on influx metrics get", ex);
+                _logger.LogError($"Unexpected error on influx metrics get {ex}");
                 throw new MetricsStaleException("An unexpected error occurred attempting to retrieve influx metrics. See logs for details.");
             }
         }

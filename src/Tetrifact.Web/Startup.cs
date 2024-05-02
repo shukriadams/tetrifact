@@ -65,13 +65,16 @@ namespace Tetrifact.Web
             services.AddTransient<ISystemCallsService, SystemCallsService>();
             services.AddTransient<ILock, ProcessLock>();
             services.AddTransient<ILockProvider, LockProvider>();
+            services.AddTransient<IDaemon, Daemon>();
+            services.AddTransient<ITimeProvideer, TimeProvider>();
+        
+            // all ICron types registered here will automatically get loaded
             services.AddTransient<ICron, MetricsCron>();
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
+            services.AddTransient<ICron, ArchiveGenerateCleanup>();
             services.AddTransient<ICron, ArchiveGenerator>();
             services.AddTransient<ICron, ArchiveStatusChecker>();
-            services.AddTransient<IDaemon, Daemon>();
-            services.AddTransient<ITimeProvideer, TimeProvider>();
 
             services.Configure<KestrelServerOptions>(options =>
             {

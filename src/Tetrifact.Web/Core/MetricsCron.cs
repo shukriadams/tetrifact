@@ -40,12 +40,12 @@ namespace Tetrifact.Web
             catch (FatalException ex)
             {
                 // error has already been logged, go straight to shutdown
-                _log.LogError("Fatal error - failed to delete corrupt last_run file : ", ex);
+                _log.LogError($"Fatal error - failed to delete corrupt last_run file : {ex}");
                 _applicationLifetime.StopApplication();
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon metrics generate error", ex);
+                _log.LogError($"Daemon metrics generate error {ex}");
             }
         }
     }

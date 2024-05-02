@@ -35,7 +35,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon prune error", ex);
+                _log.LogError($"Daemon prune error {ex}");
             }
         }
     }

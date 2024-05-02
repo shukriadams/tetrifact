@@ -50,17 +50,6 @@ namespace Tetrifact.Core
 
         public void Initialize()
         {
-            // wipe data that should not persist, server restart is a good time to do some forced garbage collection
-            if (Directory.Exists(_settings.ArchiveQueuePath))
-                try 
-                {
-                    Directory.Delete(_settings.ArchiveQueuePath, true);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning($"Error attemtping to purge ArchiveQueuePath on app start, ignoring. {ex}");
-                }
-
             if (_settings.WipeTempOnStart)
             {
                 if (Directory.Exists(_settings.TempPath))
@@ -362,7 +351,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // give exception more context, AsParallel should pass exception back up to waiting parenting thread
-                    _logger.LogError($"Error looking up existing repo file {repositoryPathDir} {file}", ex);
+                    _logger.LogError($"Error looking up existing repo file {repositoryPathDir} {file} {ex}");
                     errors = true;
                 }
             });

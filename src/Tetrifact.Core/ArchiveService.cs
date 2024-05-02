@@ -84,21 +84,16 @@ namespace Tetrifact.Core
             if (_fileSystem.File.Exists(archiveQueuePath))
                 return;
 
-            // create info file
-            Manifest manifest =_indexReader.GetManifest(packageId);
-
-            // hardcode the compression factor, this needs its own calculation routine
-            double compressionFactor = 0.6;
+            // create info file to disk
 
             ArchiveQueueInfo queueInfo = new ArchiveQueueInfo
             { 
-                CreatedUtc = DateTime.UtcNow,
                 PackageId = packageId,
-                FilesInPackage = manifest.Files.Count,
-                ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor)
+                QueuedUtc = DateTime.UtcNow
             };
 
             _fileSystem.File.WriteAllText(archiveQueuePath, JsonConvert.SerializeObject(queueInfo));
+
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -117,7 +112,7 @@ namespace Tetrifact.Core
             if (!_indexReader.PackageExists(packageId))
                 return new ArchiveProgressInfo
                 {
-                    State = PackageArchiveCreationStates.PackageNotFound
+                    State = PackageArchiveCreationStates.Processed_PackageNotFound
                 };
 
             string archivePath = this.GetPackageArchivePath(packageId);
@@ -128,14 +123,14 @@ namespace Tetrifact.Core
             if (archiveExists)
                 return new ArchiveProgressInfo 
                 {
-                    State = PackageArchiveCreationStates.ArchiveAvailable     
+                    State = PackageArchiveCreationStates.Processed_ArchiveAvailable     
                 };
 
             // archive not available and not queued
             if (!_fileSystem.File.Exists(archiveQueuePath))
                 return new ArchiveProgressInfo
                 {
-                    State = PackageArchiveCreationStates.ArchiveNotAvailableNotGenerated
+                    State = PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated
                 };
 
             string progressKey = this.GetArchiveProgressKey(packageId);
@@ -231,20 +226,16 @@ namespace Tetrifact.Core
                     }
 
                     counter ++;
+
                     if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
-                    { 
+                    {
                         string key = this.GetArchiveProgressKey(packageId);
                         ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
-                        if (progress == null)
-                            progress = new ArchiveProgressInfo
-                            { 
-                                PackageId = packageId,
-                                StartedUtc = DateTime.UtcNow,
-                                State = PackageArchiveCreationStates.ArchiveGenerating
-                            };
-
-                        progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
-                        _cache.Set(key, progress);
+                        if (progress != null)
+                        {
+                            progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
+                            _cache.Set(key, progress);
+                        }
                     }
                 });
 

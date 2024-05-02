@@ -6,10 +6,6 @@ namespace Tetrifact.Core
     {
         public string PackageId { get;set; }
 
-        public DateTime CreatedUtc { get; set; }
-
-        public long ProjectedSize { get; set; }
-
-        public long FilesInPackage { get; set; }
+        public DateTime QueuedUtc { get; set; }
     }
 }

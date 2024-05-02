@@ -53,12 +53,14 @@ namespace Tetrifact.Web
         /// </summary>
         public override void Work()
         {
-            if (!_settings.Prune)
+            try
             {
-                _log.LogInformation("Prune disabled, daeemon skipping scheduled run.");
-                return;
+                _repositoryCleaner.Clean();
             }
-                
+            catch (Exception ex)
+            {
+                _log.LogError($"Daemon repository clean error {ex}");
+            }
 
             try
             {
@@ -66,16 +68,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon lock clear error", ex);
-            }
-
-            try 
-            {
-                _repositoryCleaner.Clean();
-            }
-            catch (Exception ex)
-            {
-                _log.LogError("Daemon repository clean error", ex);
+                _log.LogError($"Daemon lock clear error {ex}");
             }
 
             try
@@ -84,7 +77,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError("Daemon Purge archives error", ex);
+                _log.LogError($"Daemon Purge archives error {ex}");
             }
         }
 
