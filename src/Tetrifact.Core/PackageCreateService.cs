@@ -178,7 +178,7 @@ namespace Tetrifact.Core
 
                 if (_settings.AutoCreateArchiveOnPackageCreate){
                     _log.LogInformation("Generating package archive");
-                    _archiveService.EnsurePackageArchive(newPackage.Id);
+                    _archiveService.QueueArchiveCreation(newPackage.Id);
                 }
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };

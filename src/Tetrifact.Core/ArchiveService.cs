@@ -49,14 +49,6 @@ namespace Tetrifact.Core
             return $"archive_progress_{packageId}";
         }
 
-        public void EnsurePackageArchive(string packageId)
-        {
-            using (Stream stream = this.GetPackageAsArchive(packageId))
-            {
-                // createa and immediately dispose of stream
-            }
-        }
-
         public string GetPackageArchivePath(string packageId)
         {
             return Path.Combine(_settings.ArchivePath, $"{packageId}.zip");

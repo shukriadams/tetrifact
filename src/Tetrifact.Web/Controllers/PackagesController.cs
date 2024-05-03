@@ -337,10 +337,6 @@ namespace Tetrifact.Web
                     IsArchive = post.IsArchive
                 });
 
-                // force flush in-memory list of packages
-                if (result.Success)
-                    _packageListCache.Clear();
-
                 if (result.Success)
                 {
                     // force flush in-memory list of packages
