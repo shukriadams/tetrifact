@@ -46,10 +46,18 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ReadLevel))]
         public IActionResult Index()
         {
-            ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
-            ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
-            ViewData["serverName"] = _settings.ServerName;
-            return View();
+            try 
+            {
+                ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
+                ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
+                ViewData["serverName"] = _settings.ServerName;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
 
@@ -61,25 +69,41 @@ namespace Tetrifact.Web
         [Route("api")]
         public IActionResult Api()
         {
-            IEnumerable<Package> packages = _packageList.Get(0, 10);
-            string exampleTag = _packageList.GetPopularTags(1).FirstOrDefault();
-            ViewData["upstreamPackageId"] = packages.Count() > 0 ? packages.ElementAt(0).Id : "my-upstream-packageId";
-            ViewData["downstreamPackageId"] = packages.Count() > 1 ? packages.ElementAt(1).Id : "my-downstream-packageId";
-            ViewData["exampleTag"] = string.IsNullOrEmpty(exampleTag) ? "my-example-tag" : exampleTag;
-            ViewData["serverName"] = _settings.ServerName;
-            return View();
+            try
+            {
+                IEnumerable<Package> packages = _packageList.Get(0, 10);
+                string exampleTag = _packageList.GetPopularTags(1).FirstOrDefault();
+                ViewData["upstreamPackageId"] = packages.Count() > 0 ? packages.ElementAt(0).Id : "my-upstream-packageId";
+                ViewData["downstreamPackageId"] = packages.Count() > 1 ? packages.ElementAt(1).Id : "my-downstream-packageId";
+                ViewData["exampleTag"] = string.IsNullOrEmpty(exampleTag) ? "my-example-tag" : exampleTag;
+                ViewData["serverName"] = _settings.ServerName;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
+
 
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("processes")]
         public IActionResult Processes()
         {
-            IEnumerable<ProcessLockItem> processes = _processes.GetCurrent();
-
-            ViewData["processes"] = processes;
-            ViewData["serverName"] = _settings.ServerName;
-            return View();
+            try
+            {
+                IEnumerable<ProcessLockItem> processes = _processes.GetCurrent();
+                ViewData["processes"] = processes;
+                ViewData["serverName"] = _settings.ServerName;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
         /// <summary>
@@ -90,9 +114,17 @@ namespace Tetrifact.Web
         [Route("uploadPackage")]
         public IActionResult UploadPackage()
         {
-            ViewData["serverName"] = _settings.ServerName;
-            string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            return View(new UploadPackageModel { HostName = hostname });
+            try
+            {
+                ViewData["serverName"] = _settings.ServerName;
+                string hostname = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                return View(new UploadPackageModel { HostName = hostname });
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
 
@@ -104,26 +136,34 @@ namespace Tetrifact.Web
         [Route("package/{packageId}")]
         public IActionResult Package(string packageId, [FromQuery(Name = "pageIndex")] int pageIndex)
         {
-            ViewData["serverName"] = _settings.ServerName;
-            ViewData["packageId"] = packageId;
-            Manifest manifest = _indexService.GetManifest(packageId);
+            try
+            {
+                ViewData["serverName"] = _settings.ServerName;
+                ViewData["packageId"] = packageId;
+                Manifest manifest = _indexService.GetManifest(packageId);
 
-            if (manifest == null)
-                return View("Error404");
+                if (manifest == null)
+                    return View("Error404");
 
-            ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
+                ArchiveProgressInfo archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
 
-            ViewData["manifest"] = manifest;
-            ViewData["archiveGenerationStatus"] = archiveGenerationStatus;
+                ViewData["manifest"] = manifest;
+                ViewData["archiveGenerationStatus"] = archiveGenerationStatus;
 
-            if (pageIndex != 0)
-                pageIndex--;
+                if (pageIndex != 0)
+                    pageIndex--;
 
-            Pager pager = new Pager();
-            PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(pageIndex * _settings.ListPageSize).Take(_settings.ListPageSize), pageIndex, _settings.ListPageSize, manifest.Files.Count);
-            ViewData["filesPage"] = filesPage;
-            ViewData["filesPager"] = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles");
-            return View();
+                Pager pager = new Pager();
+                PageableData<ManifestItem> filesPage = new PageableData<ManifestItem>(manifest.Files.Skip(pageIndex * _settings.ListPageSize).Take(_settings.ListPageSize), pageIndex, _settings.ListPageSize, manifest.Files.Count);
+                ViewData["filesPage"] = filesPage;
+                ViewData["filesPager"] = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles");
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
 
@@ -131,10 +171,18 @@ namespace Tetrifact.Web
         [Route("archiveStatus/{packageId}")]
         public IActionResult ArchiveStatus(string packageId)
         {
-            string key = _archiveService.GetArchiveProgressKey(packageId);
-            ArchiveProgressInfo archiveGenerationStatus = _cache.Get<ArchiveProgressInfo>(key);
-            ViewData["packageId"] = packageId;
-            return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
+            try
+            {
+                string key = _archiveService.GetArchiveProgressKey(packageId);
+                ArchiveProgressInfo archiveGenerationStatus = _cache.Get<ArchiveProgressInfo>(key);
+                ViewData["packageId"] = packageId;
+                return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
         /// <summary>
@@ -145,16 +193,24 @@ namespace Tetrifact.Web
         [Route("packages/{page?}")]
         public IActionResult Packages([FromQuery(Name = "page")] int page)
         {
-            // user-facing page values start at 1 instead of 0. reset
-            if (page != 0)
+            try
+            {
+                // user-facing page values start at 1 instead of 0. reset
+                if (page != 0)
                 page--;
 
-            Pager pager = new Pager();
-            PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
-            ViewData["serverName"] = _settings.ServerName;
-            ViewData["pager"] = pager.Render(packages, _settings.PagesPerPageGroup, "/packages", "page");
-            ViewData["packages"] = packages;
-            return View();
+                Pager pager = new Pager();
+                PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
+                ViewData["serverName"] = _settings.ServerName;
+                ViewData["pager"] = pager.Render(packages, _settings.PagesPerPageGroup, "/packages", "page");
+                ViewData["packages"] = packages;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
         /// <summary>
@@ -165,20 +221,28 @@ namespace Tetrifact.Web
         [Route("search/{search?}/{page?}")]
         public IActionResult Search(string search, [FromQuery(Name = "page")] int page)
         {
-            // user-facing page values start at 1 instead of 0. reset
-            if (page != 0)
-                page--;
+            try
+            {
+                // user-facing page values start at 1 instead of 0. reset
+                if (page != 0)
+                    page--;
 
-            if (search == null)
-                search = string.Empty;
+                if (search == null)
+                    search = string.Empty;
 
-            PageableData<Package> results = _packageList.Find(search, page, _settings.ListPageSize);
-            Pager pager = new Pager();
-            ViewData["serverName"] = _settings.ServerName;
-            ViewData["search"] = search;
-            ViewData["packages"] = results;
-            ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, $"/search/{search}", "page");
-            return View();
+                PageableData<Package> results = _packageList.Find(search, page, _settings.ListPageSize);
+                Pager pager = new Pager();
+                ViewData["serverName"] = _settings.ServerName;
+                ViewData["search"] = search;
+                ViewData["packages"] = results;
+                ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, $"/search/{search}", "page");
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
         }
 
         /// <summary>
@@ -191,7 +255,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                string[] tagsSplit = tags.Split(",", System.StringSplitOptions.RemoveEmptyEntries).Select(r => Uri.UnescapeDataString(r)).ToArray();
+                string[] tagsSplit = tags.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(r => Uri.UnescapeDataString(r)).ToArray();
                 ViewData["serverName"] = _settings.ServerName;
                 ViewData["tag"] = tags;
                 ViewData["packages"] = _packageList.GetWithTags(tagsSplit, 0, _settings.ListPageSize);
@@ -211,8 +275,15 @@ namespace Tetrifact.Web
         [Route("error/404")]
         public IActionResult Error404()
         {
-            ViewData["serverName"] = _settings.ServerName;
-            return View();
+            try
+            {
+                ViewData["serverName"] = _settings.ServerName;
+                return View();
+            }
+            catch (TagNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
 
@@ -223,8 +294,15 @@ namespace Tetrifact.Web
         [Route("error/500")]
         public IActionResult Error500()
         {
-            ViewData["serverName"] = _settings.ServerName;
-            return View();
+            try
+            {
+                ViewData["serverName"] = _settings.ServerName;
+                return View();
+            }
+            catch (TagNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
@@ -234,19 +312,26 @@ namespace Tetrifact.Web
         [Route("spacecheck")]
         public ActionResult SpaceCheck()
         {
-            DiskUseStats useStats = _indexService.GetDiskUseSats();
-            double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
-            ViewData["serverName"] = _settings.ServerName;
-
-            return new JsonResult(new
+            try
             {
-                success = new
+                DiskUseStats useStats = _indexService.GetDiskUseSats();
+                double freeMegabytes = FileHelper.BytesToMegabytes(useStats.FreeBytes);
+                ViewData["serverName"] = _settings.ServerName;
+
+                return new JsonResult(new
                 {
-                    total = $"{FileHelper.BytesToMegabytes(useStats.TotalBytes)}M",
-                    available = $"{freeMegabytes}M ({useStats.ToPercent()}%)",
-                    safetyExceeded = freeMegabytes < _settings.SpaceSafetyThreshold
-                }
-            });
+                    success = new
+                    {
+                        total = $"{FileHelper.BytesToMegabytes(useStats.TotalBytes)}M",
+                        available = $"{freeMegabytes}M ({useStats.ToPercent()}%)",
+                        safetyExceeded = freeMegabytes < _settings.SpaceSafetyThreshold
+                    }
+                });
+            }
+            catch (TagNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         #endregion
