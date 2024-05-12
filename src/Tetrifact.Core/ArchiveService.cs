@@ -256,6 +256,10 @@ namespace Tetrifact.Core
 
             DateTime compressStart = DateTime.Now;
 
+            // ensure bin path exists
+            if (!_fileSystem.File.Exists(_settings.SevenZipBinaryPath))
+                throw new Exception($"7zip binary not found at specified path \"{_settings.SevenZipBinaryPath}\".");
+
             // -aoa swtich forces overwriting of existing zip file should it exist
             string command = $"{_settings.SevenZipBinaryPath} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
 
