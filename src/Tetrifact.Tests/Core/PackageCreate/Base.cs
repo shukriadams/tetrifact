@@ -14,16 +14,7 @@ namespace Tetrifact.Tests.PackageCreate
         {
             Workspace = new PackageCreateWorkspace(Settings, IndexReader, base.FileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             Logger = new TestLogger<IPackageCreateService>();
-
-            PackageCreate = new PackageCreateService(
-                IndexReader,
-                LockProvider,
-                ArchiveService,
-                Settings,
-                Logger,
-                Workspace, 
-                HashServiceHelper.Instance(),
-                new TestFileSystem());
+            PackageCreate = MoqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ Settings, new TestFileSystem() });
         }
     }
 }

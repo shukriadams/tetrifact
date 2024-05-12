@@ -30,14 +30,14 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, ILockProvider lockProvider, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, ILock lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
         {
             _settings = settings;
             _cache = cache;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
             _logger = logger;
-            _lock = lockProvider.Instance;
+            _lock = lockInstance;
         }
 
         #endregion
@@ -66,18 +66,17 @@ namespace Tetrifact.Core
 
         public virtual void QueueArchiveCreation(string packageId)
         {
-            // check if archive already exists
+            // do not queu  if archive already exists
             string archivePath = this.GetPackageArchivePath(packageId);
             if (_fileSystem.File.Exists(archivePath))
                 return;
 
-            // check if archive creation in progress
+            // check if queue file already exists
             string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
             if (_fileSystem.File.Exists(archiveQueuePath))
                 return;
 
-            // create info file to disk
-
+            // create queue file
             ArchiveQueueInfo queueInfo = new ArchiveQueueInfo
             { 
                 PackageId = packageId,
@@ -86,6 +85,20 @@ namespace Tetrifact.Core
 
             _fileSystem.File.WriteAllText(archiveQueuePath, JsonConvert.SerializeObject(queueInfo));
 
+            // generate in-mem progress for archive
+            Manifest manifest = _indexReader.GetManifest(packageId);
+
+            // hardcode the compression factor, this needs its own calculation routine
+            double compressionFactor = 0.6;
+            ArchiveProgressInfo progress = new ArchiveProgressInfo
+            {
+                PackageId = packageId,
+                ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor),
+                State = PackageArchiveCreationStates.Queued,
+                QueuedUtc = queueInfo.QueuedUtc,
+            };
+
+            _cache.Set(this.GetArchiveProgressKey(packageId), progress);
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -301,7 +314,7 @@ namespace Tetrifact.Core
                                     fileStream.CopyTo(zipEntryStream);
                             }
 
-                            _logger.LogInformation($"Added file {file.Path} to archive");
+                            _logger.LogDebug($"Added file {file.Path} to archive");
                         }
                     }
                 }
@@ -309,6 +322,66 @@ namespace Tetrifact.Core
 
             TimeSpan compressTaken = DateTime.Now - compressStart;
             _logger.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+        }
+
+        public void CreateNextQueuedArchive() 
+        {
+            ArchiveQueueInfo archiveQueueInfo = null;
+            string progressKey = null;
+            ArchiveProgressInfo progress = null;
+
+            foreach (string queuedFile in _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath))
+            {
+                string queueFileContent = string.Empty;
+                try
+                {
+                    queueFileContent = _fileSystem.File.ReadAllText(queuedFile);
+                    archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
+                    try
+                    {
+                        _fileSystem.File.Delete(queuedFile);
+                    }
+                    catch (Exception ex2)
+                    {
+                        _logger.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
+                    }
+                    continue;
+                }
+
+                progressKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+                progress = _cache.Get<ArchiveProgressInfo>(progressKey);
+                if (progress == null)
+                {
+                    _logger.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
+                    continue;
+                }
+
+                if (progress.State == PackageArchiveCreationStates.Queued)
+                    break;
+                else
+                {
+                    // force null, this var is used as flag to determine if we have anything to process
+                    progress = null;
+                    continue;
+                }
+            }
+
+            // nothing queued, exit normally
+            if (progress == null)
+                return;
+
+            progress.State = PackageArchiveCreationStates.ArchiveGenerating;
+            progress.StartedUtc = DateTime.UtcNow;
+            _cache.Set(progressKey, progress);
+
+            this.CreateArchive(archiveQueueInfo.PackageId);
+
+            progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
+            _cache.Set(progressKey, progress);
         }
 
         public void CreateArchive(string packageId)
@@ -351,6 +424,70 @@ namespace Tetrifact.Core
             {
                 _lock.Unlock(archivePathTemp);
             }
+        }
+
+        public void CleanupNextQueuedArchive() 
+        {
+            ArchiveQueueInfo archiveQueueInfo = null;
+            string progressKey = null;
+            ArchiveProgressInfo progress = null;
+            string queueFile = null;
+
+            foreach (string queuedFile in _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath))
+            {
+                queueFile = queuedFile;
+
+                string queueFileContent = string.Empty;
+                try
+                {
+                    queueFileContent = _fileSystem.File.ReadAllText(queuedFile);
+                    archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
+                    try
+                    {
+                        _fileSystem.File.Delete(queuedFile);
+                    }
+                    catch (Exception ex2)
+                    {
+                        _logger.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
+                    }
+                    continue;
+                }
+
+                progressKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+                progress = _cache.Get<ArchiveProgressInfo>(progressKey);
+                if (progress == null)
+                {
+                    _logger.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
+                    continue;
+                }
+
+                if (progress.State == PackageArchiveCreationStates.Processed_CleanupRequired)
+                    break;
+                else
+                {
+                    // force null, this var is used as flag to determine if we have anything to process
+                    progress = null;
+                    continue;
+                }
+            }
+
+            // nothing queued, exit normally
+            if (progress == null)
+                return;
+
+            // cleanup
+            string tempDir2 = Path.Join(_settings.TempPath, $"_repack_{archiveQueueInfo.PackageId}");
+            if (_fileSystem.Directory.Exists(tempDir2))
+                _fileSystem.Directory.Delete(tempDir2, true);
+
+            if (_fileSystem.File.Exists(queueFile))
+                _fileSystem.File.Delete(queueFile);
+
+            _cache.Remove(progressKey);
         }
 
         #endregion

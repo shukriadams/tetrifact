@@ -5,13 +5,22 @@ namespace Tetrifact.Core
     public interface IArchiveService
     {
         /// <summary>
-        /// Generates an archive for the given package id. Exits
+        /// Generates an archive for the given package id, sychronously. Returns when archive is generated. This method is exposed for testing purposes only, and must not tamper with archive queue. 
+        /// Normally it will be called from CreateNextQueuedArchive().
         /// </summary>
         /// <param name="packageId"></param>
         void CreateArchive(string packageId);
 
         /// <summary>
-        /// 
+        /// Generates the next archive in queue. Synchronous process, exits when archive generation is complete. Archive is removed from queue on exit.
+        /// </summary>
+        void CreateNextQueuedArchive();
+
+        void CleanupNextQueuedArchive();
+
+        /// <summary>
+        /// Adds package to queue for creation. This process does not produce the archive itself, see CreateNextQueuedArchive for that. Queuing is used so archive generation can be handled 
+        /// on its own thread.
         /// </summary>
         /// <param name="packageId"></param>
         void QueueArchiveCreation(string packageId);

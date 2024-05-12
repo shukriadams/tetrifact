@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 
@@ -51,48 +49,7 @@ namespace Tetrifact.Web
         /// </summary>
         public override void Work()
         {
-            // process flags in series, as we assume disk cannot handle more than one archive at a time
-            string[] files = _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath);
-            foreach(string file in files)
-            {
-                ArchiveQueueInfo archiveQueueInfo = null;
-                ArchiveProgressInfo progress = null;
-                string key = null;
-                try 
-                {
-                    string queueFileContent = _fileSystem.File.ReadAllText(file);
-                    archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
-                    key = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
-                    progress = _cache.Get<ArchiveProgressInfo>(key);
-                    if (progress == null || progress.State != PackageArchiveCreationStates.Queued)
-                        continue;
-
-                    progress.State = PackageArchiveCreationStates.ArchiveGenerating;
-                    progress.StartedUtc = DateTime.UtcNow;
-                    _cache.Set(key, progress);
-                    _archiveService.CreateArchive(archiveQueueInfo.PackageId);
-                }
-                catch (Exception ex)
-                {
-                    _log.LogError($"Error generating archive from queue file {file} : {ex}");
-                }
-                finally
-                { 
-                    try 
-                    {
-                        // always mark for cleanup, even if fail
-                        if (progress != null)
-                        {
-                            progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
-                            _cache.Set(key, progress);
-                        }
-                    }
-                    catch (Exception ex)
-                    { 
-                        _log.LogError($"Error updating archive queue file {file} : {ex}");
-                    }
-                }
-            }
+            _archiveService.CreateNextQueuedArchive();
         }
 
         #endregion

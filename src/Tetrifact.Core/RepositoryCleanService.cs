@@ -32,26 +32,28 @@ namespace Tetrifact.Core
 
         private long _filesScanned = 0;
 
-        public int LockPasses {private set ; get;}
-
         private readonly IMemoryCache _cache;
 
         private IEnumerable<string> _existingPackageIds = new string[0];
 
-        private bool _forceExit;
+        #endregion
+
+        #region PROPERTIES
+
+        public int LockPasses { private set; get; }
 
         #endregion
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, ILockProvider lockerProvider, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, ILock lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
             _fileFilesystem = fileFileSystem;
             _log = log;
             _indexReader = indexReader;
-            _lock = lockerProvider.Instance;
+            _lock = lockInstance;
             _cache = cache;
         }
 
@@ -64,12 +66,18 @@ namespace Tetrifact.Core
         /// </summary>
         public CleanResult Clean()
         {
-            
+            string processUID = Guid.NewGuid().ToString();
             try 
             {
                 // get a list of existing packages at time of calling. It is vital that new packages not be created
                 // while clean running, they will be cleaned up as they are not on this list
                 _existingPackageIds = _indexReader.GetAllPackageIds();
+                if (EnsureNoLock(false)) 
+                    return new CleanResult{
+                        Description = "Package locks found, clean exited before start"
+                    };
+
+                _lock.Lock(ProcessLockCategories.CleanRepository, processUID);
                 _log.LogInformation($"CLEANUP started, existing packages : {string.Join(",", _existingPackageIds)}.");
                 this.LockPasses = 0;
                 this.Clean_Internal(_settings.RepositoryPath, false);
@@ -100,15 +108,26 @@ namespace Tetrifact.Core
                 else
                     throw ex;
             }
+            finally 
+            {
+                _lock.Unlock(processUID);
+            }
         }
 
         /// <summary>
         /// Call this before each destructive change for maximum resolution
         /// </summary>
-        private void EnsureNoLock()
+        private bool EnsureNoLock(bool throwOnOLock = true)
         {
-            if (_lock.IsAnyLocked())
-                throw new Exception($"System currently locked, clear process aborting");
+            if (_lock.IsAnyLocked(ProcessLockCategories.Package_Create))
+            { 
+                if (throwOnOLock)
+                    throw new Exception($"System currently locked, clear process aborting");
+                else
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -134,6 +153,13 @@ namespace Tetrifact.Core
                 _log.LogError($"Failed to read content of directory {currentDirectory} {ex}");
                 _failed.Add(currentDirectory);
                 // if we can't read the files or directories in the current path, skip it and try to clean up other paths
+                return;
+            }
+
+            // file @ hash can be reserved for incoming partial uploads
+            if (_cache.Get($"{currentDirectory}::LOOKUP_RESERVE::") != null)
+            {
+                _log.LogInformation($"Skipping clean for {currentDirectory}, lookup reserve detected.");
                 return;
             }
 
@@ -164,12 +190,6 @@ namespace Tetrifact.Core
                 {
                     foreach (string file in files)
                     {
-                        if (_cache.Get($"{file}::LOOKUP_RESERVE::") != null)
-                        {
-                            _log.LogInformation($"Skipping clean for {file}, lookup reserve detected.");
-                            continue;
-                        }
-
                         if (!_existingPackageIds.Contains(Path.GetFileName(file)))
                         {
                             try

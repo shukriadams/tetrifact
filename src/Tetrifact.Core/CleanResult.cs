@@ -15,5 +15,11 @@ namespace Tetrifact.Core
         public int PackagesInSystem { get; set; }
 
         public string Description { get; set; }
+
+        public CleanResult() 
+        { 
+            this.Cleaned = new List<string>();
+            this.Failed = new List<string>();
+        }
     }
 }

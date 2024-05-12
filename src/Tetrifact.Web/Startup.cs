@@ -63,8 +63,7 @@ namespace Tetrifact.Web
             services.AddTransient<IArchiveService, ArchiveService>();
             services.AddTransient<IMetricsService, MetricsService>();
             services.AddTransient<ISystemCallsService, SystemCallsService>();
-            services.AddTransient<ILock, ProcessLock>();
-            services.AddTransient<ILockProvider, LockProvider>();
+            services.AddSingleton<ILock, ProcessLock>();
             services.AddTransient<IDaemon, Daemon>();
             services.AddTransient<ITimeProvideer, TimeProvider>();
         

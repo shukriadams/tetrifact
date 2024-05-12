@@ -39,7 +39,6 @@ namespace Tetrifact.Tests
         public static string CreateNewPackage(ISettings settings, IEnumerable<string> filesContent)
         {
             IFileSystem filesystem = new FileSystem();
-            ILockProvider lockProvider = new Core.LockProvider();
             IIndexReadService indexReader = new IndexReadService(
                 settings,
                 new TestMemoryCache(),
@@ -47,19 +46,19 @@ namespace Tetrifact.Tests
                 new TestLogger<IIndexReadService>(),
                 filesystem, 
                 HashServiceHelper.Instance(),
-                lockProvider);
+                NinjectHelper.Get<ILock>(settings));
 
             IArchiveService archiveService = new Core.ArchiveService(
                 indexReader,
                 new TestMemoryCache(),
-                lockProvider,
+                NinjectHelper.Get<ILock>(settings),
                 filesystem, 
                 new TestLogger<IArchiveService>(), 
                 settings);
 
             IPackageCreateService PackageCreate = new PackageCreateService(
                 indexReader,
-                lockProvider,
+                NinjectHelper.Get<ILock>(settings),
                 archiveService,
                 settings,
                 new TestLogger<IPackageCreateService>(),

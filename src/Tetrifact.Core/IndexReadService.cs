@@ -33,7 +33,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> logger, IFileSystem fileSystem, IHashService hashService, ILockProvider lockProvider)
+        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> logger, IFileSystem fileSystem, IHashService hashService, ILock lockInstance)
         {
             _settings = settings;
             _tagService = tagService;
@@ -41,7 +41,7 @@ namespace Tetrifact.Core
             _cache = cache;
             _fileSystem = fileSystem;
             _hashService = hashService;
-            _lock = lockProvider.Instance;
+            _lock = lockInstance;
         }
 
         #endregion
@@ -65,6 +65,16 @@ namespace Tetrifact.Core
             else
             {
                 _logger.LogInformation("Temp dir wipe disabled, skipping");
+            }
+
+            // force purge archive queue
+            try
+            {
+                Directory.Delete(_settings.ArchiveQueuePath, true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Error attemtping to purge ArchiveQueuePath on app start, ignoring. {ex}");
             }
 
             // force recreate all again
@@ -328,7 +338,7 @@ namespace Tetrifact.Core
 
         PartialPackageLookupResult IIndexReadService.FindExisting(PartialPackageLookupArguments newPackage)
         {
-            IList<ManifestItem> existing = new List<ManifestItem>();
+            IList<ManifestItem> existingFileList = new List<ManifestItem>();
             
             bool errors = false;
 
@@ -344,8 +354,8 @@ namespace Tetrifact.Core
                         // block file from cleanup for 1 hour
                         _cache.Set($"{repositoryPathDir}::LOOKUP_RESERVE::", true, new DateTimeOffset(DateTime.UtcNow.AddHours(1)));
 
-                        lock(existing)
-                            existing.Add(file);
+                        lock(existingFileList)
+                            existingFileList.Add(file);
                     }
                 }
                 catch (Exception ex)
@@ -360,11 +370,11 @@ namespace Tetrifact.Core
             if (errors)
                 throw new Exception("An error occurred trying to read from local file repository. Please check logs for more info");
 
-            existing = existing.OrderBy(f => f.Path).ToList();
+            existingFileList = existingFileList.OrderBy(f => f.Path).ToList();
 
             return new PartialPackageLookupResult
             {
-                Files = existing
+                Files = existingFileList
             };
         }
 

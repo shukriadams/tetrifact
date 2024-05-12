@@ -5,8 +5,6 @@ using Tetrifact.Core;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Tetrifact.Web
 {
@@ -290,12 +288,12 @@ namespace Tetrifact.Web
         /// Method : POST
         /// Header
         /// </summary>
-        /// <param name="post"></param>
+        /// <param name="incomingPackage"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{id}")]
         [RequestSizeLimit(long.MaxValue)]
-        public ActionResult AddPackage([FromForm]PackageCreateFromPost post)
+        public ActionResult AddPackage([FromForm]PackageCreateFromPost incomingPackage)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -311,11 +309,11 @@ namespace Tetrifact.Web
 
                 // attempt to parse incoming existing files
                 IEnumerable<ManifestItem> existingFiles = null;
-                if (post.ExistingFiles != null)
+                if (incomingPackage.ExistingFiles != null)
                 { 
                     try 
                     {
-                        string existingFileRaw = StreamsHelper.StreamToString(post.ExistingFiles.OpenReadStream());
+                        string existingFileRaw = StreamsHelper.StreamToString(incomingPackage.ExistingFiles.OpenReadStream());
                         existingFiles = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<ManifestItem>>(existingFileRaw);
                     } 
                     catch(Exception) 
@@ -326,15 +324,15 @@ namespace Tetrifact.Web
 
                 PackageCreateResult result = _packageCreateService.Create(new PackageCreateArguments
                 {
-                    Description = post.Description,
-                    Files = post.Files.Select(r => new PackageCreateItem { 
+                    Description = incomingPackage.Description,
+                    Files = incomingPackage.Files.Select(r => new PackageCreateItem { 
                         Content = r.OpenReadStream(),
                         // packages uploaded via webform are forced to include leading folder in path, these can be marked for removal
-                        FileName = post.RemoveFirstDirectoryFromPath ? FileHelper.RemoveFirstDirectoryFromPath(r.FileName) : r.FileName 
+                        FileName = incomingPackage.RemoveFirstDirectoryFromPath ? FileHelper.RemoveFirstDirectoryFromPath(r.FileName) : r.FileName 
                         }).ToList(),
-                    Id = post.Id,
+                    Id = incomingPackage.Id,
                     ExistingFiles = existingFiles,
-                    IsArchive = post.IsArchive
+                    IsArchive = incomingPackage.IsArchive
                 });
 
                 if (result.Success)
@@ -348,7 +346,7 @@ namespace Tetrifact.Web
                     {
                         success = new
                         {
-                            id = post.Id,
+                            id = incomingPackage.Id,
                             hash = result.PackageHash,
                             description = "Package successfully created",
                             processingTime = sw.Elapsed.TotalSeconds
@@ -357,13 +355,13 @@ namespace Tetrifact.Web
                 }
 
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
-                    return Responses.InvalidArchiveFormatError(post.Format);
+                    return Responses.InvalidArchiveFormatError(incomingPackage.Format);
 
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidFileCount)
                     return Responses.InvalidArchiveContent();
 
                 if (result.ErrorType == PackageCreateErrorTypes.PackageExists)
-                    return Responses.PackageAlreadyExistsError(this, post.Id);
+                    return Responses.PackageAlreadyExistsError(this, incomingPackage.Id);
 
                 if (result.ErrorType == PackageCreateErrorTypes.MissingValue)
                     return Responses.MissingInputError(result.PublicError);
@@ -377,7 +375,7 @@ namespace Tetrifact.Web
             }
             finally 
             {
-                _log.LogInformation($"Package request processed. {post.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
+                _log.LogInformation($"Package request processed. {incomingPackage.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
             }
         }
 

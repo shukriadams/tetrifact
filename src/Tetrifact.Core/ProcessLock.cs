@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,17 @@ namespace Tetrifact.Core
         #region FIELDS
 
         private readonly Dictionary<string, ProcessLockItem> _items = new Dictionary<string, ProcessLockItem>();
+
+        private readonly ILogger<ILock> _log;
+
+        #endregion
+
+        #region METHODS
+
+        public ProcessLock(ILogger<ILock> log) 
+        {
+            _log = log;
+        }
 
         #endregion
 
@@ -53,6 +65,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(id, new ProcessLockItem { Id = id, Category = category });
+                _log.LogInformation($"Created lock, category {category}, id {id}");
             }
         }
 
@@ -64,6 +77,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(id, new ProcessLockItem{ Id = id, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
+                _log.LogInformation($"Created lock, category {category}, id {id}, forced lifespan {timespan}");
             }
         }
 
@@ -75,6 +89,16 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Remove(id);
+                _log.LogInformation($"Cleared lock id {id}");
+            }
+        }
+
+        public void Clear() 
+        { 
+            lock(_items)
+            {
+                _items.Clear();
+                _log.LogInformation($"Force cleared all locks");
             }
         }
 
@@ -92,6 +116,7 @@ namespace Tetrifact.Core
                     continue;
 
                 _items.Remove(key);
+                _log.LogInformation($"Lock id {key} timed out");
             }
         }
 

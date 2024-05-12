@@ -6,19 +6,19 @@ namespace Tetrifact.Tests
 {
     public class SettingsHelper
     {
-        public static ISettings GetSettings<T>()
+        public static ISettings Get(object context)
         {
-            return GetSettings(typeof(T));
+            return Get(context.GetType());
         }
 
         /// <summary>
         /// Generates settings and thereby context for a test run. Requeres a type name, as all tests are partitioned by the type they test
         /// </summary>
-        /// <param name="testTypeContext"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        public static ISettings GetSettings(Type testTypeContext)
+        public static ISettings Get(Type context)
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, testTypeContext.Name);
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, context.Name);
             if (Directory.Exists(testFolder))
                 Directory.Delete(testFolder, true);
 

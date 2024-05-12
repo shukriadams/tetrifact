@@ -8,6 +8,9 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
+    /// <summary>
+    /// Daemon for calculating archive generation progress
+    /// </summary>
     public class ArchiveStatusChecker : Cron
     {
         #region FIELDS
@@ -74,57 +77,39 @@ namespace Tetrifact.Web
                 string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
                 ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressKey);
 
-                // progress has not yet been calculated, generate it
-                if (progress == null)
-                {
-                    Manifest manifest = _indexReader.GetManifest(archiveQueueInfo.PackageId);
-
-                    // hardcode the compression factor, this needs its own calculation routine
-                    double compressionFactor = 0.6;
-                    progress = new ArchiveProgressInfo
-                    {
-                        PackageId = archiveQueueInfo.PackageId,
-                        ProjectedSize = (long)Math.Round(manifest.Size * compressionFactor),
-                        State = PackageArchiveCreationStates.Queued,
-                        QueuedUtc = archiveQueueInfo.QueuedUtc,
-                    };
-                    _cache.Set(progressKey, progress);
-                }
-
+                // this daemon is for measuring archive progression only, ignore all other states
+                if (progress == null || progress.State != PackageArchiveCreationStates.ArchiveGenerating)
+                    continue;
 
                 // attemtpt to calculate compression progress by measuring size of temp zip on disk
-                if (progress.State == PackageArchiveCreationStates.ArchiveGenerating)
+                string archiveTempPath = _archiveService.GetPackageArchiveTempPath(archiveQueueInfo.PackageId);
+                FileInfo tempArchiveFileInfo;
+                decimal compressionPercentDone = 0;
+
+                if (_fileSystem.File.Exists(archiveTempPath))
                 {
-                    string archiveTempPath = _archiveService.GetPackageArchiveTempPath(archiveQueueInfo.PackageId);
-                    FileInfo tempArchiveFileInfo;
-                    decimal compressionPercentDone = 0;
-
-                    if (_fileSystem.File.Exists(archiveTempPath))
+                    long length;
+                    try
                     {
-                        long length;
-                        try
-                        {
-                            tempArchiveFileInfo = new FileInfo(archiveTempPath);
-                            length = tempArchiveFileInfo.Length;
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
-                            // ignore error if w
-                            continue;
-                        }
-
-
-                        if (progress.ProjectedSize != 0)
-                            compressionPercentDone = 100 * ((decimal)length / (decimal)progress.ProjectedSize);
+                        tempArchiveFileInfo = new FileInfo(archiveTempPath);
+                        length = tempArchiveFileInfo.Length;
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogWarning($"Could not read file info for temp-state archive {archiveTempPath}", ex);
+                        // ignore error if w
+                        continue;
                     }
 
-                    ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
-                    cachedProgress.CompressProgress = compressionPercentDone;
-                    cachedProgress.CombinedPercent = (cachedProgress.CompressProgress + cachedProgress.FileCopyProgress) / 2;
 
-                    _cache.Set(progressKey, cachedProgress);
+                    if (progress.ProjectedSize != 0)
+                        compressionPercentDone = 100 * ((decimal)length / (decimal)progress.ProjectedSize);
                 }
+
+                progress.CompressProgress = compressionPercentDone;
+                progress.CombinedPercent = (progress.CompressProgress + progress.FileCopyProgress) / 2;
+
+                _cache.Set(progressKey, progress);
             }
             // 
         }

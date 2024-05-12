@@ -31,7 +31,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateService(IIndexReadService indexReader, ILockProvider lockProvider, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService, IFileSystem filesystem)
+        public PackageCreateService(IIndexReadService indexReader, ILock lockInstance, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService, IFileSystem filesystem)
         {
             _indexReader = indexReader;
             _log = log;
@@ -41,7 +41,7 @@ namespace Tetrifact.Core
             _settings = settings;
             
             _hashService = hashService;
-            _lock = lockProvider.Instance;
+            _lock = lockInstance;
         }
 
         #endregion
@@ -169,7 +169,7 @@ namespace Tetrifact.Core
 
                 _workspace.Manifest.Description = newPackage.Description;
 
-                _log.LogInformation("Writing package manifest");
+                _log.LogInformation($"Writing package manifest for package {newPackage.Id}");
 
                 // calculate package hash from child hashes
                 _workspace.WriteManifest(newPackage.Id, _hashService.FromString(string.Join(string.Empty, hashes.Values)));
@@ -177,7 +177,7 @@ namespace Tetrifact.Core
                 _workspace.Dispose();
 
                 if (_settings.AutoCreateArchiveOnPackageCreate){
-                    _log.LogInformation("Generating package archive");
+                    _log.LogInformation($"Generating package archive for package {newPackage.Id}");
                     _archiveService.QueueArchiveCreation(newPackage.Id);
                 }
 

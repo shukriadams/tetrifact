@@ -37,9 +37,6 @@ namespace Tetrifact.Tests
         
         protected IArchiveService ArchiveService;
 
-        protected ILockProvider LockProvider;
-
-
         #endregion
 
         #region CTORS
@@ -79,7 +76,6 @@ namespace Tetrifact.Tests
             WorkspaceLogger = new TestLogger<IPackageCreateWorkspace>();
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
-            LockProvider = new Core.LockProvider();
 
             Settings = new Core.Settings()
             {
@@ -97,8 +93,8 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), LockProvider);
-            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { Settings }); // (IndexReader, ThreadDefault, LockProvider, FileSystem, ArchiveLogger, );
+            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>(this.Settings));
+            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { this.Settings }); 
 
             IndexReader.Initialize();
         }

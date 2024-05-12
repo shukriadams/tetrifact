@@ -124,8 +124,13 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetArchiveCompressionEnabled()
         {
             base.Settings.IsStorageCompressionEnabled = true;
-
+        
+            // create package
             TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+
+            // force create archive
+            this.ArchiveService.CreateArchive(testPackage.Id);
+
             using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
@@ -145,8 +150,7 @@ namespace Tetrifact.Tests.ArchiveService
             // delete known package file via disk
             File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
-            Exception ex = Assert.Throws<Exception>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
-            Assert.Contains("Failed to find expected package file", ex.Message);
+            Assert.Throws<ArchiveNotFoundException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
         }
 
         /// <summary>
@@ -163,8 +167,7 @@ namespace Tetrifact.Tests.ArchiveService
             // delete known package file via disk
             File.Delete(Path.Join(this.Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
-            Exception ex = Assert.Throws<Exception>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
-            Assert.Contains("Failed to find expected package file", ex.Message);
+            Assert.Throws<ArchiveNotFoundException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
         }
     }
 }

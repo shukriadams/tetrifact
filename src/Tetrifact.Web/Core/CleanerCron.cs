@@ -27,14 +27,14 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public CleanerCron(IRepositoryCleanService repositoryCleaner, IDaemon daemonrunner, IArchiveService archiveService, ILockProvider lockProvider, ILogger<CleanerCron> log)
+        public CleanerCron(IRepositoryCleanService repositoryCleaner, IDaemon daemonrunner, IArchiveService archiveService, ILock lockInstance, ILogger<CleanerCron> log)
         {
             _settings = new Settings();
             this.CronMask = _settings.CleanCronMask;
 
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
-            _lock = lockProvider.Instance;
+            _lock = lockInstance;
             _log = log;
             _daemonrunner = daemonrunner;
         }

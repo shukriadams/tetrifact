@@ -2,6 +2,7 @@
 {
     public enum ProcessLockCategories 
     {
-        Package_Create
+        Package_Create,
+        CleanRepository
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Xunit;
 using Tetrifact.Core;
 using Moq;
@@ -32,7 +30,7 @@ namespace Tetrifact.Tests.IndexReader
                     }
                 );
 
-            ISettings settings = SettingsHelper.GetSettings<FindExisting>();
+            ISettings settings = SettingsHelper.Get(this);
             
             IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { settings, filesystem });
 
