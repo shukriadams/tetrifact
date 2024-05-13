@@ -68,7 +68,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void DontClean_case2()
         {
             // create a package
-            TestPackage package = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage package = PackageHelper.CreateRandomPackage();
 
             // case 2 : package subscribed doest not exist
             string dir = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");

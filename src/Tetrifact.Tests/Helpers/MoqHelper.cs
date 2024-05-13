@@ -24,57 +24,62 @@ namespace Tetrifact.Tests
         /// <param name="overrid"></param>
         /// <param name="forceMock">Ignores Ninject, creates empty Moq type</param>
         /// <returns></returns>
-        public static IEnumerable<object> CtorArgs(Type t, object overrid, bool forceMoq)
+        public static IEnumerable<object> ResolveConstuctorArguments(Type t, object overrid, bool forceMoq)
         {
-            return CtorArgs(t, new object[] { overrid }, forceMoq);
+            return ResolveConstuctorArguments(t, new object[] { overrid }, forceMoq);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="t"></param>
-        /// <param name="overrides"></param>
+        /// <param name="overrides">Constructor arguments to force into instance. If required arg not in this array, a default arg will be assigned.</param>
         /// <param name="forceMock">Ignores Ninject, will create empty Moq type</param>
         /// <returns></returns>
-        public static IEnumerable<object> CtorArgs(Type t, object[] overrides, bool forceMoq)
+        public static IEnumerable<object> ResolveConstuctorArguments(Type t, object[] overrides, bool forceMoq)
         {
             if (t.IsInterface)
-                throw new Exception($"Cannot create instance of interface {t.Name} - please use a class instead");
+                throw new Exception($"Cannot create instance of interface {t.Name} - please use a concrete type instead");
 
             ConstructorInfo ctor = t.GetConstructors().FirstOrDefault();
             if (ctor == null)
-                throw new Exception("no ctor found");
+                throw new Exception($"No constructor found for type {t.Name}.");
 
-            StandardKernel kernel = NinjectHelper.Kernel();
+            StandardKernel ninjectKernel = NinjectHelper.Kernel();
 
             List<object> args = new List<object>();
-            foreach (ParameterInfo p in ctor.GetParameters())
+            foreach (ParameterInfo constructorParameter in ctor.GetParameters())
             {
-                object arg = overrides.Where(r => r.GetType() == p.ParameterType).SingleOrDefault();
+                // is argument matching ctor parameter in overrides array?
+                object arg = overrides.Where(r => r.GetType() == constructorParameter.ParameterType).SingleOrDefault();
+
+                // does overrides array contain a type that implements interface matching this parameter?
                 if (arg == null)
                     arg = overrides.Where(r => 
-                        p.ParameterType.IsAssignableFrom(r.GetType()) 
-                        || (r is Mock && p.ParameterType.IsAssignableFrom(((Mock)r).Object.GetType()))
+                        constructorParameter.ParameterType.IsAssignableFrom(r.GetType()) 
+                        || (r is Mock && constructorParameter.ParameterType.IsAssignableFrom(((Mock)r).Object.GetType()))
                     ).SingleOrDefault();
 
                 try
                 {
+                    // if failed to get argument in override array, try gettin instance from ninject, and ignore errors
                     if (arg == null && !forceMoq)
-                        arg = kernel.Get(p.ParameterType);
+                        arg = ninjectKernel.Get(constructorParameter.ParameterType);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    // ignore
+                    // ignore error, ninject doesn't need to return a type
                 }
 
                 try
                 {
+                    // if failed to get a ninject instance, try moq. We assume this either returns an instance or failes outright
                     if (arg == null) 
-                        arg = CreateMock(p.ParameterType).Object;
+                        arg = CreateMock(constructorParameter.ParameterType).Object;
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"failed to create ctor arg with both ninject and moq, type {t.Name}, parameter {p.ParameterType}", ex);
+                    throw new Exception($"failed to create ctor arg with both ninject and moq, type {t.Name}, parameter {constructorParameter.ParameterType}", ex);
                 }
 
                 if (arg is Mock)
@@ -95,7 +100,7 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public static T CreateInstanceWithAllMoqed<T>() where T : class 
         {
-            return repo.Create<T>(CtorArgs(typeof(T), new object[]{ }, true).ToArray()).Object;
+            return repo.Create<T>(ResolveConstuctorArguments(typeof(T), new object[]{ }, true).ToArray()).Object;
         }
 
         /// <summary>
@@ -106,17 +111,17 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public static T CreateInstanceWithSingleDependency<T>(object dependency) where T : class
         {
-            return repo.Create<T>(CtorArgs(typeof(T), dependency, false).ToArray()).Object;
+            return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependency, false).ToArray()).Object;
         }
 
         public static T CreateInstanceWithDependencies<T>(object[] dependencies) where T : class
         {
-            return repo.Create<T>(CtorArgs(typeof(T), dependencies, false).ToArray()).Object;
+            return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependencies, false).ToArray()).Object;
         }
 
         public static Mock<T> CreateMockWithDependencies<T>(object[] dependencies) where T : class
         {
-            return repo.Create<T>(CtorArgs(typeof(T), dependencies, false).ToArray());
+            return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependencies, false).ToArray());
         }
 
         /// <summary>
@@ -128,7 +133,7 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public static Mock<TInterfaceOut> CreateMockWithDependencies<TConcrete, TInterfaceOut>(object[] dependencies) where TConcrete : class where TInterfaceOut : class
         {
-            return repo.Create<TConcrete>(CtorArgs(typeof(TConcrete), dependencies, false).ToArray()).As<TInterfaceOut>();
+            return repo.Create<TConcrete>(ResolveConstuctorArguments(typeof(TConcrete), dependencies, false).ToArray()).As<TInterfaceOut>();
         }
     }
 }

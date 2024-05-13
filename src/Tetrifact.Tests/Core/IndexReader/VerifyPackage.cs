@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic() 
         {
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage" );
+            PackageHelper.CreateNewPackageFiles("mypackage" );
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.True(result.Item1);
         }
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.IndexReader
         public void FilesMissing()
         {
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
 
             // delete known package file via disk
             File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, package.Path, package.Hash, "bin"));
@@ -55,7 +55,7 @@ namespace Tetrifact.Tests.IndexReader
         public void FileHashInvalid()
         {
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
 
             // manually change file on disk after package created
             File.WriteAllText(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, package.Path, package.Hash, "bin"), "some-different-data");
@@ -72,7 +72,7 @@ namespace Tetrifact.Tests.IndexReader
         public void PackageHashInvalid()
         {
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
 
             // corrupt the final hash in the manifest
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, package.Id), "Hash", "not-a-alid-hash");

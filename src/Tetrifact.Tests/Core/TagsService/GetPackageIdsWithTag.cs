@@ -12,8 +12,8 @@ namespace Tetrifact.Tests.TagsService
         public void Happy_path(){
             string[] tags = new [] { "mytag" };
 
-            TestPackage package1 = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "package1");
-            TestPackage package2 = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "package2");
+            TestPackage package1 = PackageHelper.CreateNewPackageFiles("package1");
+            TestPackage package2 = PackageHelper.CreateNewPackageFiles("package2");
 
             foreach (string tag in tags) {
                 base.TagsService.AddTag(package1.Id, tag);

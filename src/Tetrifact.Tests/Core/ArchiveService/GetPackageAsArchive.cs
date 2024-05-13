@@ -1,5 +1,4 @@
 ﻿using Moq;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Tetrifact.Core;
@@ -16,7 +15,7 @@ namespace Tetrifact.Tests.ArchiveService
         public void PackageStreamHasContent()
         {
             // create a package
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // stream package as archive
             using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
@@ -39,7 +38,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetExistingArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
@@ -54,7 +53,7 @@ namespace Tetrifact.Tests.ArchiveService
         {
             SettingsHelper.CurrentSettingsContext.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "packages", "7z.libs", "23.1.0", "bin", "x64", "7z.dll"); 
 
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
             using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
@@ -84,7 +83,7 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetAfterWaiting()
         {
             // create a package 
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // create a fake archive temp file so GetPackageAsArchive() goes into wait state
             string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
@@ -126,7 +125,7 @@ namespace Tetrifact.Tests.ArchiveService
             SettingsHelper.CurrentSettingsContext.IsStorageCompressionEnabled = true;
         
             // create package
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // force create archive
             this.ArchiveService.CreateArchive(testPackage.Id);
@@ -145,7 +144,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_Nocompress_FileMissing()
         {
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // delete known package file via disk
             File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
@@ -162,7 +161,7 @@ namespace Tetrifact.Tests.ArchiveService
         {
             SettingsHelper.CurrentSettingsContext.IsStorageCompressionEnabled = true;
 
-            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // delete known package file via disk
             File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));

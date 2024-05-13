@@ -1,7 +1,6 @@
 ﻿using Ninject;
 using Ninject.Parameters;
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace Tetrifact.Tests

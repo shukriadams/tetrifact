@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -11,7 +12,6 @@ namespace Tetrifact.Tests
         public static ISettings CurrentSettingsContext 
         { 
             get {  return _currentSettingsContext; } 
-            set { _currentSettingsContext = value; }
         }
 
         public static void SetContext(Type context)
@@ -19,7 +19,7 @@ namespace Tetrifact.Tests
             _currentSettingsContext = Get(context);
         }
 
-        public static ISettings GetForCurrentTest()
+        private static ISettings GetForCurrentTest()
         { 
             if (_currentSettingsContext == null)
                 return Get($"random_ctx{Guid.NewGuid()}"); 
@@ -27,9 +27,9 @@ namespace Tetrifact.Tests
             return _currentSettingsContext;
         }
 
-        public static ISettings Get(Type context)
+        private static ISettings Get(Type context)
         { 
-            return Get(context.GetType().Name);
+            return Get(context.Name);
         }
 
         /// <summary>
@@ -39,13 +39,32 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public static ISettings Get(string context)
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, context);
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "__testdata", context);
+            
             // disk-level teardown happens here, force delete the data directory for this test
-            if (Directory.Exists(testFolder))
-                Directory.Delete(testFolder, true);
+            int tries = 0;
+            while (tries < 100)
+            {
+                try
+                {
+                    if (Directory.Exists(testFolder))
+                        Directory.Delete(testFolder, true);
+
+                    break;
+                }
+                catch
+                {
+                    tries++;
+                    Thread.Sleep(100);
+                }
+            }
+
+            if (tries == 100)
+                throw new Exception($"failed to delete test folder {testFolder}");
 
             Directory.CreateDirectory(testFolder);
 
+            // this should be the only place in the entire test suite that we create an instance of settings.
             ISettings settings = new Core.Settings
             {
                 ArchiveQueuePath = Path.Join(testFolder, "archiveQueue"),

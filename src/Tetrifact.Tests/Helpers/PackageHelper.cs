@@ -90,9 +90,9 @@ namespace Tetrifact.Tests
         /// Generates a single-file package, returns its unique id.
         /// </summary>
         /// <returns></returns>
-        public static TestPackage CreateRandomPackage(ISettings settings)
+        public static TestPackage CreateRandomPackage()
         {
-            return CreateNewPackageFiles(settings, Guid.NewGuid().ToString());
+            return CreateNewPackageFiles(Guid.NewGuid().ToString());
         }
 
         public static void FakeArchiveOnDisk(TestPackage package)
@@ -117,7 +117,7 @@ namespace Tetrifact.Tests
         /// <param name="settings"></param>
         /// <param name="packageName"></param>
         /// <returns></returns>
-        public static TestPackage CreateNewPackageFiles(ISettings settings, string packageName)
+        public static TestPackage CreateNewPackageFiles(string packageName)
         {
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
@@ -136,7 +136,7 @@ namespace Tetrifact.Tests
             // we keep this as low-level as possible
 
             //IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>("settings", settings, "indexReadService", indexReader2); // new PackageCreateWorkspace(settings, indexReader, new FileSystem(), new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
-            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(settings);
+            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(SettingsHelper.CurrentSettingsContext);
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);

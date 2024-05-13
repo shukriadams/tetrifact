@@ -29,10 +29,8 @@ namespace Tetrifact.Tests.IndexReader
                         return false;
                     }
                 );
-
-            ISettings settings = SettingsHelper.Get(this.GetType());
             
-            IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { settings, filesystem });
+            IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { SettingsHelper.CurrentSettingsContext, filesystem });
 
             PartialPackageLookupResult lookup = indexReader.FindExisting(new PartialPackageLookupArguments{Files = new List<ManifestItem>{
                 new ManifestItem{Path = "file1", Hash = "" },

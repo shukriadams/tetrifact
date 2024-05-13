@@ -16,20 +16,17 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Wipe()
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "__testdata", this.GetType().Name);
             if (Directory.Exists(testFolder))
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-            ISettings settings = new Core.Settings()
-            {
-                TempPath = Path.Join(testFolder, "Temp")
-            };
+            ISettings settings = SettingsHelper.CurrentSettingsContext;
+            settings.TempPath = Path.Join(testFolder, "Temp");
 
             Directory.CreateDirectory(settings.TempPath);
             string testFilePath = Path.Join(settings.TempPath, "test");
             File.WriteAllText(testFilePath, string.Empty);
-
 
             IIndexReadService reader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { settings });
             reader.Initialize();

@@ -16,7 +16,7 @@ namespace Tetrifact.Tests
         {
             var settingsFactory = new Func<IContext, ISettings>(nameOfRobot =>
             {
-                return SettingsHelper.GetForCurrentTest();
+                return SettingsHelper.CurrentSettingsContext;
             });
 
             Bind<ISettings>().ToMethod(settingsFactory).InSingletonScope();

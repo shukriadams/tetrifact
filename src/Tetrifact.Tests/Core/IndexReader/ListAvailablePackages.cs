@@ -10,9 +10,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void ListAll()
         {
-            TestPackage package1 = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
-            TestPackage package2 = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
-            TestPackage package3 = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage package1 = PackageHelper.CreateRandomPackage();
+            TestPackage package2 = PackageHelper.CreateRandomPackage();
+            TestPackage package3 = PackageHelper.CreateRandomPackage();
 
             IPackageListService listService = NinjectHelper.Get<IPackageListService>(SettingsHelper.CurrentSettingsContext);
             IEnumerable<Package> packages = listService.Get(0, 10);

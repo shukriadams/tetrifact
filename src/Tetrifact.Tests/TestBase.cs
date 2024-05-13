@@ -31,5 +31,8 @@ namespace Tetrifact.Tests
             this.MockRepository = new MockRepository(MockBehavior.Loose) { CallBase = true };
         }
 
+        public void Dispose()
+        {
+        }
     }
 }

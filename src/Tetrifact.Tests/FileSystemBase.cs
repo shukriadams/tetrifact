@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.IO.Abstractions;
-using System.Threading;
+﻿using System.IO.Abstractions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -41,30 +38,6 @@ namespace Tetrifact.Tests
 
         public FileSystemBase()
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, this.GetType().Name);
-
-            // this is the "teardown" in our tests - force delete target directory that will contain all disk state for a test run. Requires of course that tests inherit from this class.
-            int tries = 0;
-            while(tries < 100)
-            {
-                try 
-                {
-                    if (Directory.Exists(testFolder))
-                        Directory.Delete(testFolder, true);
-
-                    break;
-                }
-                catch
-                { 
-                    tries++;
-                    Thread.Sleep(100);
-                }
-            }
-            if (tries == 100)
-                throw new Exception($"failed to delete test folder {testFolder}");
-
-            Directory.CreateDirectory(testFolder);
-
             // pass in real file system for all tests, we use this most of the time, individual tests must override this on their own
             FileSystem = new FileSystem();
             DirectoryFs = FileSystem.Directory;

@@ -55,7 +55,7 @@ namespace Tetrifact.Tests.ArchiveService
             Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
 
             // create package, mock existing archive file
-            TestPackage randomPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage randomPackage = PackageHelper.CreateRandomPackage();
             archiveService.QueueArchiveCreation(randomPackage.Id);
 
             Assert.Equal(PackageArchiveCreationStates.Queued, archiveService.GetPackageArchiveStatus(randomPackage.Id).State);
@@ -70,7 +70,7 @@ namespace Tetrifact.Tests.ArchiveService
             Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
 
             // create package, mock existing archive file
-            TestPackage randomPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            TestPackage randomPackage = PackageHelper.CreateRandomPackage();
             PackageHelper.FakeArchiveOnDisk(randomPackage);
 
             Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveAvailable, archiveService.GetPackageArchiveStatus(randomPackage.Id).State);

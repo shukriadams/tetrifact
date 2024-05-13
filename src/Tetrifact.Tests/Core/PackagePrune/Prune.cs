@@ -31,18 +31,18 @@ namespace Tetrifact.Tests.PackagePrune
         {
             // create packages :
             // packages under week threshold, none of these should not be deleted
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "under-week-1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "under-week-2");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "under-week-3");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "under-week-4");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "under-week-5");
+            PackageHelper.CreateNewPackageFiles("under-week-1");
+            PackageHelper.CreateNewPackageFiles("under-week-2");
+            PackageHelper.CreateNewPackageFiles("under-week-3");
+            PackageHelper.CreateNewPackageFiles("under-week-4");
+            PackageHelper.CreateNewPackageFiles("under-week-5");
 
             // packages above week threshold, two should be deleted
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-2");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-3");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-4");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-5");
+            PackageHelper.CreateNewPackageFiles("above-week-1");
+            PackageHelper.CreateNewPackageFiles("above-week-2");
+            PackageHelper.CreateNewPackageFiles("above-week-3");
+            PackageHelper.CreateNewPackageFiles("above-week-4");
+            PackageHelper.CreateNewPackageFiles("above-week-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-week-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
@@ -50,11 +50,11 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-week-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
             // packages above month threshold, two of these should be deleted
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-month-1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-month-2");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-month-3");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-month-4");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-month-5");
+            PackageHelper.CreateNewPackageFiles("above-month-1");
+            PackageHelper.CreateNewPackageFiles("above-month-2");
+            PackageHelper.CreateNewPackageFiles("above-month-3");
+            PackageHelper.CreateNewPackageFiles("above-month-4");
+            PackageHelper.CreateNewPackageFiles("above-month-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-month-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-month-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-month-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
@@ -62,11 +62,11 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-month-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
 
             // packages above year threshold, two of these should be deleted
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-year-1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-year-2");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-year-3");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-year-4");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-year-5");
+            PackageHelper.CreateNewPackageFiles("above-year-1");
+            PackageHelper.CreateNewPackageFiles("above-year-2");
+            PackageHelper.CreateNewPackageFiles("above-year-3");
+            PackageHelper.CreateNewPackageFiles("above-year-4");
+            PackageHelper.CreateNewPackageFiles("above-year-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-year-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-year-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-466));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-year-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-566));
@@ -93,14 +93,14 @@ namespace Tetrifact.Tests.PackagePrune
         public void Prune_over_time() 
         {
             // create 5 packages with date "now" (for real now)
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "2");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "3");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "4");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "5");
+            PackageHelper.CreateNewPackageFiles("1");
+            PackageHelper.CreateNewPackageFiles("2");
+            PackageHelper.CreateNewPackageFiles("3");
+            PackageHelper.CreateNewPackageFiles("4");
+            PackageHelper.CreateNewPackageFiles("5");
 
             // run pr
-            Core.Settings settings = new Core.Settings();
+            ISettings settings = SettingsHelper.CurrentSettingsContext;
             settings.Prune = true;
             settings.PruneWeeklyThreshold = 7;
             settings.PruneMonthlyThreshold = 31;
@@ -165,7 +165,7 @@ namespace Tetrifact.Tests.PackagePrune
                 .Returns<Manifest>(null);
 
             // create package then delete its manifest
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "dummy");
+            PackageHelper.CreateNewPackageFiles("dummy");
             foreach (string manifestPath in PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "dummy"))
                 File.Delete(manifestPath);
             
@@ -187,8 +187,8 @@ namespace Tetrifact.Tests.PackagePrune
                 });
 
             // create packages, force all to be eligable for delete
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "dummy1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "dummy2");
+            PackageHelper.CreateNewPackageFiles("dummy1");
+            PackageHelper.CreateNewPackageFiles("dummy2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "dummy1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "dummy2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
@@ -203,8 +203,8 @@ namespace Tetrifact.Tests.PackagePrune
         public void Prune_Protected_Tag()
         {
             // two packages above week threshold, one of these should be deleted, but protect both with tags
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-1");
-            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "above-week-2");
+            PackageHelper.CreateNewPackageFiles("above-week-1");
+            PackageHelper.CreateNewPackageFiles("above-week-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 

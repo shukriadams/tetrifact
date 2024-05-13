@@ -93,25 +93,16 @@ namespace Tetrifact.Core
 
                 _filesystem.Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
 
-                if (this.Manifest.IsCompressed){
-
+                if (this.Manifest.IsCompressed)
+                {
                     using (FileStream zipStream = new FileStream(targetPath, FileMode.Create))
-                    {
-                        using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
-                        {
-                            ZipArchiveEntry fileEntry = archive.CreateEntry(filePath);
-                            using (Stream entryStream = fileEntry.Open())
-                            {
-                                using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                                {
-                                    itemStream.CopyTo(entryStream);
-                                }
-                            }
-                        }
-                    }
-
+                    using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+                    using (Stream entryStream = archive.CreateEntry(filePath).Open())
+                    using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        itemStream.CopyTo(entryStream);
+ 
                 } else {
-                    _filesystem.File.Move(incomingPath,targetPath);
+                    _filesystem.File.Move(incomingPath, targetPath);
                 }
 
                 onDisk = true;
