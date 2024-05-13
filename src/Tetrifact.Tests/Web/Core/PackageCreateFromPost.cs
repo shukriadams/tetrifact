@@ -3,7 +3,7 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Core
 {
-    public class PackageCreateFromPost
+    public class PackageCreateFromPost : TestBase
     {
         /// <summary>
         /// coverage

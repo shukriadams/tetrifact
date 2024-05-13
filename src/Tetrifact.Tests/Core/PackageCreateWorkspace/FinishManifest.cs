@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.Workspace
             string package = "somepackage";
             this.PackageCreateWorkspace.WriteManifest(package, combinedHash);
 
-            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(this.Settings.PackagePath, package, "manifest.json")));
+            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(SettingsHelper.CurrentSettingsContext.PackagePath, package, "manifest.json")));
             Assert.Equal(manifest.Hash, combinedHash);
         }
     }

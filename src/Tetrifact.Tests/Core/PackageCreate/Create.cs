@@ -55,7 +55,7 @@ namespace Tetrifact.Tests.PackageCreate
             }
 
             // ensure that workspace has been cleaned up
-            Assert.Empty(Directory.GetDirectories(base.Settings.TempPath));
+            Assert.Empty(Directory.GetDirectories(SettingsHelper.CurrentSettingsContext.TempPath));
         }
 
         [Fact]
@@ -212,8 +212,8 @@ namespace Tetrifact.Tests.PackageCreate
 
             PackageCreateResult result = PackageCreate.Create(postArgs);
             Assert.True(result.Success);
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -241,7 +241,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithAutoArchive()
         {
-            this.Settings.AutoCreateArchiveOnPackageCreate = true;
+            SettingsHelper.CurrentSettingsContext.AutoCreateArchiveOnPackageCreate = true;
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
@@ -251,13 +251,13 @@ namespace Tetrifact.Tests.PackageCreate
             };
 
             PackageCreate.Create(package);
-            Assert.True(File.Exists(Path.Join(Settings.ArchivePath, "mypackage.zip")));
+            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.ArchivePath, "mypackage.zip")));
         }
 
         [Fact]
         public void CreateDisabled()
         {
-            this.Settings.AllowPackageCreate = false;
+            SettingsHelper.CurrentSettingsContext.AllowPackageCreate = false;
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
@@ -322,8 +322,8 @@ namespace Tetrifact.Tests.PackageCreate
                 throw new Exception(result.PublicError);
 
             Assert.True(result.Success);
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -343,7 +343,7 @@ namespace Tetrifact.Tests.PackageCreate
                     new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
-            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>(base.Settings);
+            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>(SettingsHelper.CurrentSettingsContext);
 
             PackageCreateResult result = _packageService.Create(postArgs);
             Assert.False(result.Success);

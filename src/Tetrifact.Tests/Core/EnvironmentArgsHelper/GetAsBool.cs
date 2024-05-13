@@ -4,7 +4,7 @@ using T = Tetrifact.Core;
 
 namespace Tetrifact.Tests.EnvironmentArgsHelper
 {
-    public class GetAsBool
+    public class GetAsBool : TestBase
     {
         [Fact]
         public void GetBoolTrueStringLower() 

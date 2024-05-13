@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Ninject.Activation;
 using Ninject.Modules;
+using System;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 using W=Tetrifact.Web;
@@ -12,7 +14,12 @@ namespace Tetrifact.Tests
     {
         public override void Load()
         {
-            Bind<ISettings>().To<Core.Settings>();
+            var settingsFactory = new Func<IContext, ISettings>(nameOfRobot =>
+            {
+                return SettingsHelper.GetForCurrentTest();
+            });
+
+            Bind<ISettings>().ToMethod(settingsFactory).InSingletonScope();
             Bind<IMemoryCache>().To<TestMemoryCache>();
             Bind<IIndexReadService>().To<IndexReadService>();
             Bind<IRepositoryCleanService>().To<RepositoryCleanService>();

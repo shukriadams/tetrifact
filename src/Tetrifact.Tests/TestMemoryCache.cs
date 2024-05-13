@@ -6,11 +6,33 @@ using System.Collections.Generic;
 namespace Tetrifact.Tests
 {
 
+    public class CacheRoot
+    {
+        public static Dictionary<object, TestCacheEntry> Items = new Dictionary<object, TestCacheEntry>();
+
+    }
+
     public class TestCacheEntry : ICacheEntry
     {
-        public object Key {  get { return "";} }
+        private object _key;
+        private object _value;
+        public TestCacheEntry(object key)
+        { 
+            _key = key;
+        }
+        public object Key {  get { return _key;} }
 
-        public object Value { get { return ""; } set { } }
+        public object Value 
+        { 
+            get 
+            { 
+                return _value; 
+            } 
+            set 
+            {
+                _value = value;
+            } 
+        }
 
         public DateTimeOffset? AbsoluteExpiration { get { return null; } set { } }
 
@@ -34,28 +56,59 @@ namespace Tetrifact.Tests
     /// </summary>
     public class TestMemoryCache : IMemoryCache
     {
+
         /// <inheritdoc />
         public ICacheEntry CreateEntry(object key)
         {
-            return new TestCacheEntry();
+            TestCacheEntry entry = new TestCacheEntry(key);
+            lock (CacheRoot.Items)
+            {
+                if (CacheRoot.Items.ContainsKey(key))
+                    CacheRoot.Items.Remove(key);
+
+                CacheRoot.Items.Add(key, entry);
+            }
+
+            return entry;
         }
 
         /// <inheritdoc />
         public bool TryGetValue(object key, out object result)
         {
-            result = null;
-            return false;
+            lock (CacheRoot.Items)
+            {
+                if (CacheRoot.Items.ContainsKey(key))
+                {
+                    result = CacheRoot.Items[key].Value;
+                    return true;
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
+            }
         }
 
         /// <inheritdoc />
         public void Remove(object key)
         {
-            
+            lock (CacheRoot.Items)
+                if (CacheRoot.Items.ContainsKey(key))
+                    CacheRoot.Items.Remove(key);
         }
-       
+
+
+        public static void DisposeStatic()
+        {
+            lock (CacheRoot.Items)
+                CacheRoot.Items = new Dictionary<object, TestCacheEntry>();
+        }
+
         public void Dispose()
         {
-
+            lock (CacheRoot.Items)
+                CacheRoot.Items = new Dictionary<object, TestCacheEntry>();
         }
     }
 }

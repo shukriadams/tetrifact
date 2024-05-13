@@ -1,5 +1,4 @@
 ﻿using Moq;
-using System.IO;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 using Xunit;
@@ -20,8 +19,9 @@ namespace Tetrifact.Tests.ArchiveService
                 .Setup(r => r.PackageExists(It.IsAny<string>()))
                 .Returns(false);
 
-            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ base.Settings, indexReader });
-            Assert.Throws<PackageNotFoundException>(()=> archiveService.GetPackageArchiveStatus("invalid-id"));
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ SettingsHelper.CurrentSettingsContext, indexReader });
+            ArchiveProgressInfo progress = archiveService.GetPackageArchiveStatus("invalid-id");
+            Assert.Equal(PackageArchiveCreationStates.Processed_PackageNotFound, progress.State);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Setup(r => r.File.Exists(It.IsAny<string>()))
                 .Returns(false);
 
-            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { base.Settings, indexReader, filesystem });
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { SettingsHelper.CurrentSettingsContext, indexReader, filesystem });
             Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated, archiveService.GetPackageArchiveStatus("any-package-id").State);
         }
 
@@ -50,14 +50,15 @@ namespace Tetrifact.Tests.ArchiveService
         /// Archive create status should be "already in progress".
         /// </summary>
         [Fact]
-        public void GetArchiveInProgress()
+        public void GetArchiveQueued()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-            
-            // mock temp archive (temp = in progress)
-            File.WriteAllText(this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id), string.Empty);
+            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
 
-            Assert.Equal(PackageArchiveCreationStates.ArchiveGenerating, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id).State);
+            // create package, mock existing archive file
+            TestPackage randomPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            archiveService.QueueArchiveCreation(randomPackage.Id);
+
+            Assert.Equal(PackageArchiveCreationStates.Queued, archiveService.GetPackageArchiveStatus(randomPackage.Id).State);
         }
 
         /// <summary>
@@ -66,12 +67,13 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchiveComplete()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
 
-            // mock existing archive file
-            File.WriteAllText(this.ArchiveService.GetPackageArchivePath(testPackage.Id), string.Empty);
+            // create package, mock existing archive file
+            TestPackage randomPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            PackageHelper.FakeArchiveOnDisk(randomPackage);
 
-            Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveAvailable, this.ArchiveService.GetPackageArchiveStatus(testPackage.Id).State);
+            Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveAvailable, archiveService.GetPackageArchiveStatus(randomPackage.Id).State);
         }
     }
 }

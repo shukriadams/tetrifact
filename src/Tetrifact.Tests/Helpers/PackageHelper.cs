@@ -90,9 +90,25 @@ namespace Tetrifact.Tests
         /// Generates a single-file package, returns its unique id.
         /// </summary>
         /// <returns></returns>
-        public static TestPackage CreateNewPackage(ISettings settings)
+        public static TestPackage CreateRandomPackage(ISettings settings)
         {
             return CreateNewPackageFiles(settings, Guid.NewGuid().ToString());
+        }
+
+        public static void FakeArchiveOnDisk(TestPackage package)
+        {
+            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
+            string archivePath = archiveService.GetPackageArchivePath(package.Id);
+            Directory.CreateDirectory(Path.GetDirectoryName(archivePath));
+            File.WriteAllText(archivePath, string.Empty);
+        }
+
+        public static void FakeArchiveQueue(TestPackage package)
+        {
+            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
+            string queuePath = archiveService.GetPackageArchiveQueuePath(package.Id);
+            Directory.CreateDirectory(Path.GetDirectoryName(queuePath));
+            File.WriteAllText(queuePath, string.Empty);
         }
 
         /// <summary>

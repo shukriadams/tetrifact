@@ -3,7 +3,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.LinkLock
 {
-    public class LinkLock
+    public class LinkLock : TestBase
     {
         [Fact]
         public void DefaultState()

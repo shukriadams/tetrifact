@@ -11,13 +11,13 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Basic()
         {
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2003"));
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2002"));
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2001"));
+            Directory.CreateDirectory(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "package2003"));
+            Directory.CreateDirectory(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "package2002"));
+            Directory.CreateDirectory(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "package2001"));
 
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
-            File.WriteAllText(Path.Combine(Settings.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
+            File.WriteAllText(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "package2003", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
+            File.WriteAllText(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "package2002", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
+            File.WriteAllText(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "package2001", "manifest.json"), JsonConvert.SerializeObject(new Manifest()));
 
             Assert.Equal("package2001", this.PackageList.GetPage(0, 1).Items.First().Id);
             Assert.Equal("package2002", this.PackageList.GetPage(1, 1).Items.First().Id);

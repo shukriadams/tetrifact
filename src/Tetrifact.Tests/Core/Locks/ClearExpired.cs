@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Locks
 {
-    public class ClearExpired
+    public class ClearExpired : TestBase
     {
         [Fact]
         public void Happy_path()

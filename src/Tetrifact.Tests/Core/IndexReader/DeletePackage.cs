@@ -13,22 +13,22 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void HappyPath()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
-            Assert.True(File.Exists(Path.Combine(this.Settings.PackagePath, testPackage.Id, "manifest.json")));
+            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
+            Assert.True(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, testPackage.Id, "manifest.json")));
 
             this.IndexReader.DeletePackage(testPackage.Id);
 
-            Assert.False(File.Exists(Path.Combine(this.Settings.PackagePath, "manifest.json" )));
+            Assert.False(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "manifest.json" )));
         }
 
         
         [Fact]
         public void DeleteDisabled()
         {
-            this.Settings.AllowPackageDelete = false;
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+            SettingsHelper.CurrentSettingsContext.AllowPackageDelete = false;
+            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
             OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
-            Assert.True(File.Exists(Path.Combine(this.Settings.PackagePath, testPackage.Id, "manifest.json")));
+            Assert.True(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, testPackage.Id, "manifest.json")));
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void DeleteWithArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
 
             // mock archive
             string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
@@ -64,7 +64,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void LockedArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
 
             // mock its archive
             string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
@@ -84,15 +84,15 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void LockedTag()
         {
-            TestPackage testPackage = PackageHelper.CreateNewPackage(this.Settings);
+            TestPackage testPackage = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
 
             IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
             PackageListCache PackageListCache = new PackageListCache(_memoryCache);
-            ITagsService tagsService = new Core.TagsService(this.Settings, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
+            ITagsService tagsService = new Core.TagsService(SettingsHelper.CurrentSettingsContext, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
             
             tagsService.AddTag(testPackage.Id, "mytag");
 
-            string[] tagDirectories = Directory.GetDirectories(Path.Join(this.Settings.TagsPath));
+            string[] tagDirectories = Directory.GetDirectories(Path.Join(SettingsHelper.CurrentSettingsContext.TagsPath));
             Assert.Single(tagDirectories); // should be 1 only
 
             string[] tagSubscribers = Directory.GetFiles(tagDirectories.First());

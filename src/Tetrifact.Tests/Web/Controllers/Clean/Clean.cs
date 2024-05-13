@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Controllers.Clean
 {
-    public class Clean 
+    public class Clean : TestBase
     {
         /// <summary>
         /// Confirms that the controller initialized and can be called.

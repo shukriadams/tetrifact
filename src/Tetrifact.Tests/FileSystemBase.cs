@@ -12,8 +12,6 @@ namespace Tetrifact.Tests
     public abstract class FileSystemBase : TestBase
     {
         #region FIELDS
-
-        protected ISettings Settings;
         
         protected TestLogger<IIndexReadService> IndexReaderLogger;
         
@@ -77,24 +75,15 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
-            Settings = new Core.Settings()
-            {
-                RepositoryPath = Path.Join(testFolder, "repository"),
-                PackagePath = Path.Join(testFolder, "packages"),
-                TempPath = Path.Join(testFolder, "temp"),
-                ArchivePath = Path.Join(testFolder, "archives"),
-                TagsPath = Path.Join(testFolder, "tags")
-            };
-
             TagService = new Core.TagsService(
-                Settings,
+                SettingsHelper.CurrentSettingsContext,
                 FileSystem,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>(this.Settings));
-            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { this.Settings }); 
+            IndexReader = new IndexReadService(SettingsHelper.CurrentSettingsContext, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>(SettingsHelper.CurrentSettingsContext));
+            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { SettingsHelper.CurrentSettingsContext }); 
 
             IndexReader.Initialize();
         }

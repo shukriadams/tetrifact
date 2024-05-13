@@ -11,11 +11,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InitializeTest()
         {
-            Assert.True(Directory.Exists(this.Settings.RepositoryPath));
-            Assert.True(Directory.Exists(this.Settings.PackagePath));
-            Assert.True(Directory.Exists(this.Settings.TempPath));
-            Assert.True(Directory.Exists(this.Settings.ArchivePath));
-            Assert.True(Directory.Exists(this.Settings.TagsPath));
+            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.RepositoryPath));
+            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.PackagePath));
+            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.TempPath));
+            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.ArchivePath));
+            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.TagsPath));
         }
     }
 }

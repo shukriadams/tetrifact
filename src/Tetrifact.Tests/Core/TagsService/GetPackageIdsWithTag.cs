@@ -12,8 +12,8 @@ namespace Tetrifact.Tests.TagsService
         public void Happy_path(){
             string[] tags = new [] { "mytag" };
 
-            TestPackage package1 = PackageHelper.CreateNewPackageFiles(this.Settings, "package1");
-            TestPackage package2 = PackageHelper.CreateNewPackageFiles(this.Settings, "package2");
+            TestPackage package1 = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "package1");
+            TestPackage package2 = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "package2");
 
             foreach (string tag in tags) {
                 base.TagsService.AddTag(package1.Id, tag);
@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.TagsService
                 .Setup(r => r.Directory.Exists(It.IsAny<string>()))
                 .Returns(false);
 
-            ITagsService tagservice = NinjectHelper.Get<ITagsService>(base.Settings, "fileSystem", fs.Object);
+            ITagsService tagservice = NinjectHelper.Get<ITagsService>(SettingsHelper.CurrentSettingsContext, "fileSystem", fs.Object);
 
             Assert.Throws<TagNotFoundException>(()=>{ tagservice.GetPackageIdsWithTags(new [] { "tag123" }); });
         }

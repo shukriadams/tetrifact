@@ -18,9 +18,9 @@ namespace Tetrifact.Tests.repositoryCleaner
         public Clean()
         {
             // clean tests require all locks released - do this BEFORE constructing repocleaner
-            ILock lockInstance = NinjectHelper.Get<ILock>(this.Settings);
+            ILock lockInstance = NinjectHelper.Get<ILock>(SettingsHelper.CurrentSettingsContext);
             lockInstance.Clear();
-            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, new TestMemoryCache(), lockInstance, this.Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, new TestMemoryCache(), lockInstance, SettingsHelper.CurrentSettingsContext, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
         }
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_Case1()
         {
             // create artbitrary, empty directory
-            string dir = Path.Combine(base.Settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
+            string dir = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
             Directory.CreateDirectory(dir);
 
             _respositoryCleaner.Clean();
@@ -48,7 +48,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_Case1_exceptionCover()
         {
             // create artbitrary, empty directory
-            string dir = Path.Combine(base.Settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
+            string dir = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
             Directory.CreateDirectory(dir);
 
             // override concrete dir deletes to throw exception
@@ -57,7 +57,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
             cleaner.Clean();
         }
 
@@ -68,10 +68,10 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void DontClean_case2()
         {
             // create a package
-            TestPackage package = PackageHelper.CreateNewPackage(this.Settings);
+            TestPackage package = PackageHelper.CreateRandomPackage(SettingsHelper.CurrentSettingsContext);
 
             // case 2 : package subscribed doest not exist
-            string dir = Path.Combine(base.Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            string dir = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(dir, "packages"));
@@ -86,7 +86,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         private string Create_Case2_Content()
         {
             // case 2 : package subscribed doest not exist
-            string dir = Path.Combine(base.Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            string dir = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(dir, "packages"));
@@ -118,13 +118,13 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", SettingsHelper.CurrentSettingsContext);
             cleaner.Clean();
         }
 
         private string Create_case3_content()
         {
-            string dir = Path.Combine(base.Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            string dir = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(dir, "packages"));
@@ -152,7 +152,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
             cleaner.Clean();
         }
 
@@ -167,7 +167,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>(this.Settings, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
             mockedCleaner.Clean();
         }
 
@@ -187,7 +187,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<ILock>(this.Settings), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<ILock>(SettingsHelper.CurrentSettingsContext), SettingsHelper.CurrentSettingsContext, this.DirectoryFs, this.FileFs, RepoCleanLog);
             respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -206,7 +206,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<ILock>(this.Settings), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<ILock>(SettingsHelper.CurrentSettingsContext), SettingsHelper.CurrentSettingsContext, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();
@@ -221,7 +221,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void EnsureNoLock_Coverage()
         {
-            ILock lockInstance = NinjectHelper.Get<ILock>(this.Settings);
+            ILock lockInstance = NinjectHelper.Get<ILock>(SettingsHelper.CurrentSettingsContext);
             lockInstance.Lock(ProcessLockCategories.Package_Create, "some-package");
             _respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));

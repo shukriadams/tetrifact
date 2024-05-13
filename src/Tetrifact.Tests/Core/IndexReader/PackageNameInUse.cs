@@ -10,7 +10,7 @@ namespace Tetrifact.Tests.IndexReader
         public void InUse()
         {
             string packageName = Guid.NewGuid().ToString();
-            Directory.CreateDirectory(Path.Join(this.Settings.PackagePath, packageName));
+            Directory.CreateDirectory(Path.Join(SettingsHelper.CurrentSettingsContext.PackagePath, packageName));
 
             Assert.True(this.IndexReader.PackageNameInUse(packageName));
         }

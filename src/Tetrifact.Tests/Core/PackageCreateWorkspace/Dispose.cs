@@ -25,7 +25,7 @@ namespace Tetrifact.Tests.Workspace
 
             // make sure we didn't do something stupid like nuke the entire temp folder, it's 
             // not like I've never done _that_ before
-            Assert.True(Directory.Exists(base.Settings.TempPath));
+            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.TempPath));
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Tetrifact.Tests.Workspace
                     throw new IOException("some-error");
                 });
 
-            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(base.Settings, "filesystem", fs.Object, "log", this.WorkspaceLogger);
+            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(SettingsHelper.CurrentSettingsContext, "filesystem", fs.Object, "log", this.WorkspaceLogger);
 
             workspace.Dispose();
             Assert.True(this.WorkspaceLogger.ContainsFragment("Failed to delete temp folder"));

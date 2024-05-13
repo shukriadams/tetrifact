@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Locks
 {
-    public class Lock
+    public class Lock : TestBase
     {
         /// <summary>
         /// Ensures that a lock can be reissued without error

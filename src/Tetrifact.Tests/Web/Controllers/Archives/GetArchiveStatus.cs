@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.Controllers.Archives
 {
-    public class GetArchiveStatus
+    public class GetArchiveStatus : TestBase
     {
         /// <summary>
         /// 

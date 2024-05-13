@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Happy_path()
         {
-            TestPackage package = PackageHelper.CreateNewPackageFiles(Settings, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
             Core.Manifest manifest = this.IndexReader.GetManifest(package.Id);
             Assert.Equal(DateTime.UtcNow.Year, manifest.CreatedUtc.Year);
 

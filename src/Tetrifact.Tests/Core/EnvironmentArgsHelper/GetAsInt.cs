@@ -4,7 +4,7 @@ using T = Tetrifact.Core;
 
 namespace Tetrifact.Tests.EnvironmentArgsHelper
 {
-    public class GetAsInt
+    public class GetAsInt : TestBase
     {
         [Fact]
         public void GetExisting() 

@@ -43,7 +43,7 @@ namespace Tetrifact.Tests.PackageList
                 .Setup(mq => mq.File.ReadAllText(It.IsAny<string>()))
                 .Returns(manifests.Next());
 
-            IPackageListService listService = MoqHelper.CreateInstanceWithDependencies<PackageListService>(new object[]{ Settings, mockFileSystem });
+            IPackageListService listService = MoqHelper.CreateInstanceWithDependencies<PackageListService>(new object[]{ SettingsHelper.CurrentSettingsContext, mockFileSystem });
             PageableData<Package> results = listService.Find("test", 0, 10);
             Assert.Equal(3, results.VirtualItemCount);
         }

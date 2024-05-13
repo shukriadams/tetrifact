@@ -1,5 +1,6 @@
 ﻿using Ninject;
 using Ninject.Parameters;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -18,12 +19,13 @@ namespace Tetrifact.Tests
         {
             StandardKernel kernel = new StandardKernel();
             kernel.Load(Assembly.GetExecutingAssembly());
+            /*
             if (settings != null){
                 var binding = kernel.GetBindings(typeof(Core.ISettings)).SingleOrDefault();
                 kernel.RemoveBinding(binding);
                 kernel.Bind<Core.ISettings>().ToConstant(settings);
             }
-
+            */
             return kernel.Get<T>(args);
         }
 
@@ -32,9 +34,20 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [Obsolete]
         public static T Get<T>(Core.ISettings settings)
         {
             return Get<T>(new ConstructorArgument[] { }, settings );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Get<T>()
+        {
+            return Get<T>(new ConstructorArgument[] { }, null);
         }
 
         /// <summary>

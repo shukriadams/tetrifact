@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.IndexReader
     /// <summary>
     /// Tests temp folder on index initialize (ergo, app start)
     /// </summary>
-    public class InitializeTemp
+    public class InitializeTemp : TestBase
     {
         /// <summary>
         /// Tests that temp folder content is wiped when app starts

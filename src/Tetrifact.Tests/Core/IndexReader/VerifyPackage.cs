@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
+﻿using System.IO;
 using Tetrifact.Core;
 using Xunit;
 
@@ -14,7 +12,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic() 
         {
-            PackageHelper.CreateNewPackageFiles(Settings, "mypackage" );
+            PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage" );
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.True(result.Item1);
         }
@@ -39,10 +37,10 @@ namespace Tetrifact.Tests.IndexReader
         public void FilesMissing()
         {
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles(Settings, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
 
             // delete known package file via disk
-            File.Delete(Path.Join(this.Settings.RepositoryPath, package.Path, package.Hash, "bin"));
+            File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, package.Path, package.Hash, "bin"));
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
@@ -57,10 +55,10 @@ namespace Tetrifact.Tests.IndexReader
         public void FileHashInvalid()
         {
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles(Settings, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
 
             // manually change file on disk after package created
-            File.WriteAllText(Path.Join(this.Settings.RepositoryPath, package.Path, package.Hash, "bin"), "some-different-data");
+            File.WriteAllText(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, package.Path, package.Hash, "bin"), "some-different-data");
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
@@ -74,10 +72,10 @@ namespace Tetrifact.Tests.IndexReader
         public void PackageHashInvalid()
         {
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles(Settings, "mypackage");
+            TestPackage package = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "mypackage");
 
             // corrupt the final hash in the manifest
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, package.Id), "Hash", "not-a-alid-hash");
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(SettingsHelper.CurrentSettingsContext, package.Id), "Hash", "not-a-alid-hash");
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);

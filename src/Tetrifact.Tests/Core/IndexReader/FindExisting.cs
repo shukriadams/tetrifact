@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.IndexReader
                     }
                 );
 
-            ISettings settings = SettingsHelper.Get(this);
+            ISettings settings = SettingsHelper.Get(this.GetType());
             
             IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { settings, filesystem });
 

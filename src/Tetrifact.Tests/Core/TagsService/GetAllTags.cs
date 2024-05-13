@@ -9,11 +9,11 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Basic(){
-            TestPackage package1 = PackageHelper.CreateNewPackageFiles(this.Settings, "package1");
+            TestPackage package1 = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "package1");
             string tag1 = "mytag1";
             base.TagsService.AddTag(package1.Id, tag1);
 
-            TestPackage package2 = PackageHelper.CreateNewPackageFiles(this.Settings, "package2");
+            TestPackage package2 = PackageHelper.CreateNewPackageFiles(SettingsHelper.CurrentSettingsContext, "package2");
             string tag2 = "mytag2";
             base.TagsService.AddTag(package2.Id, tag2);
 
@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.TagsService
         public void Tag_format_exception()
         {
             // write garbage to tag folder
-            Directory.CreateDirectory(Path.Join(base.Settings.TagsPath, "unencoded-text"));
+            Directory.CreateDirectory(Path.Join(SettingsHelper.CurrentSettingsContext.TagsPath, "unencoded-text"));
 
             base.TagService.GetAllTags();
             // can't get entry to show up, not important, this is is a coverage test
