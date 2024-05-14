@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.ArchiveService
 {
-    public class GetPackageAsArchive : FileSystemBase
+    public class GetPackageAsArchive : TestBase
     {
         /// <summary>
         /// 
@@ -14,11 +14,14 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void PackageStreamHasContent()
         {
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+
             // create a package
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            archiveService.CreateArchive(testPackage.Id);
 
             // stream package as archive
-            using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent = archiveService.GetPackageAsArchive(testPackage.Id))
             {
                 // ensure that stream contains package content
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
@@ -38,10 +41,13 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetExistingArchive()
         {
-            TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
-            using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
-            using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            archiveService.CreateArchive(testPackage.Id);
+
+            using (Stream testContent1 = archiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent2 = archiveService.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
                 Assert.Single(items);
@@ -51,12 +57,14 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetWithSevenZip()
         {
-            SettingsHelper.CurrentSettingsContext.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "packages", "7z.libs", "23.1.0", "bin", "x64", "7z.dll"); 
+            SettingsHelper.CurrentSettingsContext.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            archiveService.CreateArchive(testPackage.Id);
 
-            using (Stream testContent1 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
-            using (Stream testContent2 = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent1 = archiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent2 = archiveService.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
                 Assert.Single(items);
@@ -69,11 +77,11 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetNonExistent()
         {
-            PackageNotFoundException exception = Assert.Throws<PackageNotFoundException>(() => {
-                using (Stream zipStream = this.ArchiveService.GetPackageAsArchive("my invalid id")){ }
-            });
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
-            Assert.Equal("my invalid id", exception.PackageId);
+            ArchiveNotFoundException exception = Assert.Throws<ArchiveNotFoundException>(() => {
+                using (Stream zipStream = archiveService.GetPackageAsArchive("an invalid package id")){ }
+            });
         }
 
         /// <summary>
@@ -84,13 +92,14 @@ namespace Tetrifact.Tests.ArchiveService
         {
             // create a package 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
             // create a fake archive temp file so GetPackageAsArchive() goes into wait state
-            string tempArchivePath = this.ArchiveService.GetPackageArchiveTempPath(testPackage.Id);
+            string tempArchivePath = archiveService.GetPackageArchiveTempPath(testPackage.Id);
             File.WriteAllText(tempArchivePath, string.Empty);
 
             // fake temp archive bypasses archive creation, so make a fake archive too, it needs to be just a file
-            string archivePath = this.ArchiveService.GetPackageArchivePath(testPackage.Id);
+            string archivePath = archiveService.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, "some-fake-archive-content");
 
             // lock the temp archive so it doesn't get auto-clobbered (not needed, doesn't work on linux)
@@ -106,9 +115,9 @@ namespace Tetrifact.Tests.ArchiveService
                     });
 
                 // make a custom reader with our mocked Thread
-                IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{mockThread.Object, SettingsHelper.CurrentSettingsContext });
+                IArchiveService archiveService2 = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{mockThread.Object, SettingsHelper.CurrentSettingsContext });
 
-                using (Stream zipStream = archiveService.GetPackageAsArchive(testPackage.Id))
+                using (Stream zipStream = archiveService2.GetPackageAsArchive(testPackage.Id))
                 {
                     // confirm we got our fake archive content back
                     Assert.Equal("some-fake-archive-content", StreamsHelper.StreamToString(zipStream));
@@ -123,14 +132,15 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetArchiveCompressionEnabled()
         {
             SettingsHelper.CurrentSettingsContext.IsStorageCompressionEnabled = true;
-        
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+
             // create package
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // force create archive
-            this.ArchiveService.CreateArchive(testPackage.Id);
+            archiveService.CreateArchive(testPackage.Id);
 
-            using (Stream testContent = this.ArchiveService.GetPackageAsArchive(testPackage.Id))
+            using (Stream testContent = archiveService.GetPackageAsArchive(testPackage.Id))
             {
                 Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent);
                 Assert.Single(items);
@@ -144,12 +154,14 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_Nocompress_FileMissing()
         {
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // delete known package file via disk
             File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
-            Assert.Throws<ArchiveNotFoundException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
+            Assert.Throws<ArchiveNotFoundException>(() => { archiveService.GetPackageAsArchive(testPackage.Id); });
         }
 
         /// <summary>
@@ -159,6 +171,8 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_CompressEnabled_FileMissing()
         {
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+
             SettingsHelper.CurrentSettingsContext.IsStorageCompressionEnabled = true;
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
@@ -166,7 +180,7 @@ namespace Tetrifact.Tests.ArchiveService
             // delete known package file via disk
             File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
-            Assert.Throws<ArchiveNotFoundException>(() => { this.ArchiveService.GetPackageAsArchive(testPackage.Id); });
+            Assert.Throws<ArchiveNotFoundException>(() => { archiveService.GetPackageAsArchive(testPackage.Id); });
         }
     }
 }

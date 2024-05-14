@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                         new Package { Id = "3" } 
                     });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageListService", mockedPackageListService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>("packageListService", mockedPackageListService.Object);
 
             dynamic json = JsonHelper.ToDynamic(controller.ListPackages(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();
@@ -39,7 +39,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                     new Package(), new Package(), new Package() // inject 3 packages
                 });
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageListService", moqListService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>("packageListService", moqListService.Object);
             dynamic json = JsonHelper.ToDynamic(controller.ListPackages(true, 0, 10));
             Package[] packages = json.success.packages.ToObject<Package[]>();
             Assert.Equal(3, packages.Count());

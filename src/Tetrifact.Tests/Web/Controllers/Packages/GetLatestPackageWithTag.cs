@@ -20,7 +20,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetLatestWithTags(It.IsAny<string[]>()))
                 .Returns(new Package());
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageListService", packageListService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>("packageListService", packageListService.Object);
             JsonResult result = controller.GetLatestPackageWithTag("any-tag") as JsonResult;
             Assert.NotNull(result);
         }
@@ -36,7 +36,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetLatestWithTags(It.IsAny<string[]>()))
                 .Throws(new Exception());
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>(this.Settings, "packageListService", packageListService.Object);
+            PackagesController controller = NinjectHelper.Get<PackagesController>("packageListService", packageListService.Object);
             BadRequestObjectResult result = controller.GetLatestPackageWithTag("any-tag") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

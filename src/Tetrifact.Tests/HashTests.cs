@@ -20,8 +20,8 @@ namespace Tetrifact.Tests
         [Fact]
         public void FromFile()
         {
-            Directory.CreateDirectory(this.Settings.TempPath);
-            string path = Path.Join(this.Settings.TempPath, "hashFromFileTest.txt");
+            Directory.CreateDirectory(SettingsHelper.CurrentSettingsContext.TempPath);
+            string path = Path.Join(SettingsHelper.CurrentSettingsContext.TempPath, "hashFromFileTest.txt");
             File.WriteAllText(path, _input);
             Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromFile(path).Hash);
         }

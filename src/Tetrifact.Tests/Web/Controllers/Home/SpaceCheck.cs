@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
         [Fact]
         public void Happy_path()
         {
-            W.HomeController controller = NinjectHelper.Get<W.HomeController>(base.Settings);
+            W.HomeController controller = NinjectHelper.Get<W.HomeController>(SettingsHelper.CurrentSettingsContext);
             controller.SpaceCheck();
         }
     }

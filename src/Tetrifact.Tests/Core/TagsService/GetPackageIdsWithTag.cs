@@ -33,12 +33,12 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Directory_Exception()
         {
-            Mock<TestFileSystem> fs = MockRepository.Create<TestFileSystem>();
+            Mock<TestFileSystem> fs = MoqHelper.Mock<TestFileSystem>();
             fs
                 .Setup(r => r.Directory.Exists(It.IsAny<string>()))
                 .Returns(false);
 
-            ITagsService tagservice = NinjectHelper.Get<ITagsService>(SettingsHelper.CurrentSettingsContext, "fileSystem", fs.Object);
+            ITagsService tagservice = NinjectHelper.Get<ITagsService>("fileSystem", fs.Object);
 
             Assert.Throws<TagNotFoundException>(()=>{ tagservice.GetPackageIdsWithTags(new [] { "tag123" }); });
         }

@@ -17,6 +17,12 @@ namespace Tetrifact.Tests
             return (Mock)Activator.CreateInstance(creator);
         }
 
+        public static Mock<T> Mock<T>() where T : class
+        {
+            var creator = typeof(Mock<>).MakeGenericType(typeof(T));
+            return (Mock<T>)Activator.CreateInstance(creator);
+        }
+
         /// <summary>
         /// 
         /// </summary>

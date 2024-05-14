@@ -78,7 +78,7 @@ namespace Tetrifact.Tests.PackageDiff
                     throw new Exception("some-error-123");
                 });
 
-            IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>(SettingsHelper.CurrentSettingsContext, "filesystem", fs.Object);
+            IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>("filesystem", fs.Object);
 
             string upstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new [] { "same content", "packege 1 content", "same content" });
             string downstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new [] { "same content", "packege 2 content", "same content" });
@@ -111,7 +111,6 @@ namespace Tetrifact.Tests.PackageDiff
             indexReader.Setup(mq => mq.GetExpectedManifest("package-2")).Returns(PackageHelper.CreateInMemoryManifest());
 
             IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>(
-                SettingsHelper.CurrentSettingsContext,
                 "filesystem", fs.Object, 
                 "indexReader", indexReader.Object);
 

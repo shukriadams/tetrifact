@@ -16,15 +16,14 @@ namespace Tetrifact.Tests.IndexReader
             IList<string> mockFilePaths = new List<string>() { "file1", "file2", "file3"};
 
             // mock up file system to match on the above path
-            Mock<TestFileSystem> filesystem = this.MockRepository.Create<TestFileSystem>();
+            Mock<TestFileSystem> filesystem = MoqHelper.Mock<TestFileSystem>();
             filesystem
                 .Setup(r => r.Directory.Exists(It.IsAny<string>()))
                 .Returns((string pathToCheck)=>
                     {
-                        foreach (var file in mockFilePaths) {
+                        foreach (var file in mockFilePaths) 
                             if (pathToCheck.Contains(file))
                                 return true;
-                        }
 
                         return false;
                     }

@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.Controllers.Archives
                 .Setup(r => r.GetPackageArchiveStatus(It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("123"));
 
-            ArchivesController controller = NinjectHelper.Get<ArchivesController>(null, "archiveService", archiveServiceMock.Object);
+            ArchivesController controller = NinjectHelper.Get<ArchivesController>("archiveService", archiveServiceMock.Object);
             NotFoundObjectResult result = controller.GetArchiveStatus("any-package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -42,7 +42,7 @@ namespace Tetrifact.Tests.Controllers.Archives
                 .Setup(r => r.GetPackageArchiveStatus(It.IsAny<string>()))
                 .Throws(new Exception("123"));
 
-            ArchivesController controller = NinjectHelper.Get<ArchivesController>(null,"archiveService", archiveServiceMock.Object);
+            ArchivesController controller = NinjectHelper.Get<ArchivesController>("archiveService", archiveServiceMock.Object);
             BadRequestObjectResult result = controller.GetArchiveStatus("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

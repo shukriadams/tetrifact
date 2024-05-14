@@ -56,11 +56,11 @@ namespace Tetrifact.Tests
         /// <param name="name1"></param>
         /// <param name="arg1"></param>
         /// <returns></returns>
-        public static T Get<T>(Core.ISettings settings, string name, object arg)
+        public static T Get<T>(string name, object arg)
         {
             return Get<T>(new[] {
                 new ConstructorArgument(name, arg)
-            }, settings);
+            }, SettingsHelper.CurrentSettingsContext);
         }
 
         /// <summary>
@@ -72,12 +72,12 @@ namespace Tetrifact.Tests
         /// <param name="arg2Name"></param>
         /// <param name="arg2Value"></param>
         /// <returns></returns>
-        public static T Get<T>(Core.ISettings settings, string arg1Name, object arg1Value, string arg2Name, object arg2Value)
+        public static T Get<T>(string arg1Name, object arg1Value, string arg2Name, object arg2Value)
         {
             return Get<T>(new[] {
                 new ConstructorArgument(arg1Name, arg1Value),
                 new ConstructorArgument(arg2Name, arg2Value)
-            }, settings);
+            }, SettingsHelper.CurrentSettingsContext);
         }
 
         /// <summary>
@@ -91,13 +91,13 @@ namespace Tetrifact.Tests
         /// <param name="name3"></param>
         /// <param name="arg3"></param>
         /// <returns></returns>
-        public static T Get<T>(Core.ISettings settings, string name1, object arg1, string name2, object arg2, string name3, object arg3)
+        public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3)
         {
             return Get<T>(new[] {
                 new ConstructorArgument(name1, arg1),
                 new ConstructorArgument(name2, arg2),
                 new ConstructorArgument(name3, arg3)
-            }, settings);
+            }, SettingsHelper.CurrentSettingsContext);
         }
 
         /// <summary>
@@ -113,14 +113,14 @@ namespace Tetrifact.Tests
         /// <param name="name4"></param>
         /// <param name="arg4"></param>
         /// <returns></returns>
-        public static T Get<T>(Core.ISettings settings, string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4)
+        public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4)
         {
             return Get<T>(new[] { 
                 new ConstructorArgument(name1, arg1),
                 new ConstructorArgument(name2, arg2),
                 new ConstructorArgument(name3, arg3),
                 new ConstructorArgument(name4, arg4)
-            }, settings);
+            }, SettingsHelper.CurrentSettingsContext);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Tetrifact.Tests
         /// <param name="name5"></param>
         /// <param name="arg5"></param>
         /// <returns></returns>
-        public static T Get<T>(Core.ISettings settings, string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4, string name5, object arg5)
+        public static T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4, string name5, object arg5)
         {
             return Get<T>(new[] {
                 new ConstructorArgument(name1, arg1),
@@ -146,7 +146,7 @@ namespace Tetrifact.Tests
                 new ConstructorArgument(name3, arg3),
                 new ConstructorArgument(name4, arg4),
                 new ConstructorArgument(name5, arg5)
-            }, settings);
+            }, SettingsHelper.CurrentSettingsContext);
         }
     }
 }

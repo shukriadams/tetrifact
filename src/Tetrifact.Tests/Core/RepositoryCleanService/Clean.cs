@@ -52,12 +52,12 @@ namespace Tetrifact.Tests.repositoryCleaner
             Directory.CreateDirectory(dir);
 
             // override concrete dir deletes to throw exception
-            Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
+            Mock<TestDirectory> directoryService = MoqHelper.Mock<TestDirectory>();
             directoryService
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
             cleaner.Clean();
         }
 
@@ -113,12 +113,12 @@ namespace Tetrifact.Tests.repositoryCleaner
         {
             string subscriberFile = Create_Case2_Content();
 
-            Mock<TestFile> fileservice = MockRepository.Create<TestFile>();
+            Mock<TestFile> fileservice = MoqHelper.Mock<TestFile>();
             fileservice
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", SettingsHelper.CurrentSettingsContext);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", SettingsHelper.CurrentSettingsContext);
             cleaner.Clean();
         }
 
@@ -147,12 +147,12 @@ namespace Tetrifact.Tests.repositoryCleaner
         {
             string dir = Create_case3_content();
 
-            Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
+            Mock<TestDirectory> directoryService = MoqHelper.Mock<TestDirectory>();
             directoryService
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
+            IRepositoryCleanService cleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
             cleaner.Clean();
         }
 
@@ -162,12 +162,12 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Directory_Exception_GetDirectories()
         {
-            Mock<TestDirectory> directoryService = MockRepository.Create<TestDirectory>();
+            Mock<TestDirectory> directoryService = MoqHelper.Mock<TestDirectory>();
             directoryService
                 .Setup(r => r.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>(SettingsHelper.CurrentSettingsContext, "indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
+            IRepositoryCleanService mockedCleaner = NinjectHelper.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", SettingsHelper.CurrentSettingsContext);
             mockedCleaner.Clean();
         }
 

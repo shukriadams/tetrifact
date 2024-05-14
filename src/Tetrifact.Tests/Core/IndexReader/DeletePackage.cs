@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace Tetrifact.Tests.IndexReader
             Assert.True(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, testPackage.Id, "manifest.json")));
 
             this.IndexReader.DeletePackage(testPackage.Id);
-
             Assert.False(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "manifest.json" )));
         }
 

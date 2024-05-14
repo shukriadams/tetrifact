@@ -31,7 +31,8 @@ namespace Tetrifact.Core
         void PurgeOldArchives();
 
         /// <summary>
-        /// Gets a package as an archive. Create the archive if the archive doesn't already exist.
+        /// Gets a package as an archive. Assumes the archive already exists, throws archive not found exception if not. Does
+        /// not verify package id validity.
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
