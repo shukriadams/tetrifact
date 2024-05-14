@@ -8,7 +8,7 @@ namespace Tetrifact.Tests
     public class SettingsHelper
     {
         private static ISettings _currentSettingsContext;
-
+        private static object _threadLock = new object();
         public static ISettings CurrentSettingsContext 
         { 
             get {  return _currentSettingsContext; } 
@@ -16,20 +16,8 @@ namespace Tetrifact.Tests
 
         public static void SetContext(Type context)
         {
-            _currentSettingsContext = Get(context);
-        }
-
-        private static ISettings GetForCurrentTest()
-        { 
-            if (_currentSettingsContext == null)
-                return Get($"random_ctx{Guid.NewGuid()}"); 
-
-            return _currentSettingsContext;
-        }
-
-        private static ISettings Get(Type context)
-        { 
-            return Get(context.Name);
+            lock (_threadLock)
+                _currentSettingsContext = Get(context.Name);
         }
 
         /// <summary>

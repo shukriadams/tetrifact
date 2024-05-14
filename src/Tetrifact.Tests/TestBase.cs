@@ -1,5 +1,4 @@
 ﻿using System;
-using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
@@ -22,7 +21,6 @@ namespace Tetrifact.Tests
         public void Dispose()
         {
             TestMemoryCache.DisposeStatic();
-            Bindings.RepositoryCleanServiceLog = new TestLogger<IRepositoryCleanService>();
         }
     }
 }
