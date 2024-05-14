@@ -14,19 +14,19 @@ namespace Tetrifact.Tests.PackageDiff
 
         public PackageDiff()
         {
-            SettingsHelper.CurrentSettingsContext.WorkerThreadCount = 1;
+            Settings.WorkerThreadCount = 1;
             this.Logger = new TestLogger<IPackageDiffService>();
-            this.PackageDiffService = new PackageDiffService(SettingsHelper.CurrentSettingsContext, this.FileSystem, this.IndexReader, this.Logger);
+            this.PackageDiffService = new PackageDiffService(Settings, this.FileSystem, this.IndexReader, this.Logger);
         }
 
         [Fact]
         public void HappyPath_SingleThread()
         {
-            SettingsHelper.CurrentSettingsContext.WorkerThreadCount = 1;
-            this.PackageDiffService = new PackageDiffService(SettingsHelper.CurrentSettingsContext, this.FileSystem, this.IndexReader, this.Logger);
+            Settings.WorkerThreadCount = 1;
+            this.PackageDiffService = new PackageDiffService(Settings, this.FileSystem, this.IndexReader, this.Logger);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new string[]{ "same content", "packege 1 content", "same content" } );
-            string downstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new string[] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = PackageHelper.CreateNewPackage(Settings, new string[]{ "same content", "packege 1 content", "same content" } );
+            string downstreamPackageId = PackageHelper.CreateNewPackage(Settings, new string[] { "same content", "packege 2 content", "same content" });
 
             // get diff
             this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
@@ -43,11 +43,11 @@ namespace Tetrifact.Tests.PackageDiff
         [Fact]
         public void HappyPath_MultiThread()
         {
-            SettingsHelper.CurrentSettingsContext.WorkerThreadCount = 2;
-            this.PackageDiffService = new PackageDiffService(SettingsHelper.CurrentSettingsContext, this.FileSystem, this.IndexReader, this.Logger);
+            Settings.WorkerThreadCount = 2;
+            this.PackageDiffService = new PackageDiffService(Settings, this.FileSystem, this.IndexReader, this.Logger);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new [] { "same content", "packege 1 content", "same content" });
-            string downstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new [] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 1 content", "same content" });
+            string downstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 2 content", "same content" });
 
             // get diff
             this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
@@ -80,8 +80,8 @@ namespace Tetrifact.Tests.PackageDiff
 
             IPackageDiffService diffService = NinjectHelper.Get<IPackageDiffService>("filesystem", fs.Object);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new [] { "same content", "packege 1 content", "same content" });
-            string downstreamPackageId = PackageHelper.CreateNewPackage(SettingsHelper.CurrentSettingsContext, new [] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 1 content", "same content" });
+            string downstreamPackageId = PackageHelper.CreateNewPackage(Settings, new [] { "same content", "packege 2 content", "same content" });
 
             Exception ex = Assert.Throws<Exception>(() => diffService.GetDifference(upstreamPackageId, downstreamPackageId));
             Assert.StartsWith("Unexpected error reading diff", ex.Message);

@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.IndexReader
             string hash = "somehash";
             string path = "some/path/filename.file";
             string content = "file content";
-            string rootPath = Path.Combine(SettingsHelper.CurrentSettingsContext.RepositoryPath, path, hash);
+            string rootPath = Path.Combine(Settings.RepositoryPath, path, hash);
             Directory.CreateDirectory(rootPath);
             File.WriteAllText(Path.Combine(rootPath, "bin"), content);
             string fileIdentifier = FileIdentifier.Cloak(path, hash);

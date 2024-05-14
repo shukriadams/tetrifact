@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.TagsService
         public void Tag_format_exception()
         {
             // write garbage to tag folder
-            Directory.CreateDirectory(Path.Join(SettingsHelper.CurrentSettingsContext.TagsPath, "unencoded-text"));
+            Directory.CreateDirectory(Path.Join(Settings.TagsPath, "unencoded-text"));
 
             base.TagService.GetAllTags();
             // can't get entry to show up, not important, this is is a coverage test

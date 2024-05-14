@@ -57,7 +57,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetWithSevenZip()
         {
-            SettingsHelper.CurrentSettingsContext.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
+            Settings.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
             IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
@@ -115,7 +115,7 @@ namespace Tetrifact.Tests.ArchiveService
                     });
 
                 // make a custom reader with our mocked Thread
-                IArchiveService archiveService2 = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{mockThread.Object, SettingsHelper.CurrentSettingsContext });
+                IArchiveService archiveService2 = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ mockThread.Object });
 
                 using (Stream zipStream = archiveService2.GetPackageAsArchive(testPackage.Id))
                 {
@@ -131,7 +131,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchiveCompressionEnabled()
         {
-            SettingsHelper.CurrentSettingsContext.IsStorageCompressionEnabled = true;
+            Settings.IsStorageCompressionEnabled = true;
             IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
             // create package
@@ -159,7 +159,7 @@ namespace Tetrifact.Tests.ArchiveService
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // delete known package file via disk
-            File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
+            File.Delete(Path.Join(Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
             Assert.Throws<ArchiveNotFoundException>(() => { archiveService.GetPackageAsArchive(testPackage.Id); });
         }
@@ -173,12 +173,12 @@ namespace Tetrifact.Tests.ArchiveService
         {
             IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
-            SettingsHelper.CurrentSettingsContext.IsStorageCompressionEnabled = true;
+            Settings.IsStorageCompressionEnabled = true;
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // delete known package file via disk
-            File.Delete(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
+            File.Delete(Path.Join(Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
 
             Assert.Throws<ArchiveNotFoundException>(() => { archiveService.GetPackageAsArchive(testPackage.Id); });
         }

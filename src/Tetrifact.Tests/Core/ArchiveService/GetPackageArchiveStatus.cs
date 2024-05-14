@@ -19,7 +19,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Setup(r => r.PackageExists(It.IsAny<string>()))
                 .Returns(false);
 
-            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ SettingsHelper.CurrentSettingsContext, indexReader });
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ indexReader });
             ArchiveProgressInfo progress = archiveService.GetPackageArchiveStatus("invalid-id");
             Assert.Equal(PackageArchiveCreationStates.Processed_PackageNotFound, progress.State);
         }
@@ -42,7 +42,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Setup(r => r.File.Exists(It.IsAny<string>()))
                 .Returns(false);
 
-            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { SettingsHelper.CurrentSettingsContext, indexReader, filesystem });
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { indexReader, filesystem });
             Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated, archiveService.GetPackageArchiveStatus("any-package-id").State);
         }
 

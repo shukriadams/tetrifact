@@ -15,20 +15,20 @@ namespace Tetrifact.Tests.IndexReader
         public void HappyPath()
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            Assert.True(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, testPackage.Id, "manifest.json")));
+            Assert.True(File.Exists(Path.Combine(Settings.PackagePath, testPackage.Id, "manifest.json")));
 
             this.IndexReader.DeletePackage(testPackage.Id);
-            Assert.False(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, "manifest.json" )));
+            Assert.False(File.Exists(Path.Combine(Settings.PackagePath, "manifest.json" )));
         }
 
         
         [Fact]
         public void DeleteDisabled()
         {
-            SettingsHelper.CurrentSettingsContext.AllowPackageDelete = false;
+            Settings.AllowPackageDelete = false;
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
-            Assert.True(File.Exists(Path.Combine(SettingsHelper.CurrentSettingsContext.PackagePath, testPackage.Id, "manifest.json")));
+            Assert.True(File.Exists(Path.Combine(Settings.PackagePath, testPackage.Id, "manifest.json")));
         }
 
         /// <summary>
@@ -88,11 +88,11 @@ namespace Tetrifact.Tests.IndexReader
 
             IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
             PackageListCache PackageListCache = new PackageListCache(_memoryCache);
-            ITagsService tagsService = new Core.TagsService(SettingsHelper.CurrentSettingsContext, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
+            ITagsService tagsService = new Core.TagsService(Settings, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
             
             tagsService.AddTag(testPackage.Id, "mytag");
 
-            string[] tagDirectories = Directory.GetDirectories(Path.Join(SettingsHelper.CurrentSettingsContext.TagsPath));
+            string[] tagDirectories = Directory.GetDirectories(Path.Join(Settings.TagsPath));
             Assert.Single(tagDirectories); // should be 1 only
 
             string[] tagSubscribers = Directory.GetFiles(tagDirectories.First());

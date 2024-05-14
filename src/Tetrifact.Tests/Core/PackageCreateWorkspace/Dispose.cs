@@ -25,7 +25,7 @@ namespace Tetrifact.Tests.Workspace
 
             // make sure we didn't do something stupid like nuke the entire temp folder, it's 
             // not like I've never done _that_ before
-            Assert.True(Directory.Exists(SettingsHelper.CurrentSettingsContext.TempPath));
+            Assert.True(Directory.Exists(Settings.TempPath));
         }
 
         /// <summary>

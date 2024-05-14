@@ -1,4 +1,5 @@
 ﻿using System;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
@@ -10,17 +11,35 @@ namespace Tetrifact.Tests
     /// </summary>
     public abstract class TestBase : IDisposable
     {
+        private TestContext _testContext;
+        
+        private MoqHelper _moq;
+
+        private PackageHelper _packageHelper;
+
+        protected PackageHelper PackageHelper { get { return _packageHelper; } }
+
+        protected TestContext NinjectHelper { get { return _testContext; } }
+
+        protected MoqHelper MoqHelper { get { return _moq; } }
+
+        protected ISettings Settings { get; private set;}
+
         /// <summary>
         /// This constructor acts as setup method for all tests that inherit from this type
         /// </summary>
         public TestBase()
         {
-            SettingsHelper.SetContext(this.GetType());
+            _testContext = new TestContext();
+            _moq = new MoqHelper(_testContext);
+            _packageHelper = new PackageHelper(_testContext);
+
+            Settings = _testContext.Get<ISettings>();
         }
 
         public void Dispose()
         {
-            TestMemoryCache.DisposeStatic();
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿/*
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Ninject.Activation;
@@ -14,7 +15,7 @@ namespace Tetrifact.Tests
     {
         public static Func<IContext, ISettings> SettingsFactory = new Func<IContext, ISettings>(context =>
         {
-            return SettingsHelper.CurrentSettingsContext;
+            return Settings;
         });
 
         private static ILock _lockInstance;
@@ -93,3 +94,4 @@ namespace Tetrifact.Tests
         }
     }
 }
+*/

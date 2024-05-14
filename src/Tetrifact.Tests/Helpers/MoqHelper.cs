@@ -9,15 +9,22 @@ namespace Tetrifact.Tests
 {
     public class MoqHelper
     {
-        private static MockRepository repo = new MockRepository(MockBehavior.Loose) { CallBase = true };
+        private MockRepository repo = new MockRepository(MockBehavior.Loose) { CallBase = true };
 
-        public static Mock CreateMock(Type typeToMock)
+        private TestContext _context;
+
+        public MoqHelper(TestContext context)
+        {
+            _context = context;
+        }
+
+        public Mock CreateMock(Type typeToMock)
         {
             var creator = typeof(Mock<>).MakeGenericType(typeToMock);
             return (Mock)Activator.CreateInstance(creator);
         }
 
-        public static Mock<T> Mock<T>() where T : class
+        public Mock<T> Mock<T>() where T : class
         {
             var creator = typeof(Mock<>).MakeGenericType(typeof(T));
             return (Mock<T>)Activator.CreateInstance(creator);
@@ -30,7 +37,7 @@ namespace Tetrifact.Tests
         /// <param name="overrid"></param>
         /// <param name="forceMock">Ignores Ninject, creates empty Moq type</param>
         /// <returns></returns>
-        public static IEnumerable<object> ResolveConstuctorArguments(Type t, object overrid, bool forceMoq)
+        public IEnumerable<object> ResolveConstuctorArguments(Type t, object overrid, bool forceMoq)
         {
             return ResolveConstuctorArguments(t, new object[] { overrid }, forceMoq);
         }
@@ -42,7 +49,7 @@ namespace Tetrifact.Tests
         /// <param name="overrides">Constructor arguments to force into instance. If required arg not in this array, a default arg will be assigned.</param>
         /// <param name="forceMock">Ignores Ninject, will create empty Moq type</param>
         /// <returns></returns>
-        public static IEnumerable<object> ResolveConstuctorArguments(Type t, object[] overrides, bool forceMoq)
+        public IEnumerable<object> ResolveConstuctorArguments(Type t, object[] overrides, bool forceMoq)
         {
             if (t.IsInterface)
                 throw new Exception($"Cannot create instance of interface {t.Name} - please use a concrete type instead");
@@ -50,8 +57,6 @@ namespace Tetrifact.Tests
             ConstructorInfo ctor = t.GetConstructors().FirstOrDefault();
             if (ctor == null)
                 throw new Exception($"No constructor found for type {t.Name}.");
-
-            StandardKernel ninjectKernel = NinjectHelper.Kernel();
 
             List<object> args = new List<object>();
             foreach (ParameterInfo constructorParameter in ctor.GetParameters())
@@ -70,7 +75,7 @@ namespace Tetrifact.Tests
                 {
                     // if failed to get argument in override array, try gettin instance from ninject, and ignore errors
                     if (arg == null && !forceMoq)
-                        arg = ninjectKernel.Get(constructorParameter.ParameterType);
+                        arg = _context.Kernel.Get(constructorParameter.ParameterType);
                 }
                 catch (Exception)
                 {
@@ -104,7 +109,7 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T CreateInstanceWithAllMoqed<T>() where T : class 
+        public T CreateInstanceWithAllMoqed<T>() where T : class 
         {
             return repo.Create<T>(ResolveConstuctorArguments(typeof(T), new object[]{ }, true).ToArray()).Object;
         }
@@ -115,17 +120,17 @@ namespace Tetrifact.Tests
         /// <typeparam name="T"></typeparam>
         /// <param name="dependencyMock"></param>
         /// <returns></returns>
-        public static T CreateInstanceWithSingleDependency<T>(object dependency) where T : class
+        public T CreateInstanceWithSingleDependency<T>(object dependency) where T : class
         {
             return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependency, false).ToArray()).Object;
         }
 
-        public static T CreateInstanceWithDependencies<T>(object[] dependencies) where T : class
+        public T CreateInstanceWithDependencies<T>(object[] dependencies) where T : class
         {
             return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependencies, false).ToArray()).Object;
         }
 
-        public static Mock<T> CreateMockWithDependencies<T>(object[] dependencies) where T : class
+        public Mock<T> CreateMockWithDependencies<T>(object[] dependencies) where T : class
         {
             return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependencies, false).ToArray());
         }
@@ -137,7 +142,7 @@ namespace Tetrifact.Tests
         /// <typeparam name="TInterfaceOut"></typeparam>
         /// <param name="dependencies"></param>
         /// <returns></returns>
-        public static Mock<TInterfaceOut> CreateMockWithDependencies<TConcrete, TInterfaceOut>(object[] dependencies) where TConcrete : class where TInterfaceOut : class
+        public Mock<TInterfaceOut> CreateMockWithDependencies<TConcrete, TInterfaceOut>(object[] dependencies) where TConcrete : class where TInterfaceOut : class
         {
             return repo.Create<TConcrete>(ResolveConstuctorArguments(typeof(TConcrete), dependencies, false).ToArray()).As<TInterfaceOut>();
         }

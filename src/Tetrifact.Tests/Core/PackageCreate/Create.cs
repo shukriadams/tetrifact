@@ -55,7 +55,7 @@ namespace Tetrifact.Tests.PackageCreate
             }
 
             // ensure that workspace has been cleaned up
-            Assert.Empty(Directory.GetDirectories(SettingsHelper.CurrentSettingsContext.TempPath));
+            Assert.Empty(Directory.GetDirectories(Settings.TempPath));
         }
 
         [Fact]
@@ -212,8 +212,8 @@ namespace Tetrifact.Tests.PackageCreate
 
             PackageCreateResult result = PackageCreate.Create(postArgs);
             Assert.True(result.Success);
-            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
-            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -241,7 +241,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithAutoArchive()
         {
-            SettingsHelper.CurrentSettingsContext.AutoCreateArchiveOnPackageCreate = true;
+            Settings.AutoCreateArchiveOnPackageCreate = true;
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
@@ -261,7 +261,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDisabled()
         {
-            SettingsHelper.CurrentSettingsContext.AllowPackageCreate = false;
+            Settings.AllowPackageCreate = false;
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
@@ -326,8 +326,8 @@ namespace Tetrifact.Tests.PackageCreate
                 throw new Exception(result.PublicError);
 
             Assert.True(result.Success);
-            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
-            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 

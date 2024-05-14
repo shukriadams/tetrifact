@@ -11,9 +11,16 @@ namespace Tetrifact.Tests
 {
     public class PackageHelper
     {
-        public static IEnumerable<string> GetManifestPaths(ISettings settings, string packageName)
+        TestContext _context;
+
+        public PackageHelper(TestContext context)
         {
-            return new string[]{ Path.Combine(settings.PackagePath, packageName, "manifest.json"), Path.Combine(settings.PackagePath, packageName, "manifest-head.json") };
+            _context = context;
+        }
+
+        public IEnumerable<string> GetManifestPaths(ISettings settings, string packageName)
+        {
+            return new string[] { Path.Combine(settings.PackagePath, packageName, "manifest.json"), Path.Combine(settings.PackagePath, packageName, "manifest-head.json") };
         }
 
         /// <summary>
@@ -21,7 +28,7 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="manifest"></param>
-        public static void WriteManifest(ISettings settings, Manifest manifest)
+        public void WriteManifest(ISettings settings, Manifest manifest)
         {
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, manifest.Id));
             File.WriteAllText(Path.Combine(settings.PackagePath, manifest.Id, "manifest.json"), JsonConvert.SerializeObject(manifest));
@@ -36,29 +43,29 @@ namespace Tetrifact.Tests
         /// Creates a package with custom file content - use this to test complex packages with difference content. Files have fixed paths in package, iterated by position in content array.
         /// </summary>
         /// <returns>New package id</returns>
-        public static string CreateNewPackage(ISettings settings, IEnumerable<string> filesContent)
+        public string CreateNewPackage(ISettings settings, IEnumerable<string> filesContent)
         {
             IFileSystem filesystem = new FileSystem();
             IIndexReadService indexReader = new IndexReadService(
                 settings,
                 new TestMemoryCache(),
-                new Core.TagsService(settings, filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())), 
+                new Core.TagsService(settings, filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())),
                 new TestLogger<IIndexReadService>(),
-                filesystem, 
+                filesystem,
                 HashServiceHelper.Instance(),
-                NinjectHelper.Get<ILock>());
+                _context.Get<ILock>());
 
             IArchiveService archiveService = new Core.ArchiveService(
                 indexReader,
                 new TestMemoryCache(),
-                NinjectHelper.Get<ILock>(),
-                filesystem, 
-                new TestLogger<IArchiveService>(), 
+                _context.Get<ILock>(),
+                filesystem,
+                new TestLogger<IArchiveService>(),
                 settings);
 
             IPackageCreateService PackageCreate = new PackageCreateService(
                 indexReader,
-                NinjectHelper.Get<ILock>(),
+                _context.Get<ILock>(),
                 archiveService,
                 settings,
                 new TestLogger<IPackageCreateService>(),
@@ -90,22 +97,22 @@ namespace Tetrifact.Tests
         /// Generates a single-file package, returns its unique id.
         /// </summary>
         /// <returns></returns>
-        public static TestPackage CreateRandomPackage()
+        public TestPackage CreateRandomPackage()
         {
             return CreateNewPackageFiles(Guid.NewGuid().ToString());
         }
 
-        public static void FakeArchiveOnDisk(TestPackage package)
+        public void FakeArchiveOnDisk(TestPackage package)
         {
-            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
+            Core.ArchiveService archiveService = _context.Get<Core.ArchiveService>();
             string archivePath = archiveService.GetPackageArchivePath(package.Id);
             Directory.CreateDirectory(Path.GetDirectoryName(archivePath));
             File.WriteAllText(archivePath, string.Empty);
         }
 
-        public static void FakeArchiveQueue(TestPackage package)
+        public void FakeArchiveQueue(TestPackage package)
         {
-            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
+            Core.ArchiveService archiveService = _context.Get<Core.ArchiveService>();
             string queuePath = archiveService.GetPackageArchiveQueuePath(package.Id);
             Directory.CreateDirectory(Path.GetDirectoryName(queuePath));
             File.WriteAllText(queuePath, string.Empty);
@@ -117,7 +124,7 @@ namespace Tetrifact.Tests
         /// <param name="settings"></param>
         /// <param name="packageName"></param>
         /// <returns></returns>
-        public static TestPackage CreateNewPackageFiles(string packageName)
+        public TestPackage CreateNewPackageFiles(string packageName)
         {
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
@@ -135,12 +142,11 @@ namespace Tetrifact.Tests
             // calls it to do that. We could use PackageCreate to do this, but as we want to test PackageCreate with this helper
             // we keep this as low-level as possible
 
-            //IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>("settings", settings, "indexReadService", indexReader2); // new PackageCreateWorkspace(settings, indexReader, new FileSystem(), new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
-            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace workspace = _context.Get<IPackageCreateWorkspace>();
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);
-            workspace.WriteManifest(testPackage.Id, HashServiceHelper.Instance().FromString(filePathHash+ testPackage.Hash));
+            workspace.WriteManifest(testPackage.Id, HashServiceHelper.Instance().FromString(filePathHash + testPackage.Hash));
 
             return testPackage;
         }
@@ -149,10 +155,10 @@ namespace Tetrifact.Tests
         /// Creates an in-memory Manifest representation of a package, with random content. Manifest id + paths are random
         /// </summary>
         /// <returns></returns>
-        public static Manifest CreateInMemoryManifest()
-        { 
+        public Manifest CreateInMemoryManifest()
+        {
             string[] files = new string[new Random().Next(10, 20)];
-            for (int i = 0 ; i < files.Length ; i ++)
+            for (int i = 0; i < files.Length; i++)
                 files[i] = Guid.NewGuid().ToString();
 
             return CreateInMemoryManifest(files);
@@ -163,22 +169,24 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="filesContent"></param>
         /// <returns></returns>
-        public static Manifest CreateInMemoryManifest(IEnumerable<string> filesContent)
-        { 
+        public Manifest CreateInMemoryManifest(IEnumerable<string> filesContent)
+        {
             List<ManifestItem> items = new List<ManifestItem>();
 
             foreach (string fileContent in filesContent)
-            { 
+            {
                 string contentHash = HashServiceHelper.Instance().FromString(fileContent);
                 string path = $"{Guid.NewGuid()}/{Guid.NewGuid()}";
-                items.Add(new ManifestItem{ 
+                items.Add(new ManifestItem
+                {
                     Id = Obfuscator.Cloak(path + contentHash),
                     Hash = contentHash,
-                    Path = path 
+                    Path = path
                 });
             }
 
-            Manifest manifest = new Manifest{ 
+            Manifest manifest = new Manifest
+            {
                 Id = Guid.NewGuid().ToString(),
                 CreatedUtc = DateTime.UtcNow,
                 Files = items
@@ -186,6 +194,5 @@ namespace Tetrifact.Tests
 
             return manifest;
         }
-
     }
 }

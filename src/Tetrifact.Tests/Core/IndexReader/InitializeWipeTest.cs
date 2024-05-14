@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.IndexReader
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-            ISettings settings = SettingsHelper.CurrentSettingsContext;
+            ISettings settings = Settings;
             settings.TempPath = Path.Join(testFolder, "Temp");
 
             Directory.CreateDirectory(settings.TempPath);

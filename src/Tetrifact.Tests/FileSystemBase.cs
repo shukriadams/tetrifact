@@ -49,14 +49,14 @@ namespace Tetrifact.Tests
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
             TagService = new Core.TagsService(
-                SettingsHelper.CurrentSettingsContext,
+                Settings,
                 FileSystem,
                 new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
 
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(SettingsHelper.CurrentSettingsContext, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>());
-            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { SettingsHelper.CurrentSettingsContext }); 
+            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>());
+            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { Settings }); 
 
             IndexReader.Initialize();
         }
