@@ -29,17 +29,6 @@ namespace Tetrifact.Tests
         }
 
         /// <summary>
-        /// Creates an instance with entirely default bound contructor types
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Obsolete]
-        public static T Get<T>(Core.ISettings settings)
-        {
-            return Get<T>(new ConstructorArgument[] { }, settings );
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>

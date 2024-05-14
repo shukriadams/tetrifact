@@ -55,7 +55,7 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(SettingsHelper.CurrentSettingsContext, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>(SettingsHelper.CurrentSettingsContext));
+            IndexReader = new IndexReadService(SettingsHelper.CurrentSettingsContext, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<ILock>());
             ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { SettingsHelper.CurrentSettingsContext }); 
 
             IndexReader.Initialize();

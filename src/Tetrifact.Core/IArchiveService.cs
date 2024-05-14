@@ -67,5 +67,7 @@ namespace Tetrifact.Core
         string GetPackageArchivePath(string packageId);
 
         string GetArchiveProgressKey(string packageId);
+
+        string GetPackageArchiveQueuePath(string packageId);
     }
 }

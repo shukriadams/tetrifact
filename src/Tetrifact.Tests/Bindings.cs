@@ -12,14 +12,38 @@ namespace Tetrifact.Tests
 {
     public class Bindings : NinjectModule
     {
+        public static Func<IContext, ISettings> SettingsFactory = new Func<IContext, ISettings>(context =>
+        {
+            return SettingsHelper.CurrentSettingsContext;
+        });
+
+        private static ILock _lockInstance;
+        public static Func<IContext, ILock> ProcessLockFactory = new Func<IContext, ILock>(context =>
+        {
+            if (_lockInstance == null)
+            {
+                ILogger<ILock> log = NinjectHelper.Get<ILogger<ILock>>();
+                _lockInstance = new ProcessLock(log);
+            }
+            
+            return _lockInstance;
+        });
+
+        public static TestLogger<IRepositoryCleanService> RepositoryCleanServiceLog;
+
+        public static Func<IContext, ILogger<IRepositoryCleanService>> RepositoryCleanServiceFactory = new Func<IContext, ILogger<IRepositoryCleanService>>(context =>
+        {
+            if (RepositoryCleanServiceLog == null)
+                RepositoryCleanServiceLog = new TestLogger<IRepositoryCleanService>();
+
+            return RepositoryCleanServiceLog;
+        });
+
+
         public override void Load()
         {
-            var settingsFactory = new Func<IContext, ISettings>(nameOfRobot =>
-            {
-                return SettingsHelper.CurrentSettingsContext;
-            });
 
-            Bind<ISettings>().ToMethod(settingsFactory).InSingletonScope();
+            Bind<ISettings>().ToMethod(SettingsFactory).InSingletonScope();
             Bind<IMemoryCache>().To<TestMemoryCache>();
             Bind<IIndexReadService>().To<IndexReadService>();
             Bind<IRepositoryCleanService>().To<RepositoryCleanService>();
@@ -36,7 +60,7 @@ namespace Tetrifact.Tests
             Bind<IPackagePruneService>().To<PackagePruneService>();
             Bind<IPackageDiffService>().To<PackageDiffService>();
             Bind<IArchiveService>().To<Core.ArchiveService>();
-            Bind<ILock>().To<ProcessLock>().InSingletonScope();
+            Bind<ILock>().ToMethod(ProcessLockFactory).InSingletonScope(); // ordinary singleton binding not working, use factory instead
             Bind<IMetricsService>().To<MetricsService>();
             Bind<ISystemCallsService>().To<SystemCallsService>();
             Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
@@ -58,12 +82,14 @@ namespace Tetrifact.Tests
             Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
             Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
-            Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
+            //Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
             Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
             Bind<ILogger<IPackagePruneService>>().To<TestLogger<IPackagePruneService>>();
             Bind<ILogger<ILock>>().To<TestLogger<ILock>>();
             Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
             Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
+
+            Bind<ILogger<IRepositoryCleanService>>().ToMethod(RepositoryCleanServiceFactory).InSingletonScope();
         }
     }
 }

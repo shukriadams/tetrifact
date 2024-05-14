@@ -1,7 +1,4 @@
-﻿using Moq;
-using System;
-using System.IO;
-using System.Threading;
+﻿using System;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests
@@ -12,16 +9,20 @@ namespace Tetrifact.Tests
     /// 
     /// Utility things that are stateless should be placed in helper function.
     /// </summary>
-    public abstract class TestBase
+    public abstract class TestBase : IDisposable
     {
         /// <summary>
         /// This constructor acts as setup method for all tests that inherit from this type
         /// </summary>
         public TestBase()
         {
-            TestMemoryCache.DisposeStatic();
-          
             SettingsHelper.SetContext(this.GetType());
+        }
+
+        public void Dispose()
+        {
+            TestMemoryCache.DisposeStatic();
+            Bindings.RepositoryCleanServiceLog = new TestLogger<IRepositoryCleanService>();
         }
     }
 }

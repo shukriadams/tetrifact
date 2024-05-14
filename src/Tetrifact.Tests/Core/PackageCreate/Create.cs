@@ -251,7 +251,11 @@ namespace Tetrifact.Tests.PackageCreate
             };
 
             PackageCreate.Create(package);
-            Assert.True(File.Exists(Path.Join(SettingsHelper.CurrentSettingsContext.ArchivePath, "mypackage.zip")));
+            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+        
+            // verify that archiving has been queued, we assume that if this exists, package archiving will be processed later
+            string archiveQueuePath = archiveService.GetPackageArchiveQueuePath("mypackage");
+            Assert.True(File.Exists(archiveQueuePath));
         }
 
         [Fact]
@@ -343,7 +347,7 @@ namespace Tetrifact.Tests.PackageCreate
                     new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
-            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>(SettingsHelper.CurrentSettingsContext);
+            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>();
 
             PackageCreateResult result = _packageService.Create(postArgs);
             Assert.False(result.Success);

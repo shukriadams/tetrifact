@@ -15,7 +15,7 @@ namespace Tetrifact.Tests.Controllers.Archives
         [Fact]
         public void Happy_path()
         {
-            ArchivesController controller = NinjectHelper.Get<ArchivesController>(null);
+            ArchivesController controller = NinjectHelper.Get<ArchivesController>();
             dynamic result = JsonHelper.ToDynamic(controller.GetArchiveStatus("invalid-package"));
             Assert.Null(result.success);
             Assert.NotNull(result.error);

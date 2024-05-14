@@ -46,19 +46,19 @@ namespace Tetrifact.Tests
                 new TestLogger<IIndexReadService>(),
                 filesystem, 
                 HashServiceHelper.Instance(),
-                NinjectHelper.Get<ILock>(settings));
+                NinjectHelper.Get<ILock>());
 
             IArchiveService archiveService = new Core.ArchiveService(
                 indexReader,
                 new TestMemoryCache(),
-                NinjectHelper.Get<ILock>(settings),
+                NinjectHelper.Get<ILock>(),
                 filesystem, 
                 new TestLogger<IArchiveService>(), 
                 settings);
 
             IPackageCreateService PackageCreate = new PackageCreateService(
                 indexReader,
-                NinjectHelper.Get<ILock>(settings),
+                NinjectHelper.Get<ILock>(),
                 archiveService,
                 settings,
                 new TestLogger<IPackageCreateService>(),
@@ -136,7 +136,7 @@ namespace Tetrifact.Tests
             // we keep this as low-level as possible
 
             //IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>("settings", settings, "indexReadService", indexReader2); // new PackageCreateWorkspace(settings, indexReader, new FileSystem(), new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
-            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>(SettingsHelper.CurrentSettingsContext);
+            IPackageCreateWorkspace workspace = NinjectHelper.Get<IPackageCreateWorkspace>();
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);

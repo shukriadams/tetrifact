@@ -18,7 +18,7 @@ namespace Tetrifact.Core
 
         #endregion
 
-        #region METHODS
+        #region CTORS
 
         public ProcessLock(ILogger<ILock> log) 
         {

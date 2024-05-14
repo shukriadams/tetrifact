@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage package2 = PackageHelper.CreateRandomPackage();
             TestPackage package3 = PackageHelper.CreateRandomPackage();
 
-            IPackageListService listService = NinjectHelper.Get<IPackageListService>(SettingsHelper.CurrentSettingsContext);
+            IPackageListService listService = NinjectHelper.Get<IPackageListService>();
             IEnumerable<Package> packages = listService.Get(0, 10);
             
             Assert.Equal(3, packages.Count());
