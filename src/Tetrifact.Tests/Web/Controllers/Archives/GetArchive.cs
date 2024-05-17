@@ -4,6 +4,7 @@ using Moq;
 using Tetrifact.Core;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.IO.Abstractions;
 
 namespace Tetrifact.Tests.Controllers.Archives
 {
@@ -15,12 +16,24 @@ namespace Tetrifact.Tests.Controllers.Archives
         [Fact]
         public void Happy_path()
         {
+            // stub out method so lookup passes
+            Mock<IIndexReadService> indexReaderMock = new Mock<IIndexReadService>();
+            indexReaderMock
+                .Setup(r => r.PackageExists(It.IsAny<string>()))
+                .Returns(true);
+
+            // stub out filesystem lookup so archive appears to exist
+            Mock<IFileSystem> filesystem = new Mock<IFileSystem>();
+            filesystem
+                .Setup(r => r.File.Exists(It.IsAny<string>()))
+                .Returns(true);
+
             Mock<IArchiveService> archiveServiceMock = new Mock<IArchiveService>();
             archiveServiceMock
                 .Setup(r => r.GetPackageAsArchive(It.IsAny<string>()))
                 .Returns(StreamsHelper.StreamFromString("abc"));
 
-            ArchivesController controller = NinjectHelper.Get<ArchivesController>("archiveService", archiveServiceMock.Object);
+            ArchivesController controller = NinjectHelper.Get<ArchivesController>("archiveService", archiveServiceMock.Object, "indexReader", indexReaderMock.Object, "fileSystem", filesystem.Object);
 
             FileStreamResult result = controller.GetArchive("any-package-id") as FileStreamResult;
             Assert.NotNull(result);
@@ -45,14 +58,20 @@ namespace Tetrifact.Tests.Controllers.Archives
         [Fact]
         public void Handle_500()
         {
+            // stub out method so lookup passes
+            Mock<IIndexReadService> indexReaderMock = new Mock<IIndexReadService>();
+            indexReaderMock
+                .Setup(r => r.PackageExists(It.IsAny<string>()))
+                .Returns(true);
+
             Mock<IArchiveService> archiveServiceMock = new Mock<IArchiveService>();
             archiveServiceMock
-                .Setup(r => r.GetPackageAsArchive(It.IsAny<string>()))
+                .Setup(r => r.GetPackageArchivePath(It.IsAny<string>()))
                 .Callback(() => {
                     throw new Exception("123");
                 });
 
-            ArchivesController controller = NinjectHelper.Get<ArchivesController>("archiveService", archiveServiceMock.Object);
+            ArchivesController controller = NinjectHelper.Get<ArchivesController>("archiveService", archiveServiceMock.Object, "indexReader", indexReaderMock.Object);
             BadRequestObjectResult result = controller.GetArchive("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

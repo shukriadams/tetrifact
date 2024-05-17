@@ -17,8 +17,7 @@ namespace Tetrifact.Tests.Controllers.Archives
         {
             ArchivesController controller = NinjectHelper.Get<ArchivesController>();
             dynamic result = JsonHelper.ToDynamic(controller.GetArchiveStatus("invalid-package"));
-            Assert.Null(result.success);
-            Assert.NotNull(result.error);
+            Assert.Equal(result.success.status.State.ToString(), ((int)PackageArchiveCreationStates.Processed_PackageNotFound).ToString());
         }
 
         [Fact]
