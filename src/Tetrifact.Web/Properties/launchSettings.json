@@ -20,7 +20,7 @@
         "ACCESS_TOKENS": "",
         "DAEMON_INTERVAL": "60000",
         "LIST_PAGE_SIZE": "10",
-        "SEVEN_ZIP_BINARY_PATH": "D:\\projects\\tetrifact\\src\\lib\\7za.exe",
+        "SEVEN_ZIP_BINARY_PATH": "",
         "STORAGE_COMPRESSION": "False",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE": "True",
@@ -33,7 +33,7 @@
       "environmentVariables": {
         "Logging__LogLevel__Microsoft": "Error",
         "PRUNE_IGNORE_TAGS": "keep",
-        "SEVEN_ZIP_BINARY_PATH": "D:\\projects\\tetrifact\\src\\lib\\7za.exe",
+        "SEVEN_ZIP_BINARY_PATH": "",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Logging__LogLevel__System": "Debug"
       },

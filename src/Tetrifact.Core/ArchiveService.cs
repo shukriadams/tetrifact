@@ -424,6 +424,10 @@ namespace Tetrifact.Core
                 TimeSpan totalTaken = DateTime.Now - totalStart;
                 _logger.LogInformation($"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds.");
             }
+            catch(Exception ex) 
+            { 
+                _logger.LogError($"Package archive for {packageId} failed unexpectedly with {ex}");
+            }
             finally
             {
                 _lock.Unlock(archivePathTemp);
