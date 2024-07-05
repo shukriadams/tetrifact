@@ -142,15 +142,9 @@ namespace Tetrifact.Core
 
                 // parse date out of file and verify it is not stale
                 Regex dateLookup = new Regex("^##tetrifact:generated:(.*)##");
-                Match dateLookupREsult = dateLookup.Match(metrics);
-                if (dateLookupREsult.Success)
-                {
-                    DateTime date = DateTime.Parse(dateLookupREsult.Groups[1].Value);
-                    if (DateTime.UtcNow - date > new TimeSpan(_settings.MetricsGenerationInterval + 1, 0, 0))
-                        throw new MetricsStaleException($"Metrics stale error - last generation ({date}) is more than an hour later than its expected regeneration time");
-
+                Match dateLookupResult = dateLookup.Match(metrics);
+                if (dateLookupResult.Success)
                     return metrics;
-                }
                 else
                     throw new MetricsStaleException($"Failed to retrieve generation data from existing influx metrics file. File likely corrupt");
 

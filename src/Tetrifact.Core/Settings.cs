@@ -145,7 +145,7 @@ namespace Tetrifact.Core
             this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.PruneCronMask = "0 0 * * *"; // once a day at midnight
-            this.MetricsCronMask = "0 */12 * * *"; // every 12 hours
+            this.MetricsCronMask = "0 3 * * *"; // once a day at 3 am
 
             // try to overrride defaults from environment variables
             this.AllowPackageDelete = this.TryGetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
@@ -182,7 +182,7 @@ namespace Tetrifact.Core
             this.MetricsPath = this.TryGetSetting("METRICS_PATH", this.MetricsPath);
             this.CleanCronMask = this.TryGetSetting("CLEAN_CRON_MASK", this.CleanCronMask);
             this.PruneCronMask = this.TryGetSetting("PRUNE_CRON_MASK", this.PruneCronMask);
-            this.MetricsPath = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsPath);
+            this.MetricsCronMask = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsCronMask);
             this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
             this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
             this.WipeTempOnStart = this.TryGetSetting("WIPE_TEMP_ON_START", this.WipeTempOnStart);
