@@ -144,8 +144,8 @@ namespace Tetrifact.Core
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
-            this.PruneCronMask = "0 0 * * *"; // once a day at midnight
-            this.MetricsCronMask = "0 3 * * *"; // once a day at 3 am
+            this.PruneCronMask = "0 2 * * *"; // once a day at 2 am
+            this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am
 
             // try to overrride defaults from environment variables
             this.AllowPackageDelete = this.TryGetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
