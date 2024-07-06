@@ -18,9 +18,15 @@ namespace Tetrifact.Core
         public static int GetAsInt(string name, int defaultValue)
         {
             string value = Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrEmpty(value))
+            {
+                Console.WriteLine($"Environment variable \"{name}\" not set, falling back to default {defaultValue}");
+                return defaultValue;
+            }
+
             int val;
             if (!int.TryParse(Environment.GetEnvironmentVariable(name), out val)){
-                Console.WriteLine($"Environment variable \"{value}\" expected to be integer, but could not be parsed, falling back to default {defaultValue}");
+                Console.WriteLine($"Environment variable \"{name}\" expected to be integer, but could not be parsed, falling back to default {defaultValue}");
                 return defaultValue;
             }
 
