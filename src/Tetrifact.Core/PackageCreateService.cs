@@ -123,10 +123,21 @@ namespace Tetrifact.Core
 
                 List<string> errors = new List<string>();
 
+                // we want to log some kind of progress here, but without spamming log with every file processed. Create a series of steps,
+                // at which progress will be logged out
+                long count = 0;
+                int stepSize = 1;
+                if (files.Count() > 100)
+                    stepSize = (int)Math.Round((double)files.Count() / 100, 0);
+
                 // write incoming files to repo, get hash of each
                 files.AsParallel().ForAll(delegate(string filePath) {
                     try 
                     {
+                        count ++;
+                        if (count % stepSize == 0)
+                            _log.LogInformation($"Processing file {count}/{files.Count()}, package \"{newPackage.Id}\".");
+
                         if (existingFiles.Contains(filePath))
                         { 
                             FileOnDiskProperties filePropertiesOnDisk = _indexReader.GetRepositoryFileProperties(filePath, hashes[filePath]);
