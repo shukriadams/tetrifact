@@ -234,6 +234,7 @@ namespace Tetrifact.Core
 
                     if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
                     {
+                        _logger.LogInformation($"Gathering file {counter}/{manifest.Files.Count}, package \"{packageId}\".");
                         string key = this.GetArchiveProgressKey(packageId);
                         ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
                         if (progress != null)
@@ -260,11 +261,13 @@ namespace Tetrifact.Core
             if (!_fileSystem.File.Exists(_settings.SevenZipBinaryPath))
                 throw new Exception($"7zip binary not found at specified path \"{_settings.SevenZipBinaryPath}\".");
 
+            _logger.LogInformation($"Invoking 7z archive generation for package \"{packageId}\".");
+
             // -aoa swtich forces overwriting of existing zip file should it exist
             string command = $"{_settings.SevenZipBinaryPath} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
-
             ShellResult result = Shell.Run(command, false, 3600000); // set timeout to 1 hour
             TimeSpan compressTaken = DateTime.Now - compressStart;
+
             if (result.ExitCode == 0)
             {
                 _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
@@ -280,6 +283,8 @@ namespace Tetrifact.Core
         private void ArchiveDefaultMode(string packageId, string archivePathTemp)
         {
             DateTime compressStart = DateTime.Now;
+            
+            _logger.LogInformation($"Starting archive generation for package {packageId}, .Net compression.");
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
