@@ -48,6 +48,7 @@ namespace Tetrifact.Web
         {
             try 
             {
+                _log.LogInformation("Starting clean from controller");
                 CleanResult cleaned = _repositoryCleaner.Clean();
                 _archiveService.PurgeOldArchives();
 

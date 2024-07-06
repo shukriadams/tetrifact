@@ -55,6 +55,7 @@ namespace Tetrifact.Web
         {
             try
             {
+                _log.LogInformation("Starting clean from daemon");
                 _repositoryCleaner.Clean();
             }
             catch (Exception ex)
