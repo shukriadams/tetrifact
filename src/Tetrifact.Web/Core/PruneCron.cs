@@ -31,6 +31,7 @@ namespace Tetrifact.Web
         {
             try
             {
+                _log.LogInformation("Starting prune from daemon");
                 _packagePrune.Prune();
             }
             catch (Exception ex)
