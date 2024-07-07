@@ -131,8 +131,12 @@ namespace Tetrifact.Web
         [HttpGet("diff/{upstreamPackageId}/{downstreamPackageId}")]
         public ActionResult GetPackagesDiff(string upstreamPackageId, string downstreamPackageId)
         {
+            string procId = Guid.NewGuid().ToString();
+
             try
             {
+                _log.LogInformation($"Controller:GetPackagesDiff:proc {procId}.{upstreamPackageId}_{downstreamPackageId}.Start");
+
                 return new JsonResult(new
                 {
                     success = new
@@ -150,6 +154,10 @@ namespace Tetrifact.Web
             {
                 _log.LogError(ex, "An unexpected error occurred.");
                 return Responses.UnexpectedError();
+            }
+            finally 
+            {
+                _log.LogInformation($"Controller:GetPackagesDiff:proc {procId}.{upstreamPackageId}_{downstreamPackageId}.End");
             }
         }
 
@@ -189,8 +197,12 @@ namespace Tetrifact.Web
         [HttpGet("{packageId}/verify")]
         public ActionResult VerifyPackage(string packageId)
         {
+            string procId = Guid.NewGuid().ToString();
+
             try
             {
+                _log.LogInformation($"Controller:VerifyPackage:proc {procId}.{packageId}.Start");
+
                 (bool, string) result = _indexService.VerifyPackage(packageId);
 
                 return new JsonResult(new
@@ -211,6 +223,10 @@ namespace Tetrifact.Web
             {
                 _log.LogError(ex, "An unexpected error occurred.");
                 return Responses.UnexpectedError();
+            }
+            finally 
+            {
+                _log.LogInformation($"Controller:VerifyPackage:proc {procId}.{packageId}.End");
             }
         }
 
@@ -297,10 +313,11 @@ namespace Tetrifact.Web
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
+            string procId = Guid.NewGuid().ToString();
 
             try
             {
-                _log.LogInformation("Package upload request started");
+                _log.LogInformation($"Controller:AddPackage:proc {procId}.{incomingPackage.Id}.Start");
 
                 // check if there is space available
                 DiskUseStats useStats = _indexService.GetDiskUseSats();
@@ -375,7 +392,7 @@ namespace Tetrifact.Web
             }
             finally 
             {
-                _log.LogInformation($"Package request processed. {incomingPackage.Id} took {0} seconds", sw.Elapsed.TotalSeconds);
+                _log.LogInformation($"Controller:VerifyPackage:proc {procId}.{incomingPackage.Id}.End. Took {sw.Elapsed.TotalSeconds} seconds");
             }
         }
 
