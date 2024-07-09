@@ -77,6 +77,7 @@ namespace Tetrifact.Core
             
             // nr of files on disk - nr of files in /repository
             long respositoryFileCount = 0;
+            // WARNING : crashes system on very large repositories
             ShellResult result = _systemCallsService.GetRepoFilesCount();
 
             if (result.ExitCode != 0 || result.StdErr.Count() != 0)

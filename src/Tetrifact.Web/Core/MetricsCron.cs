@@ -35,7 +35,8 @@ namespace Tetrifact.Web
         {
             try
             {
-                _metricsService.Generate();
+                Console.WriteLine("Metrics generation disabled due to stability issues. Rewrite pending.");
+                //_metricsService.Generate();
             }
             catch (FatalException ex)
             {
