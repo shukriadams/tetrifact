@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Cronos;
 
 namespace Tetrifact.Web
@@ -28,7 +27,8 @@ namespace Tetrifact.Web
             _cronExpression = CronExpression.Parse(daemon.CronMask);
             _lastRun = DateTime.UtcNow;
 
-            Task.Run(() => {
+            new Thread(delegate ()
+            {
                 while (_running)
                 {
                     try
@@ -37,7 +37,7 @@ namespace Tetrifact.Web
                             continue;
 
                         DateTime? nextUtc = _cronExpression.GetNextOccurrence(_lastRun);
-                        if (nextUtc > DateTime.UtcNow) 
+                        if (nextUtc > DateTime.UtcNow)
                             continue;
 
                         _busy = true;
@@ -50,7 +50,7 @@ namespace Tetrifact.Web
                         _busy = false;
                     }
                 }
-            });
+            }).Start();
         }
 
         /// <summary>
@@ -61,7 +61,8 @@ namespace Tetrifact.Web
         {
             _lastRun = DateTime.UtcNow;
 
-            Task.Run(() => {
+            new Thread(delegate ()
+            {
                 while (_running)
                 {
                     try
@@ -79,7 +80,7 @@ namespace Tetrifact.Web
                         _busy = false;
                     }
                 }
-            });
+            }).Start();
         }
 
         /// <summary>
