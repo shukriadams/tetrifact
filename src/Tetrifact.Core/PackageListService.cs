@@ -24,7 +24,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IPackageListService> _logger;
+        private readonly ILogger<IPackageListService> _log;
 
         private readonly ITagsService _tagService;
 
@@ -36,12 +36,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageListService(IMemoryCache memoryCache, ISettings settings, IHashService hashService, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> logger)
+        public PackageListService(IMemoryCache memoryCache, ISettings settings, IHashService hashService, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> log)
         {
             _cache = memoryCache;
             _settings = settings;
             _tagService = tagService;
-            _logger = logger;
+            _log = log;
             _fileSystem = fileSystem;
             _hashService = hashService;
         }
@@ -184,7 +184,7 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Unexpected error trying to reading manifest @ {packageDirectory}");
+                    _log.LogError(ex, $"Unexpected error trying to reading manifest @ {packageDirectory}");
                 }
             }
 

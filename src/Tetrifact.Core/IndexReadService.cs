@@ -17,7 +17,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IIndexReadService> _logger;
+        private readonly ILogger<IIndexReadService> _log;
 
         private readonly ITagsService _tagService;
 
@@ -33,11 +33,11 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> logger, IFileSystem fileSystem, IHashService hashService, ILock lockInstance)
+        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService, ILock lockInstance)
         {
             _settings = settings;
             _tagService = tagService;
-            _logger = logger;
+            _log = log;
             _cache = cache;
             _fileSystem = fileSystem;
             _hashService = hashService;
@@ -59,12 +59,12 @@ namespace Tetrifact.Core
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning($"Error attemtping to purge TempPath on app start, ignoring. {ex}");
+                        _log.LogWarning($"Error attemtping to purge TempPath on app start, ignoring. {ex}");
                     }
             }
             else
             {
-                _logger.LogInformation("Temp dir wipe disabled, skipping");
+                _log.LogInformation("Temp dir wipe disabled, skipping");
             }
 
             // force purge archive queue
@@ -74,7 +74,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogWarning($"Error attemtping to purge ArchiveQueuePath on app start, ignoring. {ex}");
+                _log.LogWarning($"Error attemtping to purge ArchiveQueuePath on app start, ignoring. {ex}");
             }
 
             // force recreate all again
@@ -204,7 +204,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.");
+                _log.LogError(ex, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.");
                 return null;
             }
         }
@@ -294,7 +294,7 @@ namespace Tetrifact.Core
                 {
                     if (_lock.IsLocked(archivePath))
                     {
-                        _logger.LogWarning($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass.");
+                        _log.LogWarning($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass.");
                     }
                     else
                     {
@@ -304,7 +304,7 @@ namespace Tetrifact.Core
                 catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _logger.LogError($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _log.LogError($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
 
@@ -319,7 +319,7 @@ namespace Tetrifact.Core
                 catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _logger.LogWarning($"Failed to delete tag {tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _log.LogWarning($"Failed to delete tag {tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
         }
@@ -361,7 +361,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // give exception more context, AsParallel should pass exception back up to waiting parenting thread
-                    _logger.LogError($"Error looking up existing repo file {repositoryPathDir} {file} {ex}");
+                    _log.LogError($"Error looking up existing repo file {repositoryPathDir} {file} {ex}");
                     errors = true;
                 }
             });

@@ -14,14 +14,14 @@ namespace Tetrifact.Core
         private readonly ISettings _settings;
         private readonly IFileSystem _fileSystem;
         private readonly IIndexReadService _indexReader;
-        private readonly ILogger<IPackageDiffService> _logger;
+        private readonly ILogger<IPackageDiffService> _log;
 
-        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, ILogger<IPackageDiffService> logger)
+        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, ILogger<IPackageDiffService> log)
         {
             _settings = settings;
             _fileSystem = filesystem;
             _indexReader = indexReader;
-            _logger = logger;
+            _log = log;
         }
 
         public PackageDiff GetDifference (string upstreamPackageId, string downstreamPackageId)
@@ -110,7 +110,7 @@ namespace Tetrifact.Core
                     Difference = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
                 };
 
-                _logger.LogInformation($"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
+                _log.LogInformation($"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
 
                 try
                 {

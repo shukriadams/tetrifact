@@ -97,13 +97,8 @@ namespace Tetrifact.Web
                     return Redirect($"/package/{packageId}");
                 }
 
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
-
-                sw.Stop();
-                _log.LogInformation($"Archive generation for package {packageId} took {0} seconds", sw.Elapsed.TotalSeconds);
+                _log.LogInformation($"served archived for package \"{packageId}\".");
 
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
             }

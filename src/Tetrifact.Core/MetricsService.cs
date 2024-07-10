@@ -16,7 +16,7 @@ namespace Tetrifact.Core
 
         private ISettings _settings;
 
-        private ILogger<IMetricsService> _logger;
+        private ILogger<IMetricsService> _log;
 
         private ISystemCallsService _systemCallsService;
 
@@ -24,11 +24,11 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public MetricsService(ISystemCallsService systemCallsService, ISettings settings, ILogger<IMetricsService> logger) 
+        public MetricsService(ISystemCallsService systemCallsService, ISettings settings, ILogger<IMetricsService> log) 
         {
             _settings = settings;
             _systemCallsService = systemCallsService;
-            _logger = logger;
+            _log = log;
         }
 
         #endregion
@@ -51,7 +51,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // if we reach here, last_run is corrupt, force delete
-                    _logger.LogError($"last_run for metrics generation is corrupt, attempting hard wipe of file {ex}");
+                    _log.LogError($"last_run for metrics generation is corrupt, attempting hard wipe of file {ex}");
 
                     try 
                     {
@@ -82,13 +82,13 @@ namespace Tetrifact.Core
 
             if (result.ExitCode != 0 || result.StdErr.Count() != 0)
             {
-                _logger.LogError($"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+                _log.LogError($"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
             }
             else 
             {
                 string incomingFileCount = string.Join("", result.StdOut);
                 if (!long.TryParse(incomingFileCount, out respositoryFileCount))
-                    _logger.LogError($"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
+                    _log.LogError($"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
             }
 
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
@@ -99,7 +99,7 @@ namespace Tetrifact.Core
 
             if (result.ExitCode != 0 || result.StdErr.Count() != 0)
             {
-                _logger.LogError($"Repo file size failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+                _log.LogError($"Repo file size failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
             }
             else 
             {
@@ -110,11 +110,11 @@ namespace Tetrifact.Core
                 {
                     string bytesRaw = bytesLookupResult.Groups[1].Value;
                     if (!long.TryParse(bytesRaw, out respositoryFileSize))
-                        _logger.LogError($"Repo file size failed : could not parse {bytesRaw} to long.");
+                        _log.LogError($"Repo file size failed : could not parse {bytesRaw} to long.");
                 } 
                 else 
                 {
-                    _logger.LogError($"Repo file size failed, could not parse bytes from stdOut \"{stdOut}\"");
+                    _log.LogError($"Repo file size failed, could not parse bytes from stdOut \"{stdOut}\"");
                 }
             }
 
@@ -125,7 +125,7 @@ namespace Tetrifact.Core
             File.WriteAllText(Path.Join(_settings.MetricsPath, "influx"), s.ToString());
             File.WriteAllText(lastRunPath, DateTime.UtcNow.ToString());
 
-            _logger.LogInformation("Generated metrics");
+            _log.LogInformation("Generated metrics");
         }
 
         public string GetInfluxMetrics() 
@@ -155,7 +155,7 @@ namespace Tetrifact.Core
                 if (ex is MetricsStaleException)
                     throw ex;
 
-                _logger.LogError($"Unexpected error on influx metrics get {ex}");
+                _log.LogError($"Unexpected error on influx metrics get {ex}");
                 throw new MetricsStaleException("An unexpected error occurred attempting to retrieve influx metrics. See logs for details.");
             }
         }

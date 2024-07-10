@@ -13,7 +13,7 @@ namespace Tetrifact.Core
 
         IIndexReadService _indexReader;
 
-        ILogger<IPackagePruneService> _logger;
+        ILogger<IPackagePruneService> _log;
 
         ITimeProvideer _timeprovider;
 
@@ -23,11 +23,11 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackagePruneService(ISettings settings, ILock processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> logger)
+        public PackagePruneService(ISettings settings, ILock processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;
-            _logger = logger;
+            _log = log;
             _timeprovider = timeprovider;
             _processLock = processLock;
         }
@@ -55,35 +55,35 @@ namespace Tetrifact.Core
         {
             if (!_settings.Prune)
             {
-                _logger.LogInformation("Prune exited on start, disabled.");
+                _log.LogInformation("Prune exited on start, disabled.");
                 return;
             }
 
             if (_processLock.IsAnyLocked())
             {
-                _logger.LogInformation("Prune exited on start, locks detected.");
+                _log.LogInformation("Prune exited on start, locks detected.");
                 return;
             }
 
             PruneReport report = this.Report();
 
             foreach(string line in report.Report)
-               _logger.LogInformation(line);
+               _log.LogInformation(line);
 
             foreach (string packageId in report.PackageIds)
             {
                 try
                 {
                     if (_settings.DEBUG_block_prune_deletes)
-                        _logger.LogInformation($"Would have pruned package {packageId} (DEBUG_block_prune_deletes enabled)");
+                        _log.LogInformation($"Would have pruned package {packageId} (DEBUG_block_prune_deletes enabled)");
                     else {
                         _indexReader.DeletePackage(packageId);
-                        _logger.LogInformation($"Pruned package {packageId}");
+                        _log.LogInformation($"Pruned package {packageId}");
                     }
                 } 
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Prune failed for package {packageId} {ex}");
+                    _log.LogError($"Prune failed for package {packageId} {ex}");
                 }
             }
         }
@@ -127,7 +127,7 @@ namespace Tetrifact.Core
 
                 if (manifest == null)
                 {
-                    _logger.LogWarning($"Expected manifest for package {packageId} was not found, skipping.");
+                    _log.LogWarning($"Expected manifest for package {packageId} was not found, skipping.");
                     continue;
                 }
 

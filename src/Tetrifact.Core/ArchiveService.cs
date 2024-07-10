@@ -18,7 +18,7 @@ namespace Tetrifact.Core
 
         private readonly IIndexReadService _indexReader;
 
-        private readonly ILogger<IArchiveService> _logger;
+        private readonly ILogger<IArchiveService> _log;
 
         private readonly IFileSystem _fileSystem;
 
@@ -30,13 +30,13 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, ILock lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> logger, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, ILock lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
         {
             _settings = settings;
             _cache = cache;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
-            _logger = logger;
+            _log = log;
             _lock = lockInstance;
         }
 
@@ -66,7 +66,7 @@ namespace Tetrifact.Core
 
         public virtual void QueueArchiveCreation(string packageId)
         {
-            // do not queu  if archive already exists
+            // do not queue if archive already exists
             string archivePath = this.GetPackageArchivePath(packageId);
             if (_fileSystem.File.Exists(archivePath))
                 return;
@@ -98,7 +98,8 @@ namespace Tetrifact.Core
                 QueuedUtc = queueInfo.QueuedUtc,
             };
 
-            _cache.Set(this.GetArchiveProgressKey(packageId), progress);
+            _cache.Set(this.GetArchiveProgressKey(packageId), progress, new DateTimeOffset(DateTime.UtcNow.AddYears(1))); // don't let progress expire
+            _log.LogInformation($"Queued archive creation for package \"{packageId}\".");
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -160,7 +161,7 @@ namespace Tetrifact.Core
                 if (_lock.IsLocked(file.FullName))
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
-                    _logger.LogWarning($"Failed to purge archive {file}, assuming in use. Will attempt delete on next pass.");
+                    _log.LogWarning($"Failed to purge archive {file}, assuming in use. Will attempt delete on next pass.");
                     continue;
                 }
 
@@ -170,7 +171,7 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Failed to purge archive {file}, assuming in use. Will attempt delete on next pass. {ex}");
+                    _log.LogWarning($"Failed to purge archive {file}, assuming in use. Will attempt delete on next pass. {ex}");
                 }
             }
         }
@@ -188,7 +189,7 @@ namespace Tetrifact.Core
             // copy all files to single Direct
             if (!Directory.Exists(tempDir2))
             {
-                _logger.LogInformation($"Archive generation : gathering files for package {packageId}");
+                _log.LogInformation($"Archive generation : gathering files for package {packageId}");
                 Directory.CreateDirectory(tempDir1);
                 long cacheUpdateIncrements = manifest.Files.Count / 100;
                 long counter = 0;
@@ -234,7 +235,7 @@ namespace Tetrifact.Core
 
                     if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
                     {
-                        _logger.LogInformation($"Gathering file {counter}/{manifest.Files.Count}, package \"{packageId}\".");
+                        _log.LogInformation($"Gathering file {counter}/{manifest.Files.Count}, package \"{packageId}\".");
                         string key = this.GetArchiveProgressKey(packageId);
                         ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
                         if (progress != null)
@@ -248,7 +249,7 @@ namespace Tetrifact.Core
                 Directory.Move(tempDir1, tempDir2);
             }
 
-            _logger.LogInformation($"Archive generation : building archive for  package {packageId}");
+            _log.LogInformation($"Archive generation : building archive for  package {packageId}");
 
             // force delete temp file if it already exists, this can sometimes fail and we want an exception to be thrown to block 7zip being called.
             // if 7zip encounted
@@ -261,7 +262,7 @@ namespace Tetrifact.Core
             if (!_fileSystem.File.Exists(_settings.SevenZipBinaryPath))
                 throw new Exception($"7zip binary not found at specified path \"{_settings.SevenZipBinaryPath}\".");
 
-            _logger.LogInformation($"Invoking 7z archive generation for package \"{packageId}\".");
+            _log.LogInformation($"Invoking 7z archive generation for package \"{packageId}\".");
 
             // -aoa swtich forces overwriting of existing zip file should it exist
             string command = $"{_settings.SevenZipBinaryPath} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
@@ -270,13 +271,13 @@ namespace Tetrifact.Core
 
             if (result.ExitCode == 0)
             {
-                _logger.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+                _log.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
                 if (result.StdErr.Any())
-                    _logger.LogError($"Archive comression with 7zip succeeded, but with errors. Took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
+                    _log.LogError($"Archive comression with 7zip succeeded, but with errors. Took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
             }
             else
             {
-                _logger.LogError($"Archive comression with 7zip failed, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
+                _log.LogError($"Archive comression with 7zip failed, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
             }
         }
 
@@ -284,7 +285,7 @@ namespace Tetrifact.Core
         {
             DateTime compressStart = DateTime.Now;
             
-            _logger.LogInformation($"Starting archive generation for package {packageId}, .Net compression.");
+            _log.LogInformation($"Starting archive generation for package {packageId}, .Net compression.");
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
@@ -323,14 +324,14 @@ namespace Tetrifact.Core
                                     fileStream.CopyTo(zipEntryStream);
                             }
 
-                            _logger.LogDebug($"Added file {file.Path} to archive");
+                            _log.LogDebug($"Added file {file.Path} to archive");
                         }
                     }
                 }
             }
 
             TimeSpan compressTaken = DateTime.Now - compressStart;
-            _logger.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+            _log.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
         public void CreateNextQueuedArchive() 
@@ -341,6 +342,7 @@ namespace Tetrifact.Core
 
             foreach (string queuedFile in _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath))
             {
+                _log.LogInformation($"Processing archive generation for \"{queuedFile}\".");
                 string queueFileContent = string.Empty;
                 try
                 {
@@ -349,14 +351,14 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
+                    _log.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
                     try
                     {
                         _fileSystem.File.Delete(queuedFile);
                     }
                     catch (Exception ex2)
                     {
-                        _logger.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
+                        _log.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
                     }
                     continue;
                 }
@@ -365,7 +367,7 @@ namespace Tetrifact.Core
                 progress = _cache.Get<ArchiveProgressInfo>(progressKey);
                 if (progress == null)
                 {
-                    _logger.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
+                    _log.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
                     continue;
                 }
 
@@ -413,7 +415,7 @@ namespace Tetrifact.Core
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
             if (_lock.IsLocked(archivePathTemp))
             {
-                _logger.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
+                _log.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
                 return;
             }
 
@@ -427,11 +429,11 @@ namespace Tetrifact.Core
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);
                 TimeSpan totalTaken = DateTime.Now - totalStart;
-                _logger.LogInformation($"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds.");
+                _log.LogInformation($"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds.");
             }
             catch(Exception ex) 
             { 
-                _logger.LogError($"Package archive for {packageId} failed unexpectedly with {ex}");
+                _log.LogError($"Package archive for {packageId} failed unexpectedly with {ex}");
             }
             finally
             {
@@ -458,14 +460,14 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
+                    _log.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
                     try
                     {
                         _fileSystem.File.Delete(queuedFile);
                     }
                     catch (Exception ex2)
                     {
-                        _logger.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
+                        _log.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
                     }
                     continue;
                 }
@@ -474,7 +476,7 @@ namespace Tetrifact.Core
                 progress = _cache.Get<ArchiveProgressInfo>(progressKey);
                 if (progress == null)
                 {
-                    _logger.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
+                    _log.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
                     continue;
                 }
 

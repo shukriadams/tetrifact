@@ -193,7 +193,6 @@ namespace Tetrifact.Web
             Console.WriteLine($"Zip method: {(string.IsNullOrEmpty(settings.SevenZipBinaryPath) ? "ZipArchive (slow, set SevenZipBinaryPath to enable 7zip)" : "7Zip (faster, multithreaded)")}");
 
             Console.WriteLine("*********************************************************************");
-
         }
     }
 }
