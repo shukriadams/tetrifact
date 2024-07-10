@@ -1,4 +1,6 @@
 ﻿
+using System.Threading.Tasks;
+
 namespace Tetrifact.Web
 {
     /// <summary>
@@ -15,6 +17,6 @@ namespace Tetrifact.Web
     
         public abstract void Start();
 
-        public abstract void Work();
+        public abstract Task Work();
     }
 }

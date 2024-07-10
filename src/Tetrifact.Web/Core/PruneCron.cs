@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -12,11 +13,11 @@ namespace Tetrifact.Web
 
         private readonly IDaemon _daemonrunner;
 
+        private readonly Settings _settings;
+
         public PruneCron(IPackagePruneService packagePrune, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
-            Settings settings = new Settings();
-            this.CronMask = settings.PruneCronMask;
-
+            _settings = new Settings();
             _log = log;
             _packagePrune = packagePrune;
             _daemonrunner = daemonrunner;
@@ -24,10 +25,10 @@ namespace Tetrifact.Web
 
         public override void Start() 
         {
-            _daemonrunner.Start(this);
-        }        
+            _daemonrunner.Start(_settings.PruneCronMask, new DaemonWorkMethod(this.Work));
+        }
 
-        public override void Work()
+        public override async Task Work()
         {
             try
             {

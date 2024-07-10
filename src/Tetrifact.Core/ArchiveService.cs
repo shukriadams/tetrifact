@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -106,7 +107,7 @@ namespace Tetrifact.Core
         {
             string archivePath = this.GetPackageArchivePath(packageId);
 
-            // trigger archive creation
+            // this method assume archive exists. throw error if it doesn't but this also means UI checking for archive existence has failed.
             if (!_fileSystem.File.Exists(archivePath))
                 throw new ArchiveNotFoundException();
 
@@ -176,7 +177,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private void Archive7Zip(string packageId, string archivePathTemp)
+        private async Task Archive7Zip(string packageId, string archivePathTemp)
         {
             // create staging directory
             string tempDir1 = Path.Join(_settings.TempPath, $"__repack_{packageId}");
@@ -194,7 +195,7 @@ namespace Tetrifact.Core
                 long cacheUpdateIncrements = manifest.Files.Count / 100;
                 long counter = 0;
 
-                manifest.Files.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(delegate (ManifestItem file)
+                manifest.Files.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(async delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
                     List<string> knownDirectories = new List<string>();
@@ -209,7 +210,7 @@ namespace Tetrifact.Core
                             ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
                             using (var storageArchiveStream = storageArchiveEntry.Open())
                             using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                                StreamsHelper.Copy(storageArchiveStream, writeStream, bufSize);
+                                await StreamsHelper.CopyAsync(storageArchiveStream, writeStream, bufSize);
                         }
                     }
                     else
@@ -228,7 +229,7 @@ namespace Tetrifact.Core
                         // is this the fastest way of copying? benchmark
                         using (Stream fileStream = fileLookup.Content)
                         using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                            StreamsHelper.Copy(fileStream, writeStream, bufSize);
+                            await StreamsHelper.CopyAsync(fileStream, writeStream, bufSize);
                     }
 
                     counter ++;
@@ -281,7 +282,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private void ArchiveDefaultMode(string packageId, string archivePathTemp)
+        private async Task ArchiveDefaultMode(string packageId, string archivePathTemp)
         {
             DateTime compressStart = DateTime.Now;
             
@@ -311,7 +312,7 @@ namespace Tetrifact.Core
                                 {
                                     ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
                                     using (var storageArchiveStream = storageArchiveEntry.Open())
-                                        storageArchiveStream.CopyTo(zipEntryStream);
+                                        await storageArchiveStream.CopyToAsync(zipEntryStream);
                                 }
                             }
                             else
@@ -321,7 +322,7 @@ namespace Tetrifact.Core
                                     throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
                                 using (Stream fileStream = fileLookup.Content)
-                                    fileStream.CopyTo(zipEntryStream);
+                                    await fileStream.CopyToAsync(zipEntryStream);
                             }
 
                             _log.LogDebug($"Added file {file.Path} to archive");
@@ -334,7 +335,7 @@ namespace Tetrifact.Core
             _log.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
-        public void CreateNextQueuedArchive() 
+        public async Task CreateNextQueuedArchive() 
         {
             ArchiveQueueInfo archiveQueueInfo = null;
             string progressKey = null;
@@ -389,13 +390,13 @@ namespace Tetrifact.Core
             progress.StartedUtc = DateTime.UtcNow;
             _cache.Set(progressKey, progress);
 
-            this.CreateArchive(archiveQueueInfo.PackageId);
+            await this.CreateArchive(archiveQueueInfo.PackageId);
 
             progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
             _cache.Set(progressKey, progress);
         }
 
-        public void CreateArchive(string packageId)
+        public async Task CreateArchive(string packageId)
         {
             if (!_indexReader.PackageExists(packageId))
                 throw new PackageNotFoundException(packageId);
@@ -422,9 +423,9 @@ namespace Tetrifact.Core
             try
             {
                 if (string.IsNullOrEmpty(_settings.SevenZipBinaryPath))
-                    ArchiveDefaultMode(packageId, archivePathTemp);
+                    await ArchiveDefaultMode(packageId, archivePathTemp);
                 else
-                    Archive7Zip(packageId, archivePathTemp);
+                    await Archive7Zip(packageId, archivePathTemp);
 
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);

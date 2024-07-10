@@ -4,9 +4,9 @@ namespace Tetrifact.Web
 {
     public interface IDaemon : IDisposable
     {
-        void Start(Cron Daemon);
-
         void Start(int interval, DaemonWorkMethod work);
+
+        void Start(string cronmask, DaemonWorkMethod work);
 
         new void Dispose();
     }

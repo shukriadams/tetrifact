@@ -1,4 +1,6 @@
-﻿namespace Tetrifact.Web
+﻿using System.Threading.Tasks;
+
+namespace Tetrifact.Web
 {
-    public delegate void DaemonWorkMethod();
+    public delegate Task DaemonWorkMethod();
 }

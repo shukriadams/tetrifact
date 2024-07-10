@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -15,11 +16,11 @@ namespace Tetrifact.Web
         
         private readonly IDaemon _daemonrunner;
 
+        private readonly Settings _settings;
+
         public MetricsCron(IMetricsService metricsService, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
         {
-            Settings settings = new Settings();
-            this.CronMask = settings.MetricsCronMask;
-
+            _settings = new Settings();
             _log = log;
             _metricsService = metricsService;
             _applicationLifetime = applicationLifetime;
@@ -28,15 +29,14 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _daemonrunner.Start(this);
+            _daemonrunner.Start(_settings.MetricsCronMask, new DaemonWorkMethod(this.Work));
         }
 
-        public override void Work()
+        public override async Task Work()
         {
             try
             {
-                Console.WriteLine("Metrics generation disabled due to stability issues. Rewrite pending.");
-                //_metricsService.Generate();
+                _metricsService.Generate();
             }
             catch (FatalException ex)
             {

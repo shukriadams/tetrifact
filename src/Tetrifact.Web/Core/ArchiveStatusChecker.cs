@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -50,13 +51,14 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
+            // set time up to 5 secs, suspect this daemon is causing thread starvation
+            _daemonrunner.Start(5000, new DaemonWorkMethod(this.Work));
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public override void Work()
+        public override async Task Work()
         {
             // process flags in series, as we assume disk cannot handle more than one archive at a time
             string[] queueFiles = _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath);
@@ -77,7 +79,7 @@ namespace Tetrifact.Web
                 string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
                 ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressKey);
 
-                // this daemon is for measuring archive progression only, ignore all other states
+                // this daemon is for measuring archive progression only, ignore all non-generating states
                 if (progress == null || progress.State != PackageArchiveCreationStates.ArchiveGenerating)
                     continue;
 
@@ -91,6 +93,7 @@ namespace Tetrifact.Web
                     long length;
                     try
                     {
+                        // suspicion that this call is expensive
                         tempArchiveFileInfo = new FileInfo(archiveTempPath);
                         length = tempArchiveFileInfo.Length;
                     }
@@ -101,7 +104,6 @@ namespace Tetrifact.Web
                         continue;
                     }
 
-
                     if (progress.ProjectedSize != 0)
                         compressionPercentDone = 100 * ((decimal)length / (decimal)progress.ProjectedSize);
                 }
@@ -111,7 +113,6 @@ namespace Tetrifact.Web
 
                 _cache.Set(progressKey, progress);
             }
-            // 
         }
 
         #endregion

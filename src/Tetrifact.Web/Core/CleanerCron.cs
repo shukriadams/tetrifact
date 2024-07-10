@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -45,13 +46,13 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _daemonrunner.Start(this);
+            _daemonrunner.Start(_settings.CleanCronMask, new DaemonWorkMethod(this.Work));
         }
 
         /// <summary>
         /// Daemon's main work method
         /// </summary>
-        public override void Work()
+        public override async Task Work()
         {
             try
             {
@@ -80,6 +81,7 @@ namespace Tetrifact.Web
             {
                 _log.LogError($"Daemon Purge archives error {ex}");
             }
+
         }
 
         #endregion

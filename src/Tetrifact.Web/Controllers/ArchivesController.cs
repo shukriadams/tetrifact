@@ -97,8 +97,8 @@ namespace Tetrifact.Web
                     return Redirect($"/package/{packageId}");
                 }
 
+                _log.LogInformation($"Serving archive for package \"{packageId}\".");
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
-                _log.LogInformation($"served archived for package \"{packageId}\".");
 
                 return File(archiveStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
             }

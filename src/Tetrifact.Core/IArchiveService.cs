@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 
 namespace Tetrifact.Core
 {
@@ -9,12 +10,12 @@ namespace Tetrifact.Core
         /// Normally it will be called from CreateNextQueuedArchive().
         /// </summary>
         /// <param name="packageId"></param>
-        void CreateArchive(string packageId);
+        Task CreateArchive(string packageId);
 
         /// <summary>
         /// Generates the next archive in queue. Synchronous process, exits when archive generation is complete. Archive is removed from queue on exit.
         /// </summary>
-        void CreateNextQueuedArchive();
+        Task CreateNextQueuedArchive();
 
         void CleanupNextQueuedArchive();
 

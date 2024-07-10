@@ -13,21 +13,48 @@ namespace Tetrifact.Web
         
         private bool _busy;
 
-        private DateTime _lastRun;
-
         private CronExpression _cronExpression;
+
+        private DateTime _lastRun;
 
         public Daemon()
         {
             _running = true;
         }
 
-        public void Start(Cron daemon)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="interval">milliseconds</param>
+        public void Start(int interval, DaemonWorkMethod work)
         {
-            _cronExpression = CronExpression.Parse(daemon.CronMask);
+            new Thread(async delegate ()
+            {
+                while (_running)
+                {
+                    try
+                    {
+                        if (_busy)
+                            continue;
+
+                        _busy = true;
+                        await work();
+                    }
+                    finally
+                    {
+                        Thread.Sleep(interval);
+                        _busy = false;
+                    }
+                }
+            }).Start();
+        }
+
+        public void Start(string  cronmask, DaemonWorkMethod work)
+        {
+            _cronExpression = CronExpression.Parse(cronmask);
             _lastRun = DateTime.UtcNow;
 
-            new Thread(delegate ()
+            new Thread(async delegate ()
             {
                 while (_running)
                 {
@@ -42,42 +69,12 @@ namespace Tetrifact.Web
 
                         _busy = true;
                         _lastRun = DateTime.UtcNow;
-                        daemon.Work();
+                        await work();
                     }
                     finally
                     {
-                        Thread.Sleep(1000);
                         _busy = false;
-                    }
-                }
-            }).Start();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="interval">milliseconds</param>
-        public void Start(int interval, DaemonWorkMethod work)
-        {
-            _lastRun = DateTime.UtcNow;
-
-            new Thread(delegate ()
-            {
-                while (_running)
-                {
-                    try
-                    {
-                        if (_busy)
-                            continue;
-
-                        _busy = true;
-                        _lastRun = DateTime.UtcNow;
-                        work();
-                    }
-                    finally
-                    {
-                        Thread.Sleep(interval);
-                        _busy = false;
+                        Thread.Sleep(60000); // recheck cron tick every minute, no need to check more frequently given minute resolution of cronmask
                     }
                 }
             }).Start();

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -47,9 +48,9 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        public override void Work()
+        public override async Task Work()
         {
-            _archiveService.CreateNextQueuedArchive();
+            await _archiveService.CreateNextQueuedArchive();
         }
 
         #endregion

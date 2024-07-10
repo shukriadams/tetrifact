@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using System.IO.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -9,15 +8,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ISettings _settings;
-
-        private readonly ILogger<ArchiveGenerateCleanup> _log;
-
         private readonly IDaemon _daemonrunner;
-
-        private readonly IFileSystem _fileSystem;
-
-        private readonly IMemoryCache _cache;
 
         private readonly IArchiveService _archiveService;
 
@@ -25,14 +16,10 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public ArchiveGenerateCleanup(IDaemon daemonrunner, IArchiveService archiveService, IMemoryCache cache, IFileSystem fileSystem, ILogger<ArchiveGenerateCleanup> log)
+        public ArchiveGenerateCleanup(IDaemon daemonrunner, IArchiveService archiveService, ILogger<ArchiveGenerateCleanup> log)
         {
-            _settings = new Settings();
-            _fileSystem = fileSystem;
-            _cache = cache;
             _daemonrunner = daemonrunner;
             _archiveService = archiveService;
-            _log = log;
         }
 
         #endregion
@@ -47,7 +34,7 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        public override void Work()
+        public override async Task Work()
         {
             _archiveService.CleanupNextQueuedArchive();
         }
