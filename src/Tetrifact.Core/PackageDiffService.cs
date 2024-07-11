@@ -30,6 +30,9 @@ namespace Tetrifact.Core
 
             PackageDiff diff = null;
 
+            if (upstreamPackageId == downstreamPackageId)
+                throw new InvalidDiffComparison($"Cannot compare package {upstreamPackageId} to itself");
+
             if (_fileSystem.File.Exists(diffFilePath))
             {
                 string json = null;
@@ -106,7 +109,8 @@ namespace Tetrifact.Core
                 {
                     // todo : lock file system to prevent conurrent writes
                     _fileSystem.Directory.CreateDirectory(Path.GetDirectoryName(diffFilePath));
-                    _fileSystem.File.WriteAllText(diffFilePath, JsonConvert.SerializeObject(diff));
+                    if (!_fileSystem.File.Exists(diffFilePath))
+                        _fileSystem.File.WriteAllText(diffFilePath, JsonConvert.SerializeObject(diff));
                 }
                 catch(Exception ex)
                 { 

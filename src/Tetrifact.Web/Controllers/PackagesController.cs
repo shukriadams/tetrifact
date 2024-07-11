@@ -145,6 +145,11 @@ namespace Tetrifact.Web
                     }
                 });
             }
+            catch (InvalidDiffComparison ex)
+            {
+                _log.LogInformation($"{ex}");
+                return Responses.UnexpectedError($"Invalid comparison {ex.Message}.");
+            }
             catch (PackageNotFoundException ex)
             {
                 _log.LogInformation($"{ex}");
