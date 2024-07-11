@@ -26,7 +26,7 @@ COPY ./.artefacts/. /var/tetrifact
 USER tetrifact
 
 # set Tetrifact default log level
-ENV LOGGING__LOGLEVEL__DEFAULT=Warning
+ENV LOGGING__LOGLEVEL__DEFAULT=Information
 ENV Logging__LogLevel__Microsoft=Warning
 ENV SEVEN_ZIP_BINARY_PATH=/usr/lib/p7zip/7z
 
