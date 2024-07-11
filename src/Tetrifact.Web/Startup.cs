@@ -155,19 +155,10 @@ namespace Tetrifact.Web
             ISettings settings = serviceProvider.GetService<ISettings>();
             loggerFactory.AddFile(settings.LogPath);
 
-            // initialize indexes
-            IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
-            foreach (IIndexReadService indexReader in indexReaders)
-                indexReader.Initialize();
-
-            // start daemons after index initialization
-            IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
-            foreach (ICron cron in crons)
-                cron.Start();
-
             Console.WriteLine("*********************************************************************");
             Console.WriteLine("TETRIFACT : server starting");
             Console.WriteLine("");
+
             Console.WriteLine("Settings:");
             Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
             Console.WriteLine($"Archive CPU Threads: {settings.ArchiveCPUThreads}");
@@ -191,6 +182,17 @@ namespace Tetrifact.Web
             Console.WriteLine($"Tags path: {settings.TagsPath}");
             Console.WriteLine($"Temp path: {settings.TempPath}");
             Console.WriteLine($"Zip method: {(string.IsNullOrEmpty(settings.SevenZipBinaryPath) ? "ZipArchive (slow, set SevenZipBinaryPath to enable 7zip)" : "7Zip (faster, multithreaded)")}");
+
+            Console.WriteLine("Initializing indices");
+            IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
+            foreach (IIndexReadService indexReader in indexReaders)
+                indexReader.Initialize();
+
+            // start daemons after index initialization
+            Console.WriteLine("Initializing daemons");
+            IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
+            foreach (ICron cron in crons)
+                cron.Start();
 
             Console.WriteLine("*********************************************************************");
         }

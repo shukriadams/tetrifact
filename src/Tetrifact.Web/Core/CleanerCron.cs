@@ -46,7 +46,13 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _daemonrunner.Start(_settings.CleanCronMask, new DaemonWorkMethod(this.Work));
+            if (string.IsNullOrEmpty(_settings.CleanCronMask))
+                _log.LogInformation("Clean mask empty, cleaner daemon disabled.");
+            else
+            {
+                _log.LogInformation("Starting cleaner daemon");
+                _daemonrunner.Start(_settings.CleanCronMask, new DaemonWorkMethod(this.Work));
+            }
         }
 
         /// <summary>

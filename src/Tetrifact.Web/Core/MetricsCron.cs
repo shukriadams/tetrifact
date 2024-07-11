@@ -29,7 +29,13 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _daemonrunner.Start(_settings.MetricsCronMask, new DaemonWorkMethod(this.Work));
+            if (string.IsNullOrEmpty(_settings.MetricsCronMask))
+                _log.LogInformation("Metrics mask empty, metrics daemon disabled.");
+            else
+            {
+                _log.LogInformation("Starting metrics daemon");
+                _daemonrunner.Start(_settings.MetricsCronMask, new DaemonWorkMethod(this.Work));
+            }
         }
 
         public override async Task Work()

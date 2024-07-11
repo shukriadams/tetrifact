@@ -25,7 +25,13 @@ namespace Tetrifact.Web
 
         public override void Start() 
         {
-            _daemonrunner.Start(_settings.PruneCronMask, new DaemonWorkMethod(this.Work));
+            if (string.IsNullOrEmpty(_settings.PruneCronMask))
+                _log.LogInformation("Prune mask empty, prune daemon disabled.");
+            else
+            {
+                _log.LogInformation("Starting prune daemon");
+                _daemonrunner.Start(_settings.PruneCronMask, new DaemonWorkMethod(this.Work));
+            }
         }
 
         public override async Task Work()
