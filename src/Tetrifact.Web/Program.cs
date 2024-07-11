@@ -12,7 +12,11 @@ namespace Tetrifact.Web
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("*********************************************************************");
+            Console.WriteLine("TETRIFACT : server starting");
+            Console.WriteLine("");
             CreateWebHostBuilder(args).Build().Run();
+
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
@@ -43,6 +47,7 @@ namespace Tetrifact.Web
 
             if (!isIIS)
             {
+                Console.WriteLine("Loading Kestrel");
                 builder.UseKestrel(options =>
                 {
                     options.Listen(IPAddress.Any, port, listenOptions =>

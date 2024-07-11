@@ -30,6 +30,8 @@ namespace Tetrifact.Web
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+            Console.WriteLine("Configuring services");
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -110,6 +112,7 @@ namespace Tetrifact.Web
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -140,6 +143,9 @@ namespace Tetrifact.Web
                 }
             });
 
+            Console.WriteLine("Registering internals.");
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -154,10 +160,6 @@ namespace Tetrifact.Web
 
             ISettings settings = serviceProvider.GetService<ISettings>();
             loggerFactory.AddFile(settings.LogPath);
-
-            Console.WriteLine("*********************************************************************");
-            Console.WriteLine("TETRIFACT : server starting");
-            Console.WriteLine("");
 
             Console.WriteLine("Settings:");
             Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
@@ -194,7 +196,9 @@ namespace Tetrifact.Web
             foreach (ICron cron in crons)
                 cron.Start();
 
+            Console.WriteLine("Server start complete.");
             Console.WriteLine("*********************************************************************");
+
         }
     }
 }
