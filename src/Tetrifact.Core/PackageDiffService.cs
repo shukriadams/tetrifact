@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,15 @@ namespace Tetrifact.Core
         private readonly IFileSystem _fileSystem;
         private readonly IIndexReadService _indexReader;
         private readonly ILogger<IPackageDiffService> _log;
+        private readonly IMemoryCache _cache;
 
-        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, ILogger<IPackageDiffService> log)
+        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, IMemoryCache cache, ILogger<IPackageDiffService> log)
         {
             _settings = settings;
             _fileSystem = filesystem;
             _indexReader = indexReader;
             _log = log;
+            _cache = cache;
         }
 
         public PackageDiff GetDifference (string upstreamPackageId, string downstreamPackageId)
@@ -30,12 +33,33 @@ namespace Tetrifact.Core
 
             PackageDiff diff = null;
 
+            // check if another process is busy with this diff
+            string cacheKey = $"{upstreamPackageId}_diffkey__{downstreamPackageId}";
+
+            DateTime startWait = DateTime.Now;
+            int timeoutseconds = 1000 * 60 * 10; // 10 minutes
+            bool alertDefer = true;
+            while (_cache.Get(cacheKey) != null)
+            {
+                if (alertDefer)
+                {
+                    _log.LogInformation($"Diff already in progress for {cacheKey}, waiting until done");
+                    alertDefer = false;
+                }
+
+                if ((DateTime.Now - startWait).TotalSeconds > timeoutseconds)
+                    throw new TimeoutException($"Took more than {timeoutseconds} seconds to wait for diff key {cacheKey}.");
+
+                Thread.Sleep(1000);
+            } 
+
             if (upstreamPackageId == downstreamPackageId)
                 throw new InvalidDiffComparison($"Cannot compare package {upstreamPackageId} to itself");
 
             if (_fileSystem.File.Exists(diffFilePath))
             {
                 string json = null;
+
                 try 
                 {
                     json = _fileSystem.File.ReadAllText(diffFilePath);
@@ -48,75 +72,85 @@ namespace Tetrifact.Core
                 diff = JsonConvert.DeserializeObject<PackageDiff>(json);
             }
             else
-            { 
-                _log.LogInformation($"Generating diff between \"{upstreamPackageId}\" and \"{downstreamPackageId}\".");
-
-                Manifest downstreamPackage = _indexReader.GetExpectedManifest(downstreamPackageId);
-                Manifest upstreamPackage = _indexReader.GetExpectedManifest(upstreamPackageId);
-
-                List<ManifestItem> diffs = new List<ManifestItem>();
-                List<ManifestItem> common = new List<ManifestItem>();
-
-                DateTime start = DateTime.UtcNow;
-
-                int nrOfThreads = _settings.WorkerThreadCount;
-                int[] threadsCounterArray = new int[] { _settings.WorkerThreadCount };
-                for (int i = 0 ; i < threadsCounterArray.Length ; i ++)
-                    threadsCounterArray[i] = i;
-
-                int threadCap = nrOfThreads;
-                int blockSize = downstreamPackage.Files.Count / nrOfThreads;
-                if (downstreamPackage.Files.Count % nrOfThreads != 0)
-                    blockSize ++;
-
-                // break downstream manifest's files into blocks, process each block on its own thread, look for matches against upstream manifest
-                threadsCounterArray.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(async delegate (int thread)
+            {
+                try 
                 {
-                    int startIndex = thread * blockSize;
+                    _cache.Set(cacheKey, new object());
 
-                    for (int i = 0; i < blockSize; i++)
+                    _log.LogInformation($"Generating diff between \"{upstreamPackageId}\" and \"{downstreamPackageId}\".");
+
+                    Manifest downstreamPackage = _indexReader.GetExpectedManifest(downstreamPackageId);
+                    Manifest upstreamPackage = _indexReader.GetExpectedManifest(upstreamPackageId);
+
+                    List<ManifestItem> diffs = new List<ManifestItem>();
+                    List<ManifestItem> common = new List<ManifestItem>();
+
+                    DateTime start = DateTime.UtcNow;
+
+                    int nrOfThreads = _settings.WorkerThreadCount;
+                    int[] threadsCounterArray = new int[] { _settings.WorkerThreadCount };
+                    for (int i = 0; i < threadsCounterArray.Length; i++)
+                        threadsCounterArray[i] = i;
+
+                    int threadCap = nrOfThreads;
+                    int blockSize = downstreamPackage.Files.Count / nrOfThreads;
+                    if (downstreamPackage.Files.Count % nrOfThreads != 0)
+                        blockSize++;
+
+                    // break downstream manifest's files into blocks, process each block on its own thread, look for matches against upstream manifest
+                    threadsCounterArray.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(async delegate (int thread)
                     {
-                        if (i + startIndex >= downstreamPackage.Files.Count)
-                            break;
+                        int startIndex = thread * blockSize;
 
-                        ManifestItem bItem = downstreamPackage.Files[i + startIndex];
+                        for (int i = 0; i < blockSize; i++)
+                        {
+                            if (i + startIndex >= downstreamPackage.Files.Count)
+                                break;
 
-                        if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
-                        {
-                            lock (common)
-                                common.Add(bItem);
+                            ManifestItem bItem = downstreamPackage.Files[i + startIndex];
+
+                            if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
+                            {
+                                lock (common)
+                                    common.Add(bItem);
+                            }
+                            else
+                            {
+                                lock (diffs)
+                                    diffs.Add(bItem);
+                            }
                         }
-                        else
-                        {
-                            lock (diffs)
-                                diffs.Add(bItem);
-                        }
+                    });
+
+                    diff = new PackageDiff
+                    {
+                        GeneratedOnUTC = DateTime.UtcNow,
+                        Common = common,
+                        UpstreamPackageId = upstreamPackageId,
+                        DownstreamPackageId = downstreamPackageId,
+                        Difference = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
+                    };
+
+                    _log.LogInformation($"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
+
+                    try
+                    {
+                        // todo : lock file system to prevent conurrent writes
+                        _fileSystem.Directory.CreateDirectory(Path.GetDirectoryName(diffFilePath));
+                        if (!_fileSystem.File.Exists(diffFilePath))
+                            _fileSystem.File.WriteAllText(diffFilePath, JsonConvert.SerializeObject(diff));
                     }
-                });
-
-                diff = new PackageDiff
-                {
-                    GeneratedOnUTC = DateTime.UtcNow,
-                    Common = common,
-                    UpstreamPackageId = upstreamPackageId,
-                    DownstreamPackageId = downstreamPackageId,
-                    Difference = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
-                };
-
-                _log.LogInformation($"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
-
-                try
-                {
-                    // todo : lock file system to prevent conurrent writes
-                    _fileSystem.Directory.CreateDirectory(Path.GetDirectoryName(diffFilePath));
-                    if (!_fileSystem.File.Exists(diffFilePath))
-                        _fileSystem.File.WriteAllText(diffFilePath, JsonConvert.SerializeObject(diff));
+                    catch (Exception ex)
+                    {
+                        // add context then rethrow
+                        throw new Exception($"Unexpected error writing diff between packages {upstreamPackageId} and {downstreamPackageId}", ex);
+                    }
                 }
-                catch(Exception ex)
-                { 
-                    // add context then rethrow
-                    throw new Exception($"Unexpected error writing diff between packages {upstreamPackageId} and {downstreamPackageId}", ex);
+                finally
+                {
+                    _cache.Remove(cacheKey);
                 }
+
             }
 
             return diff;
