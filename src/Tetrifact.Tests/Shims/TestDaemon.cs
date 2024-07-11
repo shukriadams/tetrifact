@@ -9,7 +9,7 @@ namespace Tetrifact.Tests
             
         }
 
-        public void Start(Cron Daemon)
+        public void Start(string cronmask, DaemonWorkMethod Daemon)
         {
             
         }
