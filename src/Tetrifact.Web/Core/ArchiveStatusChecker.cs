@@ -52,6 +52,7 @@ namespace Tetrifact.Web
         public override void Start()
         {
             // set time up to 5 secs, suspect this daemon is causing thread starvation
+            _log.LogInformation("Starting archive statuc checker daemon");
             _daemonrunner.Start(5000, new DaemonWorkMethod(this.Work));
         }
 

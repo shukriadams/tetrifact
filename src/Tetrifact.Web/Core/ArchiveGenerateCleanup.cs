@@ -12,6 +12,8 @@ namespace Tetrifact.Web
 
         private readonly IArchiveService _archiveService;
 
+        ILogger<ArchiveGenerateCleanup> _log;
+
         #endregion
 
         #region CTORS
@@ -20,6 +22,7 @@ namespace Tetrifact.Web
         {
             _daemonrunner = daemonrunner;
             _archiveService = archiveService;
+            _log = log;
         }
 
         #endregion
@@ -28,6 +31,7 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
+            _log.LogInformation("Starting archive generating cleanup daemon");
             _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
         }
 

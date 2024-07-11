@@ -42,6 +42,7 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
+            _log.LogInformation("Starting archive generating daemon");
             _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
         }
 
