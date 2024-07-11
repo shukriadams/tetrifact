@@ -46,6 +46,8 @@ namespace Tetrifact.Core
             }
             else
             { 
+                _log.LogInformation($"Generating diff between \"{upstreamPackageId}\" and \"{downstreamPackageId}\".");
+
                 Manifest downstreamPackage = _indexReader.GetExpectedManifest(downstreamPackageId);
                 Manifest upstreamPackage = _indexReader.GetExpectedManifest(upstreamPackageId);
 
@@ -55,51 +57,39 @@ namespace Tetrifact.Core
                 DateTime start = DateTime.UtcNow;
 
                 int nrOfThreads = _settings.WorkerThreadCount;
+                int[] threadsCounterArray = new int[] { _settings.WorkerThreadCount };
+                for (int i = 0 ; i < threadsCounterArray.Length ; i ++)
+                    threadsCounterArray[i] = i;
+
                 int threadCap = nrOfThreads;
                 int blockSize = downstreamPackage.Files.Count / nrOfThreads;
                 if (downstreamPackage.Files.Count % nrOfThreads != 0)
                     blockSize ++;
 
-                ManualResetEvent resetEvent = new ManualResetEvent(false);
-
-                for (int thread = 0; thread < nrOfThreads; thread ++)
+                // break downstream manifest's files into blocks, process each block on its own thread, look for matches against upstream manifest
+                threadsCounterArray.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(async delegate (int thread)
                 {
-                    new Thread(delegate (object th)
+                    int startIndex = thread * blockSize;
+
+                    for (int i = 0; i < blockSize; i++)
                     {
-                        try
+                        if (i + startIndex >= downstreamPackage.Files.Count)
+                            break;
+
+                        ManifestItem bItem = downstreamPackage.Files[i + startIndex];
+
+                        if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
                         {
-                            int thread = (int)th;
-                            int startIndex = thread * blockSize;
-
-                            for (int i = 0; i < blockSize; i++)
-                            {
-                                if (i + startIndex >= downstreamPackage.Files.Count)
-                                    break;
-
-                                ManifestItem bItem = downstreamPackage.Files[i + startIndex];
-
-                                if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
-                                {
-                                    lock (common)
-                                        common.Add(bItem);
-                                }
-                                else 
-                                { 
-                                    lock (diffs)
-                                        diffs.Add(bItem);
-                                }
-                            }
+                            lock (common)
+                                common.Add(bItem);
                         }
-                        finally
+                        else
                         {
-                            if (Interlocked.Decrement(ref threadCap) == 0)
-                                resetEvent.Set();
+                            lock (diffs)
+                                diffs.Add(bItem);
                         }
-                    }).Start(thread);
-                }
-
-                // Wait for threads to finish
-                resetEvent.WaitOne();
+                    }
+                });
 
                 diff = new PackageDiff
                 {
