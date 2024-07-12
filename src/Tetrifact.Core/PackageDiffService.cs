@@ -87,38 +87,17 @@ namespace Tetrifact.Core
 
                     DateTime start = DateTime.UtcNow;
 
-                    int nrOfThreads = _settings.WorkerThreadCount;
-                    int[] threadsCounterArray = new int[] { _settings.WorkerThreadCount };
-                    for (int i = 0; i < threadsCounterArray.Length; i++)
-                        threadsCounterArray[i] = i;
-
-                    int threadCap = nrOfThreads;
-                    int blockSize = downstreamPackage.Files.Count / nrOfThreads;
-                    if (downstreamPackage.Files.Count % nrOfThreads != 0)
-                        blockSize++;
-
-                    // break downstream manifest's files into blocks, process each block on its own thread, look for matches against upstream manifest
-                    threadsCounterArray.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(async delegate (int thread)
+                    downstreamPackage.Files.AsParallel().WithDegreeOfParallelism(_settings.WorkerThreadCount).ForAll(async delegate (ManifestItem bItem)
                     {
-                        int startIndex = thread * blockSize;
-
-                        for (int i = 0; i < blockSize; i++)
+                        if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
                         {
-                            if (i + startIndex >= downstreamPackage.Files.Count)
-                                break;
-
-                            ManifestItem bItem = downstreamPackage.Files[i + startIndex];
-
-                            if (upstreamPackage.Files.Any(r => r.Hash.Equals(bItem.Hash)))
-                            {
-                                lock (common)
-                                    common.Add(bItem);
-                            }
-                            else
-                            {
-                                lock (diffs)
-                                    diffs.Add(bItem);
-                            }
+                            lock (common)
+                                common.Add(bItem);
+                        }
+                        else
+                        {
+                            lock (diffs)
+                                diffs.Add(bItem);
                         }
                     });
 
