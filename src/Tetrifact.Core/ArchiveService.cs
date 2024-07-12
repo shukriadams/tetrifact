@@ -62,7 +62,7 @@ namespace Tetrifact.Core
 
         public string GetPackageArchiveTempPath(string packageId)
         {
-            return Path.Combine(_settings.ArchivePath, $"{packageId}.zip.tmp");
+            return Path.Combine(_settings.TempPath, $"{packageId}.zip.tmp");
         }
 
         public virtual void QueueArchiveCreation(string packageId)
