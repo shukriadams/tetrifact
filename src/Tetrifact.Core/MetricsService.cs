@@ -95,6 +95,8 @@ namespace Tetrifact.Core
 
 
             long respositoryFileSize = 0;
+            /*       
+             *       disabled, extremely slow on systems with a lot of files
             result = _systemCallsService.GetRepoFilesSize();
 
             if (result.ExitCode != 0 || result.StdErr.Count() != 0)
@@ -117,7 +119,7 @@ namespace Tetrifact.Core
                     _log.LogError($"Repo file size failed, could not parse bytes from stdOut \"{stdOut}\"");
                 }
             }
-
+            */
             s.AppendLine($"tetrifact repository_files_size={respositoryFileSize}u");
 
 
