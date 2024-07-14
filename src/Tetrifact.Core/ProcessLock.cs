@@ -36,6 +36,17 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
+        /// gets locks of given category
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public IEnumerable<ProcessLockItem> GetCurrent(ProcessLockCategories category)
+        {
+            lock (_items)
+                return _items.Where(i => i.Value.Category == category).Select(v => v.Value.Clone());
+        }
+
+        /// <summary>
         /// Returns true if any package is locked.
         /// </summary>
         /// <returns></returns>

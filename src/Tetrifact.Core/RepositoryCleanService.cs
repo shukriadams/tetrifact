@@ -72,13 +72,19 @@ namespace Tetrifact.Core
                 // get a list of existing packages at time of calling. It is vital that new packages not be created
                 // while clean running, they will be cleaned up as they are not on this list
                 _existingPackageIds = _indexReader.GetAllPackageIds();
-                if (EnsureNoLock(false)) 
-                    return new CleanResult{
-                        Description = "Package locks found, clean exited before start"
+                if (EnsureNoLock(false))
+                {
+                    IEnumerable<ProcessLockItem> locks = _lock.GetCurrent(ProcessLockCategories.Package_Create);
+                    return new CleanResult
+                    {
+                        Description = $"Package locks found, clean exited before start : ({string.Join(",", locks)})"
                     };
 
+                }
+
                 _lock.Lock(ProcessLockCategories.CleanRepository, processUID);
-                _log.LogInformation($"CLEANUP started, existing packages : {string.Join(",", _existingPackageIds)}.");
+                _log.LogInformation($"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
+
                 this.LockPasses = 0;
                 this.Clean_Internal(_settings.RepositoryPath, false);
 

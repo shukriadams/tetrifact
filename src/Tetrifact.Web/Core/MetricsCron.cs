@@ -52,7 +52,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError($"Daemon metrics generate error {ex}");
+                _log.LogError($"Daemon metrics generated error {ex}");
             }
         }
     }

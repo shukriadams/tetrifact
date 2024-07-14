@@ -7,6 +7,8 @@ namespace Tetrifact.Core
     {
         IEnumerable<ProcessLockItem> GetCurrent();
 
+        IEnumerable<ProcessLockItem> GetCurrent(ProcessLockCategories category);
+
         bool IsAnyLocked(ProcessLockCategories category);
 
         bool IsAnyLocked();
