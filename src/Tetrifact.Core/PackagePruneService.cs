@@ -17,13 +17,13 @@ namespace Tetrifact.Core
 
         ITimeProvideer _timeprovider;
 
-        ILock _processLock;
+        IProcessLockManager _processLock;
 
         #endregion
 
         #region CTORS
 
-        public PackagePruneService(ISettings settings, ILock processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> log)
+        public PackagePruneService(ISettings settings, IProcessLockManager processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;

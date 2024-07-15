@@ -8,14 +8,14 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void DefaultState()
         {
-            ILock processLock = NinjectHelper.Get<ILock>();
+            IProcessLockManager processLock = NinjectHelper.Get<IProcessLockManager>();
             Assert.False(processLock.IsAnyLocked());
         }
 
         [Fact]
         public void AnyPackageLocksAll()
         {
-            ILock processLock = NinjectHelper.Get<ILock>();
+            IProcessLockManager processLock = NinjectHelper.Get<IProcessLockManager>();
             processLock.Lock(ProcessLockCategories.Package_Create, "some package");
             Assert.True(processLock.IsAnyLocked());
         }
@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void IsNamedLocked()
         {
-            ILock processLock = NinjectHelper.Get<ILock>();
+            IProcessLockManager processLock = NinjectHelper.Get<IProcessLockManager>();
             processLock.Lock(ProcessLockCategories.Package_Create, "some package");
             Assert.True(processLock.IsLocked("some package"));
         }
@@ -31,7 +31,7 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void Unlock()
         {
-            ILock processLock = NinjectHelper.Get<ILock>();
+            IProcessLockManager processLock = NinjectHelper.Get<IProcessLockManager>();
             processLock.Lock(ProcessLockCategories.Package_Create, "some package");
             processLock.Unlock("some package");
             Assert.False(processLock.IsAnyLocked());
@@ -40,7 +40,7 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void OverlappingLocks()
         {
-            ILock processLock = NinjectHelper.Get<ILock>();
+            IProcessLockManager processLock = NinjectHelper.Get<IProcessLockManager>();
             processLock.Lock(ProcessLockCategories.Package_Create, "some package");
             processLock.Lock(ProcessLockCategories.Package_Create, "another package");
             processLock.Unlock("some package");
@@ -50,7 +50,7 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void OverlappingUnlocks()
         {
-            ILock processLock = NinjectHelper.Get<ILock>();
+            IProcessLockManager processLock = NinjectHelper.Get<IProcessLockManager>();
             processLock.Lock(ProcessLockCategories.Package_Create, "some package");
             processLock.Lock(ProcessLockCategories.Package_Create, "another package");
             processLock.Unlock("another package");

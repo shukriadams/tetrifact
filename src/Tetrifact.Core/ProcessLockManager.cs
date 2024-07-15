@@ -8,19 +8,19 @@ namespace Tetrifact.Core
     /// <summary>
     /// Used to lock linking globally - this is required for a short period when an incoming package is flipped public.
     /// </summary>
-    public class ProcessLock : ILock
+    public class ProcessLockManager : IProcessLockManager
     {
         #region FIELDS
 
         private readonly Dictionary<string, ProcessLockItem> _items = new Dictionary<string, ProcessLockItem>();
 
-        private readonly ILogger<ILock> _log;
+        private readonly ILogger<IProcessLockManager> _log;
 
         #endregion
 
         #region CTORS
 
-        public ProcessLock(ILogger<ILock> log) 
+        public ProcessLockManager(ILogger<IProcessLockManager> log) 
         {
             _log = log;
         }

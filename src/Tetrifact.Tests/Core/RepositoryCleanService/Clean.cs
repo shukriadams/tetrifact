@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public Clean()
         {
             // clean tests require all locks released - do this BEFORE constructing repocleaner
-            ILock lockInstance = NinjectHelper.Get<ILock>();
+            IProcessLockManager lockInstance = NinjectHelper.Get<IProcessLockManager>();
             lockInstance.Clear();
             _respositoryCleaner = new RepositoryCleanService(this.IndexReader, new TestMemoryCache(), lockInstance, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
@@ -187,7 +187,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<ILock>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<IProcessLockManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
             respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -206,7 +206,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<ILock>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), NinjectHelper.Get<IProcessLockManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();
@@ -221,7 +221,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void EnsureNoLock_Coverage()
         {
-            ILock lockInstance = NinjectHelper.Get<ILock>();
+            IProcessLockManager lockInstance = NinjectHelper.Get<IProcessLockManager>();
             IRepositoryCleanService repoCleaner = NinjectHelper.Get<IRepositoryCleanService>();
 
             lockInstance.Lock(ProcessLockCategories.Package_Create, "some-package");

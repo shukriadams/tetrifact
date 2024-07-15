@@ -22,7 +22,7 @@ namespace Tetrifact.Core
         
         private readonly IFile _fileFilesystem;
 
-        private readonly ILock _lock;
+        private readonly IProcessLockManager _lock;
     
         private IList<string> _cleaned = new List<string>();
 
@@ -46,7 +46,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, ILock lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
