@@ -76,7 +76,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(id, new ProcessLockItem { Id = id, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {id}");
+                _log.LogInformation($"Created lock, category {category}, id {id}, no lifespan limit.");
             }
         }
 
@@ -88,7 +88,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(id, new ProcessLockItem{ Id = id, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {id}, forced lifespan {timespan}");
+                _log.LogInformation($"Created lock, category {category}, id {id}, forced lifespan {timespan}.");
             }
         }
 
@@ -100,7 +100,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Remove(id);
-                _log.LogInformation($"Cleared lock id {id}");
+                _log.LogInformation($"Cleared lock id {id}.");
             }
         }
 
@@ -108,8 +108,15 @@ namespace Tetrifact.Core
         { 
             lock(_items)
             {
-                _items.Clear();
-                _log.LogInformation($"Force cleared all locks");
+                if (_items.Any()) 
+                {
+                    _log.LogInformation($"Force clearing {_items.Count} lock(s) : {string.Join(",", _items)}.");
+                    _items.Clear();
+                }
+                else 
+                { 
+                    _log.LogInformation("Force clearing, no locks found.");
+                }
             }
         }
 
@@ -127,7 +134,7 @@ namespace Tetrifact.Core
                     continue;
 
                 _items.Remove(key);
-                _log.LogInformation($"Lock id {key} timed out");
+                _log.LogInformation($"Lock id {key} timed out.");
             }
         }
 

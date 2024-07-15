@@ -28,5 +28,10 @@ namespace Tetrifact.Core
         { 
             return this.MemberwiseClone() as ProcessLockItem;
         }
+
+        public override string ToString()
+        {
+            return $"{{{this.GetType().Name} Id:{Id}, Category:{Category}, AddedUtc:{AddedUTC}, MaxLifespace:{MaxLifespan} }}";
+        }
     }
 }
