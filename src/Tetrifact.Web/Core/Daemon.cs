@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Cronos;
+using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Web
 {
@@ -17,8 +18,11 @@ namespace Tetrifact.Web
 
         private DateTime _lastRun;
 
-        public Daemon()
+        private ILogger<Daemon> _log;
+
+        public Daemon(ILogger<Daemon> log)
         {
+            _log = log;
             _running = true;
         }
 
@@ -40,6 +44,10 @@ namespace Tetrifact.Web
                         _busy = true;
                         await work();
                     }
+                    catch(Exception ex)
+                    { 
+                        _log.LogError(ex, $"Unhandled daemon exception from {work.Method.DeclaringType.Name}");
+                    }
                     finally
                     {
                         Thread.Sleep(interval);
@@ -49,7 +57,7 @@ namespace Tetrifact.Web
             }).Start();
         }
 
-        public void Start(string  cronmask, DaemonWorkMethod work)
+        public void Start(string cronmask, DaemonWorkMethod work)
         {
             _cronExpression = CronExpression.Parse(cronmask);
             _lastRun = DateTime.UtcNow;
@@ -70,6 +78,10 @@ namespace Tetrifact.Web
                         _busy = true;
                         _lastRun = DateTime.UtcNow;
                         await work();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogError(ex, $"Unhandled daemon exception from {work.Method.DeclaringType.Name}");
                     }
                     finally
                     {
