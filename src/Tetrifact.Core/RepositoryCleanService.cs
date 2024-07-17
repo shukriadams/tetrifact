@@ -102,13 +102,14 @@ namespace Tetrifact.Core
                 if (ex.Message.StartsWith("System currently locked"))
                 {
                     _log.LogInformation("Clean aborted, lock detected");
+                    IEnumerable<ProcessLockItem> locks = _lock.GetCurrent(ProcessLockCategories.Package_Create);
                     return new CleanResult{
                         Cleaned = _cleaned, 
                         Failed = _failed, 
                         DirectoriesScanned = _directoriesScanned, 
                         FilesScanned = _filesScanned, 
                         PackagesInSystem = _existingPackageIds.Count(),
-                        Description = "Clean aborted, locked detected"
+                        Description = $"Clean aborted, locked detected : ({string.Join(",", locks)}"
                     };
                 }
                 else
