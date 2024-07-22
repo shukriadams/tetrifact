@@ -59,7 +59,7 @@ namespace Tetrifact.Core
                 return;
             }
 
-            if (_processLock.IsAnyLocked())
+            if (_processLock.IsAnyLocked(ProcessLockCategories.Package_Create))
             {
                 IEnumerable<ProcessLockItem> locks = _processLock.GetCurrent();
                 _log.LogInformation($"Prune exited on start, locks detected  : ({string.Join(", ", locks)}).");
