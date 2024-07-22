@@ -23,7 +23,7 @@ namespace Tetrifact.Core
 
         private readonly IArchiveService _archiveService;
 
-        private readonly ILock _lock;
+        private readonly IProcessLockManager _lock;
 
         private readonly IFileSystem _filesystem;
 
@@ -31,7 +31,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateService(IIndexReadService indexReader, ILock lockInstance, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService, IFileSystem filesystem)
+        public PackageCreateService(IIndexReadService indexReader, IProcessLockManager lockInstance, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService, IFileSystem filesystem)
         {
             _indexReader = indexReader;
             _log = log;
@@ -39,7 +39,6 @@ namespace Tetrifact.Core
             _archiveService = archiveService;
             _workspace = workspace;
             _settings = settings;
-            
             _hashService = hashService;
             _lock = lockInstance;
         }
@@ -58,6 +57,8 @@ namespace Tetrifact.Core
 
             try
             {
+                DateTime started = DateTime.Now;
+
                 _log.LogInformation("Package create started");
 
                 if (!_settings.AllowPackageCreate)
@@ -180,8 +181,6 @@ namespace Tetrifact.Core
 
                 _workspace.Manifest.Description = newPackage.Description;
 
-                _log.LogInformation($"Writing package manifest for package {newPackage.Id}");
-
                 // calculate package hash from child hashes
                 _workspace.WriteManifest(newPackage.Id, _hashService.FromString(string.Join(string.Empty, hashes.Values)));
 
@@ -191,6 +190,8 @@ namespace Tetrifact.Core
                     _log.LogInformation($"Generating package archive for package {newPackage.Id}");
                     _archiveService.QueueArchiveCreation(newPackage.Id);
                 }
+
+                _log.LogInformation($"Package {newPackage.Id} created, took {(DateTime.Now - started).TotalSeconds} seconds.");
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }

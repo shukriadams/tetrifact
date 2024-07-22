@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Tetrifact.Core
 {
     /// <summary>
-    /// Collection of objects with properties for supporting of paging through a collection of objects
+    /// Collection of objects with properties to suppor paging. 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [Serializable]
@@ -13,17 +13,17 @@ namespace Tetrifact.Core
         #region PROPERTIES
 
         /// <summary>
-        /// Page of objects on current page
+        /// Ojects on current page.
         /// </summary>
         public IEnumerable<T> Items { get; set; }
 
         /// <summary>
-        /// Total number of objects in source collection that can be paged through
+        /// Total number of objects in source collection that can be paged through.
         /// </summary>
         public long VirtualItemCount { get; set; }
 
         /// <summary>
-        /// Maximum number of objects on page
+        /// Maximum number of objects per page.
         /// </summary>
         public int PageSize { get; set; }
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Core
         public int PageIndex { get; set; }
 
         /// <summary>
-        /// Total number of pages available.
+        /// Total number of pages available in source collection.
         /// </summary>
         public long TotalPages { get; private set; }
 

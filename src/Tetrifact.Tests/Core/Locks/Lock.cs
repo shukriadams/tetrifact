@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Existing()
         { 
-            ILock lockInstance = NinjectHelper.Get<ILock>();
+            IProcessLockManager lockInstance = NinjectHelper.Get<IProcessLockManager>();
             lockInstance.Lock(ProcessLockCategories.Package_Create, "123");
             lockInstance.Lock(ProcessLockCategories.Package_Create, "123");
         }
@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Existing_with_timeout()
         {
-            ILock lockInstance = NinjectHelper.Get<ILock>();
+            IProcessLockManager lockInstance = NinjectHelper.Get<IProcessLockManager>();
             lockInstance.Lock(ProcessLockCategories.Package_Create, "123", new TimeSpan(1,1,1));
             lockInstance.Lock(ProcessLockCategories.Package_Create, "123", new TimeSpan(1, 1, 1));
         }

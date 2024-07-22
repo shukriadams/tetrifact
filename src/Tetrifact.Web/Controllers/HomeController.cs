@@ -16,7 +16,7 @@ namespace Tetrifact.Web
         private readonly IIndexReadService _indexService;
         private readonly IPackageListService _packageList;
         private readonly ILogger<HomeController> _log;
-        private readonly ILock _processes;
+        private readonly IProcessLockManager _processes;
         private readonly IArchiveService _archiveService;
         private readonly IMemoryCache _cache;
 
@@ -24,7 +24,7 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettings settings, ILock processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, IProcessLockManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;

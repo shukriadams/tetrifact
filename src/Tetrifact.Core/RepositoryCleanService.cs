@@ -22,7 +22,7 @@ namespace Tetrifact.Core
         
         private readonly IFile _fileFilesystem;
 
-        private readonly ILock _lock;
+        private readonly IProcessLockManager _lock;
     
         private IList<string> _cleaned = new List<string>();
 
@@ -46,7 +46,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, ILock lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
@@ -102,13 +102,14 @@ namespace Tetrifact.Core
                 if (ex.Message.StartsWith("System currently locked"))
                 {
                     _log.LogInformation("Clean aborted, lock detected");
+                    IEnumerable<ProcessLockItem> locks = _lock.GetCurrent(ProcessLockCategories.Package_Create);
                     return new CleanResult{
                         Cleaned = _cleaned, 
                         Failed = _failed, 
                         DirectoriesScanned = _directoriesScanned, 
                         FilesScanned = _filesScanned, 
                         PackagesInSystem = _existingPackageIds.Count(),
-                        Description = "Clean aborted, locked detected"
+                        Description = $"Clean aborted, locked detected : ({string.Join(",", locks)}"
                     };
                 }
                 else

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Core
 {
-    public interface ILock
+    public interface IProcessLockManager
     {
         IEnumerable<ProcessLockItem> GetCurrent();
 

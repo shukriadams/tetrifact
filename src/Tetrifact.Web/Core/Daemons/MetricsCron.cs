@@ -8,6 +8,8 @@ namespace Tetrifact.Web
 {
     public class MetricsCron : Cron
     {
+        #region FIELDS
+
         private ILogger<MetricsCron> _log;
 
         private IMetricsService _metricsService;
@@ -18,6 +20,10 @@ namespace Tetrifact.Web
 
         private readonly Settings _settings;
 
+        #endregion
+
+        #region CTORS
+
         public MetricsCron(IMetricsService metricsService, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
         {
             _settings = new Settings();
@@ -26,6 +32,10 @@ namespace Tetrifact.Web
             _applicationLifetime = applicationLifetime;
             _daemonrunner = daemonrunner;
         }
+
+        #endregion
+
+        #region METHODS
 
         public override void Start()
         {
@@ -55,5 +65,7 @@ namespace Tetrifact.Web
                 _log.LogError($"Daemon metrics generated error {ex}");
             }
         }
+
+        #endregion
     }
 }
