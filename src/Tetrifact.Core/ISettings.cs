@@ -229,5 +229,10 @@ namespace Tetrifact.Core
         /// Nr of threads to use for archiving process.
         /// </summary>
         int ArchiveCPUThreads { get; set; }
+
+        /// <summary>
+        /// Time brackets for auto-deleting packages
+        /// </summary>
+        IEnumerable<PruneBracket> PruneBrackets {get; set; }
     }
 }

@@ -35,6 +35,8 @@
         "PRUNE_IGNORE_TAGS": "keep",
         "SEVEN_ZIP_BINARY_PATH": "",
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "PRUNE": "true",
+        "PRUNE_BRACKETS" : "5d 10, 20d 2, 10d 0",
         "Logging__LogLevel__System": "Debug"
       },
       "applicationUrl": "http://0.0.0.0:3000"

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 namespace Tetrifact.Core
 {
@@ -99,6 +100,8 @@ namespace Tetrifact.Core
 
         public int ArchiveCPUThreads { get; set; }
 
+        public IEnumerable<PruneBracket> PruneBrackets { get; set; }
+
         #endregion
 
         #region CTORS
@@ -121,6 +124,7 @@ namespace Tetrifact.Core
             this.MaxArchives = 10;
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.AccessTokens = new List<string>();
+            this.PruneBrackets = new List<PruneBracket>();
             this.IsStorageCompressionEnabled = false;
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
             this.PruneWeeklyKeep = 7; 
@@ -188,6 +192,41 @@ namespace Tetrifact.Core
             this.WipeTempOnStart = this.TryGetSetting("WIPE_TEMP_ON_START", this.WipeTempOnStart);
             this.ArchiveCPUThreads = this.TryGetSetting("ARCHIVE_CPU_THREADS", this.ArchiveCPUThreads);
             this.SevenZipBinaryPath = this.TryGetSetting("SEVEN_ZIP_BINARY_PATH", this.SevenZipBinaryPath);
+
+            string timeBracketsAllRaw = Environment.GetEnvironmentVariable("PRUNE_BRACKETS");
+            if (!string.IsNullOrEmpty(timeBracketsAllRaw)) 
+            {
+                List<PruneBracket> brackets = new List<PruneBracket>();
+
+                string[] timeBracketsRaw = timeBracketsAllRaw.Split(",");
+                foreach(string timeBracketRaw in timeBracketsRaw) 
+                {
+                    string[] items = timeBracketRaw.Trim().Split(" ");
+                    if (items.Length != 2)
+                        continue;
+
+                    string intervalRaw = items[0];
+                    int amount;
+                    if (!int.TryParse(items[1], out amount))
+                        continue;
+
+                    Regex regex = new Regex("^(\\d*)d?");
+                    Match match = regex.Match(intervalRaw);
+                    if (match.Success && match.Groups.Count == 2) 
+                    { 
+                        string daysraw = match.Groups[1].Value;
+
+                        int days;
+                        if (!int.TryParse(daysraw, out days))
+                            continue;
+
+                        brackets.Add(new PruneBracket { Amount = amount, Days = days });
+                    }
+                }
+
+                this.PruneBrackets = brackets;
+            }
+                
 
             string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
             if (downloadArchiveCompressionEnvVar == "0")

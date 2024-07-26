@@ -179,6 +179,7 @@ namespace Tetrifact.Web
             Console.WriteLine($"Max archives: {settings.MaxArchives}");
             Console.WriteLine($"PackagePath: {settings.PackagePath}");
             Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
+            Console.WriteLine($"Prune brackets: { string.Join(", ", settings.PruneBrackets)}");
             Console.WriteLine($"Repository path: {settings.RepositoryPath}");
             Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
             Console.WriteLine($"Tags path: {settings.TagsPath}");
