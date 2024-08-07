@@ -231,7 +231,8 @@ namespace Tetrifact.Core
         int ArchiveCPUThreads { get; set; }
 
         /// <summary>
-        /// Time brackets for auto-deleting packages
+        /// Time brackets for auto-deleting packages. Comma-separated DAYSd COUNT
+        /// Egs "5d 10, 20d 2, 10d 0"
         /// </summary>
         IEnumerable<PruneBracket> PruneBrackets {get; set; }
     }
