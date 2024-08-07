@@ -16,12 +16,12 @@ mkdir -p .artefacts
 
 
 # kill any existing build container
-docker-compose -f docker-compose-build.yml kill 
+docker compose -f docker-compose-build.yml kill 
 
 # build and start new build container. the dotnetcore sdk takes up 1.7 gig of space
 # so we want to compile the app in a private build container, then copy the artefacts out to the
 # leaner hosting container
-docker-compose -f docker-compose-build.yml up -d 
+docker compose -f docker-compose-build.yml up -d 
 
 
 # copy source code into build container and compile it.
@@ -43,7 +43,7 @@ docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet publ
 docker cp tetrifactbuild:/tmp/tetrifact/Tetrifact.Web/bin/Debug/netcoreapp3.1/publish/. ./.artefacts 
 
 # kill build container
-docker-compose -f docker-compose-build.yml kill 
+docker compose -f docker-compose-build.yml kill 
 
 # build hosting container
 docker build -t shukriadams/tetrifact . 

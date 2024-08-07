@@ -46,11 +46,11 @@ docker tag shukriadams/tetrifact:latest shukriadams/tetrifact:$TAG
 cd ..
 
 if [ $SMOKETEST -eq 1 ]; then
-    docker-compose -f docker-compose-test.yml down 
-    docker-compose -f docker-compose-test.yml up -d 
+    docker compose -f docker-compose-test.yml down 
+    docker compose -f docker-compose-test.yml up -d 
     sleep 5  # wait a few seconds to make sure app in container has started
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022) 
-    docker-compose -f docker-compose-test.yml down 
+    docker compose -f docker-compose-test.yml down 
     if [ "$STATUS" != "200" ]; then
         echo "test container returned unexpected value ${STATUS}"
         exit 1

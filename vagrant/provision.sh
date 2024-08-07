@@ -16,9 +16,12 @@ dotnet tool install --global dotnet-reportgenerator-globaltool --version 4.1.5
 sudo apt install p7zip-full
 
 # docker
+sudo mkdir -p /usr/libexec/docker/cli-plugins
 sudo apt install docker.io -y
-sudo apt install docker-compose -y
 sudo usermod -aG docker vagrant
+sudo wget https://github.com/docker/compose/releases/download/v2.29.1/docker-compose-linux-x86_64 -O /usr/libexec/docker/cli-plugins/docker-compose
+sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+echo "export PATH=/usr/libexec/docker/cli-plugins:$PATH" >> /home/vagrant/.bashrc
 
 # force startup folder to vagrant project
 echo "cd /vagrant/src" >> /home/vagrant/.bashrc
