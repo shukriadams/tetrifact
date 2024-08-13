@@ -284,7 +284,8 @@ namespace Tetrifact.Core
             // delete package folder
             string packageFolder = Path.Combine(_settings.PackagePath, packageId);
             if (_fileSystem.Directory.Exists(packageFolder))
-                _fileSystem.Directory.Delete(packageFolder, true);
+                Directory.Delete(packageFolder, true);
+                //_fileSystem.Directory.Delete(packageFolder, true);
 
             // delete archives for package
             string archivePath = Path.Combine(_settings.ArchivePath, $"{packageId}.zip");
