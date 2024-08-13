@@ -56,6 +56,8 @@ namespace Tetrifact.Core
             foreach(string line in report.Report)
                _log.LogInformation(line);
 
+            _log.LogInformation($"******************************* Starting prune execution, {report.Brackets.Count()} packages marked for delete *******************************");
+
             foreach (string packageId in report.Brackets.SelectMany(b => b.Prune))
             {
                 try
@@ -72,6 +74,9 @@ namespace Tetrifact.Core
                     _log.LogError($"Prune failed for package {packageId} {ex}");
                 }
             }
+
+            _log.LogInformation("*************************************** Finished prune exectution. **************************************************************************");
+
         }
 
         public PruneReport Report()
@@ -87,7 +92,7 @@ namespace Tetrifact.Core
             IList<string> report = new List<string>();
             int unhandled = 0;
 
-            report.Add(" ******************************** Prune audit **********************************");
+            report.Add(" ******************************** Prune audit start **********************************");
 
             IList<string> packageIds = _indexReader.GetAllPackageIds().ToList();
             packageIds = packageIds.OrderBy(n => Guid.NewGuid()).ToList(); // randomize collection order
@@ -165,7 +170,7 @@ namespace Tetrifact.Core
                 report.Add($"Bracket {p}, keeping {p.Keep.Count} packages ({string.Join(",",p.Keep)}), pruning {p.Prune.Count} packages ({string.Join(",", p.Prune)})");
 
             report.Add(string.Empty);
-            report.Add(" ******************************** Prune audit **********************************");
+            report.Add(" ******************************** Prune audit end **********************************");
 
             return new PruneReport{ 
                 Report = report, 

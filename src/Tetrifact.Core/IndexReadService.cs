@@ -55,7 +55,7 @@ namespace Tetrifact.Core
                 if (Directory.Exists(_settings.TempPath))
                     try
                     {
-                        Directory.Delete(_settings.TempPath, true);
+                        _fileSystem.Directory.Delete(_settings.TempPath, true);
                     }
                     catch (Exception ex)
                     {
@@ -70,7 +70,7 @@ namespace Tetrifact.Core
             // force purge archive queue
             try
             {
-                Directory.Delete(_settings.ArchiveQueuePath, true);
+                _fileSystem.Directory.Delete(_settings.ArchiveQueuePath, true);
             }
             catch (Exception ex)
             {
@@ -78,14 +78,14 @@ namespace Tetrifact.Core
             }
 
             // force recreate all again
-            Directory.CreateDirectory(_settings.ArchivePath);
-            Directory.CreateDirectory(_settings.ArchiveQueuePath);
-            Directory.CreateDirectory(_settings.PackagePath);
-            Directory.CreateDirectory(_settings.TempPath);
-            Directory.CreateDirectory(_settings.RepositoryPath);
-            Directory.CreateDirectory(_settings.TagsPath);
-            Directory.CreateDirectory(_settings.MetricsPath);
-            Directory.CreateDirectory(_settings.PackageDiffsPath);
+            _fileSystem.Directory.CreateDirectory(_settings.ArchivePath);
+            _fileSystem.Directory.CreateDirectory(_settings.ArchiveQueuePath);
+            _fileSystem.Directory.CreateDirectory(_settings.PackagePath);
+            _fileSystem.Directory.CreateDirectory(_settings.TempPath);
+            _fileSystem.Directory.CreateDirectory(_settings.RepositoryPath);
+            _fileSystem.Directory.CreateDirectory(_settings.TagsPath);
+            _fileSystem.Directory.CreateDirectory(_settings.MetricsPath);
+            _fileSystem.Directory.CreateDirectory(_settings.PackageDiffsPath);
         }
 
         bool IIndexReadService.PackageExists(string packageId)
@@ -284,6 +284,8 @@ namespace Tetrifact.Core
             // delete package folder
             string packageFolder = Path.Combine(_settings.PackagePath, packageId);
             if (_fileSystem.Directory.Exists(packageFolder))
+                // NOTE : this will fail if user does not have permission to delete a file in dir (linux) or if file is marked as readonly (win). 
+                // todo : on exception try to determine cause
                 _fileSystem.Directory.Delete(packageFolder, true);
 
             // delete archives for package
