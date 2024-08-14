@@ -56,9 +56,11 @@ namespace Tetrifact.Core
             foreach(string line in report.Report)
                _log.LogInformation(line);
 
-            _log.LogInformation($"******************************* Starting prune execution, {report.Brackets.Count()} packages marked for delete *******************************");
+            IEnumerable<string> packageToPruneIds = report.Brackets.SelectMany(b => b.Prune);
 
-            foreach (string packageId in report.Brackets.SelectMany(b => b.Prune))
+            _log.LogInformation($"******************************* Starting prune execution, {packageToPruneIds.Count()} packages marked for delete *******************************");
+
+            foreach (string packageId in packageToPruneIds)
             {
                 try
                 {
@@ -119,7 +121,7 @@ namespace Tetrifact.Core
 
                 string flattenedTags = manifest.Tags.Count == 0 ? string.Empty : $"Tags : {string.Join(",", manifest.Tags)}";
                 int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
-                report.Add($"Analysing {packageId}, added {manifest.CreatedUtc.ToIso()} ({ageInDays}) days ago). Tagged with: {flattenedTags}");
+                report.Add($"Analysing {packageId}, added {manifest.CreatedUtc.ToIso()} ({ageInDays} days ago). Tagged with: {flattenedTags}");
 
                 PruneBracketProcess matchingBracket = brackets.FirstOrDefault(b => manifest.CreatedUtc < b.Floor);
                 if (matchingBracket == null)
@@ -152,7 +154,6 @@ namespace Tetrifact.Core
                         }
                     }
                 }
-                
             }
 
             string pruneIdList = string.Empty;
