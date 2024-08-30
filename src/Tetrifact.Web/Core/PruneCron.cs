@@ -15,12 +15,15 @@ namespace Tetrifact.Web
 
         private readonly Settings _settings;
 
-        public PruneCron(IPackagePruneService packagePrune, IDaemon daemonrunner, ILogger<PruneCron> log)
+        private readonly IPackageListCache _packageListCache;
+
+        public PruneCron(IPackagePruneService packagePrune, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
             _settings = new Settings();
             _log = log;
             _packagePrune = packagePrune;
             _daemonrunner = daemonrunner;
+            _packageListCache = packageListCache;
         }
 
         public override void Start() 
@@ -40,6 +43,7 @@ namespace Tetrifact.Web
             {
                 _log.LogInformation("Starting prune from daemon");
                 _packagePrune.Prune();
+                _packageListCache.Clear();
             }
             catch (Exception ex)
             {
