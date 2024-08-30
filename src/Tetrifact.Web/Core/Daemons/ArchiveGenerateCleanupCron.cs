@@ -4,7 +4,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
-    public class ArchiveGenerateCleanup : Cron
+    public class ArchiveGenerateCleanupCron : Cron
     {
         #region FIELDS
 
@@ -12,13 +12,13 @@ namespace Tetrifact.Web
 
         private readonly IArchiveService _archiveService;
 
-        ILogger<ArchiveGenerateCleanup> _log;
+        ILogger<ArchiveGenerateCleanupCron> _log;
 
         #endregion
 
         #region CTORS
 
-        public ArchiveGenerateCleanup(IDaemon daemonrunner, IArchiveService archiveService, ILogger<ArchiveGenerateCleanup> log)
+        public ArchiveGenerateCleanupCron(IDaemon daemonrunner, IArchiveService archiveService, ILogger<ArchiveGenerateCleanupCron> log)
         {
             _daemonrunner = daemonrunner;
             _archiveService = archiveService;

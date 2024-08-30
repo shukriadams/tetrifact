@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Tetrifact.Web
 {
-    public class Startup
+    public class Startup 
     {
         public Startup(IConfiguration configuration)
         {
@@ -73,7 +73,7 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, MetricsCron>();
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
-            services.AddTransient<ICron, ArchiveGenerateCleanup>();
+            services.AddTransient<ICron, ArchiveGenerateCleanupCron>();
             services.AddTransient<ICron, ArchiveGenerator>();
             services.AddTransient<ICron, ArchiveStatusChecker>();
 
@@ -81,8 +81,7 @@ namespace Tetrifact.Web
             {
                 options.AllowSynchronousIO = true;
             });
-
-            services.Configure<IISServerOptions>(options =>
+             services.Configure<IISServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
             });
