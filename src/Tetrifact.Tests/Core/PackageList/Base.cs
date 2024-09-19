@@ -12,14 +12,16 @@ namespace Tetrifact.Tests.PackageList
         protected TestLogger<IPackageListService> PackageListLogger { get; set; }
         protected TestLogger<ITagsService> TagServiceLogger { get; set; }
         protected IMemoryCache MemoryCache;
+        protected ITetrifactMemoryCache TetrifactMemoryCache;
 
         public Base()
         {
             this.MemoryCache = MemoryCacheHelper.GetInstance();
+            this.TetrifactMemoryCache = MemoryCacheHelper.GetTetrifactMemoryCacheInstance();
             this.PackageListLogger = new TestLogger<IPackageListService>();
             this.TagServiceLogger = new TestLogger<ITagsService>();
-            this.PackageListCache = new Core.PackageListCache(MemoryCache);
-            this.TagService = new Core.TagsService(Settings, this.FileSystem, TagServiceLogger, PackageListCache);
+            this.PackageListCache = new Core.PackageListCache(TetrifactMemoryCache);
+            this.TagService = new Core.TagsService(Settings, MemoryCache, this.FileSystem, TagServiceLogger, PackageListCache);
             this.PackageList = new Core.PackageListService(MemoryCache, Settings, new HashService(), TagService, this.FileSystem, this.PackageListLogger);
         }
 

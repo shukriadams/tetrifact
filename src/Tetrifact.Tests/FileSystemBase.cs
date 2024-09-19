@@ -32,6 +32,8 @@ namespace Tetrifact.Tests
         
         protected IArchiveService ArchiveService;
 
+        protected ITetrifactMemoryCache TetrifactMemoryCache;
+
         #endregion
 
         #region CTORS
@@ -48,10 +50,13 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
+            TetrifactMemoryCache = MemoryCacheHelper.GetTetrifactMemoryCacheInstance();
+
             TagService = new Core.TagsService(
                 Settings,
+                new TestMemoryCache(),
                 FileSystem,
-                new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance()));
+                new TestLogger<ITagsService>(), new PackageListCache(TetrifactMemoryCache));
 
             ThreadDefault = new ThreadDefault();
 

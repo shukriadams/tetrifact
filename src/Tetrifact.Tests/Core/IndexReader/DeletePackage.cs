@@ -87,8 +87,8 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
-            PackageListCache PackageListCache = new PackageListCache(_memoryCache);
-            ITagsService tagsService = new Core.TagsService(Settings, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
+            PackageListCache PackageListCache = new PackageListCache(TetrifactMemoryCache);
+            ITagsService tagsService = new Core.TagsService(Settings, _memoryCache, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
             
             tagsService.AddTag(testPackage.Id, "mytag");
 

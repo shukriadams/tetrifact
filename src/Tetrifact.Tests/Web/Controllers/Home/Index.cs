@@ -26,7 +26,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
 
             W.HomeController controller = NinjectHelper.Get<W.HomeController>("packageList", packageList.Object);
             
-            ViewResult result = controller.Index() as ViewResult; 
+            ViewResult result = controller.Summary() as ViewResult; 
             Assert.NotNull(result);
         }
     }

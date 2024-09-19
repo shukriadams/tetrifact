@@ -44,7 +44,8 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        public IActionResult Index()
+        [Route("summary")]
+        public IActionResult Summary()
         {
             try 
             {
@@ -190,8 +191,8 @@ namespace Tetrifact.Web
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [Route("packages/{page?}")]
-        public IActionResult Packages([FromQuery(Name = "page")] int page)
+        [Route("{page?}")]
+        public IActionResult Index([FromQuery(Name = "page")] int page)
         {
             try
             {

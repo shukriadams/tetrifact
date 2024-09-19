@@ -51,11 +51,54 @@ namespace Tetrifact.Tests
             
         }
     }
+
+    public class TetrifactTestMemoryCache : ITetrifactMemoryCache
+    {
+        TestMemoryCache _cache;
+
+        public TetrifactTestMemoryCache(IMemoryCache cache)
+        {
+            if (!(cache is TestMemoryCache))
+                throw new Exception($"{cache.GetType()} is an instance of {typeof(TestMemoryCache).Name}.");
+
+            _cache = cache as TestMemoryCache;
+        }
+
+        public void Clear()
+        {
+            _cache.Clear();
+        }
+
+        public void Remove(string key)
+        {
+            _cache.Remove(key);
+        }
+
+        public void Set(string key, object item)
+        {
+            _cache.Set(key, item);
+        }
+
+        public void Set(string key, object item, DateTimeOffset lifetime)
+        {
+            _cache.Set(key, item, lifetime);
+        }
+
+        public bool TryGetValue(string key, out object item)
+        {
+            return _cache.TryGetValue(key, out item);
+        }
+    }
+
     /// <summary>
     /// Easy and dumb shim
     /// </summary>
     public class TestMemoryCache : IMemoryCache
     {
+        public void Clear()
+        {
+            CacheRoot.Items.Clear();
+        }
 
         /// <inheritdoc />
         public ICacheEntry CreateEntry(object key)

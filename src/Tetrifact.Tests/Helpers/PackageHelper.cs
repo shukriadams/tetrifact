@@ -49,7 +49,7 @@ namespace Tetrifact.Tests
             IIndexReadService indexReader = new IndexReadService(
                 settings,
                 new TestMemoryCache(),
-                new Core.TagsService(settings, filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetInstance())),
+                new Core.TagsService(settings, MemoryCacheHelper.GetInstance(), filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetTetrifactMemoryCacheInstance())),
                 new TestLogger<IIndexReadService>(),
                 filesystem,
                 HashServiceHelper.Instance(),

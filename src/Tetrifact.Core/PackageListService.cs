@@ -194,7 +194,7 @@ namespace Tetrifact.Core
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
 
-            _cache.Set(CacheKey, packageData);
+            _cache.Set(CacheKey, packageData, cacheEntryOptions);
 
             return packageData;
         }
