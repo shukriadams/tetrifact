@@ -10,28 +10,20 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ISettings _settings;
-
         private readonly ILogger<ArchiveGenerator> _log;
         
         private readonly IDaemon _daemonrunner;
 
         private readonly IArchiveService _archiveService;
 
-        private readonly IFileSystem _fileSystem;
-
-        private readonly IMemoryCache _cache;
 
         #endregion
 
         #region CTORS
 
-        public ArchiveGenerator(IDaemon daemonrunner, IMemoryCache cache, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
+        public ArchiveGenerator(IDaemon daemonrunner, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
         {
-            _settings = new Settings();
             _archiveService = archiveService;
-            _fileSystem = fileSystem;
-            _cache = cache;
             _daemonrunner = daemonrunner;
             _log = log;
         }

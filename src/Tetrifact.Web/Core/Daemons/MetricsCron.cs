@@ -24,9 +24,9 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public MetricsCron(IMetricsService metricsService, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
+        public MetricsCron(IMetricsService metricsService, ISettingsProvider settingsProvider, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
         {
-            _settings = new Settings();
+            _settings = settingsProvider.Get();
             _log = log;
             _metricsService = metricsService;
             _applicationLifetime = applicationLifetime;

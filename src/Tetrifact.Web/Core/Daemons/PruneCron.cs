@@ -17,9 +17,9 @@ namespace Tetrifact.Web
 
         private readonly IPackageListCache _packageListCache;
 
-        public PruneCron(IPackagePruneService packagePrune, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
+        public PruneCron(IPackagePruneService packagePrune, ISettingsProvider settingsProvider,  IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
-            _settings = new Settings();
+            _settings = settingsProvider.Get();
             _log = log;
             _packagePrune = packagePrune;
             _daemonrunner = daemonrunner;

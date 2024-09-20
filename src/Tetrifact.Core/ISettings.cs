@@ -235,5 +235,12 @@ namespace Tetrifact.Core
         /// Egs "5d 10, 20d 2, 10d 0"
         /// </summary>
         IEnumerable<PruneBracket> PruneBrackets {get; set; }
+
+        /// <summary>
+        /// Location on disk that app settings is located
+        /// </summary>
+        string SettingsPath { get; set; }
+
+        IEnumerable<TagColor> TagColors { get; set; }
     }
 }

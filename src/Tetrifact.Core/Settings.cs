@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Text.RegularExpressions;
 
 namespace Tetrifact.Core
 {
@@ -102,6 +101,10 @@ namespace Tetrifact.Core
 
         public IEnumerable<PruneBracket> PruneBrackets { get; set; }
 
+        public string SettingsPath { get; set; }
+
+        public IEnumerable<TagColor> TagColors { get; set; }
+
         #endregion
 
         #region CTORS
@@ -125,6 +128,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.AccessTokens = new List<string>();
             this.PruneBrackets = new List<PruneBracket>();
+            this.TagColors = new List<TagColor>();
             this.IsStorageCompressionEnabled = false;
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
             this.PruneWeeklyKeep = 7; 
@@ -138,6 +142,8 @@ namespace Tetrifact.Core
             this.PruneIgnoreTags = new string[] { };
             this.MetricsGenerationBufferTime = 1; // 1 hour
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+
+            this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.yml");
             this.LogLevel = "Warning";
             this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
             this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
@@ -150,210 +156,6 @@ namespace Tetrifact.Core
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.PruneCronMask = "0 2 * * *"; // once a day at 2 am
             this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am
-
-            // try to overrride defaults from environment variables
-            this.AllowPackageDelete = this.TryGetSetting("ALLOW_PACKAGE_DELETE", this.AllowPackageDelete);
-            this.AllowPackageCreate = this.TryGetSetting("ALLOW_PACKAGE_CREATE", this.AllowPackageCreate);
-            this.IsStorageCompressionEnabled = this.TryGetSetting("STORAGE_COMPRESSION", this.IsStorageCompressionEnabled);
-            this.Prune = this.TryGetSetting("PRUNE", this.Prune);
-            
-            this.PruneWeeklyThreshold = this.TryGetSetting("PRUNE_WEEKLY_THRESHOLD", this.PruneWeeklyThreshold);
-            this.PruneWeeklyKeep = this.TryGetSetting("PRUNE_WEEKLY_KEEP", this.PruneWeeklyKeep);
-            this.PruneMonthlyThreshold = this.TryGetSetting("PRUNE_MONTHLY_THRESHOLD", this.PruneMonthlyThreshold);
-            this.PruneMonthlyKeep = this.TryGetSetting("PRUNE_MONTHLY_KEEP", this.PruneMonthlyKeep);
-            this.PruneYearlyThreshold = this.TryGetSetting("PRUNE_YEARLY_THRESHOLD", this.PruneYearlyThreshold);
-            this.PruneYearlyKeep = this.TryGetSetting("PRUNE_YEARLY_KEEP", this.PruneYearlyKeep);
-            this.MetricsGenerationInterval = this.TryGetSetting("METRICS_GENERATION_INTERVAL", this.MetricsGenerationInterval);
-            this.ServerName = this.TryGetSetting("SERVER_NAME", this.ServerName);
-            this.WorkerThreadCount = this.TryGetSetting("WORKER_THREAD_COUNT", this.WorkerThreadCount);
-            this.ListPageSize = this.TryGetSetting("LIST_PAGE_SIZE", this.ListPageSize);
-            this.MaxArchives = this.TryGetSetting("MAX_ARCHIVES", this.MaxArchives);
-            this.AuthorizationLevel = this.TryGetSetting("AUTH_LEVEL", this.AuthorizationLevel);
-            this.SpaceSafetyThreshold = this.TryGetSetting("SPACE_SAFETY_THRESHOLD", this.SpaceSafetyThreshold);
-            this.AutoCreateArchiveOnPackageCreate = this.TryGetSetting("AUTO_CREATE_ARCHIVE_ON_PACKAGE_CREATE", this.AutoCreateArchiveOnPackageCreate);
-            this.PruneIgnoreTags = this.TryGetSetting("PRUNE_IGNORE_TAGS", this.PruneIgnoreTags);
-            this.LogPath = this.TryGetSetting("LOG_PATH", this.LogPath);
-
-            // breaks case convention, but this is what dotnet uses under the hood, so might as well use that too
-            this.LogLevel = this.TryGetSetting("Logging__LogLevel__System", this.LogLevel);
-
-            this.PackageDiffsPath = this.TryGetSetting("PACKAGE_DIFFS_PATH", this.PackageDiffsPath);
-            this.PackagePath = this.TryGetSetting("PACKAGE_PATH", this.PackagePath);
-            this.TempPath = this.TryGetSetting("TEMP_PATH", this.TempPath);
-            this.RepositoryPath = this.TryGetSetting("HASH_INDEX_PATH", this.RepositoryPath);
-            this.ArchivePath = this.TryGetSetting("ARCHIVE_PATH", this.ArchivePath);
-            this.TagsPath = this.TryGetSetting("TAGS_PATH", this.TagsPath);
-            this.MetricsPath = this.TryGetSetting("METRICS_PATH", this.MetricsPath);
-            this.CleanCronMask = this.TryGetSetting("CLEAN_CRON_MASK", this.CleanCronMask);
-            this.PruneCronMask = this.TryGetSetting("PRUNE_CRON_MASK", this.PruneCronMask);
-            this.MetricsCronMask = this.TryGetSetting("METRICS_CRON_MASK", this.MetricsCronMask);
-            this.MetricsGenerationBufferTime = this.TryGetSetting("METRICS_GENERATION_BUFFER_TIME", this.MetricsGenerationBufferTime);
-            this.DEBUG_block_prune_deletes = this.TryGetSetting("DEBUG_BLOCK_PRUNE_DELETES", this.DEBUG_block_prune_deletes);
-            this.WipeTempOnStart = this.TryGetSetting("WIPE_TEMP_ON_START", this.WipeTempOnStart);
-            this.ArchiveCPUThreads = this.TryGetSetting("ARCHIVE_CPU_THREADS", this.ArchiveCPUThreads);
-            this.SevenZipBinaryPath = this.TryGetSetting("SEVEN_ZIP_BINARY_PATH", this.SevenZipBinaryPath);
-
-            string timeBracketsAllRaw = Environment.GetEnvironmentVariable("PRUNE_BRACKETS");
-            if (!string.IsNullOrEmpty(timeBracketsAllRaw)) 
-            {
-                List<PruneBracket> brackets = new List<PruneBracket>();
-
-                string[] timeBracketsRaw = timeBracketsAllRaw.Split(",");
-                foreach(string timeBracketRaw in timeBracketsRaw) 
-                {
-                    string[] items = timeBracketRaw.Trim().Split(" ");
-                    if (items.Length != 2)
-                        continue;
-
-                    string intervalRaw = items[0];
-                    int amount;
-                    if (!int.TryParse(items[1], out amount))
-                        continue;
-
-                    Regex regex = new Regex("^(\\d*)d?");
-                    Match match = regex.Match(intervalRaw);
-                    if (match.Success && match.Groups.Count == 2) 
-                    { 
-                        string daysraw = match.Groups[1].Value;
-
-                        int days;
-                        if (!int.TryParse(daysraw, out days))
-                            continue;
-
-                        brackets.Add(new PruneBracket { Amount = amount, Days = days });
-                    }
-                }
-
-                this.PruneBrackets = brackets;
-            }
-                
-
-            string downloadArchiveCompressionEnvVar = Environment.GetEnvironmentVariable("DOWNLOAD_ARCHIVE_COMPRESSION");
-            if (downloadArchiveCompressionEnvVar == "0")
-                DownloadArchiveCompression = CompressionLevel.NoCompression;
-            if (downloadArchiveCompressionEnvVar == "1")
-                DownloadArchiveCompression = CompressionLevel.Fastest;
-
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ACCESS_TOKENS"))) 
-                this.AccessTokens = Environment.GetEnvironmentVariable("ACCESS_TOKENS").Split(",");
-        }
-
-        #endregion
-
-        #region METHODS
-
-        /// <summary>
-        /// Gets a string environment variable if it is defined.
-        /// </summary>
-        /// <param name="settingsName"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        private string TryGetSetting(string settingsName, string defaultValue)
-        {
-            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
-            
-            if (settingsRawVariable == null)
-                return defaultValue;
-                
-            return settingsRawVariable;
-        }
-
-        /// <summary>
-        /// Safely gets integer setting from environment variable. Logs error if value is invalid.
-        /// </summary>
-        /// <param name="settingsName"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        private int TryGetSetting(string settingsName, int defaultValue)
-        {
-            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
-            if (settingsRawVariable == null)
-                return defaultValue;
-
-            int attempt;
-            if (!int.TryParse(settingsRawVariable, out attempt)){
-                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid integer.");
-                return defaultValue;
-            }
-
-            return attempt;
-        }
-
-        /// <summary>
-        /// Safely gets long setting from environment variable. Logs error if value is invalid.
-        /// </summary>
-        /// <param name="settingsName"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        private long TryGetSetting(string settingsName, long defaultValue)
-        {
-            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
-            if (settingsRawVariable == null)
-                return defaultValue;
-
-            long attempt;
-            if (!long.TryParse(settingsRawVariable, out attempt)){
-                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid long.");
-                return defaultValue;
-            }
-
-            return attempt;
-        }
-
-        private bool TryGetSetting(string settingsName, bool defaultValue)
-        {
-            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
-            if (settingsRawVariable == null)
-                return defaultValue;
-
-            bool attempt;
-            if (!bool.TryParse(settingsRawVariable, out attempt)){
-                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is not a valid boolean.");
-                return defaultValue;
-            }
-
-            return attempt;
-        }
-
-        /// <summary>
-        /// Gets an array of values from comma-separated string
-        /// </summary>
-        /// <param name="settingsName"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        private IEnumerable<string> TryGetSetting(string settingsName, IEnumerable<string> defaultValue)
-        {
-            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
-            if (string.IsNullOrEmpty(settingsRawVariable))
-                return defaultValue;
-
-            return settingsRawVariable.Split(",",StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        /// <summary>
-        /// Safely gets enum setting from environment variable. Logs error if value is invalid.
-        /// </summary>
-        /// <typeparam name="TEnum"></typeparam>
-        /// <param name="settingsName"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        private TEnum TryGetSetting<TEnum>(string settingsName, TEnum defaultValue)
-        {
-            string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
-            if (settingsRawVariable == null)
-                return defaultValue;
-
-            // messy using try/catch instead of TryParse, but I can't figure out enum tryparse with generics
-            try
-            {
-                defaultValue = (TEnum)Enum.Parse(typeof(TEnum), settingsRawVariable);
-            }
-            catch
-            {
-                Console.WriteLine($"WARNING: Environment variable for {settingsName} ({settingsRawVariable}) is invalid, it must match one of {string.Join(",", Enum.GetNames(typeof(TEnum)))}.");
-            }
-
-            return defaultValue;
         }
 
         #endregion

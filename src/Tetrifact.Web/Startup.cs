@@ -66,9 +66,13 @@ namespace Tetrifact.Web
             services.AddTransient<IMetricsService, MetricsService>();
             services.AddTransient<ISystemCallsService, SystemCallsService>();
             services.AddSingleton<IProcessLockManager, ProcessLockManager>();
+            services.AddSingleton<ISettingsProvider, DefaultSettingsProvider>();
             services.AddTransient<IDaemon, Daemon>();
             services.AddTransient<ITimeProvideer, TimeProvider>();
             services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
+
+
+
 
 
             // all ICron types registered here will automatically get loaded
