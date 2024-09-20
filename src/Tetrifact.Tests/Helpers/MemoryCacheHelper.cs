@@ -1,26 +1,29 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Tetrifact;
-using Tetrifact.Tests;
+using Tetrifact.Core;
 
-public class MemoryCacheHelper
+namespace Tetrifact.Tests 
 {
-    public static IMemoryCache GetInstance(){
-        ServiceCollection services = new ServiceCollection();
-        services.AddMemoryCache();
-        ServiceProvider serviceProvider = services.BuildServiceProvider();
-        return serviceProvider.GetService<IMemoryCache>();
-    }
-
-    /// <summary>
-    /// todo : this should be moved to IOC
-    /// </summary>
-    /// <returns></returns>
-    public static ITetrifactMemoryCache GetTetrifactMemoryCacheInstance()
+    public class MemoryCacheHelper
     {
-        ServiceCollection services = new ServiceCollection();
-        services.AddMemoryCache();
-        ServiceProvider serviceProvider = services.BuildServiceProvider();
-        return new TetrifactTestMemoryCache(serviceProvider.GetService<IMemoryCache>());
+        public static IMemoryCache GetInstance()
+        {
+            ServiceCollection services = new ServiceCollection();
+            services.AddMemoryCache();
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            return serviceProvider.GetService<IMemoryCache>();
+        }
+
+        /// <summary>
+        /// todo : this should be moved to IOC
+        /// </summary>
+        /// <returns></returns>
+        public static ITetrifactMemoryCache GetTetrifactMemoryCacheInstance()
+        {
+            ServiceCollection services = new ServiceCollection();
+            services.AddMemoryCache();
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            return new TetrifactTestMemoryCache(serviceProvider.GetService<IMemoryCache>());
+        }
     }
 }

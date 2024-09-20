@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tetrifact
+namespace Tetrifact.Core
 {
     /// <summary>
     /// Implementation of memory cache adding clear all.

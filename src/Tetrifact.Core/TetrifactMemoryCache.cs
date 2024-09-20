@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Tetrifact
+namespace Tetrifact.Core
 {
     public class TetrifactMemoryCache : ITetrifactMemoryCache
     {
