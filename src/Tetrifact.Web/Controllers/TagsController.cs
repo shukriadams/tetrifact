@@ -67,7 +67,7 @@ namespace Tetrifact.Web
         /// <param name="tags">Comma-separated list of tags.</param>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
-        [HttpGet("{tag}/packages")]
+        [HttpGet("{tags}/packages")]
         public ActionResult GetTagPackages(string tags)
         {
             try
