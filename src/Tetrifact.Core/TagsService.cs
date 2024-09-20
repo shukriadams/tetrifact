@@ -89,6 +89,7 @@ namespace Tetrifact.Core
             {
                 string[]  rawTags = _fileSystem.Directory.GetDirectories(_settings.TagsPath);
                 tags = new List<string>();
+
                 foreach (string rawTag in rawTags)
                 {
                     try
@@ -150,12 +151,13 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Gets a list of all tags, and all packages tagged by each tag.
+        /// Gets a list of all packages, and all tags for each package.
         /// </summary>
         /// <returns></returns>
         public Dictionary<string, IEnumerable<string>> GetPackagesThenTags()
         {
             Dictionary<string, IEnumerable<string>> packageDict;
+
             if (!_cache.TryGetValue(PackagesThenTagsKey, out packageDict))
             {
                 packageDict = new Dictionary<string, IEnumerable<string>>();
@@ -171,14 +173,14 @@ namespace Tetrifact.Core
                         packagetemp[package].Add(tag);
                     }
 
-                foreach (string tag in packagetemp.Keys)
-                    packageDict.Add(tag, packagetemp[tag]);
+                foreach (string packageId in packagetemp.Keys)
+                    packageDict.Add(packageId, packagetemp[packageId]);
 
                 // Set cache options.
                 MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
 
-                _cache.Set(PackagesThenTagsKey, tags, cacheEntryOptions);
+                _cache.Set(PackagesThenTagsKey, packageDict, cacheEntryOptions);
             }
 
             return packageDict;
@@ -191,15 +193,28 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public IEnumerable<string> GetPackageIdsWithTags(string[] tags)
         {
-            IEnumerable<string> matches = new List<string>();
+            IEnumerable<string> matches;
+            string key = $"packageswithtagsCache__{String.Join(",", tags).GetHashCode()}";
 
-            foreach (string tag in tags) {
-                string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
-                if (!_fileSystem.Directory.Exists(tagDirectory))
-                    throw new TagNotFoundException();
+            if (!_cache.TryGetValue(key, out matches)) 
+            {
+                matches = new List<string>();
 
-                string[] files = _fileSystem.Directory.GetFiles(tagDirectory);
-                matches = matches.Union(files.Select(r => Path.GetFileName(r)));
+                foreach (string tag in tags)
+                {
+                    string tagDirectory = Path.Combine(_settings.TagsPath, Obfuscator.Cloak(tag));
+                    if (!_fileSystem.Directory.Exists(tagDirectory))
+                        throw new TagNotFoundException();
+
+                    string[] files = _fileSystem.Directory.GetFiles(tagDirectory);
+                    matches = matches.Union(files.Select(r => Path.GetFileName(r)));
+                }
+
+                // Set cache options.
+                MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_settings.CacheTimeout));
+
+                _cache.Set(key, matches, cacheEntryOptions);
             }
 
             return matches;

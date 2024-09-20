@@ -129,7 +129,6 @@ namespace Tetrifact.Core
             if (!_cache.TryGetValue(packageDataHash, out searchResults))
             {
                 searchResults = packageData.Where(package => package.Id.ToLower().Contains(searchtext) || string.Join(" | ", package.Tags).ToLower().Contains(searchtext));
-                
                 _cache.Set(packageDataHash, searchResults, new DateTimeOffset(DateTime.UtcNow.AddHours(1)));
             }
 
