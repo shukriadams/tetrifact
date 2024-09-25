@@ -1,9 +1,10 @@
-﻿@model IEnumerable<string>
+﻿@using Tetrifact.Web;
+@model TagsModel
 
 <ul class="tags">
-    @foreach (string tag in Model.OrderBy(t => t))
+    @foreach (string tag in Model.Tags.OrderBy(t => t))
     {
-        <li class="tags-tag">
+        <li class="tags-tag" style="@ViewHelpers.GetTagColor(Model.Settings, tag)">
             <a class="tags-link" href="/packagesWithTag/@Uri.EscapeDataString(tag)">@tag</a>
         </li>
     }

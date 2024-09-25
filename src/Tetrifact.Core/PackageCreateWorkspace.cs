@@ -34,10 +34,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateWorkspace(ISettings settings, IIndexReadService indexReadService, IFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
+        public PackageCreateWorkspace(ISettingsProvider settingsProvider, IIndexReadService indexReadService, IFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
         {
             _indexReadService = indexReadService;
-            _settings = settings;
+            _settings = settingsProvider.Get();
             _log = log;
             _hashService = hashService;
             _filesystem = filesystem;

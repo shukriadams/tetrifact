@@ -24,9 +24,9 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettings settings, IProcessLockManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettingsProvider settingsProvider, IProcessLockManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
-            _settings = settings;
+            _settings = settingsProvider.Get();
             _indexService = indexService;
             _packageList = packageList;
             _log = log;
@@ -52,6 +52,8 @@ namespace Tetrifact.Web
                 ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
                 ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
                 ViewData["serverName"] = _settings.ServerName;
+                ViewData["settings"] = _settings;
+
                 return View();
             }
             catch (Exception ex)
@@ -198,13 +200,16 @@ namespace Tetrifact.Web
             {
                 // user-facing page values start at 1 instead of 0. reset
                 if (page != 0)
-                page--;
+                    page--;
 
                 Pager pager = new Pager();
                 PageableData<Package> packages  = _packageList.GetPage(page, _settings.ListPageSize);
+                
                 ViewData["serverName"] = _settings.ServerName;
                 ViewData["pager"] = pager.Render(packages, _settings.PagesPerPageGroup, "/packages", "page");
                 ViewData["packages"] = packages;
+                ViewData["settings"] = _settings;
+
                 return View();
             }
             catch (Exception ex)
@@ -237,6 +242,8 @@ namespace Tetrifact.Web
                 ViewData["search"] = search;
                 ViewData["packages"] = results;
                 ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, $"/search/{search}", "page");
+                ViewData["settings"] = _settings;
+
                 return View();
             }
             catch (Exception ex)

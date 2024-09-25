@@ -46,9 +46,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, ISettingsProvider settingsProvider, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
-            _settings = settings;
+            _settings = settingsProvider.Get();
             _directoryFileSystem = directoryFileSystem;
             _fileFilesystem = fileFileSystem;
             _log = log;

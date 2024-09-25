@@ -24,9 +24,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public MetricsService(ISystemCallsService systemCallsService, ISettings settings, ILogger<IMetricsService> log) 
+        public MetricsService(ISystemCallsService systemCallsService, ISettingsProvider settingsProvider, ILogger<IMetricsService> log) 
         {
-            _settings = settings;
+            _settings = settingsProvider.Get();
             _systemCallsService = systemCallsService;
             _log = log;
         }

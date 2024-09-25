@@ -32,7 +32,6 @@
       "environmentVariables": {
         "PRUNE": "true",
         "Logging__LogLevel__Microsoft": "Error",
-        "TETRIFACT_SETTINGS_PATH": "D:\\Settings.yml",
         "PRUNE_BRACKETS": "5d 10, 20d 2, 10d 0",
         "PRUNE_IGNORE_TAGS": "keep",
         "ASPNETCORE_ENVIRONMENT": "Development",

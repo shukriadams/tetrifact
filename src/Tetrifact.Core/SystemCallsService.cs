@@ -13,9 +13,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public SystemCallsService(ISettings settings) 
+        public SystemCallsService(ISettingsProvider settingsProvider) 
         {
-            _settings = settings;
+            _settings = settingsProvider.Get();
         }
 
         #endregion

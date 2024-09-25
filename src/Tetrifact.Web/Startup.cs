@@ -46,8 +46,8 @@ namespace Tetrifact.Web
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
 
-            // register type injections here
-            services.AddTransient<ISettings, Settings>();
+            // register type injections here. Note : Settings is not deliberately not here, we always want
+            // to fetch an instance of settings from ISettingsProvider.
             services.AddTransient<IIndexReadService, IndexReadService>();
             services.AddTransient<IRepositoryCleanService, RepositoryCleanService>();
             services.AddTransient<IPackageCreateWorkspace, PackageCreateWorkspace>();
@@ -163,7 +163,8 @@ namespace Tetrifact.Web
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
 
-            ISettings settings = serviceProvider.GetService<ISettings>();
+            ISettingsProvider settingsProvider = serviceProvider.GetService<ISettingsProvider>();
+            ISettings settings = settingsProvider.Get();
             loggerFactory.AddFile(settings.LogPath);
 
             Console.WriteLine("Settings:");

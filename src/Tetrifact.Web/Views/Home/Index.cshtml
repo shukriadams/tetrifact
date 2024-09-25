@@ -1,10 +1,12 @@
 ﻿@using Tetrifact.Core;
+@using Tetrifact.Web;
 
 @{
     ViewData["Title"] = "Packages";
     Layout = "~/Views/Shared/_Layout.cshtml";
     PageableData<Package> packages = ViewData["packages"] as PageableData<Package>;
     string pager = ViewData["pager"] as string;
+    Settings settings = ViewData["settings"] as Settings;
 }
 
 <div>
@@ -19,7 +21,7 @@
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
                     <div class="subtext">(@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago)</div>
-                    @await Html.PartialAsync("TagsList", package.Tags)
+                    @await Html.PartialAsync("TagsList", new TagsModel{ Settings = settings, Tags = package.Tags })
                 </li>
             }
 

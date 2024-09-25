@@ -1,8 +1,11 @@
 ﻿@using Tetrifact.Core;
+@using Tetrifact.Web;
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
+    Settings settings = ViewData["settings"] as Settings;
 }
 
 <div class="layout-section">
@@ -16,7 +19,7 @@
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago)</div>
-                    @await Html.PartialAsync("TagsList", package.Tags)
+                    @await Html.PartialAsync("TagsList", new TagsModel{ Settings = settings, Tags = package.Tags } )
                 </li>
             }
         </ul>
@@ -35,7 +38,7 @@
 
     @if (tags.Any())
     {
-        @await Html.PartialAsync("TagsList", tags)
+        @await Html.PartialAsync("TagsList", new TagsModel{ Settings = settings, Tags = tags })
     }
     else
     {
