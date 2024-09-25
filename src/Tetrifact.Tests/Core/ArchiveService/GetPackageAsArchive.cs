@@ -57,7 +57,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetWithSevenZip()
         {
-            Settings.SevenZipBinaryPath = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
+            Settings.ExternaArchivingExecutable = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
             IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();

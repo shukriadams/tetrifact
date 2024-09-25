@@ -13,7 +13,6 @@
     <EmbeddedResource Include="currentVersion.txt" />
   </ItemGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Longbow.Cronos" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
@@ -22,7 +21,6 @@
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Tetrifact.Core\Tetrifact.Core.csproj" />

@@ -3,14 +3,14 @@
     public interface IPackagePruneService
     {
         /// <summary>
-        /// Prunes packages.
+        /// Runs a prune event. 
         /// </summary>
         void Prune();
 
         /// <summary>
-        /// 
+        /// Calculates packages to prune. 
         /// </summary>
         /// <returns></returns>
-        PruneReport Report();
+        PrunePlan GeneratePrunePlan();
     }
 }

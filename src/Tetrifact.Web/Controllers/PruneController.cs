@@ -17,7 +17,7 @@ namespace Tetrifact.Web
         [Route("report")]
         public string Report()
         {
-            PruneReport report = _pruneService.Report();
+            PrunePlan report = _pruneService.GeneratePrunePlan();
             string s = string.Empty;
             foreach(string l in report.Report)
                 s += l+ "\n";

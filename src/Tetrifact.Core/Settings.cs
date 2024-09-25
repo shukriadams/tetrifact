@@ -95,7 +95,9 @@ namespace Tetrifact.Core
 
         public bool WipeTempOnStart { get; set; }
 
-        public string SevenZipBinaryPath { get; set; }
+        public string ExternaArchivingExecutable { get; set; }
+
+        public ArchivingModes ArchivingMode { get; set; }
 
         public int ArchiveCPUThreads { get; set; }
 
@@ -112,50 +114,50 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
-            this.ArchiveCPUThreads = 4;                 // for 7zip only
-            this.ServerName = "Tetrifact";
+            this.AccessTokens = new List<string>();
             this.AllowPackageDelete = true;
             this.AllowPackageCreate = true;
-            this.WipeTempOnStart = true;
+            this.ArchiveCPUThreads = 4;                 // for compression solutions that 7zip only
+            this.ArchivingMode = ArchivingModes.Internal;   // default dotnet zip compression
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
-            this.LinkLockWaitTime = 1000;               // 1 second
-            this.CacheTimeout = 60 * 60;                // 1 hour
-            this.ListPageSize = 20;
-            this.IndexTagListLength = 20;
-            this.PagesPerPageGroup = 10;
-            this.MaxArchives = 10;
+            this.ArchiveQueuePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archiveQueue");
+            this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
             this.AuthorizationLevel = AuthorizationLevel.None;
-            this.AccessTokens = new List<string>();
-            this.PruneBrackets = new List<PruneBracket>();
-            this.TagColors = new List<TagColor>();
-            this.IsStorageCompressionEnabled = false;
+            this.CacheTimeout = 60 * 60;                // 1 hour
+            this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
+            this.IsStorageCompressionEnabled = false;
+            this.LinkLockWaitTime = 1000;               // 1 second
+            this.ListPageSize = 20;
+            this.LogLevel = "Warning";
+            this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+            this.IndexTagListLength = 20;
+            this.MaxArchives = 10;
+            this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am
+            this.MetricsGenerationBufferTime = 1; // 1 hour
+            this.MetricsGenerationInterval = 24;
+            this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
+            this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
+            this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
+            this.PagesPerPageGroup = 10;
             this.PruneWeeklyKeep = 7; 
             this.PruneMonthlyKeep = 4;
             this.PruneYearlyKeep = 12;
             this.PruneWeeklyThreshold = 21; // 3 weeks for weekly prune to kick in
             this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
             this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
-            this.WorkerThreadCount = 8;
-            this.MetricsGenerationInterval = 24;
             this.PruneIgnoreTags = new string[] { };
-            this.MetricsGenerationBufferTime = 1; // 1 hour
-            this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
-
-            this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.yml");
-            this.LogLevel = "Warning";
-            this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
-            this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
-            this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
-            this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
-            this.ArchiveQueuePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archiveQueue");
-            this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
-            this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
-            this.MetricsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "metrics");
-            this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.PruneCronMask = "0 2 * * *"; // once a day at 2 am
-            this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am
+            this.PruneBrackets = new List<PruneBracket>();
+            this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
+            this.ServerName = "Tetrifact";
+            this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.yml");
+            this.TagColors = new List<TagColor>();
+            this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
+            this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
+            this.WipeTempOnStart = true;
+            this.WorkerThreadCount = 8;
         }
 
         #endregion

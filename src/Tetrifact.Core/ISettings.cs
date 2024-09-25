@@ -221,9 +221,14 @@ namespace Tetrifact.Core
         bool WipeTempOnStart { get; set; }
 
         /// <summary>
-        /// Path to  7ip binary. 
+        /// Path to externa archive exectable like 7 zip.
         /// </summary>
-        string SevenZipBinaryPath { get; set; }
+        string ExternaArchivingExecutable { get; set; }
+
+        /// <summary>
+        /// Switch for archive method. Default is dotnet zip compression.
+        /// </summary>
+        ArchivingModes ArchivingMode { get; set; }
 
         /// <summary>
         /// Nr of threads to use for archiving process.
@@ -241,6 +246,9 @@ namespace Tetrifact.Core
         /// </summary>
         string SettingsPath { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         IEnumerable<TagColor> TagColors { get; set; }
     }
 }

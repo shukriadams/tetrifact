@@ -51,7 +51,7 @@ namespace Tetrifact.Core
                 return;
             }
 
-            PruneReport report = this.Report();
+            PrunePlan report = this.GeneratePrunePlan();
 
             foreach(string line in report.Report)
                _log.LogInformation(line);
@@ -81,9 +81,9 @@ namespace Tetrifact.Core
 
         }
 
-        public PruneReport Report()
+        public PrunePlan GeneratePrunePlan()
         {
-            // sort brackets oldest to most recent
+            // sort brackets oldest to most recent, clone to change settings without affecting original instances
             IList<PruneBracketProcess> brackets = _settings.PruneBrackets
                 .Select(p => PruneBracketProcess.Clone(p))
                 .OrderByDescending(p => p.Days)
@@ -173,7 +173,7 @@ namespace Tetrifact.Core
             report.Add(string.Empty);
             report.Add(" ******************************** Prune audit end **********************************");
 
-            return new PruneReport{ 
+            return new PrunePlan{ 
                 Report = report, 
                 Brackets = brackets
             };
