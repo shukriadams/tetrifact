@@ -14,7 +14,6 @@
       "environmentVariables": {
         "DOTNET_HOST_PATH": "dotnet",
         "PRUNE": "true",
-        "SEVEN_ZIP_BINARY_PATH": "",
         "AUTH_LEVEL": "Write",
         "PRUNE_WEEKLY_THRESHOLD": "1",
         "ACCESS_TOKENS": "",
@@ -33,7 +32,6 @@
       "environmentVariables": {
         "PRUNE": "true",
         "Logging__LogLevel__Microsoft": "Error",
-        "SEVEN_ZIP_BINARY_PATH": "",
         "TETRIFACT_SETTINGS_PATH": "D:\\Settings.yml",
         "PRUNE_BRACKETS": "5d 10, 20d 2, 10d 0",
         "PRUNE_IGNORE_TAGS": "keep",
