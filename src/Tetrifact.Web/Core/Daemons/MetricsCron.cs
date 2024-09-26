@@ -18,15 +18,15 @@ namespace Tetrifact.Web
         
         private readonly IDaemon _daemonrunner;
 
-        private readonly Settings _settings;
+        private readonly ISettings _settings;
 
         #endregion
 
         #region CTORS
 
-        public MetricsCron(IMetricsService metricsService, ISettingsProvider settingsProvider, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
+        public MetricsCron(IMetricsService metricsService, ISettings settings, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _log = log;
             _metricsService = metricsService;
             _applicationLifetime = applicationLifetime;

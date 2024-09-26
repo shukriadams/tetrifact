@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.TagsService
         {
             _memoryCache = MemoryCacheHelper.GetInstance();
             this.TagsServiceLogger = new TestLogger<ITagsService>();
-            this.TetrifactMemoryCache = MemoryCacheHelper.GetTetrifactMemoryCacheInstance();
+            this.TetrifactMemoryCache = TestContext.Get<ITetrifactMemoryCache>();
             this.PackageListCache = new PackageListCache(TetrifactMemoryCache);
             this.TagsService = new Core.TagsService(Settings, _memoryCache,this.FileSystem, this.TagsServiceLogger, this.PackageListCache);
             this.PackageList = new PackageListService(MemoryCacheHelper.GetInstance(), Settings, new HashService(), this.TagsService, this.FileSystem, new TestLogger<IPackageListService>());

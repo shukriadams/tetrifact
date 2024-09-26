@@ -34,10 +34,10 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public ArchiveStatusChecker(IDaemon daemonrunner, ISettingsProvider settingsProvider, IIndexReadService indexReader, IMemoryCache cache, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveStatusChecker> log)
+        public ArchiveStatusChecker(IDaemon daemonrunner, ISettings settings, IIndexReadService indexReader, IMemoryCache cache, IFileSystem fileSystem, IArchiveService archiveService, ILogger<ArchiveStatusChecker> log)
         {
             _archiveService = archiveService;
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _fileSystem = fileSystem;
             _daemonrunner = daemonrunner;
             _indexReader = indexReader;

@@ -10,9 +10,9 @@ namespace Tetrifact.Web
     {
         private readonly ISettings _settings;
 
-        public ReadLevel(ISettingsProvider settingsProvider)
+        public ReadLevel(ISettings settings)
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
         }
 
         public void OnActionExecuted(ActionExecutedContext context)

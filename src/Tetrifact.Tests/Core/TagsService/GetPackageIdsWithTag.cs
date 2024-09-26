@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.TagsService
                 .Setup(r => r.Directory.Exists(It.IsAny<string>()))
                 .Returns(false);
 
-            ITagsService tagservice = NinjectHelper.Get<ITagsService>("fileSystem", fs.Object);
+            ITagsService tagservice = TestContext.Get<ITagsService>("fileSystem", fs.Object);
 
             Assert.Throws<TagNotFoundException>(()=>{ tagservice.GetPackageIdsWithTags(new [] { "tag123" }); });
         }

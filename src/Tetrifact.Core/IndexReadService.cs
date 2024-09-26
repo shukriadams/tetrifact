@@ -33,9 +33,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReadService(ISettingsProvider settingsProvider, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService, IProcessLockManager lockInstance)
+        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService, IProcessLockManager lockInstance)
+
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _tagService = tagService;
             _log = log;
             _cache = cache;

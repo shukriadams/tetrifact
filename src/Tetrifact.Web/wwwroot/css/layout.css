@@ -18,9 +18,17 @@
     border-bottom: solid 1px #e6e6e6;
 }
 
+body.--dark .layout-label {
+    border-bottom-color: #3b3b3b;
+}
+
 .layout-value {
     display: table-cell;
     word-break: break-word;
     padding: 8px 0;
     border-bottom: solid 1px #e6e6e6;
+}
+
+body.--dark .layout-value {
+    border-bottom-color: #3b3b3b;
 }

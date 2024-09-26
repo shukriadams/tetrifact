@@ -72,9 +72,6 @@ namespace Tetrifact.Web
             services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
 
 
-
-
-
             // all ICron types registered here will automatically get loaded
             services.AddTransient<ICron, MetricsCron>();
             services.AddTransient<ICron, PruneCron>();
@@ -83,15 +80,20 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, ArchiveGenerator>();
             services.AddTransient<ICron, ArchiveStatusChecker>();
 
+            // ignore error, how else are we going to get an instaace of settings from this piece of crap Microsoft IOC framework?
+            ISettingsProvider settingsProvider = services.BuildServiceProvider().GetRequiredService<ISettingsProvider>();
+            ISettings settings = settingsProvider.Get();
+            services.AddSingleton(settings);
+
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
             });
-             services.Configure<IISServerOptions>(options =>
+
+            services.Configure<IISServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
             });
-
 
             // register filterws
             services.AddScoped<ReadLevel>();

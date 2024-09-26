@@ -23,9 +23,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackagePruneService(ISettingsProvider settingsProvider, IProcessLockManager processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> log)
+        public PackagePruneService(ISettings settings, IProcessLockManager processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> log)
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _indexReader = indexReader;
             _log = log;
             _timeprovider = timeprovider;

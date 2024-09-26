@@ -18,9 +18,9 @@ namespace Tetrifact.Core
         private readonly ILogger<IPackageDiffService> _log;
         private readonly IMemoryCache _cache;
 
-        public PackageDiffService(ISettingsProvider settingsProvider, IFileSystem filesystem, IIndexReadService indexReader, IMemoryCache cache, ILogger<IPackageDiffService> log)
+        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, IMemoryCache cache, ILogger<IPackageDiffService> log)
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _fileSystem = filesystem;
             _indexReader = indexReader;
             _log = log;

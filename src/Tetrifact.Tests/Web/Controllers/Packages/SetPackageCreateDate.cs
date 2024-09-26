@@ -15,7 +15,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
             indexReadService
                 .Setup(r => r.UpdatePackageCreateDate(It.IsAny<string>(), It.IsAny<string>()));
 
-            PackagesController controller = NinjectHelper.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             JsonResult result = controller.SetPackageCreateDate("somePackage", "some-date") as JsonResult;
             Assert.NotNull(result);
         }

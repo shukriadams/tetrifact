@@ -109,6 +109,7 @@ namespace Tetrifact.Tests
             _kernel.Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
             _kernel.Bind<W.IDaemon>().To<TestDaemon>();
             _kernel.Bind<ITimeProvideer>().To<TimeProvider>();
+            _kernel.Bind<ITetrifactMemoryCache>().To<TetrifactTestMemoryCache>();
 
             _kernel.Bind<ILogger<W.HomeController>>().To<TestLogger<W.HomeController>>();
             _kernel.Bind<ILogger<W.PruneController>>().To<TestLogger<W.PruneController>>();

@@ -31,9 +31,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettingsProvider settingsProvider)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _cache = cache;
             _indexReader = indexReader;
             _fileSystem = fileSystem;

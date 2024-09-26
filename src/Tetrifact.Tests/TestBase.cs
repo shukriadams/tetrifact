@@ -19,7 +19,7 @@ namespace Tetrifact.Tests
 
         protected PackageHelper PackageHelper { get { return _packageHelper; } }
 
-        protected TestContext NinjectHelper { get { return _testContext; } }
+        protected TestContext TestContext { get { return _testContext; } }
 
         protected MoqHelper MoqHelper { get { return _moq; } }
 

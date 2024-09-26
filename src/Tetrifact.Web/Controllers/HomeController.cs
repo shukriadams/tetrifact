@@ -24,9 +24,9 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettingsProvider settingsProvider, IProcessLockManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, IProcessLockManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _indexService = indexService;
             _packageList = packageList;
             _log = log;

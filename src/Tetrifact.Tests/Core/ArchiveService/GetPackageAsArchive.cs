@@ -12,13 +12,13 @@ namespace Tetrifact.Tests.ArchiveService
         /// 
         /// </summary>
         [Fact]
-        public void PackageStreamHasContent()
+        public async void PackageStreamHasContent()
         {
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             // create a package
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            archiveService.CreateArchive(testPackage.Id);
+            await archiveService.CreateArchive(testPackage.Id);
 
             // stream package as archive
             using (Stream testContent = archiveService.GetPackageAsArchive(testPackage.Id))
@@ -39,12 +39,12 @@ namespace Tetrifact.Tests.ArchiveService
         /// Coverage test
         /// </summary>
         [Fact]
-        public void GetExistingArchive()
+        public async void GetExistingArchive()
         {
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            archiveService.CreateArchive(testPackage.Id);
+            await archiveService.CreateArchive(testPackage.Id);
 
             using (Stream testContent1 = archiveService.GetPackageAsArchive(testPackage.Id))
             using (Stream testContent2 = archiveService.GetPackageAsArchive(testPackage.Id))
@@ -55,13 +55,13 @@ namespace Tetrifact.Tests.ArchiveService
         }
 
         [Fact]
-        public void GetWithSevenZip()
+        public async void GetWithSevenZip()
         {
             Settings.ExternaArchivingExecutable = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            archiveService.CreateArchive(testPackage.Id);
+            await archiveService.CreateArchive(testPackage.Id);
 
             using (Stream testContent1 = archiveService.GetPackageAsArchive(testPackage.Id))
             using (Stream testContent2 = archiveService.GetPackageAsArchive(testPackage.Id))
@@ -77,7 +77,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetNonExistent()
         {
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             ArchiveNotFoundException exception = Assert.Throws<ArchiveNotFoundException>(() => {
                 using (Stream zipStream = archiveService.GetPackageAsArchive("an invalid package id")){ }
@@ -92,7 +92,7 @@ namespace Tetrifact.Tests.ArchiveService
         {
             // create a package 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             // create a fake archive temp file so GetPackageAsArchive() goes into wait state
             string tempArchivePath = archiveService.GetPackageArchiveTempPath(testPackage.Id);
@@ -129,16 +129,17 @@ namespace Tetrifact.Tests.ArchiveService
         /// 
         /// </summary>
         [Fact]
-        public void GetArchiveCompressionEnabled()
+        public async void GetArchiveCompressionEnabled()
         {
             Settings.IsStorageCompressionEnabled = true;
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             // create package
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
             // force create archive
-            archiveService.CreateArchive(testPackage.Id);
+            await archiveService.CreateArchive(testPackage.Id);
 
             using (Stream testContent = archiveService.GetPackageAsArchive(testPackage.Id))
             {
@@ -154,7 +155,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_Nocompress_FileMissing()
         {
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 
@@ -171,7 +172,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchive_CompressEnabled_FileMissing()
         {
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             Settings.IsStorageCompressionEnabled = true;
 

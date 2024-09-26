@@ -53,17 +53,6 @@ namespace Tetrifact.Core
 
         public bool Prune { get; set; }
 
-        public int PruneMonthlyThreshold { get; set; }
-
-        public int PruneMonthlyKeep { get; set; }
-
-        public int PruneWeeklyThreshold { get; set; }
-
-        public int PruneWeeklyKeep { get; set; }
-
-        public int PruneYearlyThreshold { get; set; }
-
-        public int PruneYearlyKeep { get; set; }
 
         public int WorkerThreadCount { get; set; }
 
@@ -148,12 +137,6 @@ namespace Tetrifact.Core
             this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
             this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
             this.PagesPerPageGroup = 10;
-            this.PruneWeeklyKeep = 7; 
-            this.PruneMonthlyKeep = 4;
-            this.PruneYearlyKeep = 12;
-            this.PruneWeeklyThreshold = 21; // 3 weeks for weekly prune to kick in
-            this.PruneMonthlyThreshold = 90; // circa 3 months for monthly prune to kick in
-            this.PruneYearlyThreshold = 365; // circa 1 year for yearly prune to kick in, this applies to all packages after that
             this.PruneIgnoreTags = new string[] { };
             this.PruneCronMask = "0 2 * * *"; // once a day at 2 am
             this.PruneBrackets = new List<PruneBracket>();

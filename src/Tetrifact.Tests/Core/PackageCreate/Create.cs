@@ -251,7 +251,7 @@ namespace Tetrifact.Tests.PackageCreate
             };
 
             PackageCreate.Create(package);
-            IArchiveService archiveService = NinjectHelper.Get<IArchiveService>();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
         
             // verify that archiving has been queued, we assume that if this exists, package archiving will be processed later
             string archiveQueuePath = archiveService.GetPackageArchiveQueuePath("mypackage");
@@ -347,7 +347,7 @@ namespace Tetrifact.Tests.PackageCreate
                     new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
-            IPackageCreateService _packageService = NinjectHelper.Get<IPackageCreateService>();
+            IPackageCreateService _packageService = TestContext.Get<IPackageCreateService>();
 
             PackageCreateResult result = _packageService.Create(postArgs);
             Assert.False(result.Success);

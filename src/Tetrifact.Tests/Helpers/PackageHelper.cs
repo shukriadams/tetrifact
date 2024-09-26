@@ -12,10 +12,12 @@ namespace Tetrifact.Tests
     public class PackageHelper
     {
         TestContext _context;
+        MoqHelper _moqHelper;
 
         public PackageHelper(TestContext context)
         {
             _context = context;
+            _moqHelper = new MoqHelper(_context);
         }
 
         public IEnumerable<string> GetManifestPaths(ISettings settings, string packageName)
@@ -45,11 +47,13 @@ namespace Tetrifact.Tests
         /// <returns>New package id</returns>
         public string CreateNewPackage(ISettings settings, IEnumerable<string> filesContent)
         {
+            
             IFileSystem filesystem = new FileSystem();
+            ITetrifactMemoryCache memcache = _moqHelper.CreateInstanceWithAllMoqed<ITetrifactMemoryCache>();
             IIndexReadService indexReader = new IndexReadService(
                 settings,
                 new TestMemoryCache(),
-                new Core.TagsService(settings, MemoryCacheHelper.GetInstance(), filesystem, new TestLogger<ITagsService>(), new PackageListCache(MemoryCacheHelper.GetTetrifactMemoryCacheInstance())),
+                new Core.TagsService(settings, MemoryCacheHelper.GetInstance(), filesystem, new TestLogger<ITagsService>(), new PackageListCache(memcache)),
                 new TestLogger<IIndexReadService>(),
                 filesystem,
                 HashServiceHelper.Instance(),

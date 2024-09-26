@@ -145,36 +145,6 @@ namespace Tetrifact.Core
         /// If true, package autoprune will run
         /// </summary>
         bool Prune { get; set; }
-        
-        /// <summary>
-        /// Minimum age (in days) for a package to be applicable for monthly prune 
-        /// </summary>
-        int PruneMonthlyThreshold { get; set; }
-
-        /// <summary>
-        /// Number of packages to keep per month. 
-        /// </summary>
-        int PruneMonthlyKeep { get; set; }
-
-        /// <summary>
-        /// Minimum age (in days) for a package to be applicable for weekly prune 
-        /// </summary>
-        int PruneWeeklyThreshold { get; set; }
-
-        /// <summary>
-        /// Number of packages to keep per week.
-        /// </summary>
-        int PruneWeeklyKeep { get; set; }
-
-        /// <summary>
-        /// Minimum age (in days) for a package to be applicable for yearly prune 
-        /// </summary>
-        int PruneYearlyThreshold { get; set; }
-
-        /// <summary>
-        /// Number of packages to keep per year. 
-        /// </summary>
-        int PruneYearlyKeep { get; set; }
 
         /// <summary>
         /// Nr of threads to spread worker processes over where possible

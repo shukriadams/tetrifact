@@ -15,12 +15,7 @@ namespace Tetrifact.Tests.PackagePrune
         public Prune()
         {
             Settings.Prune = true;
-            Settings.PruneWeeklyThreshold = 7;
-            Settings.PruneMonthlyThreshold = 31;
-            Settings.PruneYearlyThreshold = 364;
-            Settings.PruneWeeklyKeep = 3;
-            Settings.PruneMonthlyKeep = 3;
-            Settings.PruneYearlyKeep = 3;
+
             Settings.PruneIgnoreTags = new string[] { "keep" };
 
             _packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[]{ Settings, this.IndexReader }); 
@@ -102,14 +97,13 @@ namespace Tetrifact.Tests.PackagePrune
             // run pr
             ISettings settings = Settings;
             settings.Prune = true;
-            settings.PruneWeeklyThreshold = 7;
-            settings.PruneMonthlyThreshold = 31;
-            settings.PruneYearlyThreshold = 364;
-            settings.PruneWeeklyKeep = 4;
-            settings.PruneMonthlyKeep = 3;
-            settings.PruneYearlyKeep = 2;
+            Settings.PruneBrackets = new List<PruneBracket>(){
+                new PruneBracket{ Days=7, Amount = 4 },
+                new PruneBracket{ Days=31, Amount = 3 },
+                new PruneBracket{ Days=365, Amount = 2 }
+            };
 
-            // mock time time provider to return a shifting "now" date
+            // mock time provider to return a fixed "now" date, we will be changing "now" ass we go along
             DateTime now = DateTime.UtcNow;
             Mock<ITimeProvideer> timeProvider = new Mock<ITimeProvideer>();
             timeProvider.Setup(r => r.GetUtcNow())
@@ -117,27 +111,31 @@ namespace Tetrifact.Tests.PackagePrune
 
             PackagePruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { settings, this.IndexReader, timeProvider.Object });
 
-            // prune now - now packages must be deleted
+            // prune - no packages must be deleted
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
+
             Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
 
             // shift time by 8 days to put packages into weekly bracket, 1 package should be deleted
             now = DateTime.UtcNow.AddDays(8);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
+
             Assert.Equal(4, this.IndexReader.GetAllPackageIds().Count());
 
             // shift time by 32 days to put packages into monthly bracket, 1 more package should be deleted
             now = DateTime.UtcNow.AddDays(32);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
+
             Assert.Equal(3, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 365 days to put packages into yearly bracket, 1 more package should be deleted
-            now = DateTime.UtcNow.AddDays(365);
+            // shift time by 366 days to put packages into yearly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(366);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
+
             Assert.Equal(2, this.IndexReader.GetAllPackageIds().Count());
         }
 
@@ -158,7 +156,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Missing_Manifest()
         {
-            Settings.PruneWeeklyKeep = 0;
+            // Settings.PruneWeeklyKeep = 0;
             Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService, IIndexReadService>(new object[]{ Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance() });
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))

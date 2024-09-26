@@ -32,9 +32,9 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TagsService(ISettingsProvider settingsProvider, IMemoryCache cache, IFileSystem fileSystem, ILogger<ITagsService> log, IPackageListCache packageListCache)
+        public TagsService(ISettings settings, IMemoryCache cache, IFileSystem fileSystem, ILogger<ITagsService> log, IPackageListCache packageListCache)
         {
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _log = log;
             _packageListCache = packageListCache;
             _fileSystem = fileSystem;

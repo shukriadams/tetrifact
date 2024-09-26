@@ -1,0 +1,1 @@
+﻿// Ninject type registrations are in Helpers/TestContext.

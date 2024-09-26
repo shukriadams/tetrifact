@@ -36,10 +36,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageListService(IMemoryCache memoryCache, ISettingsProvider settingsProvider, IHashService hashService, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> log)
+        public PackageListService(IMemoryCache memoryCache, ISettings settings, IHashService hashService, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> log)
         {
             _cache = memoryCache;
-            _settings = settingsProvider.Get();
+            _settings = settings;
             _tagService = tagService;
             _log = log;
             _fileSystem = fileSystem;

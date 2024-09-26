@@ -52,7 +52,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchiveQueued()
         {
-            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
+            Core.ArchiveService archiveService = TestContext.Get<Core.ArchiveService>();
 
             // create package, mock existing archive file
             TestPackage randomPackage = PackageHelper.CreateRandomPackage();
@@ -67,7 +67,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchiveComplete()
         {
-            Core.ArchiveService archiveService = NinjectHelper.Get<Core.ArchiveService>();
+            Core.ArchiveService archiveService = TestContext.Get<Core.ArchiveService>();
 
             // create package, mock existing archive file
             TestPackage randomPackage = PackageHelper.CreateRandomPackage();

@@ -50,7 +50,7 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
-            TetrifactMemoryCache = MemoryCacheHelper.GetTetrifactMemoryCacheInstance();
+            TetrifactMemoryCache = TestContext.Get<ITetrifactMemoryCache>();
 
             TagService = new Core.TagsService(
                 Settings,
@@ -60,7 +60,7 @@ namespace Tetrifact.Tests
 
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), NinjectHelper.Get<IProcessLockManager>());
+            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), TestContext.Get<IProcessLockManager>());
             ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { Settings }); 
 
             IndexReader.Initialize();
