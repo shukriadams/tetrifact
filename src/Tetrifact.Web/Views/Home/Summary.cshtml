@@ -2,7 +2,7 @@
 @using Tetrifact.Web;
 
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/Layout.cshtml";
     IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
     IEnumerable<string> tags = ViewData["tags"] as IEnumerable<string>;
     Settings settings = ViewData["settings"] as Settings;

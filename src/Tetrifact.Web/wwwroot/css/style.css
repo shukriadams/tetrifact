@@ -14,6 +14,11 @@ body {
 
 }
 
+body.--dark {
+    background-color: #282828;
+    color: #dfdede;
+}
+
 h2 {
     margin-top: 40px;
 }
@@ -54,6 +59,11 @@ ol, ul {
 input[type=text] {
     height: 35px;
     padding: 6px;
+    border: none;
+}
+
+body.--dark input[type=text] {
+    background-color: #dfdede;
 }
 
 .shell {

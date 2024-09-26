@@ -1,5 +1,7 @@
-﻿@{
-    string search = ViewData["search"] as string; 
+﻿@using Tetrifact.Web;
+
+@{
+    LayoutViewModel viewModel = ViewData["layoutViewModel"] as LayoutViewModel;
 }
 
 <!DOCTYPE html>
@@ -7,23 +9,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@viewModel.PageTitle | @viewModel.ServerName</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/package.css" />
     <link rel="stylesheet" href="/css/tags.css" />
 </head>
-<body>
+<body class="--@viewModel.ThemeClass">
     <div class="shell">
         <div class="fixed">
             
             <header>
                 <div class="gridScaffold">
                     <a class="title" href="/">
-                        @ViewData["serverName"] <span class="subtitle">Artifact storage</span>
+                        @viewModel.ServerName <span class="subtitle">@viewModel.ServerSecondaryName</span>
                     </a>
                     <div class="searchFieldHolder">
-                        <input class="txtSearch" type="text" value="@search" />
+                        <input class="txtSearch" type="text" value="@viewModel.Search" />
                         <button class="btnSearch button button--dark">Find</button>
                     </div>
                 </div>
@@ -32,7 +34,7 @@
             <main>
                 <div class="gridScaffold">
                     <h1>
-                        @ViewData["Title"]
+                        @viewModel.PageTitle
                     </h1>
                     @RenderBody()
                 </div>

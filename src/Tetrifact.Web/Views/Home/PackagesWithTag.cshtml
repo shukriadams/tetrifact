@@ -1,8 +1,10 @@
 ﻿@using Tetrifact.Core;
+
 @{
+    Layout = "~/Views/Shared/Layout.cshtml";
+ 
     string tag = ViewData["tag"] as string;
     ViewData["Title"] = $"Packages tagged with \"{tag}\"";
-    Layout = "~/Views/Shared/_Layout.cshtml";
     IEnumerable<Package> packages = ViewData["packages"] as IEnumerable<Package>;
 }
 

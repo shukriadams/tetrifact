@@ -6,9 +6,19 @@ namespace Tetrifact.Core
     public interface ISettings
     {
         /// <summary>
+        /// Directory archive generation files are stored in. Wiped on app start.
+        /// </summary>
+        string ArchiveQueuePath { get; set; }
+
+        /// <summary>
         /// Name of server, displayed in layout. Cosmetic only
         /// </summary>
         string ServerName { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string ServerSecondaryName { get; set; }
 
         /// <summary>
         /// Path where packages are stored. Each package lives in its own directory.
@@ -20,10 +30,6 @@ namespace Tetrifact.Core
         /// </summary>
         string TempPath { get; set; }
 
-        /// <summary>
-        /// Directory archive generation files are stored in. Wiped on app start.
-        /// </summary>
-        string ArchiveQueuePath { get; set; }
 
         /// <summary>
         /// 
@@ -245,6 +251,11 @@ namespace Tetrifact.Core
         /// Location on disk that app settings is located
         /// </summary>
         string SettingsPath { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string ThemeClass { get; set; }
 
         /// <summary>
         /// 

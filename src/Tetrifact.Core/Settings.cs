@@ -77,6 +77,8 @@ namespace Tetrifact.Core
 
         public string ServerName { get; set; }
 
+        public string ServerSecondaryName { get; set; }
+
         public string LogPath { get; set; }
 
         public string LogLevel{ get; set; }
@@ -104,6 +106,11 @@ namespace Tetrifact.Core
         public IEnumerable<PruneBracket> PruneBrackets { get; set; }
 
         public string SettingsPath { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ThemeClass { get; set; }
 
         public IEnumerable<TagColor> TagColors { get; set; }
 
@@ -152,10 +159,12 @@ namespace Tetrifact.Core
             this.PruneBrackets = new List<PruneBracket>();
             this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
             this.ServerName = "Tetrifact";
+            this.ServerSecondaryName = "Artefact Storage";
             this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.yml");
             this.TagColors = new List<TagColor>();
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
+            this.ThemeClass = "dark";
             this.WipeTempOnStart = true;
             this.WorkerThreadCount = 8;
         }

@@ -2,8 +2,9 @@
 @using Tetrifact.Web;
 
 @{
+    Layout = "~/Views/Shared/Layout.cshtml";
+
     ViewData["Title"] = "Packages";
-    Layout = "~/Views/Shared/_Layout.cshtml";
     PageableData<Package> packages = ViewData["packages"] as PageableData<Package>;
     string pager = ViewData["pager"] as string;
     Settings settings = ViewData["settings"] as Settings;

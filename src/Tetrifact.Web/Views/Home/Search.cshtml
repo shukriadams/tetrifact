@@ -2,9 +2,9 @@
 @using Tetrifact.Web;
 
 @{
+    Layout = "~/Views/Shared/Layout.cshtml";
     string tag = ViewData["tag"] as string;
     ViewData["Title"] = $"Search";
-    Layout = "~/Views/Shared/_Layout.cshtml";
     PageableData<Package> packages = ViewData["packages"] as PageableData<Package>;
     string pager = ViewData["pager"] as string;
     string search = ViewData["search"] as string; 
