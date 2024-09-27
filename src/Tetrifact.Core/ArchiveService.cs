@@ -187,7 +187,7 @@ namespace Tetrifact.Core
 
             Manifest manifest = _indexReader.GetManifest(packageId);
 
-            // copy all files to single Direct
+            // copy all files to single Directory
             if (!Directory.Exists(tempDir2))
             {
                 _log.LogInformation($"Archive generation : gathering files for package {packageId}");
@@ -195,7 +195,7 @@ namespace Tetrifact.Core
                 long cacheUpdateIncrements = manifest.Files.Count / 100;
                 long counter = 0;
 
-                manifest.Files.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(async delegate (ManifestItem file)
+                manifest.Files.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(delegate (ManifestItem file)
                 {
                     string targetPath = Path.Join(tempDir1, file.Path);
                     List<string> knownDirectories = new List<string>();
@@ -210,7 +210,8 @@ namespace Tetrifact.Core
                             ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
                             using (var storageArchiveStream = storageArchiveEntry.Open())
                             using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                                await StreamsHelper.CopyAsync(storageArchiveStream, writeStream, bufSize);
+                                // copy async not used here because cannot get this delegate to block asParallel, 
+                                StreamsHelper.Copy(storageArchiveStream, writeStream, bufSize);
                         }
                     }
                     else
@@ -220,7 +221,7 @@ namespace Tetrifact.Core
                             throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
                         string dir = Path.GetDirectoryName(targetPath);
-                        if (!knownDirectories.Contains(dir)) 
+                        if (!knownDirectories.Contains(dir))
                         {
                             Directory.CreateDirectory(dir);
                             knownDirectories.Add(dir);
@@ -229,10 +230,11 @@ namespace Tetrifact.Core
                         // is this the fastest way of copying? benchmark
                         using (Stream fileStream = fileLookup.Content)
                         using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                            await StreamsHelper.CopyAsync(fileStream, writeStream, bufSize);
+                            // copy async not used here because cannot get this delegate to block asParallel, 
+                            StreamsHelper.Copy(fileStream, writeStream, bufSize); 
                     }
 
-                    counter ++;
+                    counter++;
 
                     if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
                     {
@@ -282,7 +284,7 @@ namespace Tetrifact.Core
             }
         }
 
-        private async Task ArchiveDefaultMode(string packageId, string archivePathTemp)
+        private async Task ArchiveDotNetZip(string packageId, string archivePathTemp)
         {
             DateTime compressStart = DateTime.Now;
             
@@ -422,11 +424,11 @@ namespace Tetrifact.Core
 
             try
             {
-                if (string.IsNullOrEmpty(_settings.ExternaArchivingExecutable))
-                    await ArchiveDefaultMode(packageId, archivePathTemp);
-                else
+                if (_settings.ArchivingMode == ArchivingModes.SevenZip)
                     await Archive7Zip(packageId, archivePathTemp);
-
+                else
+                    await ArchiveDotNetZip(packageId, archivePathTemp);
+                
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);
                 TimeSpan totalTaken = DateTime.Now - totalStart;

@@ -58,6 +58,8 @@ namespace Tetrifact.Tests.ArchiveService
         public async void GetWithSevenZip()
         {
             Settings.ExternaArchivingExecutable = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
+            Settings.ArchivingMode = ArchivingModes.SevenZip;
+
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();

@@ -24,6 +24,12 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void HappyPath()
         {
+            Settings.PruneBrackets = new List<PruneBracket>(){
+                new PruneBracket{ Days=7, Amount = 3 },
+                new PruneBracket{ Days=31, Amount = 3 },
+                new PruneBracket{ Days=365, Amount = 3 }
+            };
+
             // create packages :
             // packages under week threshold, none of these should not be deleted
             PackageHelper.CreateNewPackageFiles("under-week-1");
@@ -74,7 +80,7 @@ namespace Tetrifact.Tests.PackagePrune
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();
 
-            Assert.Equal(14, packages.Count());
+            Assert.Equal(14, packages.Count()); // 5 + 3 + 3 + 3 
 
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-month-")).Count());

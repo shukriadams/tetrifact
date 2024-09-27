@@ -49,7 +49,7 @@ namespace Tetrifact.Tests
         {
             
             IFileSystem filesystem = new FileSystem();
-            ITetrifactMemoryCache memcache = _moqHelper.CreateInstanceWithAllMoqed<ITetrifactMemoryCache>();
+            ITetrifactMemoryCache memcache = _context.Get<ITetrifactMemoryCache>();
             IIndexReadService indexReader = new IndexReadService(
                 settings,
                 new TestMemoryCache(),

@@ -227,7 +227,7 @@ namespace Tetrifact.Tests.repositoryCleaner
             lockInstance.Lock(ProcessLockCategories.Package_Create, "some-package");
             CleanResult result = repoCleaner.Clean();
 
-            Assert.Contains(result.Description, "Package locks found, clean exited before start");
+            Assert.Contains("Package locks found, clean exited before start", result.Description);
         }
     }
 }
