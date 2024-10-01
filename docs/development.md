@@ -13,13 +13,8 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 
 ## Requirements
 
-- Dotnetcore 3.1 SDK
+- Dotnet 6.0 SDK
 - Visual Studio 2019 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version. Visual Studio 2017 isn't supported.
-
-### Install on Fedora
-
-    sudo wget -q -O /etc/yum.repos.d/microsoft-prod.repo https://packages.microsoft.com/config/fedora/31/prod.repo
-    sudo dnf install dotnet-sdk-3.1 -y
 
 ## Running from Visual Studio
 
@@ -48,7 +43,7 @@ to view navigate your browser to
 
     http://localhost:5001/
 
-All content is placed in /src/Tetrifact.Web/bin/Debug/netcoreapp3.1/data
+All content is placed in /src/Tetrifact.Web/bin/Debug/net6.0/data
 
 ## Build for deploy
 
@@ -57,7 +52,7 @@ from command line
     cd /src
     dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release
 
-Your build artefacts will be in /src/Tetrifact.Web/bin/Debug/netcoreapp3.1/publish/
+Your build artefacts will be in /src/Tetrifact.Web/bin/Debug/net6.0/publish/
 To start the server run the following from the same folder as the build artefacts
 
     dotnet Tetrifact.Web.dll

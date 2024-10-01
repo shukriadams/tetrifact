@@ -10,7 +10,7 @@ Tetrifact is a server for storing build arfefacts. It is primarily written as a 
 - supports build hashing and comparison, allowing you to get file differences between two builds
 - automatic pruning of old builds
 - supports tagging of builds
-- Written Docker- and Linux-first in C# on Dotnetcore 3.1, runs on any system that supports this framework
+- Written Docker- and Linux-first in C# on Dotnetcore 6.0, runs on any system that supports this framework
 
 ### Hardware
 
@@ -54,7 +54,7 @@ A zip of the build can then be downloaded with
 
 ### Binaries
 
-Binary builds require DotNetCore 3.1 or better to run. Binaries can be downloaded from the 
+Binary builds require DotNetCore 6.0 or better to run. Binaries can be downloaded from the 
 [official Tetrifact demo server](https://tetrifact.manafeed.com).
 
 To start Tetrifact unzip and from the command line run

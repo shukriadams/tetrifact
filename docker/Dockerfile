@@ -10,7 +10,7 @@ RUN apt-get update \
     && sh -c 'dpkg -i packages-microsoft-prod.deb' \
     && apt-get install apt-transport-https -y \
     && apt-get update \
-    && apt-get install aspnetcore-runtime-3.1 -y \
+    && apt-get install aspnetcore-runtime-6.0 -y \
     && apt-get install p7zip-full -y \
     ## clean up
     && rm packages-microsoft-prod.deb \

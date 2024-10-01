@@ -26,7 +26,7 @@ docker run \
     sh -c "cd /tmp/tetrifact && \
         dotnet restore && \
         dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
-        cd ./Tetrifact.Web/bin/Release/netcoreapp3.1 && \
+        cd ./Tetrifact.Web/bin/Release/net6.0 && \
         zip -r ./Tetrifact.$TAG.zip ./publish/*"
 
 rm -rf .stage 
@@ -37,7 +37,7 @@ mkdir -p .stage/.artefacts
 cp ./../../docker/Dockerfile ./.stage
 
 # make local copy of build 
-cp -R ./../../src/Tetrifact.Web/bin/Release/netcoreapp3.1/publish/* ./.stage/.artefacts
+cp -R ./../../src/Tetrifact.Web/bin/Release/net6.0/publish/* ./.stage/.artefacts
 
 # build hosting container
 cd ./.stage
@@ -68,7 +68,7 @@ if [ ! -z $TETRIFACT_UPLOAD_TOKEN ]; then
     curl -X POST \
         -H "Content-Type: multipart/form-data" \
         -H "Authorization: token ${TETRIFACT_UPLOAD_TOKEN}" \
-        -F "Files=@./../../src/Tetrifact.Web/bin/Release/netcoreapp3.1/Tetrifact.${TAG}.zip;filename=Tetrifact.zip" \
+        -F "Files=@./../../src/Tetrifact.Web/bin/Release/net6.0/Tetrifact.${TAG}.zip;filename=Tetrifact.zip" \
         https://tetrifact.manafeed.com/v1/packages/Tetrifact.$TAG?isarchive=true
 fi
 

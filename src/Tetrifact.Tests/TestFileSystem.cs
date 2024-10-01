@@ -507,6 +507,11 @@ namespace Tetrifact.Tests
         {
             throw new NotImplementedException();
         }
+
+        public void Move(string sourceFileName, string destFileName, bool overwrite)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class TestDirectory : IDirectory
