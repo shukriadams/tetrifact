@@ -1,6 +1,6 @@
 version: "2"
 services:
   tetribuild:
-    image: shukriadams/tetrifact-build:0.0.4
+    image: mcr.microsoft.com/dotnet/sdk:6.0
     container_name: tetrifactbuild
     restart: unless-stopped

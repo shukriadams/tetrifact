@@ -22,7 +22,7 @@ echo $TAG > ./../../src/Tetrifact.Web/currentVersion.txt
 docker run \
     -e TAG=$TAG \
     -v $(pwd)./../../src:/tmp/tetrifact \
-    shukriadams/tetrifact-build:0.0.4 \
+    mcr.microsoft.com/dotnet/sdk:6.0 \
     sh -c "cd /tmp/tetrifact && \
         dotnet restore && \
         dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
