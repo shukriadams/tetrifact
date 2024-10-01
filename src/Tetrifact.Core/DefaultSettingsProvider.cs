@@ -75,12 +75,14 @@ namespace Tetrifact.Core
                     else
                     {
                         Console.WriteLine("No YML config provided for settings, and YML config found on disk. Falling back to defaults for everything");
-                        ymlTextContent = string.Empty;
+                    }
+
+                    if (!string.IsNullOrEmpty(ymlTextContent))
+                    {
+                        IDeserializer deserializer = YmlHelper.GetDeserializer();
+                        _settings = deserializer.Deserialize<Settings>(ymlTextContent);
                     }
                 }
-
-                IDeserializer deserializer = YmlHelper.GetDeserializer();
-                _settings = deserializer.Deserialize<Settings>(ymlTextContent);
             }
 
             return _settings;
