@@ -19,6 +19,7 @@ fi
 # write tag to currentVersion.txt in source, this will be displayed by web ui
 echo $TAG > ./../../src/Tetrifact.Web/currentVersion.txt 
 
+# build
 docker run \
     -e TAG=$TAG \
     -v $(pwd)./../../src:/tmp/tetrifact \
@@ -26,7 +27,14 @@ docker run \
     sh -c "cd /tmp/tetrifact && \
         dotnet restore && \
         dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
-        cd ./Tetrifact.Web/bin/Release/net6.0 && \
+        cd ./Tetrifact.Web/bin/Release/net6.0"
+
+# zip, use older build container that has zip installed
+docker run \
+    -e TAG=$TAG \
+    -v $(pwd)./../../src:/tmp/tetrifact \
+    shukriadams/tetrifact-build:0.0.4 \
+    sh -c "cd /tmp/tetrifact/Tetrifact.Web/bin/Release/net6.0 && \
         zip -r ./Tetrifact.$TAG.zip ./publish/*"
 
 rm -rf .stage 
