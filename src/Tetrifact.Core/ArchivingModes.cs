@@ -2,7 +2,7 @@
 {
     public enum ArchivingModes
     {
-        Internal,
-        SevenZip
+        Default,    // internal dotnet zip compressio
+        SevenZip    // seven zip. requires external 7zip binary. 7zip support is still experimental.
     }
 }

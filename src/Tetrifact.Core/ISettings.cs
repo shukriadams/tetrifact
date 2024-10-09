@@ -11,12 +11,12 @@ namespace Tetrifact.Core
         string ArchiveQueuePath { get; set; }
 
         /// <summary>
-        /// Name of server, displayed in layout. Cosmetic only
+        /// Name of server, displayed in layout. Cosmetic.
         /// </summary>
         string ServerName { get; set; }
 
         /// <summary>
-        /// 
+        /// Secondary title in header. Cosmetic.
         /// </summary>
         string ServerSecondaryName { get; set; }
 
@@ -30,16 +30,10 @@ namespace Tetrifact.Core
         /// </summary>
         string TempPath { get; set; }
 
-
         /// <summary>
         /// 
         /// </summary>
         string LogPath { get; set; }
-
-        /// <summary>
-        /// Allowed values are: Information|Warning|Error
-        /// </summary>
-        string LogLevel { get; set; }
 
         /// <summary>
         /// Directory to store complete archives. Each archive is named for the package it contains.
@@ -82,9 +76,9 @@ namespace Tetrifact.Core
         bool AutoCreateArchiveOnPackageCreate { get; set; }
 
         /// <summary>
-        /// for debugging on production - if true, prune logic will run, but actual prune deletes will be suppressed.
+        /// for debugging on production - if false, prune logic will run, but actual prune deletes will be suppressed.
         /// </summary>
-        bool DEBUG_block_prune_deletes { get; set; }
+        bool PruneDeletesEnabled { get; set; }
 
         /// <summary>
         /// Time in milliseconds to wait for a locked link to be released.
@@ -114,7 +108,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Maximum number of archives to allow - once exceeded, older archives will be autodeleted
         /// </summary>
-        int MaxArchives { get; set; }
+        int MaximumArchivesToKeep { get; set; }
 
         /// <summary>
         /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
@@ -134,17 +128,17 @@ namespace Tetrifact.Core
         /// <summary>
         /// If true, package data will be compressed on storage. This will consume less disk space, but required more CPU power to read packages.
         /// </summary>
-        bool IsStorageCompressionEnabled { get; set; }
+        bool StorageCompressionEnabled { get; set; }
 
         /// <summary>
-        /// Zip compression for downloadable builds. Set via Env var with values 0-2
+        /// Zip compression for downloadable builds. Allowed values Optimal | Fastest | NoCompression | SmallestSize.
         /// </summary>
         CompressionLevel DownloadArchiveCompression { get; set; }
 
         /// <summary>
         /// If true, package autoprune will run
         /// </summary>
-        bool Prune { get; set; }
+        bool PruneEnabled { get; set; }
 
         /// <summary>
         /// Nr of threads to spread worker processes over where possible
@@ -152,19 +146,19 @@ namespace Tetrifact.Core
         int WorkerThreadCount { get; set; }
 
         /// <summary>
-        /// Comma-separated list of tags which will not be pruned.
+        /// List of tags which will not be pruned.
         /// </summary>
         IEnumerable<string> PruneIgnoreTags { get; set; }
 
         /// <summary>
         /// If false, existing packages cannot be deleted from UI or API.
         /// </summary>
-        bool AllowPackageDelete { get; set; }
+        bool PackageDeleteEnabled { get; set; }
 
         /// <summary>
         /// If false, package uploads from UI or API will not be allowed.
         /// </summary>
-        bool AllowPackageCreate { get; set; }
+        bool PackageCreateEnabled { get; set; }
 
         /// <summary>
         /// Interval in hours for metrics to be regenerated.
@@ -182,7 +176,7 @@ namespace Tetrifact.Core
         string PruneCronMask { get; set; }
 
         /// <summary>
-        /// 
+        /// Cron mask for running metrics generation.
         /// </summary>
         string MetricsCronMask { get; set; }
 
@@ -192,22 +186,23 @@ namespace Tetrifact.Core
         int MetricsGenerationBufferTime { get; set; }
 
         /// <summary>
-        /// /
+        /// If true, Tetrifact's temp directory will be purged on start. This is highly recommended, as it cleans out hanging archives
+        /// and other junk.
         /// </summary>
         bool WipeTempOnStart { get; set; }
 
         /// <summary>
-        /// Path to externa archive exectable like 7 zip.
+        /// Path to externa archive executable like 7 zip.
         /// </summary>
         string ExternaArchivingExecutable { get; set; }
 
         /// <summary>
-        /// Switch for archive method. Default is dotnet zip compression.
+        /// Switch for archive method. Default is dotnet zip compression. Allowed values are 
         /// </summary>
         ArchivingModes ArchivingMode { get; set; }
 
         /// <summary>
-        /// Nr of threads to use for archiving process.
+        /// Nr of threads to use for archiving process, where archive supports multithreading.
         /// </summary>
         int ArchiveCPUThreads { get; set; }
 
@@ -223,9 +218,9 @@ namespace Tetrifact.Core
         string SettingsPath { get; set; }
 
         /// <summary>
-        /// 
+        /// Theme modifier appearance. Allowed values are dark|<empty string>.
         /// </summary>
-        string ThemeClass { get; set; }
+        string Theme { get; set; }
 
         /// <summary>
         /// 

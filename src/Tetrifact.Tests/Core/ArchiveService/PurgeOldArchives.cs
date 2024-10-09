@@ -11,17 +11,17 @@ namespace Tetrifact.Tests.ArchiveService
         public void PurgeBasic()
         {
             // create fake archives, max nr + 1
-            for (int i = 0; i < Settings.MaxArchives + 1; i++) 
+            for (int i = 0; i < Settings.MaximumArchivesToKeep + 1; i++) 
                 File.WriteAllText(Path.Combine(Settings.ArchivePath, $"arch{i}.zip"), string.Empty);
     
             // ensure max archives exceeded by
             string[] archives = Directory.GetFiles(Settings.ArchivePath);
-            Assert.True(archives.Length > Settings.MaxArchives);
+            Assert.True(archives.Length > Settings.MaximumArchivesToKeep);
 
             // purge then ensure one has been deleted, as no more than max
             base.ArchiveService.PurgeOldArchives();
             archives = Directory.GetFiles(Settings.ArchivePath);
-            Assert.Equal(Settings.MaxArchives, archives.Length);
+            Assert.Equal(Settings.MaximumArchivesToKeep, archives.Length);
         }
         
         
@@ -40,7 +40,7 @@ namespace Tetrifact.Tests.ArchiveService
             Core.ArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[]{ Settings }); //Core.ArchiveService(IndexReader, new ThreadDefault(), LockProvider, fileSystem, ArchiveLogger , );
 
             // force an archive and ensure that all archives will be purged
-            Settings.MaxArchives = 0;
+            Settings.MaximumArchivesToKeep = 0;
             File.WriteAllText(Path.Join(Settings.ArchivePath, "test"), string.Empty);
 
             archiveService.PurgeOldArchives();

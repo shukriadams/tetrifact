@@ -37,7 +37,7 @@ namespace Tetrifact.Core
 
         public int LinkLockWaitTime { get; set; }
 
-        public int MaxArchives { get; set; }
+        public int MaximumArchivesToKeep { get; set; }
 
         public long SpaceSafetyThreshold { get; set; }
 
@@ -45,22 +45,22 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> AccessTokens { get; set; }
         
-        public bool IsStorageCompressionEnabled { get; set; }
+        public bool StorageCompressionEnabled { get; set; }
 
         public bool AutoCreateArchiveOnPackageCreate { get; set; }
         
         public CompressionLevel DownloadArchiveCompression { get; set; }
 
-        public bool Prune { get; set; }
+        public bool PruneEnabled { get; set; }
 
 
         public int WorkerThreadCount { get; set; }
 
         public IEnumerable<string> PruneIgnoreTags { get; set; }
 
-        public  bool AllowPackageDelete { get; set; }
+        public  bool PackageDeleteEnabled { get; set; }
 
-        public  bool AllowPackageCreate { get; set; }
+        public  bool PackageCreateEnabled { get; set; }
 
         public int MetricsGenerationInterval { get; set; }
 
@@ -70,8 +70,6 @@ namespace Tetrifact.Core
 
         public string LogPath { get; set; }
 
-        public string LogLevel{ get; set; }
-
         public string ArchiveQueuePath { get; set; }
 
         public string CleanCronMask { get; set; }
@@ -80,7 +78,7 @@ namespace Tetrifact.Core
 
         public string MetricsCronMask { get; set; }
 
-        public bool DEBUG_block_prune_deletes { get ;set; }
+        public bool PruneDeletesEnabled { get ;set; }
 
         public int MetricsGenerationBufferTime { get; set; }
 
@@ -99,7 +97,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// 
         /// </summary>
-        public string ThemeClass { get; set; }
+        public string Theme { get; set; }
 
         public IEnumerable<TagColor> TagColors { get; set; }
 
@@ -111,10 +109,10 @@ namespace Tetrifact.Core
         {
             // defaults
             this.AccessTokens = new List<string>();
-            this.AllowPackageDelete = true;
-            this.AllowPackageCreate = true;
+            this.PackageDeleteEnabled = true;
+            this.PackageCreateEnabled = true;
             this.ArchiveCPUThreads = 4;                 // for compression solutions that 7zip only
-            this.ArchivingMode = ArchivingModes.Internal;   // default dotnet zip compression
+            this.ArchivingMode = ArchivingModes.Default;   // default dotnet zip compression
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
             this.ArchiveQueuePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archiveQueue");
@@ -123,13 +121,12 @@ namespace Tetrifact.Core
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.DownloadArchiveCompression = CompressionLevel.Optimal;
-            this.IsStorageCompressionEnabled = false;
+            this.StorageCompressionEnabled = false;
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
-            this.LogLevel = "Warning";
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
             this.IndexTagListLength = 20;
-            this.MaxArchives = 10;
+            this.MaximumArchivesToKeep = 10;
             this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am
             this.MetricsGenerationBufferTime = 1; // 1 hour
             this.MetricsGenerationInterval = 24;
@@ -138,16 +135,17 @@ namespace Tetrifact.Core
             this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
             this.PagesPerPageGroup = 10;
             this.PruneIgnoreTags = new string[] { };
+            this.PruneDeletesEnabled = true;
             this.PruneCronMask = "0 2 * * *"; // once a day at 2 am
             this.PruneBrackets = new List<PruneBracket>();
             this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
             this.ServerName = "Tetrifact";
             this.ServerSecondaryName = "Artefact Storage";
-            this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.yml");
+            this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.yml");
             this.TagColors = new List<TagColor>();
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
-            this.ThemeClass = "dark";
+            this.Theme = "dark";
             this.WipeTempOnStart = true;
             this.WorkerThreadCount = 8;
         }

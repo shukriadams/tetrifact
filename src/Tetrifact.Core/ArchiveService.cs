@@ -155,7 +155,7 @@ namespace Tetrifact.Core
             // get all existing archives, sorted by create date
             IEnumerable<FileInfo> files = info.GetFiles()
                 .OrderByDescending(p => p.CreationTime)
-                .Skip(_settings.MaxArchives);
+                .Skip(_settings.MaximumArchivesToKeep);
 
             foreach (FileInfo file in files)
             {

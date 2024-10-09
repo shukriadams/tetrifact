@@ -16,7 +16,6 @@ namespace Tetrifact.Web
             Console.WriteLine("TETRIFACT : server starting");
             Console.WriteLine("");
             CreateWebHostBuilder(args).Build().Run();
-
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
@@ -25,10 +24,10 @@ namespace Tetrifact.Web
                 .ConfigureLogging(logging =>{ 
                     // add explicit console.writeline output to all log writes
 
-                    logging.AddConsole(c =>
+                    logging.AddConsole(console =>
                     {
                         // add timestamp to logout
-                        c.TimestampFormat = "[HH:mm:ss] ";
+                        console.TimestampFormat = "[HH:mm:ss] ";
                     });
 
                     logging.AddCustomFormatter();

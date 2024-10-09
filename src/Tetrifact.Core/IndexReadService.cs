@@ -267,7 +267,7 @@ namespace Tetrifact.Core
 
         void IIndexReadService.DeletePackage(string packageId)
         {
-            if (!_settings.AllowPackageDelete)
+            if (!_settings.PackageDeleteEnabled)
                 throw new OperationNowAllowedException();
 
             Manifest manifest = ((IIndexReadService)this).GetManifest(packageId);

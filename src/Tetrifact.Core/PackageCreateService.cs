@@ -61,7 +61,7 @@ namespace Tetrifact.Core
 
                 _log.LogInformation("Package create started");
 
-                if (!_settings.AllowPackageCreate)
+                if (!_settings.PackageCreateEnabled)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };
 
                 if (string.IsNullOrEmpty(newPackage.Id))

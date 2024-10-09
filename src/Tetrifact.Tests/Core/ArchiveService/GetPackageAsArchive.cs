@@ -133,7 +133,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public async void GetArchiveCompressionEnabled()
         {
-            Settings.IsStorageCompressionEnabled = true;
+            Settings.StorageCompressionEnabled = true;
 
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
@@ -176,7 +176,7 @@ namespace Tetrifact.Tests.ArchiveService
         {
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
-            Settings.IsStorageCompressionEnabled = true;
+            Settings.StorageCompressionEnabled = true;
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 

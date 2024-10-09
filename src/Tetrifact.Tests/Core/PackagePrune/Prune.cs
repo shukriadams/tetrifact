@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.PackagePrune
 
         public Prune()
         {
-            Settings.Prune = true;
+            Settings.PruneEnabled = true;
 
             Settings.PruneIgnoreTags = new string[] { "keep" };
 
@@ -102,7 +102,7 @@ namespace Tetrifact.Tests.PackagePrune
 
             // run pr
             ISettings settings = Settings;
-            settings.Prune = true;
+            settings.PruneEnabled = true;
             Settings.PruneBrackets = new List<PruneBracket>(){
                 new PruneBracket{ Days=7, Amount = 4 },
                 new PruneBracket{ Days=31, Amount = 3 },
@@ -151,7 +151,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Disabled()
         {
-            Settings.Prune = false;
+            Settings.PruneEnabled = false;
             _packagePrune.Prune();
         }
 

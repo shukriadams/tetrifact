@@ -53,7 +53,7 @@ namespace Tetrifact.Web
                     ServerName = _settings.ServerName, 
                     PageTitle = "Overview", 
                     ServerSecondaryName = _settings.ServerSecondaryName, 
-                    ThemeClass = _settings.ThemeClass };
+                    ThemeClass = _settings.Theme };
 
                 ViewData["packages"] = _packageList.Get(0, _settings.ListPageSize);
                 ViewData["tags"] = _packageList.GetPopularTags(_settings.IndexTagListLength);
@@ -87,7 +87,7 @@ namespace Tetrifact.Web
                 ViewData["exampleTag"] = string.IsNullOrEmpty(exampleTag) ? "my-example-tag" : exampleTag;
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     PageTitle = "API Reference",
-                    ThemeClass = _settings.ThemeClass,
+                    ThemeClass = _settings.Theme,
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName
                 };
@@ -113,7 +113,7 @@ namespace Tetrifact.Web
                 ViewData["processes"] = processes;
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     PageTitle = "Processes",
-                    ThemeClass = _settings.ThemeClass,
+                    ThemeClass = _settings.Theme,
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName
                 };
@@ -143,7 +143,7 @@ namespace Tetrifact.Web
                     PageTitle = "Upload Package",
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return View(new UploadPackageModel { HostName = hostname });
@@ -170,7 +170,7 @@ namespace Tetrifact.Web
                 LayoutViewModel layoutViewModel = new LayoutViewModel { 
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 if (manifest == null)
@@ -220,7 +220,7 @@ namespace Tetrifact.Web
                     PageTitle = "Archive status",
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return PartialView("~/Views/Shared/ArchiveProgress.cshtml", archiveGenerationStatus);
@@ -257,7 +257,7 @@ namespace Tetrifact.Web
                     PageTitle = string.Empty,
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return View();
@@ -290,7 +290,7 @@ namespace Tetrifact.Web
                 PageableData<Package> results = _packageList.Find(search, page, _settings.ListPageSize);
                 Pager pager = new Pager();
 
-                ViewData["themeClass"] = _settings.ThemeClass;
+                ViewData["themeClass"] = _settings.Theme;
                 ViewData["packages"] = results;
                 ViewData["pager"] = pager.Render(results, _settings.PagesPerPageGroup, $"/search/{search}", "page");
                 ViewData["settings"] = _settings;
@@ -300,7 +300,7 @@ namespace Tetrifact.Web
                     Search = search,
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return View();
@@ -331,7 +331,7 @@ namespace Tetrifact.Web
                     PageTitle = $"Packages tagged with \"{tags}\"",
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return View();
@@ -355,7 +355,7 @@ namespace Tetrifact.Web
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return View();
@@ -379,7 +379,7 @@ namespace Tetrifact.Web
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return View();
@@ -405,7 +405,7 @@ namespace Tetrifact.Web
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName,
-                    ThemeClass = _settings.ThemeClass
+                    ThemeClass = _settings.Theme
                 };
 
                 return new JsonResult(new

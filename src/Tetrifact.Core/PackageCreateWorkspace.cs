@@ -50,7 +50,7 @@ namespace Tetrifact.Core
         void IPackageCreateWorkspace.Initialize()
         {
             this.Manifest = new Manifest{ 
-                IsCompressed = _settings.IsStorageCompressionEnabled
+                IsCompressed = _settings.StorageCompressionEnabled
             };
 
             // workspace folder is super random - date now ticks + guid. We assume this is always unique and we don't check

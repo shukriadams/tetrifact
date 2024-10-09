@@ -38,7 +38,7 @@ namespace Tetrifact.Core
 
         public void Prune()
         {
-            if (!_settings.Prune)
+            if (!_settings.PruneEnabled)
             {
                 _log.LogInformation("Prune exited on start, disabled.");
                 return;
@@ -64,11 +64,14 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    if (_settings.DEBUG_block_prune_deletes)
-                        _log.LogInformation($"Would have pruned package {packageId} (DEBUG_block_prune_deletes enabled)");
-                    else {
+                    if (_settings.PruneDeletesEnabled) 
+                    {
                         _indexReader.DeletePackage(packageId);
                         _log.LogInformation($"Pruned package {packageId}");
+                    }
+                    else 
+                    {
+                        _log.LogInformation($"Would have pruned package {packageId} (PruneDeletesEnabled is false)");
                     }
                 } 
                 catch (Exception ex)

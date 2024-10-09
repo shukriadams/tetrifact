@@ -261,7 +261,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDisabled()
         {
-            Settings.AllowPackageCreate = false;
+            Settings.PackageCreateEnabled = false;
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",

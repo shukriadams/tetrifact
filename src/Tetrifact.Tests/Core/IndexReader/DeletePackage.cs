@@ -25,7 +25,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void DeleteDisabled()
         {
-            Settings.AllowPackageDelete = false;
+            Settings.PackageDeleteEnabled = false;
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
             Assert.True(File.Exists(Path.Combine(Settings.PackagePath, testPackage.Id, "manifest.json")));

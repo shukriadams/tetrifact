@@ -179,12 +179,11 @@ namespace Tetrifact.Web
             Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
             Console.WriteLine($"Download archive compression: {settings.DownloadArchiveCompression}");
             Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
-            Console.WriteLine($"Is storage compression enabled: {settings.IsStorageCompressionEnabled}");
+            Console.WriteLine($"Is storage compression enabled: {settings.StorageCompressionEnabled}");
             Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
             Console.WriteLine($"List page size: {settings.ListPageSize}");
-            Console.WriteLine($"Log level : {settings.LogLevel}");
             Console.WriteLine($"Log path: {settings.LogPath}");
-            Console.WriteLine($"Max archives: {settings.MaxArchives}");
+            Console.WriteLine($"Max archives: {settings.MaximumArchivesToKeep}");
             Console.WriteLine($"PackagePath: {settings.PackagePath}");
             Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
             Console.WriteLine($"Prune brackets: { string.Join(", ", settings.PruneBrackets)}");
@@ -207,7 +206,6 @@ namespace Tetrifact.Web
 
             Console.WriteLine("Server start complete.");
             Console.WriteLine("*********************************************************************");
-
         }
     }
 }
