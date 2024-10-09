@@ -177,7 +177,7 @@ namespace Tetrifact.Web
             Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
             Console.WriteLine($"Autocreate archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
             Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
-            Console.WriteLine($"Download archive compression: {settings.DownloadArchiveCompression}");
+            Console.WriteLine($"Download archive compression: {settings.ArchiveCompressionLevel}");
             Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
             Console.WriteLine($"Is storage compression enabled: {settings.StorageCompressionEnabled}");
             Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");

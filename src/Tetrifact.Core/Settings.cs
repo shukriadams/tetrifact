@@ -49,7 +49,7 @@ namespace Tetrifact.Core
 
         public bool AutoCreateArchiveOnPackageCreate { get; set; }
         
-        public CompressionLevel DownloadArchiveCompression { get; set; }
+        public CompressionLevel ArchiveCompressionLevel { get; set; }
 
         public bool PruneEnabled { get; set; }
 
@@ -120,7 +120,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
-            this.DownloadArchiveCompression = CompressionLevel.Optimal;
+            this.ArchiveCompressionLevel = CompressionLevel.Optimal;
             this.StorageCompressionEnabled = false;
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;

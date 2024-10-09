@@ -300,7 +300,7 @@ namespace Tetrifact.Core
                 {
                     foreach (ManifestItem file in manifest.Files)
                     {
-                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.DownloadArchiveCompression);
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.ArchiveCompressionLevel);
 
                         using (Stream zipEntryStream = zipEntry.Open())
                         {
