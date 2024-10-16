@@ -18,10 +18,6 @@
     border-bottom: solid 1px #e6e6e6;
 }
 
-body.--dark .layout-label {
-    border-bottom-color: #3b3b3b;
-}
-
 .layout-value {
     display: table-cell;
     word-break: break-word;
@@ -29,6 +25,15 @@ body.--dark .layout-label {
     border-bottom: solid 1px #e6e6e6;
 }
 
+
+/******************************************************************************
+ * Dark mode overrides
+ *****************************************************************************/
+body.--dark .layout-label {
+    border-bottom-color: #3b3b3b;
+}
+
 body.--dark .layout-value {
     border-bottom-color: #3b3b3b;
 }
+
