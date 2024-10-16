@@ -77,8 +77,8 @@ namespace Tetrifact.Web
                     continue;
                 }
 
-                string progressKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
-                ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressKey);
+                string progressCacheKey = _archiveService.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+                ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
 
                 // this daemon is for measuring archive progression only, ignore all non-generating states
                 if (progress == null || progress.State != PackageArchiveCreationStates.ArchiveGenerating)
@@ -112,7 +112,7 @@ namespace Tetrifact.Web
                 progress.CompressProgress = compressionPercentDone;
                 progress.CombinedPercent = (progress.CompressProgress + progress.FileCopyProgress) / 2;
 
-                _cache.Set(progressKey, progress);
+                _cache.Set(progressCacheKey, progress);
             }
         }
 

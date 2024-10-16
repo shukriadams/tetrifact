@@ -212,8 +212,8 @@ namespace Tetrifact.Web
         {
             try
             {
-                string key = _archiveService.GetArchiveProgressKey(packageId);
-                ArchiveProgressInfo archiveGenerationStatus = _cache.Get<ArchiveProgressInfo>(key);
+                string progressCacheKey = _archiveService.GetArchiveProgressKey(packageId);
+                ArchiveProgressInfo archiveGenerationStatus = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
 
                 ViewData["packageId"] = packageId;
                 ViewData["layoutViewModel"] = new LayoutViewModel { 

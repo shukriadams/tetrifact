@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using Tetrifact.Core;
@@ -52,16 +51,7 @@ namespace Tetrifact.Web
             try
             {
                 _archiveService.QueueArchiveCreation(packageId);
-
                 return Redirect($"/package/{packageId}");
-
-                return new JsonResult(new
-                {
-                    success = new
-                    {
-                        status = _archiveService.GetPackageArchiveStatus(packageId)
-                    }
-                });
             }
             catch (PackageNotFoundException ex)
             {

@@ -72,7 +72,7 @@ namespace Tetrifact.Core
             if (_fileSystem.File.Exists(archivePath))
                 return;
 
-            // check if queue file already exists
+            // do not queue if queue flag for archive already exists
             string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
             if (_fileSystem.File.Exists(archiveQueuePath))
                 return;
@@ -140,8 +140,8 @@ namespace Tetrifact.Core
                     State = PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated
                 };
 
-            string progressKey = this.GetArchiveProgressKey(packageId);
-            ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
+            string progressCacheKey = this.GetArchiveProgressKey(packageId);
+            ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
             return cachedProgress;
         }
 
@@ -239,12 +239,12 @@ namespace Tetrifact.Core
                     if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
                     {
                         _log.LogInformation($"Gathering file {counter}/{manifest.Files.Count}, package \"{packageId}\".");
-                        string key = this.GetArchiveProgressKey(packageId);
-                        ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
+                        string progressCacheKey = this.GetArchiveProgressKey(packageId);
+                        ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
                         if (progress != null)
                         {
                             progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
-                            _cache.Set(key, progress);
+                            _cache.Set(progressCacheKey, progress);
                         }
                     }
                 });
@@ -288,7 +288,7 @@ namespace Tetrifact.Core
         {
             DateTime compressStart = DateTime.Now;
             
-            _log.LogInformation($"Starting archive generation for package {packageId}, .Net compression.");
+            _log.LogInformation($"Starting archive generation for package {packageId}. Type: .Net compression. Rate : {_settings.DownloadArchiveCompression}.");
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
@@ -340,7 +340,7 @@ namespace Tetrifact.Core
         public async Task CreateNextQueuedArchive() 
         {
             ArchiveQueueInfo archiveQueueInfo = null;
-            string progressKey = null;
+            string progressCacheKey = null;
             ArchiveProgressInfo progress = null;
 
             foreach (string queuedFile in _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath))
@@ -366,8 +366,8 @@ namespace Tetrifact.Core
                     continue;
                 }
 
-                progressKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
-                progress = _cache.Get<ArchiveProgressInfo>(progressKey);
+                progressCacheKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+                progress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
                 if (progress == null)
                 {
                     _log.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
@@ -390,12 +390,12 @@ namespace Tetrifact.Core
 
             progress.State = PackageArchiveCreationStates.ArchiveGenerating;
             progress.StartedUtc = DateTime.UtcNow;
-            _cache.Set(progressKey, progress);
+            _cache.Set(progressCacheKey, progress);
 
             await this.CreateArchive(archiveQueueInfo.PackageId);
 
             progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
-            _cache.Set(progressKey, progress);
+            _cache.Set(progressCacheKey, progress);
         }
 
         public async Task CreateArchive(string packageId)
