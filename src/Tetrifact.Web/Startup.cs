@@ -76,7 +76,6 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, MetricsCron>();
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
-            services.AddTransient<ICron, ArchiveGenerateCleanupCron>();
             services.AddTransient<ICron, ArchiveGenerator>();
             services.AddTransient<ICron, ArchiveStatusChecker>();
 
@@ -175,7 +174,7 @@ namespace Tetrifact.Web
             Console.WriteLine($"Archive path: {settings.ArchivePath}");
             Console.WriteLine($"Archive wait timeout: {settings.ArchiveWaitTimeout}");
             Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
-            Console.WriteLine($"Autocreate archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
+            Console.WriteLine($"Auto-create archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
             Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
             Console.WriteLine($"Download archive compression: {settings.DownloadArchiveCompression}");
             Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
@@ -191,7 +190,6 @@ namespace Tetrifact.Web
             Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
             Console.WriteLine($"Tags path: {settings.TagsPath}");
             Console.WriteLine($"Temp path: {settings.TempPath}");
-            Console.WriteLine($"Zip method: {(string.IsNullOrEmpty(settings.ExternaArchivingExecutable) ? "ZipArchive (slow, set SevenZipBinaryPath to enable 7zip)" : "7Zip (faster, multithreaded)")}");
 
             Console.WriteLine("Initializing indices");
             IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();

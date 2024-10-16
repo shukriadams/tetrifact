@@ -11,7 +11,6 @@ RUN apt-get update \
     && apt-get install apt-transport-https -y \
     && apt-get update \
     && apt-get install aspnetcore-runtime-6.0 -y \
-    && apt-get install p7zip-full -y \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \
@@ -28,7 +27,6 @@ USER tetrifact
 # set Tetrifact default log level
 ENV LOGGING__LOGLEVEL__DEFAULT=Information
 ENV LOGGING__LOGLEVEL__Microsoft=Warning
-ENV SEVEN_ZIP_BINARY_PATH=/usr/lib/p7zip/7z
 ENV ASPNETCORE_URLS=http://*:5000
 
 CMD sh -c 'cd /var/tetrifact && dotnet Tetrifact.Web.dll'

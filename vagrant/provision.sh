@@ -12,9 +12,6 @@ sudo apt-get install dotnet-sdk-6.0 -y
 # altecover report generator
 dotnet tool install --global dotnet-reportgenerator-globaltool --version 4.1.5
 
-# utils
-sudo apt install p7zip-full
-
 # docker
 sudo mkdir -p /usr/libexec/docker/cli-plugins
 sudo apt install docker.io -y

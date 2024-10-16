@@ -9,7 +9,6 @@ services:
     environment:
       # This argument is REQUIRED for Tetrifact to bind properly to the container host port.
       ASPNETCORE_URLS : http://*:5000
-      SEVEN_ZIP_BINARY_PATH: /usr/lib/p7zip/7z
     volumes:
       - ./data:/var/tetrifact/data/:rw
     ports:

@@ -34,12 +34,3 @@ A detailed list of settings are :
 
 (TBD)
 
-#### 7zip
-
-Tetrifact supports 7zip as a compression method for improved performance. Requires setting properies
-
-    SevenZipBinaryPath : <path to 7za executable>
-    DownloadArchiveMode : 7Zip
-
-7za is the only part of 7zip that is required.
-

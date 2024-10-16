@@ -54,25 +54,6 @@ namespace Tetrifact.Tests.ArchiveService
             }
         }
 
-        [Fact]
-        public async void GetWithSevenZip()
-        {
-            Settings.ExternaArchivingExecutable = Path.Combine(Path.GetFullPath($"../../../../"), "lib", "7za.exe");
-            Settings.ArchivingMode = ArchivingModes.SevenZip;
-
-            IArchiveService archiveService = TestContext.Get<IArchiveService>();
-
-            TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            await archiveService.CreateArchive(testPackage.Id);
-
-            using (Stream testContent1 = archiveService.GetPackageAsArchive(testPackage.Id))
-            using (Stream testContent2 = archiveService.GetPackageAsArchive(testPackage.Id))
-            {
-                Dictionary<string, byte[]> items = StreamsHelper.ArchiveStreamToCollection(testContent2);
-                Assert.Single(items);
-            }
-        }
-
         /// <summary>
         /// Archive fetching for a non-existent package should throw expected exception
         /// </summary>

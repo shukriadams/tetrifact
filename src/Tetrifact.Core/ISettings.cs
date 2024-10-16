@@ -192,11 +192,6 @@ namespace Tetrifact.Core
         bool WipeTempOnStart { get; set; }
 
         /// <summary>
-        /// Path to externa archive executable like 7 zip.
-        /// </summary>
-        string ExternaArchivingExecutable { get; set; }
-
-        /// <summary>
         /// Switch for archive method. Default is dotnet zip compression. Allowed values are 
         /// </summary>
         ArchivingModes ArchivingMode { get; set; }

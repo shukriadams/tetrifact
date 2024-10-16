@@ -26,6 +26,19 @@ namespace Tetrifact.Core
                 .Substring(0, iso.Length - 3); // remove sec
         }
 
+        public static string ToIsoFSFriendly(this DateTime date)
+        {
+            string iso = date
+                .ToLocalTime()
+                .ToString("s") // convert to ymdhms
+                .Replace("T", " "); // replace T after ymd
+
+            return iso
+                .Replace(" ", "_")
+                .Replace(":", "-")
+                .Substring(0, iso.Length - 3); // remove sec
+        }
+
         public static string ToHumanString(this TimeSpan ts, bool shorten = false)
         {
             return _ago(ts, shorten);
