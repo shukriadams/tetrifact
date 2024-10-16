@@ -2,6 +2,6 @@
 {
     public enum ArchivingModes
     {
-        Default    // internal dotnet zip compressio
+        Default    // internal dotnet zip compression
     }
 }

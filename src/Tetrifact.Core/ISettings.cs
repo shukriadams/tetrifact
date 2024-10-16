@@ -133,7 +133,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Zip compression for downloadable builds. Allowed values Optimal | Fastest | NoCompression | SmallestSize.
         /// </summary>
-        CompressionLevel DownloadArchiveCompression { get; set; }
+        CompressionLevel ArchiveCompression { get; set; }
 
         /// <summary>
         /// If true, package autoprune will run

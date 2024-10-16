@@ -185,7 +185,7 @@ namespace Tetrifact.Core
         {
             DateTime compressStart = DateTime.Now;
             
-            _log.LogInformation($"Starting archive generation for package {packageId}. Type: .Net compression. Rate : {_settings.DownloadArchiveCompression}.");
+            _log.LogInformation($"Starting archive generation for package {packageId}. Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
@@ -197,7 +197,7 @@ namespace Tetrifact.Core
                 {
                     foreach (ManifestItem file in manifest.Files)
                     {
-                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.DownloadArchiveCompression);
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.ArchiveCompression);
 
                         using (Stream zipEntryStream = zipEntry.Open())
                         {
