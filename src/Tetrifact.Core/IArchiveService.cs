@@ -17,8 +17,6 @@ namespace Tetrifact.Core
         /// </summary>
         Task CreateNextQueuedArchive();
 
-        void CleanupNextQueuedArchive();
-
         /// <summary>
         /// Adds package to queue for creation. This process does not produce the archive itself, see CreateNextQueuedArchive for that. Queuing is used so archive generation can be handled 
         /// on its own thread.

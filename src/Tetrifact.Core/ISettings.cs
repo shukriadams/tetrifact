@@ -133,7 +133,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Zip compression for downloadable builds. Allowed values Optimal | Fastest | NoCompression | SmallestSize.
         /// </summary>
-        CompressionLevel ArchiveCompressionLevel { get; set; }
+        CompressionLevel ArchiveCompression { get; set; }
 
         /// <summary>
         /// If true, package autoprune will run
@@ -190,11 +190,6 @@ namespace Tetrifact.Core
         /// and other junk.
         /// </summary>
         bool WipeTempOnStart { get; set; }
-
-        /// <summary>
-        /// Path to externa archive executable like 7 zip.
-        /// </summary>
-        string ExternaArchivingExecutable { get; set; }
 
         /// <summary>
         /// Switch for archive method. Default is dotnet zip compression. Allowed values are 

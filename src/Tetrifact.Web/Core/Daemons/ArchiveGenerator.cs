@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using System.IO.Abstractions;
+﻿using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 

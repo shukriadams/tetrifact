@@ -57,7 +57,8 @@ namespace Tetrifact.Core
 
         public string GetPackageArchiveQueuePath(string packageId)
         {
-            return Path.Combine(_settings.ArchiveQueuePath, $"{packageId}.json");
+            // queue files partitioned by iso date to make string sorting easier.
+            return Path.Combine(_settings.ArchiveQueuePath, $"{DateTime.UtcNow.ToIsoFSFriendly()}_{packageId}.json");
         }
 
         public string GetPackageArchiveTempPath(string packageId)
@@ -72,7 +73,7 @@ namespace Tetrifact.Core
             if (_fileSystem.File.Exists(archivePath))
                 return;
 
-            // check if queue file already exists
+            // do not queue if queue flag for archive already exists
             string archiveQueuePath = this.GetPackageArchiveQueuePath(packageId);
             if (_fileSystem.File.Exists(archiveQueuePath))
                 return;
@@ -140,8 +141,11 @@ namespace Tetrifact.Core
                     State = PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated
                 };
 
-            string progressKey = this.GetArchiveProgressKey(packageId);
-            ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressKey);
+            string progressCacheKey = this.GetArchiveProgressKey(packageId);
+            ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
+            if (cachedProgress == null)
+                cachedProgress = new ArchiveProgressInfo();
+
             return cachedProgress;
         }
 
@@ -177,118 +181,11 @@ namespace Tetrifact.Core
             }
         }
 
-        private async Task Archive7Zip(string packageId, string archivePathTemp)
-        {
-            // create staging directory
-            string tempDir1 = Path.Join(_settings.TempPath, $"__repack_{packageId}");
-            string tempDir2 = Path.Join(_settings.TempPath, $"_repack_{packageId}");
-
-            const int bufSize = 6024;
-
-            Manifest manifest = _indexReader.GetManifest(packageId);
-
-            // copy all files to single Directory
-            if (!Directory.Exists(tempDir2))
-            {
-                _log.LogInformation($"Archive generation : gathering files for package {packageId}");
-                Directory.CreateDirectory(tempDir1);
-                long cacheUpdateIncrements = manifest.Files.Count / 100;
-                long counter = 0;
-
-                manifest.Files.AsParallel().WithDegreeOfParallelism(_settings.ArchiveCPUThreads).ForAll(delegate (ManifestItem file)
-                {
-                    string targetPath = Path.Join(tempDir1, file.Path);
-                    List<string> knownDirectories = new List<string>();
-                    if (manifest.IsCompressed)
-                    {
-                        GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                        if (fileLookup == null)
-                            throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
-
-                        using (var storageArchive = new ZipArchive(fileLookup.Content))
-                        {
-                            ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
-                            using (var storageArchiveStream = storageArchiveEntry.Open())
-                            using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                                // copy async not used here because cannot get this delegate to block asParallel, 
-                                StreamsHelper.Copy(storageArchiveStream, writeStream, bufSize);
-                        }
-                    }
-                    else
-                    {
-                        GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                        if (fileLookup == null)
-                            throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
-
-                        string dir = Path.GetDirectoryName(targetPath);
-                        if (!knownDirectories.Contains(dir))
-                        {
-                            Directory.CreateDirectory(dir);
-                            knownDirectories.Add(dir);
-                        }
-
-                        // is this the fastest way of copying? benchmark
-                        using (Stream fileStream = fileLookup.Content)
-                        using (FileStream writeStream = new FileStream(targetPath, FileMode.Create))
-                            // copy async not used here because cannot get this delegate to block asParallel, 
-                            StreamsHelper.Copy(fileStream, writeStream, bufSize); 
-                    }
-
-                    counter++;
-
-                    if (cacheUpdateIncrements == 0 || counter % cacheUpdateIncrements == 0)
-                    {
-                        _log.LogInformation($"Gathering file {counter}/{manifest.Files.Count}, package \"{packageId}\".");
-                        string key = this.GetArchiveProgressKey(packageId);
-                        ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(key);
-                        if (progress != null)
-                        {
-                            progress.FileCopyProgress = ((decimal)counter / (decimal)manifest.Files.Count) * 100;
-                            _cache.Set(key, progress);
-                        }
-                    }
-                });
-
-                Directory.Move(tempDir1, tempDir2);
-            }
-
-            _log.LogInformation($"Archive generation : building archive for  package {packageId}");
-
-            // force delete temp file if it already exists, this can sometimes fail and we want an exception to be thrown to block 7zip being called.
-            // if 7zip encounted
-            if (_fileSystem.File.Exists(archivePathTemp))
-                _fileSystem.File.Delete(archivePathTemp);
-
-            DateTime compressStart = DateTime.Now;
-
-            // ensure bin path exists
-            if (!_fileSystem.File.Exists(_settings.ExternaArchivingExecutable))
-                throw new Exception($"7zip binary not found at specified path \"{_settings.ExternaArchivingExecutable}\".");
-
-            _log.LogInformation($"Invoking 7z archive generation for package \"{packageId}\".");
-
-            // -aoa swtich forces overwriting of existing zip file should it exist
-            string command = $"{_settings.ExternaArchivingExecutable} -aoa a -tzip -mx={_settings.ArchiveCPUThreads} -mmt=on {archivePathTemp} {tempDir2}/*";
-            ShellResult result = Shell.Run(command, false, 3600000); // set timeout to 1 hour
-            TimeSpan compressTaken = DateTime.Now - compressStart;
-
-            if (result.ExitCode == 0)
-            {
-                _log.LogInformation($"Archive comression with 7zip complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
-                if (result.StdErr.Any())
-                    _log.LogError($"Archive comression with 7zip succeeded, but with errors. Took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
-            }
-            else
-            {
-                _log.LogError($"Archive comression with 7zip failed, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds. {string.Join("", result.StdErr)}");
-            }
-        }
-
         private async Task ArchiveDotNetZip(string packageId, string archivePathTemp)
         {
             DateTime compressStart = DateTime.Now;
             
-            _log.LogInformation($"Starting archive generation for package {packageId}, .Net compression.");
+            _log.LogInformation($"Starting archive generation for package {packageId}. Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
@@ -300,8 +197,7 @@ namespace Tetrifact.Core
                 {
                     foreach (ManifestItem file in manifest.Files)
                     {
-                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.ArchiveCompressionLevel);
-
+                        ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.ArchiveCompression);
                         using (Stream zipEntryStream = zipEntry.Open())
                         {
                             if (manifest.IsCompressed)
@@ -334,68 +230,61 @@ namespace Tetrifact.Core
             }
 
             TimeSpan compressTaken = DateTime.Now - compressStart;
-            _log.LogInformation($"Archive comression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+            _log.LogInformation($"Archive compression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
         public async Task CreateNextQueuedArchive() 
         {
             ArchiveQueueInfo archiveQueueInfo = null;
-            string progressKey = null;
+            string progressCacheKey = null;
             ArchiveProgressInfo progress = null;
 
-            foreach (string queuedFile in _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath))
+            string queuedFile = _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath).OrderByDescending(f => f).FirstOrDefault();
+            if (queuedFile == null)
+                return;
+
+            _log.LogInformation($"Processing archive generation for \"{queuedFile}\".");
+            string queueFileContent = string.Empty;
+
+            try
             {
-                _log.LogInformation($"Processing archive generation for \"{queuedFile}\".");
-                string queueFileContent = string.Empty;
+                queueFileContent = _fileSystem.File.ReadAllText(queuedFile);
+                archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
                 try
                 {
-                    queueFileContent = _fileSystem.File.ReadAllText(queuedFile);
-                    archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
+                    _fileSystem.File.Delete(queuedFile);
                 }
-                catch (Exception ex)
+                catch (Exception ex2)
                 {
-                    _log.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
-                    try
-                    {
-                        _fileSystem.File.Delete(queuedFile);
-                    }
-                    catch (Exception ex2)
-                    {
-                        _log.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
-                    }
-                    continue;
+                    _log.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
                 }
-
-                progressKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
-                progress = _cache.Get<ArchiveProgressInfo>(progressKey);
-                if (progress == null)
-                {
-                    _log.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
-                    continue;
-                }
-
-                if (progress.State == PackageArchiveCreationStates.Queued)
-                    break;
-                else
-                {
-                    // force null, this var is used as flag to determine if we have anything to process
-                    progress = null;
-                    continue;
-                }
+                return;
             }
 
-            // nothing queued, exit normally
-            if (progress == null)
-                return;
+            progressCacheKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
+            progress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
+            if (progress == null) 
+                progress = new ArchiveProgressInfo 
+                {
+                    PackageId = archiveQueueInfo.PackageId,
+                    QueuedUtc = archiveQueueInfo.QueuedUtc
+                };
 
             progress.State = PackageArchiveCreationStates.ArchiveGenerating;
             progress.StartedUtc = DateTime.UtcNow;
-            _cache.Set(progressKey, progress);
+            _cache.Set(progressCacheKey, progress);
 
             await this.CreateArchive(archiveQueueInfo.PackageId);
 
             progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
-            _cache.Set(progressKey, progress);
+            _cache.Set(progressCacheKey, progress);
+
+            // finally, cleanup queue file
+            _fileSystem.File.Delete(queuedFile); 
         }
 
         public async Task CreateArchive(string packageId)
@@ -424,10 +313,7 @@ namespace Tetrifact.Core
 
             try
             {
-                if (_settings.ArchivingMode == ArchivingModes.SevenZip)
-                    await Archive7Zip(packageId, archivePathTemp);
-                else
-                    await ArchiveDotNetZip(packageId, archivePathTemp);
+                await ArchiveDotNetZip(packageId, archivePathTemp);
                 
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);
@@ -436,76 +322,12 @@ namespace Tetrifact.Core
             }
             catch(Exception ex) 
             { 
-                _log.LogError($"Package archive for {packageId} failed unexpectedly with {ex}");
+                _log.LogError($"Package archive for {packageId} failed unexpectedly with {ex}.");
             }
             finally
             {
                 _lock.Unlock(archivePathTemp);
             }
-        }
-
-        public void CleanupNextQueuedArchive() 
-        {
-            ArchiveQueueInfo archiveQueueInfo = null;
-            string progressKey = null;
-            ArchiveProgressInfo progress = null;
-            string queueFile = null;
-
-            foreach (string queuedFile in _fileSystem.Directory.GetFiles(_settings.ArchiveQueuePath))
-            {
-                queueFile = queuedFile;
-
-                string queueFileContent = string.Empty;
-                try
-                {
-                    queueFileContent = _fileSystem.File.ReadAllText(queuedFile);
-                    archiveQueueInfo = JsonConvert.DeserializeObject<ArchiveQueueInfo>(queueFileContent);
-                }
-                catch (Exception ex)
-                {
-                    _log.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
-                    try
-                    {
-                        _fileSystem.File.Delete(queuedFile);
-                    }
-                    catch (Exception ex2)
-                    {
-                        _log.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
-                    }
-                    continue;
-                }
-
-                progressKey = this.GetArchiveProgressKey(archiveQueueInfo.PackageId);
-                progress = _cache.Get<ArchiveProgressInfo>(progressKey);
-                if (progress == null)
-                {
-                    _log.LogError($"Progress object not found for archive generation package {archiveQueueInfo.PackageId}, this should not happen.");
-                    continue;
-                }
-
-                if (progress.State == PackageArchiveCreationStates.Processed_CleanupRequired)
-                    break;
-                else
-                {
-                    // force null, this var is used as flag to determine if we have anything to process
-                    progress = null;
-                    continue;
-                }
-            }
-
-            // nothing queued, exit normally
-            if (progress == null)
-                return;
-
-            // cleanup
-            string tempDir2 = Path.Join(_settings.TempPath, $"_repack_{archiveQueueInfo.PackageId}");
-            if (_fileSystem.Directory.Exists(tempDir2))
-                _fileSystem.Directory.Delete(tempDir2, true);
-
-            if (_fileSystem.File.Exists(queueFile))
-                _fileSystem.File.Delete(queueFile);
-
-            _cache.Remove(progressKey);
         }
 
         #endregion

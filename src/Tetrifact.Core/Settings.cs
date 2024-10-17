@@ -49,10 +49,9 @@ namespace Tetrifact.Core
 
         public bool AutoCreateArchiveOnPackageCreate { get; set; }
         
-        public CompressionLevel ArchiveCompressionLevel { get; set; }
+        public CompressionLevel ArchiveCompression { get; set; }
 
         public bool PruneEnabled { get; set; }
-
 
         public int WorkerThreadCount { get; set; }
 
@@ -84,8 +83,6 @@ namespace Tetrifact.Core
 
         public bool WipeTempOnStart { get; set; }
 
-        public string ExternaArchivingExecutable { get; set; }
-
         public ArchivingModes ArchivingMode { get; set; }
 
         public int ArchiveCPUThreads { get; set; }
@@ -111,7 +108,7 @@ namespace Tetrifact.Core
             this.AccessTokens = new List<string>();
             this.PackageDeleteEnabled = true;
             this.PackageCreateEnabled = true;
-            this.ArchiveCPUThreads = 4;                 // for compression solutions that 7zip only
+            this.ArchiveCPUThreads = 4;                 // for compression solutions that support multithreading.
             this.ArchivingMode = ArchivingModes.Default;   // default dotnet zip compression
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
             this.ArchiveWaitTimeout = 10 * 60;          // 10 minutes
@@ -120,7 +117,7 @@ namespace Tetrifact.Core
             this.AuthorizationLevel = AuthorizationLevel.None;
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
-            this.ArchiveCompressionLevel = CompressionLevel.Optimal;
+            this.ArchiveCompression = CompressionLevel.Optimal;
             this.StorageCompressionEnabled = false;
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
