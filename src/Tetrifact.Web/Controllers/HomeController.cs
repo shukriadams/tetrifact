@@ -157,12 +157,12 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// Shows page of package files at given pageindex
+        /// Shows page of package files at given page
         /// </summary>
         /// <returns></returns>
         [ServiceFilter(typeof(ReadLevel))]
         [Route("package/{packageId}")]
-        public IActionResult Package(string packageId, [FromQuery(Name = "pageIndex")] int pageIndex)
+        public IActionResult Package(string packageId, [FromQuery(Name = "page")] int pageIndex)
         {
             try
             {
