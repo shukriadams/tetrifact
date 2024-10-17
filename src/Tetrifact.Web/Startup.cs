@@ -149,7 +149,7 @@ namespace Tetrifact.Web
                 }
             });
 
-            Console.WriteLine("Registering internals.");
+            Console.WriteLine("Configuring middleware.");
 
 
             app.UseHttpsRedirection();
@@ -168,7 +168,7 @@ namespace Tetrifact.Web
             ISettings settings = settingsProvider.Get();
             loggerFactory.AddFile(settings.LogPath);
 
-            Console.WriteLine("Settings:");
+            Console.WriteLine("Settings :");
             Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
             Console.WriteLine($"Archive CPU Threads: {settings.ArchiveCPUThreads}");
             Console.WriteLine($"Archive path: {settings.ArchivePath}");
