@@ -138,7 +138,7 @@ namespace Tetrifact.Core
             if (!_fileSystem.File.Exists(archiveQueuePath))
                 return new ArchiveProgressInfo
                 {
-                    State = PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated
+                    State = PackageArchiveCreationStates.Processed_ArchiveNotGenerated
                 };
 
             string progressCacheKey = this.GetArchiveProgressKey(packageId);

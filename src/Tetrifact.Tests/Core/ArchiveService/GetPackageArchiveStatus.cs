@@ -43,7 +43,7 @@ namespace Tetrifact.Tests.ArchiveService
                 .Returns(false);
 
             IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { indexReader, filesystem });
-            Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated, archiveService.GetPackageArchiveStatus("any-package-id").State);
+            Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveNotGenerated, archiveService.GetPackageArchiveStatus("any-package-id").State);
         }
 
         /// <summary>

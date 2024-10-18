@@ -1,12 +1,12 @@
 ﻿namespace Tetrifact.Core
 {
-    public enum PackageArchiveCreationStates
+    public enum PackageArchiveCreationStates 
     {
         Queued,
         ArchiveGenerating,
         Processed_PackageNotFound,
         Processed_ArchiveAvailable,
-        Processed_ArchiveNotAvailableNotGenerated,
+        Processed_ArchiveNotGenerated,
         Processed_CleanupRequired
     }
 }

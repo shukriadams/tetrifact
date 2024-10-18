@@ -6,7 +6,7 @@ namespace Tetrifact.Core
     public interface IArchiveService
     {
         /// <summary>
-        /// Generates an archive for the given package id, sychronously. Returns when archive is generated. This method is exposed for testing purposes only, and must not tamper with archive queue. 
+        /// Generates an archive for the given package id, synchronously. Returns when archive is generated. This method is exposed for testing purposes only, and must not tamper with archive queue. 
         /// Normally it will be called from CreateNextQueuedArchive().
         /// </summary>
         /// <param name="packageId"></param>
@@ -40,11 +40,6 @@ namespace Tetrifact.Core
         /// <summary>
         /// Returns a status code the given archive. Requesting status for a given archive will also start
         /// generating that archive.
-        /// 0 : Archive creation was started.
-        /// 1 : Archive is already started, is still in progress.
-        /// 2 : Archive is available for download.
-        /// 
-        /// throw a PackageNotFoundException if the package does not exist or is marked for delete
         /// </summary>
         /// <returns></returns>
         ArchiveProgressInfo GetPackageArchiveStatus(string packageId);
@@ -65,8 +60,18 @@ namespace Tetrifact.Core
         /// <returns></returns>
         string GetPackageArchivePath(string packageId);
 
+        /// <summary>
+        /// Returns a memcache key at which archive progress object is stored at.
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
         string GetArchiveProgressKey(string packageId);
 
+        /// <summary>
+        /// Returns the absolute path an archive queue file is stored at.
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <returns></returns>
         string GetPackageArchiveQueuePath(string packageId);
     }
 }

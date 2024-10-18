@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using System;
+using System.Text.Json.Serialization;
 
 namespace Tetrifact.Core
 {
@@ -25,6 +27,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// 
         /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public PackageArchiveCreationStates State { get;set;}
 
         /// <summary>

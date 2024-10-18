@@ -8,7 +8,7 @@
     @{ 
         // TODO :simply this if statement
     }
-    @if (Model == null || Model.State == PackageArchiveCreationStates.Processed_ArchiveNotAvailableNotGenerated || Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable || Model.State == PackageArchiveCreationStates.Processed_CleanupRequired)
+    @if (Model == null || Model.State == PackageArchiveCreationStates.Processed_ArchiveNotGenerated || Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable || Model.State == PackageArchiveCreationStates.Processed_CleanupRequired)
     { 
         <a class="button button-header" href="/v1/archives/@packageId">&#10515; Download</a>
     }
