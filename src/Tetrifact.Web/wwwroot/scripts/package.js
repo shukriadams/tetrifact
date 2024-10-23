@@ -78,9 +78,10 @@ document.addEventListener('click', onClick, false);
                     if (timer !== null) {
                         const node = document.createElement('div')
                         node.innerHTML = html
-                        const isComplete = node.getAttribute('data-complete')
+                        let status = node.children[0].getAttribute('data-complete'),
+                            isInProgress = status == 'ArchiveGenerating' || status == 'Queued'
 
-                        if (isComplete == 'true') {
+                        if (!isInProgress) {
                             window.clearInterval(timer)
                             timer = null
                         }

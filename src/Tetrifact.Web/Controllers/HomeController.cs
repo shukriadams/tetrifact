@@ -213,7 +213,11 @@ namespace Tetrifact.Web
             try
             {
                 string progressCacheKey = _archiveService.GetArchiveProgressKey(packageId);
+                // try from cache first, if under active creation, this will be faster
                 ArchiveProgressInfo archiveGenerationStatus = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
+                if (archiveGenerationStatus == null) 
+                    // the longer way
+                    archiveGenerationStatus = _archiveService.GetPackageArchiveStatus(packageId);
 
                 ViewData["packageId"] = packageId;
                 ViewData["layoutViewModel"] = new LayoutViewModel { 

@@ -280,7 +280,7 @@ namespace Tetrifact.Core
 
             await this.CreateArchive(archiveQueueInfo.PackageId);
 
-            progress.State = PackageArchiveCreationStates.Processed_CleanupRequired;
+            progress.State = PackageArchiveCreationStates.Processed_ArchiveAvailable;
             _cache.Set(progressCacheKey, progress);
 
             // finally, cleanup queue file

@@ -6,7 +6,6 @@
         ArchiveGenerating,
         Processed_PackageNotFound,
         Processed_ArchiveAvailable,
-        Processed_ArchiveNotGenerated,
-        Processed_CleanupRequired
+        Processed_ArchiveNotGenerated
     }
 }

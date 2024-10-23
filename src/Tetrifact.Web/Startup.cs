@@ -106,7 +106,7 @@ namespace Tetrifact.Web
                 });
 
             services.AddMemoryCache();
-            services.AddResponseCompression();
+            services.AddResponseCompression(); // http compression
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
@@ -156,7 +156,7 @@ namespace Tetrifact.Web
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseRouting();
-            app.UseResponseCompression();
+            app.UseResponseCompression(); // http compression
 
             IServiceProvider serviceProvider = app.ApplicationServices;
             app.UseEndpoints(endpoints =>
