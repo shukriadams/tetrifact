@@ -59,7 +59,7 @@ namespace Tetrifact.Core
             {
                 DateTime started = DateTime.Now;
 
-                _log.LogInformation("Package create started");
+                _log.LogInformation($"Package create started for id {newPackage.Id}.");
 
                 if (!_settings.PackageCreateEnabled)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };

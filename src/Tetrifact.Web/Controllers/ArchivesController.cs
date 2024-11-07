@@ -44,6 +44,7 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/queue")]
         public ActionResult QueueArchiveGeneration(string packageId)
@@ -70,6 +71,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
         public ActionResult GetArchive(string packageId)
@@ -113,6 +115,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/status")]
         public ActionResult GetArchiveStatus(string packageId)

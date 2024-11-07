@@ -42,6 +42,7 @@ namespace Tetrifact.Web
         /// Force runs clean on deleted packages, old archives etc.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("")]
         public ActionResult Clean()

@@ -43,6 +43,7 @@ namespace Tetrifact.Web
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("summary")]
         public IActionResult Summary()
@@ -73,6 +74,7 @@ namespace Tetrifact.Web
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("api")]
         public IActionResult Api()
@@ -103,6 +105,7 @@ namespace Tetrifact.Web
 
 
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("processes")]
         public IActionResult Processes()
@@ -132,6 +135,7 @@ namespace Tetrifact.Web
         /// 
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("uploadPackage")]
         public IActionResult UploadPackage()
@@ -160,6 +164,7 @@ namespace Tetrifact.Web
         /// Shows page of package files at given page
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("package/{packageId}")]
         public IActionResult Package(string packageId, [FromQuery(Name = "page")] int pageIndex)
@@ -206,6 +211,7 @@ namespace Tetrifact.Web
         }
 
 
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("archiveStatus/{packageId}")]
         public IActionResult ArchiveStatus(string packageId)
@@ -241,6 +247,7 @@ namespace Tetrifact.Web
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("{page?}")]
         public IActionResult Index([FromQuery(Name = "page")] int page)
@@ -278,6 +285,7 @@ namespace Tetrifact.Web
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("search/{search?}/{page?}")]
         public IActionResult Search(string search, [FromQuery(Name = "page")] int page)
@@ -321,6 +329,7 @@ namespace Tetrifact.Web
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [Route("packagesWithTag/{tags}")]
         public IActionResult PackagesWithTag(string tags)
@@ -399,6 +408,7 @@ namespace Tetrifact.Web
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [Route("spacecheck")]
         public ActionResult SpaceCheck()
         {

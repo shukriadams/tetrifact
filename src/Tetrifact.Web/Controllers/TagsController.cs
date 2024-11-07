@@ -39,6 +39,7 @@ namespace Tetrifact.Web
         /// Gets a list of all tags currently in use.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
         public ActionResult GetTags()
@@ -66,6 +67,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tags">Comma-separated list of tags.</param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{tags}/packages")]
         public ActionResult GetTagPackages(string tags)
@@ -97,6 +99,7 @@ namespace Tetrifact.Web
         /// <param name="tag"></param>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{tag}/{packageId}")]
         public ActionResult AddTag(string tag, string packageId)
@@ -133,6 +136,7 @@ namespace Tetrifact.Web
         /// <param name="tag"></param>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{tag}/{packageId}")]
         public ActionResult RemoveTag(string tag, string packageId)

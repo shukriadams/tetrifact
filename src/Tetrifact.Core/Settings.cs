@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace Tetrifact.Core
 {
@@ -145,6 +146,27 @@ namespace Tetrifact.Core
             this.Theme = "dark";
             this.WipeTempOnStart = true;
             this.WorkerThreadCount = 8;
+        }
+
+        #endregion
+
+        #region METHODS
+
+        public bool Validate()
+        {
+            bool isValid = true;
+
+            // detect overlapping prune brackets 
+            IList<IGrouping<int, PruneBracket>> duplicateGroups = this.PruneBrackets.GroupBy(p => p.Days).Where(g => g.Count() > 1).ToList();
+            if (duplicateGroups.Count > 0)
+            {
+                foreach (IGrouping<int, PruneBracket> duplicateGroup in duplicateGroups) 
+                    Console.WriteLine($"CONFIG ERROR : Prune bracket day {duplicateGroup.Key} is defined twice.");
+
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         #endregion

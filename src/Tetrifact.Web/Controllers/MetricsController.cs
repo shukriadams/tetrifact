@@ -37,6 +37,7 @@ namespace Tetrifact.Web
         /// Gets metrics for server in InfluxDB format
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("influx")]
         public ActionResult<string> Influx()

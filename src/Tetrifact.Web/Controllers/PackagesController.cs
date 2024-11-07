@@ -63,6 +63,7 @@ namespace Tetrifact.Web
         /// Gets an array of all package ids 
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
         public ActionResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
@@ -97,6 +98,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tags">Comma-separated string of tags</param>
         /// <returns>Package for the lookup. Null if no match.</returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("latest/{tags}")]
         public ActionResult GetLatestPackageWithTag(string tags)
@@ -127,6 +129,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("diff/{upstreamPackageId}/{downstreamPackageId}")]
         public ActionResult GetPackagesDiff(string upstreamPackageId, string downstreamPackageId)
@@ -172,6 +175,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/exists")]
         public ActionResult PackageExists(string packageId)
@@ -198,6 +202,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("{packageId}/verify")]
         public ActionResult VerifyPackage(string packageId)
@@ -240,6 +245,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
         public ActionResult GetPackage(string packageId)
@@ -266,6 +272,7 @@ namespace Tetrifact.Web
         }
 
 
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("createdate/{packageId}/{date}")]
         public ActionResult SetPackageCreateDate(string packageId, string date)
@@ -311,6 +318,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="incomingPackage"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{id}")]
         [RequestSizeLimit(long.MaxValue)]
@@ -407,6 +415,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="packageId"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{packageId}")]
         public ActionResult DeletePackage(string packageId)
@@ -443,6 +452,8 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="post"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ConfigurationErrors))]
+        [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("filterexistingfiles")]
         [RequestSizeLimit(long.MaxValue)]
         public ActionResult FilterExistingFiles([FromForm] PackageExistingLookupFromPost post)

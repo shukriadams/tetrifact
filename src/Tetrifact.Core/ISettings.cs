@@ -221,5 +221,11 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         IEnumerable<TagColor> TagColors { get; set; }
+
+        /// <summary>
+        /// Validates configuration, prints all errors to console, returns true if no blocking errors detected.
+        /// </summary>
+        /// <returns></returns>
+        bool Validate();
     }
 }

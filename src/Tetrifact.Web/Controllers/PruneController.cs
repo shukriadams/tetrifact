@@ -15,6 +15,8 @@ namespace Tetrifact.Web
         }
 
         [Route("report")]
+        [ServiceFilter(typeof(ConfigurationErrors))]
+        [ServiceFilter(typeof(ReadLevel))]
         public string Report()
         {
             PrunePlan report = _pruneService.GeneratePrunePlan();

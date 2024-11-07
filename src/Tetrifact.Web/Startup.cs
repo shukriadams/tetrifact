@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace Tetrifact.Web
 {
@@ -108,6 +109,8 @@ namespace Tetrifact.Web
             services.AddMemoryCache();
             services.AddResponseCompression(); // http compression
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddScoped<ConfigurationErrors>();
         }
 
 
@@ -168,42 +171,51 @@ namespace Tetrifact.Web
             ISettings settings = settingsProvider.Get();
             loggerFactory.AddFile(settings.LogPath);
 
-            Console.WriteLine("Settings :");
-            Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
-            Console.WriteLine($"Archive CPU Threads: {settings.ArchiveCPUThreads}");
-            Console.WriteLine($"Archive path: {settings.ArchivePath}");
-            Console.WriteLine($"Archive wait timeout: {settings.ArchiveWaitTimeout}");
-            Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
-            Console.WriteLine($"Auto-create archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
-            Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
-            Console.WriteLine($"Download archive compression: {settings.ArchiveCompression}");
-            Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
-            Console.WriteLine($"Is storage compression enabled: {settings.StorageCompressionEnabled}");
-            Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
-            Console.WriteLine($"List page size: {settings.ListPageSize}");
-            Console.WriteLine($"Log path: {settings.LogPath}");
-            Console.WriteLine($"Max archives: {settings.MaximumArchivesToKeep}");
-            Console.WriteLine($"PackagePath: {settings.PackagePath}");
-            Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
-            Console.WriteLine($"Prune brackets: { string.Join(", ", settings.PruneBrackets)}");
-            Console.WriteLine($"Repository path: {settings.RepositoryPath}");
-            Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
-            Console.WriteLine($"Tags path: {settings.TagsPath}");
-            Console.WriteLine($"Temp path: {settings.TempPath}");
+            bool isValid = settings.Validate();
+            if (!isValid)
+            {
+                Console.WriteLine("ERROR : Server did not start properly because of configuration errors, and is now parked in error state.");
+                AppState.ConfigErrors = true;
+            }
+            else 
+            {
+                Console.WriteLine("Settings :");
+                Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
+                Console.WriteLine($"Archive CPU Threads: {settings.ArchiveCPUThreads}");
+                Console.WriteLine($"Archive path: {settings.ArchivePath}");
+                Console.WriteLine($"Archive wait timeout: {settings.ArchiveWaitTimeout}");
+                Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
+                Console.WriteLine($"Auto-create archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
+                Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
+                Console.WriteLine($"Download archive compression: {settings.ArchiveCompression}");
+                Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
+                Console.WriteLine($"Is storage compression enabled: {settings.StorageCompressionEnabled}");
+                Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
+                Console.WriteLine($"List page size: {settings.ListPageSize}");
+                Console.WriteLine($"Log path: {settings.LogPath}");
+                Console.WriteLine($"Max archives: {settings.MaximumArchivesToKeep}");
+                Console.WriteLine($"PackagePath: {settings.PackagePath}");
+                Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
+                Console.WriteLine($"Prune brackets: {string.Join(", ", settings.PruneBrackets)}");
+                Console.WriteLine($"Repository path: {settings.RepositoryPath}");
+                Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
+                Console.WriteLine($"Tags path: {settings.TagsPath}");
+                Console.WriteLine($"Temp path: {settings.TempPath}");
 
-            Console.WriteLine("Initializing indices");
-            IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
-            foreach (IIndexReadService indexReader in indexReaders)
-                indexReader.Initialize();
+                Console.WriteLine("Initializing indices");
+                IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
+                foreach (IIndexReadService indexReader in indexReaders)
+                    indexReader.Initialize();
 
-            // start daemons after index initialization
-            Console.WriteLine("Initializing daemons");
-            IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
-            foreach (ICron cron in crons)
-                cron.Start();
+                // start daemons after index initialization
+                Console.WriteLine("Initializing daemons");
+                IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
+                foreach (ICron cron in crons)
+                    cron.Start();
 
-            Console.WriteLine("Server start complete.");
-            Console.WriteLine("*********************************************************************");
+                Console.WriteLine("Server start complete.");
+                Console.WriteLine("*********************************************************************");
+            }
         }
     }
 }
