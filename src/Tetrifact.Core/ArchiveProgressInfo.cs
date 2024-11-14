@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Converters;
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace Tetrifact.Core
