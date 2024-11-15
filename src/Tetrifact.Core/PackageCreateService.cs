@@ -59,7 +59,7 @@ namespace Tetrifact.Core
             {
                 DateTime started = DateTime.Now;
 
-                _log.LogInformation($"Package create started for id {newPackage.Id}.");
+                _log.LogInformation($"Package create started for package \"{newPackage.Id}\".");
 
                 if (!_settings.PackageCreateEnabled)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };
@@ -110,8 +110,6 @@ namespace Tetrifact.Core
 
                 files = _hashService.SortFileArrayForHashing(files);
 
-                _log.LogInformation("Hashing package content");
-
                 // populate hash collection with paths of incoming files, this ensures we maintain order 
                 // when parallel processing hashes for these files
                 IDictionary<string, string> hashes = new Dictionary<string, string>();
@@ -137,7 +135,7 @@ namespace Tetrifact.Core
                     {
                         count ++;
                         if (count % stepSize == 0)
-                            _log.LogInformation($"Processing file {count}/{files.Count()}, package \"{newPackage.Id}\".");
+                            _log.LogDebug($"Processing file {count}/{files.Count()}, package \"{newPackage.Id}\".");
 
                         if (existingFiles.Contains(filePath))
                         { 
@@ -187,11 +185,11 @@ namespace Tetrifact.Core
                 _workspace.Dispose();
 
                 if (_settings.AutoCreateArchiveOnPackageCreate){
-                    _log.LogInformation($"Generating package archive for package {newPackage.Id}");
+                    _log.LogInformation($"Autogenerating archive for package \"{newPackage.Id}\".");
                     _archiveService.QueueArchiveCreation(newPackage.Id);
                 }
 
-                _log.LogInformation($"Package {newPackage.Id} created, took {(DateTime.Now - started).TotalSeconds} seconds.");
+                _log.LogInformation($"Package \"{newPackage.Id}\" created, took {(DateTime.Now - started).TotalSeconds} seconds.");
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }

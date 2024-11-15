@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.IO.Pipes;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -184,20 +186,48 @@ namespace Tetrifact.Core
         private async Task ArchiveDotNetZip(string packageId, string archivePathTemp)
         {
             DateTime compressStart = DateTime.Now;
-            
-            _log.LogInformation($"Starting archive generation for package {packageId}. Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
+            int copyStepSize = 10000000;
+            double progress = 0;
+            double total = 0;
+            int percent = 0;
+            string progressCacheKey = this.GetArchiveProgressKey(packageId);
+
+            _log.LogInformation($"Starting archive generation for package \"{packageId}\". Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
+
+            ProgressEvent progressEvent = (long delta, long total) => {
+                progress += delta;
+                int thisPercent = Percent.Calc(progress, total);
+                if (thisPercent > percent)
+                {
+                    percent = thisPercent;
+
+                    ArchiveProgressInfo progress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
+                    if (progress == null)
+                        progress = new ArchiveProgressInfo
+                        {
+                            PackageId = packageId
+                        };
+
+                    progress.State = PackageArchiveCreationStates.ArchiveGenerating;
+                    progress.StartedUtc = DateTime.UtcNow;
+                    progress.CombinedPercent = percent;
+                    _cache.Set(progressCacheKey, progress);
+                }
+            };
 
             // create zip file on disk asap to lock file name off
             using (FileStream zipStream = new FileStream(archivePathTemp, FileMode.Create))
             {
                 // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
                 Manifest manifest = _indexReader.GetManifest(packageId);
+                total = manifest.SizeOnDisk;
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
                     foreach (ManifestItem file in manifest.Files)
                     {
                         ZipArchiveEntry zipEntry = archive.CreateEntry(file.Path, _settings.ArchiveCompression);
+
                         using (Stream zipEntryStream = zipEntry.Open())
                         {
                             if (manifest.IsCompressed)
@@ -209,8 +239,12 @@ namespace Tetrifact.Core
                                 using (var storageArchive = new ZipArchive(fileLookup.Content))
                                 {
                                     ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
-                                    using (var storageArchiveStream = storageArchiveEntry.Open())
-                                        await storageArchiveStream.CopyToAsync(zipEntryStream);
+                                    using (var storageArchiveStream = storageArchiveEntry.Open()) 
+                                    {
+                                        StreamProgressCopy copy = new StreamProgressCopy(storageArchiveStream, zipStream, copyStepSize);
+                                        copy.OnProgress += progressEvent;
+                                        await copy.Work();
+                                    }
                                 }
                             }
                             else
@@ -220,17 +254,21 @@ namespace Tetrifact.Core
                                     throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
                                 using (Stream fileStream = fileLookup.Content)
-                                    await fileStream.CopyToAsync(zipEntryStream);
+                                {
+                                    StreamProgressCopy copy = new StreamProgressCopy(fileStream,zipStream, copyStepSize);
+                                    copy.OnProgress += progressEvent;
+                                    await copy.Work();
+                                }
                             }
 
-                            _log.LogDebug($"Added file {file.Path} to archive");
+                            _log.LogDebug($"Added file \"{file.Path}\" to archive for package \"{packageId}\"");
                         }
                     }
                 }
             }
 
             TimeSpan compressTaken = DateTime.Now - compressStart;
-            _log.LogInformation($"Archive compression with default dotnet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+            _log.LogInformation($"Archive compression with default DotNet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
         public async Task CreateNextQueuedArchive() 
