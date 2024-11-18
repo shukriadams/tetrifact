@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Tetrifact
+namespace Tetrifact.Core
 {
     public class StreamProgressCopy
     {

@@ -1,4 +1,4 @@
-﻿namespace Tetrifact
+﻿namespace Tetrifact.Core
 {
     /// <summary>
     /// 

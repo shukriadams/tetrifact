@@ -10,7 +10,7 @@ namespace Tetrifact.Tests.PackagePrune
 {
     public class Prune : FileSystemBase
     {
-        private readonly IPackagePruneService _packagePrune;
+        private readonly IPruneService _packagePrune;
 
         public Prune()
         {
@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.PackagePrune
 
             Settings.PruneIgnoreTags = new string[] { "keep" };
 
-            _packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[]{ Settings, this.IndexReader }); 
+            _packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[]{ Settings, this.IndexReader }); 
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace Tetrifact.Tests.PackagePrune
             timeProvider.Setup(r => r.GetUtcNow())
                 .Returns(()=> now);
 
-            PackagePruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { settings, this.IndexReader, timeProvider.Object });
+            PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, timeProvider.Object });
 
             // prune - no packages must be deleted
             for (int i = 0; i < 10; i++)
@@ -173,7 +173,7 @@ namespace Tetrifact.Tests.PackagePrune
             foreach (string manifestPath in PackageHelper.GetManifestPaths(Settings, "dummy"))
                 File.Delete(manifestPath);
             
-            IPackagePruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { Settings, mockedIndexReader.Object }); 
+            IPruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, mockedIndexReader.Object }); 
             mockedPruner.Prune();
         }
 
@@ -196,7 +196,7 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "dummy1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "dummy2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
-            IPackagePruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PackagePruneService>(new object[] { Settings, mockedIndexReader.Object }); 
+            IPruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, mockedIndexReader.Object }); 
             mockedPruner.Prune();
         }
 

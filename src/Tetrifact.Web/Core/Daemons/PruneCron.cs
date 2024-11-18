@@ -9,7 +9,7 @@ namespace Tetrifact.Web
     {
         private readonly ILogger<PruneCron> _log;
 
-        private readonly IPackagePruneService _packagePrune;
+        private readonly IPruneService _packagePrune;
 
         private readonly IDaemon _daemonrunner;
 
@@ -17,7 +17,7 @@ namespace Tetrifact.Web
 
         private readonly IPackageListCache _packageListCache;
 
-        public PruneCron(IPackagePruneService packagePrune, ISettings settings,  IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
+        public PruneCron(IPruneService packagePrune, ISettings settings,  IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
             _settings = settings;
             _log = log;

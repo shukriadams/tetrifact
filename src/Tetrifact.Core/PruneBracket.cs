@@ -1,4 +1,4 @@
-﻿namespace Tetrifact
+﻿namespace Tetrifact.Core
 {
     public class PruneBracket
     {
@@ -8,13 +8,21 @@
         public int Amount { get; set; }
 
         /// <summary>
-        /// Days back in time that this bracket begins to appl
+        /// Days back in time that this bracket begins to apply.
         /// </summary>
         public int Days { get; set; }
+
+        public PruneBracketGrouping Grouping { get; set; }
+
+        public PruneBracket() 
+        {
+            Grouping = PruneBracketGrouping.NextBracket;
+        }
 
         public override string ToString()
         {
             return $"{Days} days {Amount} packages";
+           
         }
     }
 }

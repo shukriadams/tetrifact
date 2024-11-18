@@ -1,5 +1,4 @@
-﻿using System;
-namespace Tetrifact.Core
+﻿namespace Tetrifact.Core
 {
     // 
     public class Percent

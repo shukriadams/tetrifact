@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Tetrifact.Core
 {
-    public class PackagePruneService : IPackagePruneService
+    public class PruneService : IPruneService
     {
         #region FIELDS 
 
@@ -13,7 +13,7 @@ namespace Tetrifact.Core
 
         IIndexReadService _indexReader;
 
-        ILogger<IPackagePruneService> _log;
+        ILogger<IPruneService> _log;
 
         ITimeProvideer _timeprovider;
 
@@ -23,7 +23,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackagePruneService(ISettings settings, IProcessLockManager processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPackagePruneService> log)
+        public PruneService(ISettings settings, IProcessLockManager processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;

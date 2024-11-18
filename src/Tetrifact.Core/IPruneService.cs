@@ -1,6 +1,6 @@
 ﻿namespace Tetrifact.Core
 {
-    public interface IPackagePruneService
+    public interface IPruneService
     {
         /// <summary>
         /// Runs a prune event. 

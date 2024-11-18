@@ -7,9 +7,9 @@ namespace Tetrifact.Web
     [ApiController]
     public class PruneController
     {
-        private readonly IPackagePruneService _pruneService;
+        private readonly IPruneService _pruneService;
 
-        public PruneController(IPackagePruneService pruneService)
+        public PruneController(IPruneService pruneService)
         {
             _pruneService = pruneService;
         }

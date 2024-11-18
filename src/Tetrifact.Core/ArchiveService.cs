@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
-using System.IO.Pipes;
 using System.Linq;
 using System.Threading.Tasks;
 

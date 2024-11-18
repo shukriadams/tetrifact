@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Tetrifact
+namespace Tetrifact.Core
 {
     public class ProcessInfo
     {

@@ -61,7 +61,7 @@ namespace Tetrifact.Web
             services.AddTransient<IFile, FileWrapper>();
             services.AddTransient<IDirectory, DirectoryWrapper>();
             services.AddTransient<IThread, ThreadDefault>();
-            services.AddTransient<IPackagePruneService, PackagePruneService>();
+            services.AddTransient<IPruneService, PruneService>();
             services.AddTransient<IPackageDiffService, PackageDiffService>();
             services.AddTransient<IArchiveService, ArchiveService>();
             services.AddTransient<IMetricsService, MetricsService>();
