@@ -39,5 +39,10 @@ namespace Tetrifact.Core
         public decimal CombinedPercent { get; set; }
 
         public long ProjectedSize { get; set; }
+
+        public ArchiveProgressInfo() 
+        {
+            this.State = PackageArchiveCreationStates.Processed_ArchiveNotGenerated;
+        }
     }
 }

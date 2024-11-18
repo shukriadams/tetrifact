@@ -122,6 +122,7 @@ namespace Tetrifact.Core
             if (!_indexReader.PackageExists(packageId))
                 return new ArchiveProgressInfo
                 {
+                    PackageId = packageId,
                     State = PackageArchiveCreationStates.Processed_PackageNotFound
                 };
 
@@ -133,20 +134,30 @@ namespace Tetrifact.Core
             if (archiveExists)
                 return new ArchiveProgressInfo 
                 {
+                    PackageId = packageId,  
                     State = PackageArchiveCreationStates.Processed_ArchiveAvailable     
                 };
 
-            // archive not available and not queued
-            if (!_fileSystem.File.Exists(archiveQueuePath))
-                return new ArchiveProgressInfo
-                {
-                    State = PackageArchiveCreationStates.Processed_ArchiveNotGenerated
-                };
-
+            // package archive state is already in-memory, something is doing something with it, return that.
             string progressCacheKey = this.GetArchiveProgressKey(packageId);
             ArchiveProgressInfo cachedProgress = _cache.Get<ArchiveProgressInfo>(progressCacheKey);
+            if (cachedProgress != null)
+                return cachedProgress;
+
+            // if nothing in memory, check if queue file exists
+            if (_fileSystem.File.Exists(archiveQueuePath))
+                return new ArchiveProgressInfo
+                {
+                    PackageId = packageId,
+                    State = PackageArchiveCreationStates.Queued
+                };
+
+            // nothing available, fall back to defaults
             if (cachedProgress == null)
-                cachedProgress = new ArchiveProgressInfo();
+                cachedProgress = new ArchiveProgressInfo 
+                { 
+                    PackageId = packageId,
+                };
 
             return cachedProgress;
         }
@@ -194,7 +205,7 @@ namespace Tetrifact.Core
 
             _log.LogInformation($"Starting archive generation for package \"{packageId}\". Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
 
-            ProgressEvent progressEvent = (long delta, long total) => {
+            ProgressEvent progressEvent = (long delta, long localTotal) => {
                 progress += delta;
                 int thisPercent = Percent.Calc(progress, total);
                 if (thisPercent > percent)
@@ -209,7 +220,6 @@ namespace Tetrifact.Core
                         };
 
                     progress.State = PackageArchiveCreationStates.ArchiveGenerating;
-                    progress.StartedUtc = DateTime.UtcNow;
                     progress.CombinedPercent = percent;
                     _cache.Set(progressCacheKey, progress);
                 }
@@ -316,13 +326,13 @@ namespace Tetrifact.Core
             progress.StartedUtc = DateTime.UtcNow;
             _cache.Set(progressCacheKey, progress);
 
+            // cleanup queue file
+            _fileSystem.File.Delete(queuedFile);
+
             await this.CreateArchive(archiveQueueInfo.PackageId);
 
             progress.State = PackageArchiveCreationStates.Processed_ArchiveAvailable;
             _cache.Set(progressCacheKey, progress);
-
-            // finally, cleanup queue file
-            _fileSystem.File.Delete(queuedFile); 
         }
 
         public async Task CreateArchive(string packageId)
