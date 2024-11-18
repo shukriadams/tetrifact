@@ -40,3 +40,5 @@ utils/uploadPartial/remoteManifest.json
 src/packages
 *.user
 utils/upload/packages
+utils/upload/__pycache__
+utils/upload/.generate

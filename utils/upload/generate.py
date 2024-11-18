@@ -5,14 +5,29 @@ import random
 from random import randrange
 import glob
 import shutil
+import sys
+from importlib.machinery import SourceFileLoader
+import argparse
 
+loader = SourceFileLoader('loader', './vars.py').load_module()
 
-package_count = 3
-package_file_count_min = 1
-package_file_count_max = 100
-file_size_min = 1
-file_size_max = 10000000
-file_reuse_chance = 50
+argParser = argparse.ArgumentParser()
+argParser.add_argument('--package_count', default=3)
+argParser.add_argument('--package_file_count_min', default=1)
+argParser.add_argument('--package_file_count_max', default=100)
+argParser.add_argument('--file_size_min', default=1)
+argParser.add_argument('--file_size_max', default=10000000)
+argParser.add_argument('--file_reuse_chance', default=50)
+
+args = vars(argParser.parse_args())
+args = loader.mergeFromFile('.generate', args)
+
+package_count = args['package_count']
+package_file_count_min = args['package_file_count_min']
+package_file_count_max = args['package_file_count_max']
+file_size_min = args['file_size_min']
+file_size_max = args['file_size_max']
+file_reuse_chance = args['file_reuse_chance']
 output_directory = './packages'
 
 print("GENERATING CONTENT")
