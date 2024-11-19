@@ -56,7 +56,7 @@ namespace Tetrifact.Core
             foreach(string line in report.Report)
                _log.LogInformation(line);
 
-            IEnumerable<string> packageToPruneIds = report.Brackets.SelectMany(b => b.Prune);
+            IEnumerable<string> packageToPruneIds = report.Brackets.SelectMany(b => b.Prune).Select(m => m.Id);
 
             _log.LogInformation($"******************************* Starting prune execution, {packageToPruneIds.Count()} packages marked for delete *******************************");
 
@@ -87,14 +87,14 @@ namespace Tetrifact.Core
         public PrunePlan GeneratePrunePlan()
         {
             // sort brackets oldest to most recent, clone to change settings without affecting original instances
-            IList<PruneBracketProcess> brackets = _settings.PruneBrackets
-                .Select(p => PruneBracketProcess.Clone(p))
-                .OrderByDescending(p => p.Days)
+            IList<PruneBracketProcess> processBrackets = _settings.PruneBrackets
+                .Select(p => PruneBracketProcess.FromPruneBracket(p))
                 .ToList();
 
             IList<string> taggedKeep = new List<string>();
             IList<string> newKeep = new List<string>();
             IList<string> report = new List<string>();
+
             int unhandled = 0;
 
             report.Add(" ******************************** Prune audit start **********************************");
@@ -102,10 +102,8 @@ namespace Tetrifact.Core
             IList<string> packageIds = _indexReader.GetAllPackageIds().ToList();
             packageIds = packageIds.OrderBy(n => Guid.NewGuid()).ToList(); // randomize collection order
 
-            // calculate periods for weekly, monthly and year pruning - weekly happens first, and after some time from NOW passes. Monthly starts at some point after weekly starts
-            // and yearl starst some point after that and runs indefinitely.
             DateTime utcNow = _timeprovider.GetUtcNow();
-            foreach(PruneBracketProcess pruneBracketProcess in brackets)
+            foreach(PruneBracketProcess pruneBracketProcess in processBrackets)
                 pruneBracketProcess.Floor = utcNow.AddDays(-1 * pruneBracketProcess.Days);
 
             int startingPackageCount = packageIds.Count;
@@ -126,38 +124,85 @@ namespace Tetrifact.Core
                 int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
                 report.Add($"Analysing {packageId}, added {manifest.CreatedUtc.ToIso()} ({ageInDays} days ago). Tagged with: {flattenedTags}");
 
-                PruneBracketProcess matchingBracket = brackets.FirstOrDefault(b => manifest.CreatedUtc < b.Floor);
+                PruneBracketProcess matchingBracket = processBrackets.FirstOrDefault(b => manifest.CreatedUtc < b.Floor);
                 if (matchingBracket == null)
                 {
                     report.Add($"{packageId}, created {manifest.CreatedUtc.ToIso()}, does not land in any prune bracket, will be kept.");
                     unhandled ++;
+                    continue;
                 }
-                else
-                {
-                    report.Add($"{packageId}, created {manifest.CreatedUtc.ToIso()}, lands in prune bracket {matchingBracket.Days}Days.");
-                    bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
 
-                    if (isTaggedKeep)
+                report.Add($"{packageId}, created {manifest.CreatedUtc.ToIso()}, lands in prune bracket {matchingBracket.Days}Days.");
+
+                // try to find reasons to keep package
+
+                // packages can be tagged to never be deleted. This ignores keep count, but will push out packages that are not tagged
+                bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
+                if (isTaggedKeep)
+                {
+                    taggedKeep.Add(packageId);
+                    matchingBracket.Keep.Add(manifest);
+                    report.Add($"{packageId} marked for keep based on tag.");
+                    continue;
+                }
+                
+                // "group strategy" - the entire bracket is treated as one big bag
+                if (matchingBracket.Grouping == PruneBracketGrouping.Grouped && matchingBracket.Keep.Count < matchingBracket.Amount)
+                {
+                    report.Add($"{packageId} marked for keep, {matchingBracket.Keep.Count} packages kept so far.");
+                    matchingBracket.Keep.Add(manifest);
+                    continue;
+                }
+
+                // bracket is on x packages per day basis
+                if (matchingBracket.Grouping == PruneBracketGrouping.Daily) 
+                {
+                    int code = manifest.CreatedUtc.ToDayCode();
+                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToDayCode() == code) < matchingBracket.Amount) 
                     {
-                        taggedKeep.Add(packageId);
-                        matchingBracket.Keep.Add(packageId);
-                        report.Add($"{packageId} marked for keep based on tag.");
-                    }
-                    else 
-                    { 
-                        if (matchingBracket.Keep.Count < matchingBracket.Amount)
-                        {
-                            report.Add($"{packageId} marked for keep, {matchingBracket.Keep.Count} packages kept so far.");
-                            matchingBracket.Keep.Add(packageId);
-                        }
-                        else
-                        {
-                            matchingBracket.Prune.Add(packageId);
-                            report.Add($"{packageId} marked for prune, {matchingBracket.Keep.Count} packages already kept.");
-                        }
+                        matchingBracket.Keep.Add(manifest);
+                        continue;
                     }
                 }
-            }
+
+                // bracket is on x packages per week basis
+                if (matchingBracket.Grouping == PruneBracketGrouping.Weekly)
+                {
+                    int code = manifest.CreatedUtc.ToWeekCode();
+                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToWeekCode() == code) < matchingBracket.Amount)
+                    {
+                        matchingBracket.Keep.Add(manifest);
+                        continue;
+                    }
+                }
+
+                // bracket is on x packages per month basis
+                if (matchingBracket.Grouping == PruneBracketGrouping.Monthly)
+                {
+                    int code = manifest.CreatedUtc.ToMonthCode();
+                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToMonthCode() == code) < matchingBracket.Amount)
+                    {
+                        matchingBracket.Keep.Add(manifest);
+                        continue;
+                    }
+                }
+
+                // bracket is on x packages per month basis
+                if (matchingBracket.Grouping == PruneBracketGrouping.Yearly)
+                {
+                    int code = manifest.CreatedUtc.ToMonthCode();
+                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToMonthCode() == code) < matchingBracket.Amount)
+                    {
+                        matchingBracket.Keep.Add(manifest);
+                        continue;
+                    }
+                }
+
+
+                // no reasons found, prune package
+                matchingBracket.Prune.Add(manifest);
+                report.Add($"{packageId} marked for prune, {matchingBracket.Keep.Count} packages already kept.");
+            } // for each
 
             string pruneIdList = string.Empty;
             if (packageIds.Count > 0)
@@ -170,7 +215,7 @@ namespace Tetrifact.Core
             if (taggedKeep.Count > 0)
                 report.Add($"Kept due to tagging - {string.Join(",", taggedKeep)}.");
     
-            foreach(PruneBracketProcess p in brackets)
+            foreach(PruneBracketProcess p in processBrackets)
                 report.Add($"Bracket {p}, keeping {p.Keep.Count} packages ({string.Join(",",p.Keep)}), pruning {p.Prune.Count} packages ({string.Join(",", p.Prune)})");
 
             report.Add(string.Empty);
@@ -178,7 +223,7 @@ namespace Tetrifact.Core
 
             return new PrunePlan{ 
                 Report = report, 
-                Brackets = brackets
+                Brackets = processBrackets
             };
         }
 

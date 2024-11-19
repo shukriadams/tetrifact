@@ -5,13 +5,13 @@ namespace Tetrifact.Core
 {
     public class PruneBracketProcess : PruneBracket
     {
-        public IList<string> Keep {get ; set; } = new List<string>();
+        public IList<Manifest> Keep {get ; set; } = new List<Manifest>();
 
-        public IList<string> Prune { get; set; }  = new List<string>();
+        public IList<Manifest> Prune { get; set; }  = new List<Manifest>();
 
         public DateTime Floor { get; set; }
 
-        public static PruneBracketProcess Clone(PruneBracket pruneBracket) 
+        public static PruneBracketProcess FromPruneBracket(PruneBracket pruneBracket) 
         { 
             return new PruneBracketProcess 
             { 

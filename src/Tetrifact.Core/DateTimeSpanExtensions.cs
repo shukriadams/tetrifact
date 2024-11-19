@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Tetrifact.Core
 {
@@ -130,6 +131,21 @@ namespace Tetrifact.Core
                 return string.Empty;
 
             return ToHumanString(dateUtc.Value);
+        }
+
+        public static int ToDayCode(this DateTime dateUtc)
+        {
+            return int.Parse($"{dateUtc.Year}{dateUtc.Month}{dateUtc.Day}");
+        }
+
+        public static int ToWeekCode(this DateTime dateUtc)
+        {
+            return int.Parse($"{dateUtc.Year}{ISOWeek.GetWeekOfYear(dateUtc)}");
+        }
+
+        public static int ToMonthCode(this DateTime dateUtc)
+        {
+            return int.Parse($"{dateUtc.Year}{dateUtc.Month}");
         }
     }
 }
