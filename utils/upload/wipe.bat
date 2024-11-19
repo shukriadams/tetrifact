@@ -1,0 +1,2 @@
+python wipe.py
+pause

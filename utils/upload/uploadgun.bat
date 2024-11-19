@@ -1,2 +1,0 @@
-python uploadgun.py
-pause
