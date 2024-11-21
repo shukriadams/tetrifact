@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Tetrifact.Core
 {
@@ -137,6 +138,8 @@ namespace Tetrifact.Core
                     continue;
                 }
 
+                matchingBracket.Found++;
+
                 // try to find reasons to keep package
 
                 // packages can be tagged to never be deleted. This ignores keep count, but will push out packages that are not tagged
@@ -162,9 +165,9 @@ namespace Tetrifact.Core
                 {
                     int code = manifest.CreatedUtc.ToDayCode();
                     int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.ToDayCode() == code);
-                    if (kept < matchingBracket.Amount) 
+                    if (kept < matchingBracket.Amount)
                     {
-                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for day {code}.");
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket}::day {code} had {matchingBracket.Amount - kept} slots left.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
@@ -177,7 +180,7 @@ namespace Tetrifact.Core
                     int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.ToWeekCode() == code);
                     if (kept < matchingBracket.Amount)
                     {
-                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for week {code}.");
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket}::week {code} had {matchingBracket.Amount - kept} slots left.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
@@ -190,7 +193,7 @@ namespace Tetrifact.Core
                     int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.ToMonthCode() == code);
                     if (kept < matchingBracket.Amount)
                     {
-                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for month {code}.");
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket}::month {code} had {matchingBracket.Amount - kept} slots left.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
@@ -203,7 +206,7 @@ namespace Tetrifact.Core
                     int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.Year == code);
                     if (kept < matchingBracket.Amount)
                     {
-                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for year {code}.");
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket}::year {code} had {matchingBracket.Amount - kept} slots left.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
@@ -229,6 +232,7 @@ namespace Tetrifact.Core
                 totalKeep += p.Keep.Count;
                 totalPrune += p.Prune.Count;
                 report.Add($"Bracket {p}.");
+                report.Add($"Found {p.Found} packages falling in this date range.");
                 report.Add($"Keeping {p.Keep.Count}{FlattenList(p.Keep.Select(p => p.Id))}.");
                 report.Add($"Pruning {p.Prune.Count}{FlattenList(p.Prune.Select(p => p.Id))}.");
                 report.Add(string.Empty);

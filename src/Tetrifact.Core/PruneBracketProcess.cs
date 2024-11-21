@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Bson;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Tetrifact.Core
@@ -10,7 +9,7 @@ namespace Tetrifact.Core
 
         public IList<Manifest> Prune { get; set; }  = new List<Manifest>();
 
-        public TimeSpan Coverage { get; set; }
+        public int Found { get; set; }
 
         /// <summary>
         /// Days back in time from Now that bracket covers. Calculated at start of a given prune run.
@@ -36,7 +35,8 @@ namespace Tetrifact.Core
             return new PruneBracketProcess 
             { 
                 Amount = pruneBracket.Amount,
-                Days = pruneBracket.Days
+                Days = pruneBracket.Days,
+                Grouping = pruneBracket.Grouping
             };
         }
     }
