@@ -92,27 +92,30 @@ namespace Tetrifact.Core
                 .ToList();
 
             IList<string> taggedKeep = new List<string>();
-            IList<string> newKeep = new List<string>();
             IList<string> report = new List<string>();
 
-            int unhandled = 0;
-
-            report.Add(" ******************************** Prune audit start **********************************");
+            int ignoringNoBracketCount = 0;
 
             IList<string> packageIds = _indexReader.GetAllPackageIds().ToList();
             packageIds = packageIds.OrderBy(n => Guid.NewGuid()).ToList(); // randomize collection order
 
             DateTime utcNow = _timeprovider.GetUtcNow();
-            foreach(PruneBracketProcess pruneBracketProcess in processBrackets)
-                pruneBracketProcess.Floor = utcNow.AddDays(-1 * pruneBracketProcess.Days);
+            DateTime ceiling = utcNow;
+            foreach(PruneBracketProcess pruneBracketProcess in processBrackets) 
+            {
+                pruneBracketProcess.Ceiling = ceiling;
+                pruneBracketProcess.Floor = ceiling.AddDays(-1 * pruneBracketProcess.Days);
+                ceiling = pruneBracketProcess.Floor;
+            }
 
             int startingPackageCount = packageIds.Count;
 
-            report.Add($"Server currently contains {packageIds.Count} packages.");
+            report.Add($"Server currently holds {packageIds.Count} packages.");
 
             foreach (string packageId in packageIds)
             {
                 Manifest manifest = _indexReader.GetManifestHead(packageId);
+                report.Add(string.Empty);
 
                 if (manifest == null)
                 {
@@ -121,35 +124,35 @@ namespace Tetrifact.Core
                 }
 
                 string flattenedTags = manifest.Tags.Count == 0 ? string.Empty : $"Tags : {string.Join(",", manifest.Tags)}";
-                int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
-                report.Add($"Analysing {packageId}, added {manifest.CreatedUtc.ToIso()} ({ageInDays} days ago). Tagged with: {flattenedTags}");
+                flattenedTags = string.IsNullOrEmpty(flattenedTags) ? "Package is untagged": $"Tagged with : {flattenedTags}";
 
-                PruneBracketProcess matchingBracket = processBrackets.FirstOrDefault(b => manifest.CreatedUtc < b.Floor);
+                int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
+                report.Add($"Analysing package \"{packageId}\", added {manifest.CreatedUtc.ToIso()} ({ageInDays} days ago). {flattenedTags}.");
+
+                PruneBracketProcess matchingBracket = processBrackets.FirstOrDefault(bracket => bracket.Contains(manifest.CreatedUtc));
                 if (matchingBracket == null)
                 {
-                    report.Add($"{packageId}, created {manifest.CreatedUtc.ToIso()}, does not land in any prune bracket, will be kept.");
-                    unhandled ++;
+                    report.Add($"Package \"{packageId}\" doesn't fit into any prune brackets, will be kept.");
+                    ignoringNoBracketCount ++;
                     continue;
                 }
-
-                report.Add($"{packageId}, created {manifest.CreatedUtc.ToIso()}, lands in prune bracket {matchingBracket.Days}Days.");
 
                 // try to find reasons to keep package
 
                 // packages can be tagged to never be deleted. This ignores keep count, but will push out packages that are not tagged
-                bool isTaggedKeep = manifest.Tags.Any(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
-                if (isTaggedKeep)
+                IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
+                if (keepTagsOnPackage.Any())
                 {
                     taggedKeep.Add(packageId);
                     matchingBracket.Keep.Add(manifest);
-                    report.Add($"{packageId} marked for keep based on tag.");
+                    report.Add($"Package \"{packageId}\" marked for keep based on tag(s) {string.Join(",", keepTagsOnPackage)}.");
                     continue;
                 }
                 
                 // "group strategy" - the entire bracket is treated as one big bag
                 if (matchingBracket.Grouping == PruneBracketGrouping.Grouped && matchingBracket.Keep.Count < matchingBracket.Amount)
                 {
-                    report.Add($"{packageId} marked for keep, {matchingBracket.Keep.Count} packages kept so far.");
+                    report.Add($"Package \"{packageId}\" marked for keep based on its date grouping (bracket {matchingBracket}) {matchingBracket.Amount - matchingBracket.Keep.Count} slots left in bracket.");
                     matchingBracket.Keep.Add(manifest);
                     continue;
                 }
@@ -158,8 +161,10 @@ namespace Tetrifact.Core
                 if (matchingBracket.Grouping == PruneBracketGrouping.Daily) 
                 {
                     int code = manifest.CreatedUtc.ToDayCode();
-                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToDayCode() == code) < matchingBracket.Amount) 
+                    int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.ToDayCode() == code);
+                    if (kept < matchingBracket.Amount) 
                     {
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for day {code}.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
@@ -169,8 +174,10 @@ namespace Tetrifact.Core
                 if (matchingBracket.Grouping == PruneBracketGrouping.Weekly)
                 {
                     int code = manifest.CreatedUtc.ToWeekCode();
-                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToWeekCode() == code) < matchingBracket.Amount)
+                    int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.ToWeekCode() == code);
+                    if (kept < matchingBracket.Amount)
                     {
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for week {code}.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
@@ -180,28 +187,32 @@ namespace Tetrifact.Core
                 if (matchingBracket.Grouping == PruneBracketGrouping.Monthly)
                 {
                     int code = manifest.CreatedUtc.ToMonthCode();
-                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToMonthCode() == code) < matchingBracket.Amount)
+                    int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.ToMonthCode() == code);
+                    if (kept < matchingBracket.Amount)
                     {
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for month {code}.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
                 }
 
-                // bracket is on x packages per month basis
+                // bracket is on x packages per year basis
                 if (matchingBracket.Grouping == PruneBracketGrouping.Yearly)
                 {
-                    int code = manifest.CreatedUtc.ToMonthCode();
-                    if (matchingBracket.Keep.Count(m => m.CreatedUtc.ToMonthCode() == code) < matchingBracket.Amount)
+                    int code = manifest.CreatedUtc.Year;
+                    int kept = matchingBracket.Keep.Count(m => m.CreatedUtc.Year == code);
+                    if (kept < matchingBracket.Amount)
                     {
+                        report.Add($"Package \"{packageId}\" marked for keep, bracket {matchingBracket.Days} had {matchingBracket.Amount - kept} slots left for year {code}.");
                         matchingBracket.Keep.Add(manifest);
                         continue;
                     }
                 }
-
 
                 // no reasons found, prune package
                 matchingBracket.Prune.Add(manifest);
-                report.Add($"{packageId} marked for prune, {matchingBracket.Keep.Count} packages already kept.");
+                report.Add($"Package \"{packageId}\" failed to pass any keep tests, marked for prune.");
+
             } // for each
 
             string pruneIdList = string.Empty;
@@ -209,22 +220,43 @@ namespace Tetrifact.Core
                 pruneIdList = $" ({string.Join(",", packageIds)})";
 
             report.Add(string.Empty);
-            report.Add($"Pre-weekly ignore count is {newKeep.Count()} - {string.Join(",", newKeep)}");
-            report.Add($"Unhandled: {unhandled}");
-            
-            if (taggedKeep.Count > 0)
-                report.Add($"Kept due to tagging - {string.Join(",", taggedKeep)}.");
-    
-            foreach(PruneBracketProcess p in processBrackets)
-                report.Add($"Bracket {p}, keeping {p.Keep.Count} packages ({string.Join(",",p.Keep)}), pruning {p.Prune.Count} packages ({string.Join(",", p.Prune)})");
 
-            report.Add(string.Empty);
-            report.Add(" ******************************** Prune audit end **********************************");
+            int totalKeep = 0;
+            int totalPrune = 0;
+
+            foreach (PruneBracketProcess p in processBrackets)
+            {
+                totalKeep += p.Keep.Count;
+                totalPrune += p.Prune.Count;
+                report.Add($"Bracket {p}.");
+                report.Add($"Keeping {p.Keep.Count}{FlattenList(p.Keep.Select(p => p.Id))}.");
+                report.Add($"Pruning {p.Prune.Count}{FlattenList(p.Prune.Select(p => p.Id))}.");
+                report.Add(string.Empty);
+            }
+
+            if (taggedKeep.Any())
+                report.Add($"Kept {taggedKeep.Count} packages because of tag matches{FlattenList(taggedKeep)}.");
+            else
+                report.Add("No packages were kept due to tag matching. Note that packages need to fall into a bracket first before keep tagging rules are applied.");
+
+            report.Add($"Total packages in system:{packageIds.Count}, no bracket match:{ignoringNoBracketCount}, pruning:{totalPrune}, keeping:{totalKeep}.");
+
+            int totalHandled = totalKeep + totalPrune + ignoringNoBracketCount;
+            if (packageIds.Count != totalHandled) 
+                report.Add($"ERROR : Package handling count error, expected {packageIds.Count}, got {totalHandled}.");
 
             return new PrunePlan{ 
                 Report = report, 
                 Brackets = processBrackets
             };
+        }
+
+        private string FlattenList(IEnumerable<object> packages) 
+        {
+            if (!packages.Any())
+                return string.Empty;
+
+            return $" ({string.Join(",", packages)})";
         }
 
         #endregion

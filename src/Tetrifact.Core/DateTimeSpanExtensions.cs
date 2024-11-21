@@ -27,6 +27,22 @@ namespace Tetrifact.Core
                 .Substring(0, iso.Length - 3); // remove sec
         }
 
+        /// <summary>
+        /// Converts to yyyy-mm-dd ISO
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static string ToIsoShort(this DateTime date)
+        {
+            string iso = date
+                .ToLocalTime()
+                .ToString("s") // convert to ymdhms
+                .Replace("T", " "); // replace T after ymd
+
+            return iso
+                .Substring(0, iso.Length - 9); // remove all time data
+        }
+
         public static string ToIsoFSFriendly(this DateTime date)
         {
             string iso = date

@@ -3,9 +3,18 @@ import sys
 import glob
 import json
 import datetime
+import argparse
+from importlib.machinery import SourceFileLoader
 
-work_dir='./../../src/Tetrifact.Web/bin/Debug/net6.0/data/'
-packagesPerDay=5
+loader = SourceFileLoader('loader', './vars.py').load_module()
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument('--work_dir', default='./../../src/Tetrifact.Web/bin/Debug/net6.0/data/')
+argParser.add_argument('--packages_per_day', default=5)
+args = loader.mergeFromFile('.setDateSpread', vars(argParser.parse_args()))
+
+work_dir = args['work_dir']
+packages_per_day = args['packages_per_day']
 
 def loadJson(filepath):
     import json
@@ -38,9 +47,12 @@ daysBack = 0
 date = datetime.datetime.now()
 
 for package in packages:
-    date = date + datetime.timedelta(days = daysBack)
 
-    for day in range(packagesPerDay):
+    date = datetime.datetime.now() + datetime.timedelta(days = -1*daysBack)
+    daysBack = daysBack + 1
+    print(f'Setting package date back to {str(date)}')
+
+    for day in range(packages_per_day):
         manifestPath = os.path.join(package, 'manifest.json')
         manifest = loadJson(manifestPath)
         manifest['CreatedUtc'] = str(date)
@@ -53,4 +65,3 @@ for package in packages:
 
         print(f'Updated package {package}')
 
-    daysBack += 1

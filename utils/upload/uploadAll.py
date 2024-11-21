@@ -9,7 +9,7 @@ import urllib.request
 import sys
 from pathlib import Path
 
-pause=1 # seconds
+pause=0 # seconds
 zipPath = './content.zip'
 packages = glob.glob(f'./packages/*.zip')
 server_address='http://localhost:5000'

@@ -2,6 +2,8 @@
 {
     public class PruneBracket
     {
+        #region PROPERTIES
+
         /// <summary>
         /// Number of packages to keep for the given period
         /// </summary>
@@ -12,16 +14,29 @@
         /// </summary>
         public int Days { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public PruneBracketGrouping Grouping { get; set; }
+
+        #endregion
+
+        #region CTORS
 
         public PruneBracket() 
         {
             Grouping = PruneBracketGrouping.Grouped;
         }
 
+        #endregion
+
+        #region METHODS
+
         public override string ToString()
         {
-            return $"{Days} days {Amount} packages";
+            return $"Covers {Days} day(s), allows {Amount} package(s), {Grouping}";
         }
+
+        #endregion
     }
 }
