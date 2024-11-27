@@ -46,21 +46,23 @@ namespace Tetrifact.Web
 
             if (!isIIS)
             {
-                Console.WriteLine("Loading Kestrel");
                 builder.UseKestrel(options =>
                 {
+
                     options.Listen(IPAddress.Any, port, listenOptions =>
                     {
                         listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
                         if (useHTTPS)
                             listenOptions.UseHttps(httpsCertPath);
                     });
+                    Console.WriteLine("Port bound.");
 
                     // SECURITY WARNING : the limit on attachment part size is removed to support large builds. 
                     options.Limits.MaxRequestBodySize = long.MaxValue;
                     options.Limits.MaxRequestBufferSize = long.MaxValue;
                     options.Limits.MaxRequestLineSize = int.MaxValue;
                 });
+                Console.WriteLine("Kestrel loaded.");
             }
 
             return builder;
