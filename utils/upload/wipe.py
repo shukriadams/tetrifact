@@ -31,6 +31,7 @@ for filename in os.listdir(work_dir):
     item_path = os.path.join(work_dir, filename)
 
     try:
+        print(f'Attempting to remove {item_path}')
 
         if os.path.isfile(item_path):
             os.unlink(item_path)

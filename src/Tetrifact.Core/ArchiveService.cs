@@ -250,7 +250,7 @@ namespace Tetrifact.Core
                                     ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
                                     using (var storageArchiveStream = storageArchiveEntry.Open()) 
                                     {
-                                        StreamProgressCopy copy = new StreamProgressCopy(storageArchiveStream, zipStream, copyStepSize);
+                                        StreamProgressCopy copy = new StreamProgressCopy(storageArchiveStream, zipEntryStream, copyStepSize);
                                         copy.OnProgress += progressEvent;
                                         await copy.Work();
                                     }
@@ -264,7 +264,7 @@ namespace Tetrifact.Core
 
                                 using (Stream fileStream = fileLookup.Content)
                                 {
-                                    StreamProgressCopy copy = new StreamProgressCopy(fileStream,zipStream, copyStepSize);
+                                    StreamProgressCopy copy = new StreamProgressCopy(fileStream, zipEntryStream, copyStepSize);
                                     copy.OnProgress += progressEvent;
                                     await copy.Work();
                                 }
