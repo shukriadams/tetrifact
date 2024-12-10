@@ -229,7 +229,7 @@ namespace Tetrifact.Core
             {
                 // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
                 Manifest manifest = _indexReader.GetManifest(packageId);
-                total = manifest.SizeOnDisk;
+                total = manifest.Size;
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {

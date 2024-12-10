@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Hosting.Internal;
 
 namespace Tetrifact.Web
 {
@@ -31,6 +30,8 @@ namespace Tetrifact.Web
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+            // Note, add time-since-global start signture here, on docker system with presumably many listeners, this
+            // can take a long time to reach
             Console.WriteLine("Configuring services");
 
             services.Configure<CookiePolicyOptions>(options =>
