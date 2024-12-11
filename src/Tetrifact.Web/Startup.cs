@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Hosting.Internal;
 
 namespace Tetrifact.Web
 {
@@ -31,7 +30,7 @@ namespace Tetrifact.Web
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-            Console.WriteLine("Configuring services");
+            Console.WriteLine($"Configuring services ({Global.StartTimeUtc.Ago(true)})");
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -152,7 +151,7 @@ namespace Tetrifact.Web
                 }
             });
 
-            Console.WriteLine("Configuring middleware.");
+            Console.WriteLine($"Configuring middleware ({Global.StartTimeUtc.Ago(true)})");
 
 
             app.UseHttpsRedirection();
@@ -213,7 +212,7 @@ namespace Tetrifact.Web
                 foreach (ICron cron in crons)
                     cron.Start();
 
-                Console.WriteLine("Server start complete.");
+                Console.WriteLine($"Server configuration complete ({Global.StartTimeUtc.Ago(true)})");
                 Console.WriteLine("*********************************************************************");
             }
         }

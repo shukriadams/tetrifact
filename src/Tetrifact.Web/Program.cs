@@ -13,8 +13,9 @@ namespace Tetrifact.Web
         public static void Main(string[] args)
         {
             Console.WriteLine("*********************************************************************");
-            Console.WriteLine("TETRIFACT : server starting");
+            Console.WriteLine("TETRIFACT server starting");
             Console.WriteLine("");
+
             CreateWebHostBuilder(args).Build().Run();
         }
 
@@ -34,7 +35,7 @@ namespace Tetrifact.Web
                 })
                 .UseStartup<Startup>();
 
-            bool isIIS = Environment.GetEnvironmentVariable("IS_IIS") == "true";
+            bool use_IIS = Environment.GetEnvironmentVariable("TETRIFACT_USE_IIS") == "true";
             bool useHTTPS = EnvironmentArgsHelper.GetAsBool("TETRIFACT_USE_HTTPS");
             string httpsCertPath = Environment.GetEnvironmentVariable("TETRIFACT_HTTPS_CERT_PATH");
             int port = EnvironmentArgsHelper.GetAsInt("TETRIFACT_PORT", 5000);
@@ -44,7 +45,7 @@ namespace Tetrifact.Web
                 useHTTPS = false;
             }
 
-            if (!isIIS)
+            if (!use_IIS)
             {
                 builder.UseKestrel(options =>
                 {
@@ -55,14 +56,15 @@ namespace Tetrifact.Web
                         if (useHTTPS)
                             listenOptions.UseHttps(httpsCertPath);
                     });
-                    Console.WriteLine("Port bound.");
+                    Console.WriteLine($"Port bound ({Global.StartTimeUtc.Ago(true)})");
 
                     // SECURITY WARNING : the limit on attachment part size is removed to support large builds. 
                     options.Limits.MaxRequestBodySize = long.MaxValue;
                     options.Limits.MaxRequestBufferSize = long.MaxValue;
                     options.Limits.MaxRequestLineSize = int.MaxValue;
                 });
-                Console.WriteLine("Kestrel loaded.");
+
+                Console.WriteLine($"Kestrel loaded ({Global.StartTimeUtc.Ago(true)})");
             }
 
             return builder;

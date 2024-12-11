@@ -80,7 +80,7 @@ namespace Tetrifact.Core
 
         private static string _ago(TimeSpan ts, bool shorten)
         {
-            int count = 0;
+            int count;
             string unit = string.Empty;
             string pluralMod = string.Empty;
             if (ts.TotalDays > 364)
@@ -115,8 +115,16 @@ namespace Tetrifact.Core
                 return $"{count} {unit}" + (count == 1 ? "" : pluralMod);
             }
 
-            count = (int)Math.Round(ts.TotalSeconds, 0);
-            unit = shorten ? "s" : "second";
+            if (ts.TotalMilliseconds >= 1000)
+            {
+                count = (int)Math.Round(ts.TotalSeconds, 0);
+                unit = shorten ? "s" : "second";
+                pluralMod = shorten ? string.Empty : "s";
+                return $"{count} {unit}" + (count == 1 ? "" : pluralMod);
+            }
+
+            count = (int)Math.Round(ts.TotalMilliseconds, 0);
+            unit = shorten ? "ms" : "millisecond";
             pluralMod = shorten ? string.Empty : "s";
             return $"{count} {unit}" + (count == 1 ? "" : pluralMod);
         }
