@@ -77,7 +77,6 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
             services.AddTransient<ICron, ArchiveGenerator>();
-            services.AddTransient<ICron, ArchiveStatusChecker>();
 
             // ignore error, how else are we going to get an instaace of settings from this piece of crap Microsoft IOC framework?
             ISettingsProvider settingsProvider = services.BuildServiceProvider().GetRequiredService<ISettingsProvider>();

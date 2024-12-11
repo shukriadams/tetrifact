@@ -32,11 +32,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// 
         /// </summary>
-        public decimal FileCopyProgress { get ; set;}
-
-        public decimal CompressProgress { get; set; }
-
-        public decimal CombinedPercent { get; set; }
+        public decimal PercentProgress { get ; set;}
 
         public long ProjectedSize { get; set; }
 

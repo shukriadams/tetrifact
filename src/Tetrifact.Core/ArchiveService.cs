@@ -203,6 +203,7 @@ namespace Tetrifact.Core
 
             _log.LogInformation($"Starting archive generation for package \"{packageId}\". Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
 
+            // static progress handler, this calculates percentage from tick events returned by zip 
             ProgressEvent progressEvent = (long delta, long localTotal) => {
                 progress += delta;
                 int thisPercent = Percent.Calc(progress, total);
@@ -218,7 +219,7 @@ namespace Tetrifact.Core
                         };
 
                     progress.State = PackageArchiveCreationStates.ArchiveGenerating;
-                    progress.CombinedPercent = percent;
+                    progress.PercentProgress = percent;
                     _cache.Set(progressCacheKey, progress);
                 }
             };
@@ -228,7 +229,7 @@ namespace Tetrifact.Core
             {
                 // Note : no null check here, we assume DoesPackageExist test above would catch invalid names
                 Manifest manifest = _indexReader.GetManifest(packageId);
-                total = manifest.SizeOnDisk;
+                total = manifest.Size;
 
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                 {
@@ -249,7 +250,7 @@ namespace Tetrifact.Core
                                     ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
                                     using (var storageArchiveStream = storageArchiveEntry.Open()) 
                                     {
-                                        StreamProgressCopy copy = new StreamProgressCopy(storageArchiveStream, zipStream, copyStepSize);
+                                        StreamProgressCopy copy = new StreamProgressCopy(storageArchiveStream, zipEntryStream, copyStepSize);
                                         copy.OnProgress += progressEvent;
                                         await copy.Work();
                                     }
@@ -263,7 +264,7 @@ namespace Tetrifact.Core
 
                                 using (Stream fileStream = fileLookup.Content)
                                 {
-                                    StreamProgressCopy copy = new StreamProgressCopy(fileStream,zipStream, copyStepSize);
+                                    StreamProgressCopy copy = new StreamProgressCopy(fileStream, zipEntryStream, copyStepSize);
                                     copy.OnProgress += progressEvent;
                                     await copy.Work();
                                 }

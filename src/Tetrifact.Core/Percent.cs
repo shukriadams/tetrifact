@@ -11,6 +11,10 @@
         /// <returns></returns>
         public static int Calc(decimal first, decimal second)
         {
+            // overflow check
+            if (second == 0)
+                return 0;
+
             decimal p = first / second;
             return (int)System.Math.Round((decimal)(p * 100), 0);
         }
@@ -23,6 +27,10 @@
         /// <returns></returns>
         public static int Calc(double first, double second)
         {
+            // overflow check
+            if (second == 0)
+                return 0;
+
             double p = first / second;
             return (int)System.Math.Round((double)(p * 100), 0);
         }
