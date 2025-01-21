@@ -224,7 +224,7 @@ namespace Tetrifact.Tests.repositoryCleaner
             IProcessManager lockInstance = TestContext.Get<IProcessManager>();
             IRepositoryCleanService repoCleaner = TestContext.Get<IRepositoryCleanService>();
 
-            lockInstance.Lock(ProcessCategories.Package_Create, "some-package");
+            lockInstance.AddUnique(ProcessCategories.Package_Create, "some-package");
             CleanResult result = repoCleaner.Clean();
 
             Assert.Contains("Package locks found, clean exited before start", result.Description);

@@ -74,7 +74,7 @@ namespace Tetrifact.Core
                 _existingPackageIds = _indexReader.GetAllPackageIds();
                 if (EnsureNoLock(false))
                 {
-                    IEnumerable<ProcessItem> locks = _lock.GetCurrent(ProcessCategories.Package_Create);
+                    IEnumerable<ProcessItem> locks = _lock.GetByCategory(ProcessCategories.Package_Create);
                     return new CleanResult
                     {
                         Description = $"Package locks found, clean exited before start : ({string.Join(",", locks)})"
@@ -82,7 +82,7 @@ namespace Tetrifact.Core
 
                 }
 
-                _lock.Lock(ProcessCategories.CleanRepository, processUID);
+                _lock.AddUnique(ProcessCategories.CleanRepository, processUID);
                 _log.LogInformation($"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
 
                 this.LockPasses = 0;
@@ -102,7 +102,7 @@ namespace Tetrifact.Core
                 if (ex.Message.StartsWith("System currently locked"))
                 {
                     _log.LogInformation("Clean aborted, lock detected");
-                    IEnumerable<ProcessItem> locks = _lock.GetCurrent(ProcessCategories.Package_Create);
+                    IEnumerable<ProcessItem> locks = _lock.GetByCategory(ProcessCategories.Package_Create);
                     return new CleanResult{
                         Cleaned = _cleaned, 
                         Failed = _failed, 
@@ -117,7 +117,7 @@ namespace Tetrifact.Core
             }
             finally 
             {
-                _lock.Unlock(processUID);
+                _lock.RemoveUnique(processUID);
             }
         }
 
@@ -126,7 +126,7 @@ namespace Tetrifact.Core
         /// </summary>
         private bool EnsureNoLock(bool throwOnOLock = true)
         {
-            if (_lock.IsAnyLocked(ProcessCategories.Package_Create))
+            if (_lock.AnyWithCategoryExists(ProcessCategories.Package_Create))
             { 
                 if (throwOnOLock)
                     throw new Exception($"System currently locked, clear process aborting");

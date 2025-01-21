@@ -5,23 +5,21 @@ namespace Tetrifact.Core
 {
     public interface IProcessManager
     {
-        IEnumerable<ProcessItem> GetCurrent();
+        IEnumerable<ProcessItem> GetAll();
 
-        IEnumerable<ProcessItem> GetCurrent(ProcessCategories category);
+        IEnumerable<ProcessItem> GetByCategory(ProcessCategories category);
 
-        bool IsAnyLocked(ProcessCategories category);
+        bool AnyWithCategoryExists(ProcessCategories category);
 
-        bool IsAnyLocked();
+        bool AnyOfKeyExists(string id);
 
-        bool IsLocked(string id);
-
-        void Lock(ProcessCategories category, string id);
+        void AddUnique(ProcessCategories category, string id);
         
-        void Lock(ProcessCategories category, string id, TimeSpan timespan);
+        void AddUnique(ProcessCategories category, string id, TimeSpan timespan);
 
         void ClearExpired();
 
-        void Unlock(string id);
+        void RemoveUnique(string id);
 
         /// <summary>
         /// Removes all existing processes.

@@ -112,7 +112,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                IEnumerable<ProcessItem> processes = _processes.GetCurrent();
+                IEnumerable<ProcessItem> processes = _processes.GetAll();
                 ViewData["processes"] = processes;
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     PageTitle = "Processes",

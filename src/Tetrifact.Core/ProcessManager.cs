@@ -29,7 +29,7 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public IEnumerable<ProcessItem> GetCurrent()
+        public IEnumerable<ProcessItem> GetAll()
         {
             lock (_items)
                 return _items.Values.Select(v => v.Clone());
@@ -40,7 +40,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public IEnumerable<ProcessItem> GetCurrent(ProcessCategories category)
+        public IEnumerable<ProcessItem> GetByCategory(ProcessCategories category)
         {
             lock (_items)
                 return _items.Where(i => i.Value.Category == category).Select(v => v.Value.Clone());
@@ -50,57 +50,51 @@ namespace Tetrifact.Core
         /// Returns true if any package is locked.
         /// </summary>
         /// <returns></returns>
-        public bool IsAnyLocked(ProcessCategories category)
+        public bool AnyWithCategoryExists(ProcessCategories category)
         {
             lock(_items)
                 return _items.Where(i => i.Value.Category == category).Any();
         }
 
-        public bool IsAnyLocked()
+        public bool AnyOfKeyExists(string key)
         {
             lock (_items)
-                return _items.Any();
+                return _items.ContainsKey(key);
         }
 
-        public bool IsLocked(string id)
-        {
-            lock (_items)
-                return _items.ContainsKey(id);
-        }
-
-        public void Lock(ProcessCategories category, string id)
+        public void AddUnique(ProcessCategories category, string key)
         {
             lock (_items)
             {
-                if (_items.ContainsKey(id))
+                if (_items.ContainsKey(key))
                     return;
 
-                _items.Add(id, new ProcessItem { Id = id, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {id}, no lifespan limit.");
+                _items.Add(key, new ProcessItem { Id = key, Category = category });
+                _log.LogInformation($"Created lock, category {category}, id {key}, no lifespan limit.");
             }
         }
 
-        public void Lock(ProcessCategories category, string id, TimeSpan timespan)
+        public void AddUnique(ProcessCategories category, string key, TimeSpan timespan)
         {
             lock (_items)
             {
-                if (_items.ContainsKey(id))
+                if (_items.ContainsKey(key))
                     return;
 
-                _items.Add(id, new ProcessItem{ Id = id, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {id}, forced lifespan {timespan}.");
+                _items.Add(key, new ProcessItem{ Id = key, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
+                _log.LogInformation($"Created lock, category {category}, id {key}, forced lifespan {timespan}.");
             }
         }
 
-        public void Unlock(string id)
+        public void RemoveUnique(string key)
         {
             lock (_items)
             {
-                if (!_items.ContainsKey(id))
+                if (!_items.ContainsKey(key))
                     return;
 
-                _items.Remove(id);
-                _log.LogInformation($"Cleared lock id {id}.");
+                _items.Remove(key);
+                _log.LogInformation($"Cleared lock id {key}.");
             }
         }
 

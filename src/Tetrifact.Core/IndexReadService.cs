@@ -295,7 +295,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    if (_lock.IsLocked(archivePath))
+                    if (_lock.AnyOfKeyExists(archivePath))
                     {
                         _log.LogWarning($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass.");
                     }
