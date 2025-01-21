@@ -2,6 +2,7 @@
 {
     public enum ProcessCategories 
     {
+        ArchiveQueueSlot, 
         Package_Create,
         CleanRepository
     }

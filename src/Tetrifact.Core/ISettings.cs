@@ -111,6 +111,16 @@ namespace Tetrifact.Core
         int MaximumArchivesToKeep { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        int? MaximumSimultaneousDownloads { get; set; }
+
+        /// <summary>
+        /// Time in seconds download tickets live for.
+        /// </summary>
+        int DownloadQueueTicketLifespan { get; set; }
+
+        /// <summary>
         /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
         /// </summary>
         long SpaceSafetyThreshold { get; set; }

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
+using System.Runtime;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -21,6 +23,10 @@ namespace Tetrifact.Web
 
         private readonly IFileSystem _fileSystem;
 
+        private readonly IProcessManager _processManager;
+
+        private readonly ISettings _settings;
+
         #endregion
 
         #region CTORS
@@ -32,11 +38,13 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ArchivesController(IArchiveService archiveService, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
+        public ArchivesController(IArchiveService archiveService, ISettings settings, IProcessManager processManager, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
         {
             _archiveService = archiveService;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
+            _settings = settings;
+            _processManager = processManager;
             _log = log;
         }
 
@@ -66,8 +74,53 @@ namespace Tetrifact.Web
             }
         }
 
+        [ServiceFilter(typeof(ConfigurationErrors))]
+        [ServiceFilter(typeof(WriteLevel))]
+        public ActionResult GetQueueTicket(string requestIdentifier) 
+        {
+            try
+            {
+                if (!_settings.MaximumSimultaneousDownloads.HasValue)
+                    return new JsonResult(new
+                    {
+                        success = new
+                        {
+                            ticket = string.Empty,
+                            required = false
+                        }
+                    });
+
+                if (_processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).Count() >= _settings.MaximumSimultaneousDownloads)
+                    return new JsonResult(new
+                    {
+                        error = new
+                        {
+                            code = 1,
+                            message = "Queue is full, please try again later"
+                        }
+                    });
+
+                string ticket = Guid.NewGuid().ToString();
+                _processManager.AddUnique(ProcessCategories.ArchiveQueueSlot, ticket, requestIdentifier, new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
+                return new JsonResult(new
+                {
+                    success = new
+                    {
+                        ticket = ticket,
+                        required = true
+                    }
+                }); ;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Unexpected error");
+                return Responses.UnexpectedError();
+            }
+        }
+
         /// <summary>
-        /// Gets an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
+        /// Downloads an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
+        /// Supports range processing for resuming broken downloads.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

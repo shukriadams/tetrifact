@@ -74,6 +74,18 @@ namespace Tetrifact.Core
             }
         }
 
+        public void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan)
+        {
+            lock (_items)
+            {
+                if (_items.ContainsKey(key))
+                    return;
+
+                _items.Add(key, new ProcessItem { Id = key, Metadata = metadata, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
+                _log.LogInformation($"Created lock, category {category}, id {key}, forced lifespan {timespan}.");
+            }
+        }
+
         public void AddUnique(ProcessCategories category, string key, TimeSpan timespan)
         {
             lock (_items)
@@ -97,7 +109,6 @@ namespace Tetrifact.Core
                 _log.LogInformation($"Cleared lock id {key}.");
             }
         }
-
 
         public void Clear() 
         { 

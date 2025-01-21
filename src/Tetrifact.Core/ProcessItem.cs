@@ -5,9 +5,14 @@ namespace Tetrifact.Core
     public class ProcessItem
     {
         /// <summary>
-        /// Unique id of lock
+        /// Unique id of process item
         /// </summary>
         public string Id { get;set; }
+
+        /// <summary>
+        /// Optional string describing process, not for logic.
+        /// </summary>
+        public string Metadata { get; set; }
 
         /// <summary>
         /// Grouping name for item. 
@@ -20,7 +25,7 @@ namespace Tetrifact.Core
         public DateTime? AddedUTC { get; set; }
 
         /// <summary>
-        /// If set, the max age lock item can have before being autopurged.
+        /// If set, the max age lock item can have before being auto purged.
         /// </summary>
         public TimeSpan? MaxLifespan { get; set; }
 
@@ -39,7 +44,7 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{{{this.GetType().Name} Id:{Id}, Category:{Category}, AddedUtc:{AddedUTC}, MaxLifespace:{MaxLifespan} }}";
+            return $"{{{this.GetType().Name} Id:{Id}, MetaData:{Metadata}, Category:{Category}, AddedUtc:{AddedUTC}, MaxLifespace:{MaxLifespan} }}";
         }
     }
 }

@@ -17,6 +17,8 @@ namespace Tetrifact.Core
         
         void AddUnique(ProcessCategories category, string id, TimeSpan timespan);
 
+        void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan);
+
         void ClearExpired();
 
         void RemoveUnique(string id);

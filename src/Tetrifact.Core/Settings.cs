@@ -92,6 +92,10 @@ namespace Tetrifact.Core
 
         public string SettingsPath { get; set; }
 
+        public int? MaximumSimultaneousDownloads { get; set; }
+
+        public int DownloadQueueTicketLifespan { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -106,6 +110,7 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
+            this.DownloadQueueTicketLifespan = 20; // seconds
             this.AccessTokens = new List<string>();
             this.PackageDeleteEnabled = true;
             this.PackageCreateEnabled = true;

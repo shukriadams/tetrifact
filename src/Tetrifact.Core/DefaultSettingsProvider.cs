@@ -26,7 +26,7 @@ namespace Tetrifact.Core
         #region METHODS
 
         /// <summary>
-        /// load settints from app's default expected config location
+        /// load settings from app's default expected config location
         /// </summary>
         /// <returns></returns>
         public Settings Get()
@@ -89,6 +89,12 @@ namespace Tetrifact.Core
             return _settings;
         }
 
+        /// <summary>
+        /// Helper method for retrieving a specific environment variable value, or some fallback value.
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         private string TryGetSetting(string settingsName, string defaultValue)
         {
             string settingsRawVariable = Environment.GetEnvironmentVariable(settingsName);
