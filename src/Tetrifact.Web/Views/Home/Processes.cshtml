@@ -1,7 +1,7 @@
 ﻿@using Tetrifact.Core;
 @{
     Layout = "~/Views/Shared/Layout.cshtml";
-    IEnumerable<ProcessLockItem> processes = ViewData["processes"] as IEnumerable<ProcessLockItem>;
+    IEnumerable<ProcessItem> processes = ViewData["processes"] as IEnumerable<ProcessItem>;
 }
 
 <div class="layout-section">
@@ -11,7 +11,7 @@
     @if (processes.Any())
     {
         <ul class="list">
-            @foreach (ProcessLockItem process in processes)
+            @foreach (ProcessItem process in processes)
             {
                 <li class="listItem">
                     <span>

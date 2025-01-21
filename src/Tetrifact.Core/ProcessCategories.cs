@@ -1,6 +1,6 @@
 ﻿namespace Tetrifact.Core
 {
-    public enum ProcessLockCategories 
+    public enum ProcessCategories 
     {
         Package_Create,
         CleanRepository

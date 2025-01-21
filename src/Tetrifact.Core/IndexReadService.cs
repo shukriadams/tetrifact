@@ -25,7 +25,7 @@ namespace Tetrifact.Core
         
         private readonly IHashService _hashService;
 
-        private readonly IProcessLockManager _lock;
+        private readonly IProcessManager _lock;
 
         private readonly IMemoryCache _cache;
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService, IProcessLockManager lockInstance)
+        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService, IProcessManager lockInstance)
 
         {
             _settings = settings;

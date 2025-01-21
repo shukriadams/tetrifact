@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public Clean()
         {
             // clean tests require all locks released - do this BEFORE constructing repocleaner
-            IProcessLockManager lockInstance = TestContext.Get<IProcessLockManager>();
+            IProcessManager lockInstance = TestContext.Get<IProcessManager>();
             lockInstance.Clear();
             _respositoryCleaner = new RepositoryCleanService(this.IndexReader, new TestMemoryCache(), lockInstance, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
@@ -187,7 +187,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessLockManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
             respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -206,7 +206,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessLockManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();
@@ -221,10 +221,10 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void EnsureNoLock_Coverage()
         {
-            IProcessLockManager lockInstance = TestContext.Get<IProcessLockManager>();
+            IProcessManager lockInstance = TestContext.Get<IProcessManager>();
             IRepositoryCleanService repoCleaner = TestContext.Get<IRepositoryCleanService>();
 
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "some-package");
+            lockInstance.Lock(ProcessCategories.Package_Create, "some-package");
             CleanResult result = repoCleaner.Clean();
 
             Assert.Contains("Package locks found, clean exited before start", result.Description);

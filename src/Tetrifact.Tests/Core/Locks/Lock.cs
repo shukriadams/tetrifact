@@ -12,9 +12,9 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Existing()
         { 
-            IProcessLockManager lockInstance = TestContext.Get<IProcessLockManager>();
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "123");
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "123");
+            IProcessManager lockInstance = TestContext.Get<IProcessManager>();
+            lockInstance.Lock(ProcessCategories.Package_Create, "123");
+            lockInstance.Lock(ProcessCategories.Package_Create, "123");
         }
 
         /// <summary>
@@ -23,9 +23,9 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Existing_with_timeout()
         {
-            IProcessLockManager lockInstance = TestContext.Get<IProcessLockManager>();
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "123", new TimeSpan(1,1,1));
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "123", new TimeSpan(1, 1, 1));
+            IProcessManager lockInstance = TestContext.Get<IProcessManager>();
+            lockInstance.Lock(ProcessCategories.Package_Create, "123", new TimeSpan(1,1,1));
+            lockInstance.Lock(ProcessCategories.Package_Create, "123", new TimeSpan(1, 1, 1));
         }
     }
 }

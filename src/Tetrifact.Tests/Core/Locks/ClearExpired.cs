@@ -9,10 +9,10 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Happy_path()
         { 
-            IProcessLockManager lockInstance = TestContext.Get<IProcessLockManager>();
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "1", new TimeSpan(0,0,0)); // expires
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "2", new TimeSpan(1, 1, 1)); // doesn't expire
-            lockInstance.Lock(ProcessLockCategories.Package_Create, "3");
+            IProcessManager lockInstance = TestContext.Get<IProcessManager>();
+            lockInstance.Lock(ProcessCategories.Package_Create, "1", new TimeSpan(0,0,0)); // expires
+            lockInstance.Lock(ProcessCategories.Package_Create, "2", new TimeSpan(1, 1, 1)); // doesn't expire
+            lockInstance.Lock(ProcessCategories.Package_Create, "3");
             lockInstance.ClearExpired();
         }
     }

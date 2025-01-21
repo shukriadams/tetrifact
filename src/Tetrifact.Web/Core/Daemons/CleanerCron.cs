@@ -18,7 +18,7 @@ namespace Tetrifact.Web
 
         private readonly ILogger<CleanerCron> _log;
 
-        private readonly IProcessLockManager _lock;
+        private readonly IProcessManager _lock;
         
         private readonly IDaemon _daemonrunner;
 
@@ -28,7 +28,7 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public CleanerCron(IRepositoryCleanService repositoryCleaner, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, IProcessLockManager lockInstance, ILogger<CleanerCron> log)
+        public CleanerCron(IRepositoryCleanService repositoryCleaner, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, IProcessManager lockInstance, ILogger<CleanerCron> log)
         {
             _settings = settings;
             this.CronMask = _settings.CleanCronMask;

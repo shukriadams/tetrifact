@@ -8,54 +8,54 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void DefaultState()
         {
-            IProcessLockManager processLock = TestContext.Get<IProcessLockManager>();
-            Assert.False(processLock.IsAnyLocked());
+            IProcessManager processManager = TestContext.Get<IProcessManager>();
+            Assert.False(processManager.IsAnyLocked());
         }
 
         [Fact]
         public void AnyPackageLocksAll()
         {
-            IProcessLockManager processLock = TestContext.Get<IProcessLockManager>();
-            processLock.Lock(ProcessLockCategories.Package_Create, "some package");
-            Assert.True(processLock.IsAnyLocked());
+            IProcessManager processManager = TestContext.Get<IProcessManager>();
+            processManager.Lock(ProcessCategories.Package_Create, "some package");
+            Assert.True(processManager.IsAnyLocked());
         }
 
         [Fact]
         public void IsNamedLocked()
         {
-            IProcessLockManager processLock = TestContext.Get<IProcessLockManager>();
-            processLock.Lock(ProcessLockCategories.Package_Create, "some package");
-            Assert.True(processLock.IsLocked("some package"));
+            IProcessManager processManager = TestContext.Get<IProcessManager>();
+            processManager.Lock(ProcessCategories.Package_Create, "some package");
+            Assert.True(processManager.IsLocked("some package"));
         }
 
         [Fact]
         public void Unlock()
         {
-            IProcessLockManager processLock = TestContext.Get<IProcessLockManager>();
-            processLock.Lock(ProcessLockCategories.Package_Create, "some package");
-            processLock.Unlock("some package");
-            Assert.False(processLock.IsAnyLocked());
+            IProcessManager processManager = TestContext.Get<IProcessManager>();
+            processManager.Lock(ProcessCategories.Package_Create, "some package");
+            processManager.Unlock("some package");
+            Assert.False(processManager.IsAnyLocked());
         }
 
         [Fact]
         public void OverlappingLocks()
         {
-            IProcessLockManager processLock = TestContext.Get<IProcessLockManager>();
-            processLock.Lock(ProcessLockCategories.Package_Create, "some package");
-            processLock.Lock(ProcessLockCategories.Package_Create, "another package");
-            processLock.Unlock("some package");
-            Assert.True(processLock.IsAnyLocked());
+            IProcessManager processManager = TestContext.Get<IProcessManager>();
+            processManager.Lock(ProcessCategories.Package_Create, "some package");
+            processManager.Lock(ProcessCategories.Package_Create, "another package");
+            processManager.Unlock("some package");
+            Assert.True(processManager.IsAnyLocked());
         }
 
         [Fact]
         public void OverlappingUnlocks()
         {
-            IProcessLockManager processLock = TestContext.Get<IProcessLockManager>();
-            processLock.Lock(ProcessLockCategories.Package_Create, "some package");
-            processLock.Lock(ProcessLockCategories.Package_Create, "another package");
-            processLock.Unlock("another package");
-            processLock.Unlock("some package");
-            Assert.False(processLock.IsAnyLocked());
+            IProcessManager processManager = TestContext.Get<IProcessManager>();
+            processManager.Lock(ProcessCategories.Package_Create, "some package");
+            processManager.Lock(ProcessCategories.Package_Create, "another package");
+            processManager.Unlock("another package");
+            processManager.Unlock("some package");
+            Assert.False(processManager.IsAnyLocked());
         }
     }
 }

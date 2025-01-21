@@ -57,19 +57,19 @@ namespace Tetrifact.Tests
                 new TestLogger<IIndexReadService>(),
                 filesystem,
                 HashServiceHelper.Instance(),
-                _context.Get<IProcessLockManager>());
+                _context.Get<IProcessManager>());
 
             IArchiveService archiveService = new Core.ArchiveService(
                 indexReader,
                 new TestMemoryCache(),
-                _context.Get<IProcessLockManager>(),
+                _context.Get<IProcessManager>(),
                 filesystem,
                 new TestLogger<IArchiveService>(),
                 settings);
 
             IPackageCreateService PackageCreate = new PackageCreateService(
                 indexReader,
-                _context.Get<IProcessLockManager>(),
+                _context.Get<IProcessManager>(),
                 archiveService,
                 settings,
                 new TestLogger<IPackageCreateService>(),

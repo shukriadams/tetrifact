@@ -8,19 +8,19 @@ namespace Tetrifact.Core
     /// <summary>
     /// Used to lock linking globally - this is required for a short period when an incoming package is flipped public.
     /// </summary>
-    public class ProcessLockManager : IProcessLockManager
+    public class ProcessManager : IProcessManager
     {
         #region FIELDS
 
-        private readonly Dictionary<string, ProcessLockItem> _items = new Dictionary<string, ProcessLockItem>();
+        private readonly Dictionary<string, ProcessItem> _items = new Dictionary<string, ProcessItem>();
 
-        private readonly ILogger<IProcessLockManager> _log;
+        private readonly ILogger<IProcessManager> _log;
 
         #endregion
 
         #region CTORS
 
-        public ProcessLockManager(ILogger<IProcessLockManager> log) 
+        public ProcessManager(ILogger<IProcessManager> log) 
         {
             _log = log;
         }
@@ -29,7 +29,7 @@ namespace Tetrifact.Core
 
         #region METHODS
 
-        public IEnumerable<ProcessLockItem> GetCurrent()
+        public IEnumerable<ProcessItem> GetCurrent()
         {
             lock (_items)
                 return _items.Values.Select(v => v.Clone());
@@ -40,7 +40,7 @@ namespace Tetrifact.Core
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public IEnumerable<ProcessLockItem> GetCurrent(ProcessLockCategories category)
+        public IEnumerable<ProcessItem> GetCurrent(ProcessCategories category)
         {
             lock (_items)
                 return _items.Where(i => i.Value.Category == category).Select(v => v.Value.Clone());
@@ -50,7 +50,7 @@ namespace Tetrifact.Core
         /// Returns true if any package is locked.
         /// </summary>
         /// <returns></returns>
-        public bool IsAnyLocked(ProcessLockCategories category)
+        public bool IsAnyLocked(ProcessCategories category)
         {
             lock(_items)
                 return _items.Where(i => i.Value.Category == category).Any();
@@ -68,26 +68,26 @@ namespace Tetrifact.Core
                 return _items.ContainsKey(id);
         }
 
-        public void Lock(ProcessLockCategories category, string id)
+        public void Lock(ProcessCategories category, string id)
         {
             lock (_items)
             {
                 if (_items.ContainsKey(id))
                     return;
 
-                _items.Add(id, new ProcessLockItem { Id = id, Category = category });
+                _items.Add(id, new ProcessItem { Id = id, Category = category });
                 _log.LogInformation($"Created lock, category {category}, id {id}, no lifespan limit.");
             }
         }
 
-        public void Lock(ProcessLockCategories category, string id, TimeSpan timespan)
+        public void Lock(ProcessCategories category, string id, TimeSpan timespan)
         {
             lock (_items)
             {
                 if (_items.ContainsKey(id))
                     return;
 
-                _items.Add(id, new ProcessLockItem{ Id = id, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
+                _items.Add(id, new ProcessItem{ Id = id, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
                 _log.LogInformation($"Created lock, category {category}, id {id}, forced lifespan {timespan}.");
             }
         }
@@ -103,6 +103,7 @@ namespace Tetrifact.Core
                 _log.LogInformation($"Cleared lock id {id}.");
             }
         }
+
 
         public void Clear() 
         { 

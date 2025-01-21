@@ -16,7 +16,7 @@ namespace Tetrifact.Web
         private readonly IIndexReadService _indexService;
         private readonly IPackageListService _packageList;
         private readonly ILogger<HomeController> _log;
-        private readonly IProcessLockManager _processes;
+        private readonly IProcessManager _processes;
         private readonly IArchiveService _archiveService;
         private readonly IMemoryCache _cache;
 
@@ -24,7 +24,7 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettings settings, IProcessLockManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, IProcessManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;
@@ -112,7 +112,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                IEnumerable<ProcessLockItem> processes = _processes.GetCurrent();
+                IEnumerable<ProcessItem> processes = _processes.GetCurrent();
                 ViewData["processes"] = processes;
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     PageTitle = "Processes",

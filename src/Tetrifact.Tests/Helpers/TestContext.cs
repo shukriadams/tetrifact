@@ -21,7 +21,7 @@ namespace Tetrifact.Tests
 
         ISettings _settings;
 
-        IProcessLockManager _lockInstance;
+        IProcessManager _lockInstance;
 
         TestLogger<IRepositoryCleanService> _repositoryCleanServiceLog;
 
@@ -31,12 +31,12 @@ namespace Tetrifact.Tests
         {
             _kernel = new StandardKernel();
 
-            var ProcessLockFactory = new Func<IContext, IProcessLockManager>(context =>
+            var processManagerFactory = new Func<IContext, IProcessManager>(context =>
             {
                 if (_lockInstance == null)
                 {
-                    ILogger<IProcessLockManager> log = this.Get<ILogger<IProcessLockManager>>();
-                    _lockInstance = new ProcessLockManager(log);
+                    ILogger<IProcessManager> log = this.Get<ILogger<IProcessManager>>();
+                    _lockInstance = new ProcessManager(log);
                 }
 
                 return _lockInstance;
@@ -103,7 +103,7 @@ namespace Tetrifact.Tests
             _kernel.Bind<IPruneService>().To<PruneService>();
             _kernel.Bind<IPackageDiffService>().To<PackageDiffService>();
             _kernel.Bind<IArchiveService>().To<Core.ArchiveService>();
-            _kernel.Bind<IProcessLockManager>().ToMethod(ProcessLockFactory).InSingletonScope(); // ordinary singleton binding not working, use factory instead
+            _kernel.Bind<IProcessManager>().ToMethod(processManagerFactory).InSingletonScope(); // ordinary singleton binding not working, use factory instead
             _kernel.Bind<IMetricsService>().To<MetricsService>();
             _kernel.Bind<ISystemCallsService>().To<SystemCallsService>();
             _kernel.Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();
@@ -129,7 +129,7 @@ namespace Tetrifact.Tests
             //Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
             _kernel.Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
             _kernel.Bind<ILogger<IPruneService>>().To<TestLogger<IPruneService>>();
-            _kernel.Bind<ILogger<IProcessLockManager>>().To<TestLogger<IProcessLockManager>>();
+            _kernel.Bind<ILogger<IProcessManager>>().To<TestLogger<IProcessManager>>();
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
 

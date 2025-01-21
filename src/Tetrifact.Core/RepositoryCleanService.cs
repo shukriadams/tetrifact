@@ -22,7 +22,7 @@ namespace Tetrifact.Core
         
         private readonly IFile _fileFilesystem;
 
-        private readonly IProcessLockManager _lock;
+        private readonly IProcessManager _lock;
     
         private IList<string> _cleaned = new List<string>();
 
@@ -46,7 +46,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessLockManager lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessManager lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
@@ -74,7 +74,7 @@ namespace Tetrifact.Core
                 _existingPackageIds = _indexReader.GetAllPackageIds();
                 if (EnsureNoLock(false))
                 {
-                    IEnumerable<ProcessLockItem> locks = _lock.GetCurrent(ProcessLockCategories.Package_Create);
+                    IEnumerable<ProcessItem> locks = _lock.GetCurrent(ProcessCategories.Package_Create);
                     return new CleanResult
                     {
                         Description = $"Package locks found, clean exited before start : ({string.Join(",", locks)})"
@@ -82,7 +82,7 @@ namespace Tetrifact.Core
 
                 }
 
-                _lock.Lock(ProcessLockCategories.CleanRepository, processUID);
+                _lock.Lock(ProcessCategories.CleanRepository, processUID);
                 _log.LogInformation($"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
 
                 this.LockPasses = 0;
@@ -102,7 +102,7 @@ namespace Tetrifact.Core
                 if (ex.Message.StartsWith("System currently locked"))
                 {
                     _log.LogInformation("Clean aborted, lock detected");
-                    IEnumerable<ProcessLockItem> locks = _lock.GetCurrent(ProcessLockCategories.Package_Create);
+                    IEnumerable<ProcessItem> locks = _lock.GetCurrent(ProcessCategories.Package_Create);
                     return new CleanResult{
                         Cleaned = _cleaned, 
                         Failed = _failed, 
@@ -126,7 +126,7 @@ namespace Tetrifact.Core
         /// </summary>
         private bool EnsureNoLock(bool throwOnOLock = true)
         {
-            if (_lock.IsAnyLocked(ProcessLockCategories.Package_Create))
+            if (_lock.IsAnyLocked(ProcessCategories.Package_Create))
             { 
                 if (throwOnOLock)
                     throw new Exception($"System currently locked, clear process aborting");

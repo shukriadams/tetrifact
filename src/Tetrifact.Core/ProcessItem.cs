@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Core
 {
-    public class ProcessLockItem
+    public class ProcessItem
     {
         /// <summary>
         /// Unique id of lock
@@ -12,7 +12,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// Grouping name for item. 
         /// </summary>
-        public ProcessLockCategories Category { get; set; }
+        public ProcessCategories Category { get; set; }
 
         /// <summary>
         /// If set, the time lock item was created. If not set, lock never times out
@@ -24,11 +24,19 @@ namespace Tetrifact.Core
         /// </summary>
         public TimeSpan? MaxLifespan { get; set; }
 
-        public ProcessLockItem Clone() 
+        /// <summary>
+        /// Copies an instance with no object references to source.
+        /// </summary>
+        /// <returns></returns>
+        public ProcessItem Clone() 
         { 
-            return this.MemberwiseClone() as ProcessLockItem;
+            return this.MemberwiseClone() as ProcessItem;
         }
-
+    
+        /// <summary>
+        /// Returns a string presentation of instance, for logging purposes.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return $"{{{this.GetType().Name} Id:{Id}, Category:{Category}, AddedUtc:{AddedUTC}, MaxLifespace:{MaxLifespan} }}";

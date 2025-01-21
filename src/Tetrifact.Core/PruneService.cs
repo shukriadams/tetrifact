@@ -17,19 +17,19 @@ namespace Tetrifact.Core
 
         ITimeProvideer _timeprovider;
 
-        IProcessLockManager _processLock;
+        IProcessManager _processManager;
 
         #endregion
 
         #region CTORS
 
-        public PruneService(ISettings settings, IProcessLockManager processLock, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
+        public PruneService(ISettings settings, IProcessManager processManager, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;
             _log = log;
             _timeprovider = timeprovider;
-            _processLock = processLock;
+            _processManager = processManager;
         }
 
         #endregion
@@ -44,9 +44,9 @@ namespace Tetrifact.Core
                 return;
             }
 
-            if (_processLock.IsAnyLocked(ProcessLockCategories.Package_Create))
+            if (_processManager.IsAnyLocked(ProcessCategories.Package_Create))
             {
-                IEnumerable<ProcessLockItem> locks = _processLock.GetCurrent();
+                IEnumerable<ProcessItem> locks = _processManager.GetCurrent();
                 _log.LogInformation($"Prune exited on start, locks detected  : ({string.Join(", ", locks)}).");
                 return;
             }
