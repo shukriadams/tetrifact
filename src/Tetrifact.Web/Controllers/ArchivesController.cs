@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -138,7 +140,11 @@ namespace Tetrifact.Web
                     throw new PackageNotFoundException(packageId);
 
                 // enforce ticket if queue enabled
-                if (_settings.MaximumSimultaneousDownloads.HasValue) 
+                RequestHeaders headers = Request.GetTypedHeaders();
+                Uri referer = headers.Referer;
+                bool isLocal = referer.Host.ToLower() == "localhost";
+
+                if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
                 {
                     ProcessItem item = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).FirstOrDefault(i => i.Id == ticket);
                     if (item == null)
@@ -153,11 +159,12 @@ namespace Tetrifact.Web
                 }
 
                 _log.LogInformation($"Serving archive for package \"{packageId}\".");
+
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
                 progressableStream.OnComplete = ()=>{
                     // clear ticket once all package has been streamed
-                    if (!string.IsNullOrEmpty(ticket))
+                    if (!isLocal && !string.IsNullOrEmpty(ticket))
                         _processManager.RemoveUnique(ticket);
                 };
 
