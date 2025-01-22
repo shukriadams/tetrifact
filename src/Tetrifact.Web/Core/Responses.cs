@@ -23,6 +23,18 @@ namespace Tetrifact.Web
             });
         }
 
+        public static BadRequestObjectResult QueueFull()
+        {
+            return new BadRequestObjectResult(new
+            {
+                statusCode = 423, // "locked for now" code
+                error = new
+                {
+                    description = $"Download queue is full, try again later"
+                }
+            });
+        }
+
         public static BadRequestObjectResult InvalidJSONError()
         {
             return new BadRequestObjectResult(new

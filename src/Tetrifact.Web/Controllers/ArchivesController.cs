@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime;
+using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -96,7 +98,7 @@ namespace Tetrifact.Web
                         error = new
                         {
                             code = 1,
-                            message = "Queue is full, please try again later"
+                            message = $"Queue is full ({_settings.MaximumSimultaneousDownloads}), please try again later"
                         }
                     });
 
@@ -127,13 +129,21 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
-        public ActionResult GetArchive(string packageId)
+        public ActionResult GetArchive(string packageId, [FromQuery(Name = "ticket")] string ticket)
         {
             try
             {
                 // if not exists, queue and redirect back to view
                 if (!_indexReader.PackageExists(packageId))
                     throw new PackageNotFoundException(packageId);
+
+                // enforce ticket if queue enabled
+                if (_settings.MaximumSimultaneousDownloads.HasValue) 
+                {
+                    ProcessItem item = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).FirstOrDefault(i => i.Id == ticket);
+                    if (item == null)
+                        return Responses.QueueFull();
+                }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
                 if (!_fileSystem.File.Exists(archivePath))
@@ -144,8 +154,14 @@ namespace Tetrifact.Web
 
                 _log.LogInformation($"Serving archive for package \"{packageId}\".");
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
+                ProgressableStream progressableStream = new ProgressableStream(archiveStream);
+                progressableStream.OnComplete = ()=>{
+                    // clear ticket once all package has been streamed
+                    if (!string.IsNullOrEmpty(ticket))
+                        _processManager.RemoveUnique(ticket);
+                };
 
-                return File(archiveStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
+                return File(progressableStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
             }
             catch (PackageNotFoundException ex)
             {

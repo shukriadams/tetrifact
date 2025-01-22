@@ -110,7 +110,7 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
-            this.DownloadQueueTicketLifespan = 20; // seconds
+            this.DownloadQueueTicketLifespan = 10; // seconds
             this.AccessTokens = new List<string>();
             this.PackageDeleteEnabled = true;
             this.PackageCreateEnabled = true;
