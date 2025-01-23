@@ -25,13 +25,17 @@ def mergeFromFile(filename, args):
 
     with open(filename, 'r') as fh:
         for line in fh.readlines():
-            if line.startswith('#'):
-                continue
+            try:
+                if line.startswith('#'):
+                    continue
 
-            values = line.replace('\n', '').split('=')
-            if len(values) != 2: 
-                continue
+                values = line.replace('\n', '').split('=')
+                if len(values) != 2: 
+                    continue
 
-            args[values[0].strip()] = ast.literal_eval(values[1].strip()) 
+                args[values[0].strip()] = values[1].strip() 
+            except Exception as e:
+                print(f'err {e}, reading value \"{values[1]}\"')
+
 
     return args
