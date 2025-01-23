@@ -5,6 +5,8 @@ namespace Tetrifact.Core
 {
     public class PruneBracketProcess : PruneBracket
     {
+        #region PROPERTIES
+
         public IList<Manifest> Keep { get ; set; } = new List<Manifest>();
 
         public IList<Manifest> Prune { get; set; }  = new List<Manifest>();
@@ -18,6 +20,14 @@ namespace Tetrifact.Core
 
         public DateTime Ceiling { get; set; }
 
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// String representation of bracket. 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return $"Ceiling:{this.Ceiling.ToIsoShort()} floor:{this.Floor.ToIsoShort()} (from {this.Ceiling.Ago()} ago to {this.Floor.Ago()} ago), {base.ToString()}";
@@ -39,5 +49,7 @@ namespace Tetrifact.Core
                 Grouping = pruneBracket.Grouping
             };
         }
+
+        #endregion
     }
 }

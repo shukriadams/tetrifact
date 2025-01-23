@@ -132,11 +132,12 @@ namespace Tetrifact.Core
                 PruneBracketProcess matchingBracket = processBrackets.FirstOrDefault(bracket => bracket.Contains(manifest.CreatedUtc));
                 if (matchingBracket == null)
                 {
-                    report.Add($"Package \"{packageId}\" doesn't fit into any prune brackets, will be kept.");
+                    report.Add($"Package \"{packageId}\" doesn't fit into any prune brackets, will not be pruned.");
                     ignoringNoBracketCount ++;
                     continue;
                 }
 
+                report.Add($"Package \"{packageId}\" fits into prune bracket {matchingBracket}. This bracket now contains {matchingBracket.Keep.Count} keep packages.");
                 matchingBracket.Found++;
 
                 // try to find reasons to keep package
