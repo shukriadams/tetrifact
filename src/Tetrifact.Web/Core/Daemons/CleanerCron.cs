@@ -17,8 +17,6 @@ namespace Tetrifact.Web
         private readonly IArchiveService _archiveService;
 
         private readonly ILogger<CleanerCron> _log;
-
-        private readonly IProcessManager _lock;
         
         private readonly IDaemon _daemonrunner;
 
@@ -28,14 +26,13 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public CleanerCron(IRepositoryCleanService repositoryCleaner, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, IProcessManager lockInstance, ILogger<CleanerCron> log)
+        public CleanerCron(IRepositoryCleanService repositoryCleaner, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
         {
             _settings = settings;
             this.CronMask = _settings.CleanCronMask;
 
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
-            _lock = lockInstance;
             _log = log;
             _daemonrunner = daemonrunner;
         }
@@ -68,15 +65,6 @@ namespace Tetrifact.Web
             catch (Exception ex)
             {
                 _log.LogError($"Daemon repository clean error {ex}");
-            }
-
-            try
-            {
-                _lock.ClearExpired();
-            }
-            catch (Exception ex)
-            {
-                _log.LogError($"Daemon lock clear error {ex}");
             }
 
             try

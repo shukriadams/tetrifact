@@ -44,3 +44,5 @@ utils/upload/__pycache__
 utils/upload/.generate
 utils/upload/.setDateSpread
 utils/upload/.tag
+utils/upload/.client
+utils/upload/.ticket

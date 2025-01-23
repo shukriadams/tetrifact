@@ -6,7 +6,7 @@ using System.Linq;
 namespace Tetrifact.Core
 {
     /// <summary>
-    /// Used to lock linking globally - this is required for a short period when an incoming package is flipped public.
+    /// Used to create global in-memory process objects - these can be used to f.egs lock packages, limit simultaneous downloads etc.
     /// </summary>
     public class ProcessManager : IProcessManager
     {
@@ -36,7 +36,7 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// gets locks of given category
+        /// Gets processes of given category
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
@@ -47,7 +47,7 @@ namespace Tetrifact.Core
         }
 
         /// <summary>
-        /// Returns true if any package is locked.
+        /// Returns true if any process with the given category exists.
         /// </summary>
         /// <returns></returns>
         public bool AnyWithCategoryExists(ProcessCategories category)
@@ -70,7 +70,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(key, new ProcessItem { Id = key, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {key}, no lifespan limit.");
+                _log.LogInformation($"Created process, category {category}, id {key}, no lifespan limit.");
             }
         }
 
@@ -82,7 +82,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(key, new ProcessItem { Id = key, Metadata = metadata, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {key}, forced lifespan {timespan}.");
+                _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, forced lifespan {timespan}.");
             }
         }
 
@@ -94,7 +94,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Add(key, new ProcessItem{ Id = key, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
-                _log.LogInformation($"Created lock, category {category}, id {key}, forced lifespan {timespan}.");
+                _log.LogInformation($"Created process, category {category}, id {key}, forced lifespan {timespan}.");
             }
         }
 
@@ -106,7 +106,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Remove(key);
-                _log.LogInformation($"Cleared lock id {key}.");
+                _log.LogInformation($"Cleared process id {key}.");
             }
         }
 
@@ -116,13 +116,24 @@ namespace Tetrifact.Core
             {
                 if (_items.Any()) 
                 {
-                    _log.LogInformation($"Force clearing {_items.Count} lock(s) : {string.Join(",", _items)}.");
+                    _log.LogInformation($"Force clearing {_items.Count} processes(s) : {string.Join(",", _items)}.");
                     _items.Clear();
                 }
                 else 
                 { 
-                    _log.LogInformation("Force clearing, no locks found.");
+                    _log.LogInformation("Force clearing, no processes found.");
                 }
+            }
+        }
+
+        public void KeepAlive(string key) 
+        {
+            lock (_items) 
+            {
+                if (!_items.ContainsKey(key))
+                    return;
+
+                _items[key].AddedUTC = DateTime.UtcNow;
             }
         }
 
@@ -140,7 +151,7 @@ namespace Tetrifact.Core
                     continue;
 
                 _items.Remove(key);
-                _log.LogInformation($"Lock id {key} timed out.");
+                _log.LogInformation($"Processes id {key} timed out and removed.");
             }
         }
 

@@ -11,17 +11,23 @@ namespace Tetrifact.Core
 
         bool AnyWithCategoryExists(ProcessCategories category);
 
-        bool AnyOfKeyExists(string id);
+        bool AnyOfKeyExists(string key);
 
-        void AddUnique(ProcessCategories category, string id);
+        void AddUnique(ProcessCategories category, string key);
         
-        void AddUnique(ProcessCategories category, string id, TimeSpan timespan);
+        void AddUnique(ProcessCategories category, string key, TimeSpan timespan);
 
         void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan);
 
         void ClearExpired();
 
-        void RemoveUnique(string id);
+        void RemoveUnique(string key);
+
+        /// <summary>
+        /// Resets to now the creation time of a given process item.
+        /// </summary>
+        /// <param name="key"></param>
+        void KeepAlive(string key);
 
         /// <summary>
         /// Removes all existing processes.

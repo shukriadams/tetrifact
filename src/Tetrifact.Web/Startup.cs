@@ -72,11 +72,12 @@ namespace Tetrifact.Web
             services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
 
 
-            // all ICron types registered here will automatically get loaded
+            // all ICron types registered here are automatically started in Configure() method below
             services.AddTransient<ICron, MetricsCron>();
             services.AddTransient<ICron, PruneCron>();
             services.AddTransient<ICron, CleanerCron>();
             services.AddTransient<ICron, ArchiveGenerator>();
+            services.AddTransient<ICron, ProcessManagerCron>();
 
             // ignore error, how else are we going to get an instaace of settings from this piece of crap Microsoft IOC framework?
             ISettingsProvider settingsProvider = services.BuildServiceProvider().GetRequiredService<ISettingsProvider>();
@@ -206,7 +207,7 @@ namespace Tetrifact.Web
                     indexReader.Initialize();
 
                 // start daemons after index initialization
-                Console.WriteLine("Initializing daemons");
+                Console.WriteLine("Starting daemons");
                 IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
                 foreach (ICron cron in crons)
                     cron.Start();

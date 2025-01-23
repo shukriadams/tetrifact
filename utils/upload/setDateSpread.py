@@ -17,17 +17,14 @@ work_dir = args['work_dir']
 packages_per_day = args['packages_per_day']
 
 def loadJson(filepath):
-    import json
     print (filepath)
     with open(filepath) as f:
         jsonstring = f.read()
         return json.loads(jsonstring)
 
 def writeJson(filepath, dataObject):
-    import json
     with open(filepath, 'w') as out:
         json.dump(dataObject, out, indent = 4)
-
 
 if not os.path.isdir(work_dir):
     print(f'ERROR : could not find root path {work_dir}')

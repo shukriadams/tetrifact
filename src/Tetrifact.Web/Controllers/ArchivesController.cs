@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -7,8 +6,6 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Runtime;
-using System.Threading.Tasks;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -78,49 +75,6 @@ namespace Tetrifact.Web
             }
         }
 
-        [ServiceFilter(typeof(ConfigurationErrors))]
-        [ServiceFilter(typeof(WriteLevel))]
-        public ActionResult GetQueueTicket(string requestIdentifier) 
-        {
-            try
-            {
-                if (!_settings.MaximumSimultaneousDownloads.HasValue)
-                    return new JsonResult(new
-                    {
-                        success = new
-                        {
-                            ticket = string.Empty,
-                            required = false
-                        }
-                    });
-
-                if (_processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).Count() >= _settings.MaximumSimultaneousDownloads)
-                    return new JsonResult(new
-                    {
-                        error = new
-                        {
-                            code = 1,
-                            message = $"Queue is full ({_settings.MaximumSimultaneousDownloads}), please try again later"
-                        }
-                    });
-
-                string ticket = Guid.NewGuid().ToString();
-                _processManager.AddUnique(ProcessCategories.ArchiveQueueSlot, ticket, requestIdentifier, new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
-                return new JsonResult(new
-                {
-                    success = new
-                    {
-                        ticket = ticket,
-                        required = true
-                    }
-                }); ;
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Unexpected error");
-                return Responses.UnexpectedError();
-            }
-        }
 
         /// <summary>
         /// Downloads an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
@@ -166,6 +120,10 @@ namespace Tetrifact.Web
                     // clear ticket once all package has been streamed
                     if (!isLocal && !string.IsNullOrEmpty(ticket))
                         _processManager.RemoveUnique(ticket);
+                };
+                progressableStream.OnProgress = (long progress, long total) => {
+                    // keep ticket alive for duration of download
+                    _processManager.KeepAlive(ticket);
                 };
 
                 return File(progressableStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
