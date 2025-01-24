@@ -95,14 +95,16 @@ namespace Tetrifact.Web
 
                 // enforce ticket if queue enabled
                 RequestHeaders headers = Request.GetTypedHeaders();
-                Uri referer = headers.Referer;
-                bool isLocal = referer.Host.ToLower() == "localhost";
+                bool isLocal = headers.Host.ToString().ToLower() == "localhost";
 
                 if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
                 {
+                    if (string.IsNullOrEmpty(ticket))
+                        return Responses.NoTicket();
+
                     ProcessItem item = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).FirstOrDefault(i => i.Id == ticket);
                     if (item == null)
-                        return Responses.QueueFull();
+                        return Responses.NoTicket();
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);

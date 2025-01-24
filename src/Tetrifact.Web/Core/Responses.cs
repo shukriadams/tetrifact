@@ -23,16 +23,18 @@ namespace Tetrifact.Web
             });
         }
 
-        public static BadRequestObjectResult QueueFull()
+        public static ObjectResult NoTicket()
         {
-            return new BadRequestObjectResult(new
+            return new ObjectResult(new
             {
-                statusCode = 423, // "locked for now" code
                 error = new
                 {
-                    description = $"Download queue is full, try again later"
+                    description = $"Ticket required for this resource. Contact Tetrifact server admin."
                 }
-            });
+            })
+            {
+                StatusCode = 432 // http standard code for "resource locked for now" 
+            };
         }
 
         public static BadRequestObjectResult InvalidJSONError()

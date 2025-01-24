@@ -41,8 +41,15 @@ print(f'ticket generated : {ticketId}')
 uploadResult = subprocess.run(
     [
         'curl',
+        "--write-out", "%{http_code}",
+        '--verbose',
         '--output', '.package.zip',
-        f'{server_address}/v1/archives/{args['package']}'
+        f'{server_address}/v1/archives/{args['package']}?ticket={ticketId}'
     ],
     stderr=subprocess.PIPE,
     stdout=subprocess.PIPE).stdout.decode('utf8')
+
+if uploadResult != "200":
+    print (f"download failed with code {uploadResult}")
+else:
+    print (f"download succeeded with {uploadResult}")
