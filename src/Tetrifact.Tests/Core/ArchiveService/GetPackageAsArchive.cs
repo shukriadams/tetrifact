@@ -114,7 +114,7 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public async void GetArchiveCompressionEnabled()
         {
-            Settings.StorageCompressionEnabled = true;
+           //Settings.StorageCompressionEnabled = true;
 
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
@@ -139,25 +139,6 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetArchive_Nocompress_FileMissing()
         {
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
-
-            TestPackage testPackage = PackageHelper.CreateRandomPackage();
-
-            // delete known package file via disk
-            File.Delete(Path.Join(Settings.RepositoryPath, testPackage.Path, testPackage.Hash, "bin"));
-
-            Assert.Throws<ArchiveNotFoundException>(() => { archiveService.GetPackageAsArchive(testPackage.Id); });
-        }
-
-        /// <summary>
-        /// Tests that trying to build an archive with a missing package file throws expected exception, compression of source files enabled. This
-        /// is for coverage.
-        /// </summary>
-        [Fact]
-        public void GetArchive_CompressEnabled_FileMissing()
-        {
-            IArchiveService archiveService = TestContext.Get<IArchiveService>();
-
-            Settings.StorageCompressionEnabled = true;
 
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
 

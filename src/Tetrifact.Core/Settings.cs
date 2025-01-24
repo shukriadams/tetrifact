@@ -124,7 +124,6 @@ namespace Tetrifact.Core
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
             this.ArchiveCompression = CompressionLevel.Optimal;
-            this.StorageCompressionEnabled = false;
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");

@@ -188,7 +188,6 @@ namespace Tetrifact.Web
                 Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
                 Console.WriteLine($"Download archive compression: {settings.ArchiveCompression}");
                 Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
-                Console.WriteLine($"Is storage compression enabled: {settings.StorageCompressionEnabled}");
                 Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
                 Console.WriteLine($"List page size: {settings.ListPageSize}");
                 Console.WriteLine($"Log path: {settings.LogPath}");

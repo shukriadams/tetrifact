@@ -136,11 +136,6 @@ namespace Tetrifact.Core
         IEnumerable<string> AccessTokens { get; set; }
 
         /// <summary>
-        /// If true, package data will be compressed on storage. This will consume less disk space, but required more CPU power to read packages.
-        /// </summary>
-        bool StorageCompressionEnabled { get; set; }
-
-        /// <summary>
         /// Zip compression for downloadable builds. Allowed values Optimal | Fastest | NoCompression | SmallestSize.
         /// </summary>
         CompressionLevel ArchiveCompression { get; set; }

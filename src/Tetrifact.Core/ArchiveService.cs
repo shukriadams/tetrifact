@@ -239,35 +239,15 @@ namespace Tetrifact.Core
 
                         using (Stream zipEntryStream = zipEntry.Open())
                         {
-                            if (manifest.IsCompressed)
-                            {
-                                GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                                if (fileLookup == null)
-                                    throw new Exception($"Failed to find expected package file {file.Id} - repository is likely corrupt");
+                            GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
+                            if (fileLookup == null)
+                                throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
 
-                                using (var storageArchive = new ZipArchive(fileLookup.Content))
-                                {
-                                    ZipArchiveEntry storageArchiveEntry = storageArchive.Entries[0];
-                                    using (var storageArchiveStream = storageArchiveEntry.Open()) 
-                                    {
-                                        StreamProgressCopy copy = new StreamProgressCopy(storageArchiveStream, zipEntryStream, copyStepSize);
-                                        copy.OnProgress += progressEvent;
-                                        await copy.Work();
-                                    }
-                                }
-                            }
-                            else
+                            using (Stream fileStream = fileLookup.Content)
                             {
-                                GetFileResponse fileLookup = _indexReader.GetFile(file.Id);
-                                if (fileLookup == null)
-                                    throw new Exception($"Failed to find expected package file {file.Id}- repository is likely corrupt");
-
-                                using (Stream fileStream = fileLookup.Content)
-                                {
-                                    StreamProgressCopy copy = new StreamProgressCopy(fileStream, zipEntryStream, copyStepSize);
-                                    copy.OnProgress += progressEvent;
-                                    await copy.Work();
-                                }
+                                StreamProgressCopy copy = new StreamProgressCopy(fileStream, zipEntryStream, copyStepSize);
+                                copy.OnProgress += progressEvent;
+                                await copy.Work();
                             }
 
                             _log.LogDebug($"Added file \"{file.Path}\" to archive for package \"{packageId}\"");
