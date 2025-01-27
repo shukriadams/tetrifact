@@ -34,6 +34,7 @@ namespace Tetrifact.Tests.Controllers.Archives
                 .Returns(StreamsHelper.StreamFromString("abc"));
 
             ArchivesController controller = TestContext.Get<ArchivesController>("archiveService", archiveServiceMock.Object, "indexReader", indexReaderMock.Object, "fileSystem", filesystem.Object);
+            HttpHelper.EnsureContext(controller);
 
             FileStreamResult result = controller.GetArchive("any-package-id", "my-ticket") as FileStreamResult;
             Assert.NotNull(result);

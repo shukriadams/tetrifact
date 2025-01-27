@@ -104,7 +104,7 @@ namespace Tetrifact.Core
             foreach(PruneBracketProcess pruneBracketProcess in processBrackets) 
             {
                 pruneBracketProcess.Ceiling = ceiling;
-                pruneBracketProcess.Floor = ceiling.AddDays(-1 * pruneBracketProcess.Days);
+                pruneBracketProcess.Floor = pruneBracketProcess.Ceiling.AddDays(-1 * pruneBracketProcess.Days);
                 ceiling = pruneBracketProcess.Floor;
             }
 
@@ -141,6 +141,14 @@ namespace Tetrifact.Core
                 matchingBracket.Found++;
 
                 // try to find reasons to keep package
+                    
+                // Bracket with Amount -1 means do not delete any
+                if (matchingBracket.Amount == -1) 
+                {
+                    matchingBracket.Keep.Add(manifest);
+                    report.Add($"Package \"{packageId}\" falls into bracket with no-prune (-1), keeping.");
+                    continue;
+                }
 
                 // packages can be tagged to never be deleted. This ignores keep count, but will push out packages that are not tagged
                 IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));

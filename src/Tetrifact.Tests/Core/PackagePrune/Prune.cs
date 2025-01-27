@@ -25,9 +25,10 @@ namespace Tetrifact.Tests.PackagePrune
         public void HappyPath()
         {
             Settings.PruneBrackets = new List<PruneBracket>(){
-                new PruneBracket{ Days=7, Amount = 3 },
+                new PruneBracket{ Days=7, Amount = -1 },
                 new PruneBracket{ Days=31, Amount = 3 },
-                new PruneBracket{ Days=365, Amount = 3 }
+                new PruneBracket{ Days=364, Amount = 3 },
+                new PruneBracket{ Days=999, Amount = 3 }
             };
 
             // create packages :
@@ -72,7 +73,7 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-466));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-566));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-666));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-766));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-998));
 
             // prune multiple times to ensure that randomization doesn't lead to unintended deletes
             for (int i = 0 ; i < 10 ; i ++)
@@ -80,11 +81,12 @@ namespace Tetrifact.Tests.PackagePrune
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();
 
-            Assert.Equal(14, packages.Count()); // 5 + 3 + 3 + 3 
-
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-month-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-year-")).Count());
+
+            Assert.Equal(14, packages.Count()); // 5 + 3 + 3 + 3 
+
         }
 
         /// <summary>
@@ -104,9 +106,10 @@ namespace Tetrifact.Tests.PackagePrune
             ISettings settings = Settings;
             settings.PruneEnabled = true;
             Settings.PruneBrackets = new List<PruneBracket>(){
-                new PruneBracket{ Days=7, Amount = 4 },
-                new PruneBracket{ Days=31, Amount = 3 },
-                new PruneBracket{ Days=365, Amount = 2 }
+                new PruneBracket{ Days=7, Amount = -1 },
+                new PruneBracket{ Days=31, Amount = 4 },
+                new PruneBracket{ Days=365, Amount = 3 },
+                new PruneBracket{ Days=999, Amount = 2 }
             };
 
             // mock time provider to return a fixed "now" date, we will be changing "now" ass we go along
@@ -123,22 +126,22 @@ namespace Tetrifact.Tests.PackagePrune
 
             Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 8 days to put packages into weekly bracket, 1 package should be deleted
-            now = DateTime.UtcNow.AddDays(8);
+            // shift time by 15 days to put packages into weekly bracket, 1 package should be deleted
+            now = DateTime.UtcNow.AddDays(15);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
 
             Assert.Equal(4, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 32 days to put packages into monthly bracket, 1 more package should be deleted
-            now = DateTime.UtcNow.AddDays(32);
+            // shift time by 44 days to put packages into monthly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(44);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
 
             Assert.Equal(3, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 366 days to put packages into yearly bracket, 1 more package should be deleted
-            now = DateTime.UtcNow.AddDays(366);
+            // shift time by 470 days to put packages into yearly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(470);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
 
