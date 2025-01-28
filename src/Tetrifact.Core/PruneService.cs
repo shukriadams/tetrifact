@@ -82,13 +82,15 @@ namespace Tetrifact.Core
 
             _log.LogInformation("*************************************** Finished prune exectution. **************************************************************************");
 
+            return;
         }
 
         public PrunePlan GeneratePrunePlan()
         {
-            // sort brackets oldest to most recent, clone to change settings without affecting original instances
+            // sort brackets newest to oldest, clone to change settings without affecting original instances
             IList<PruneBracketProcess> processBrackets = _settings.PruneBrackets
                 .Select(p => PruneBracketProcess.FromPruneBracket(p))
+                .OrderBy(p => p.Days)
                 .ToList();
 
             IList<string> taggedKeep = new List<string>();
@@ -104,7 +106,7 @@ namespace Tetrifact.Core
             foreach(PruneBracketProcess pruneBracketProcess in processBrackets) 
             {
                 pruneBracketProcess.Ceiling = ceiling;
-                pruneBracketProcess.Floor = pruneBracketProcess.Ceiling.AddDays(-1 * pruneBracketProcess.Days);
+                pruneBracketProcess.Floor = utcNow.AddDays(-1 * pruneBracketProcess.Days);
                 ceiling = pruneBracketProcess.Floor;
             }
 
@@ -137,7 +139,7 @@ namespace Tetrifact.Core
                     continue;
                 }
 
-                report.Add($"Package \"{packageId}\" fits into prune bracket {matchingBracket}. This bracket now contains {matchingBracket.Keep.Count} keep packages.");
+                report.Add($"Package \"{packageId}\" fits into prune bracket {matchingBracket}. This bracket currently contains {matchingBracket.Keep.Count} packages for keeping.");
                 matchingBracket.Found++;
 
                 // try to find reasons to keep package

@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,9 +17,7 @@ namespace Tetrifact.Tests.PackagePrune
         public Prune()
         {
             Settings.PruneEnabled = true;
-
             Settings.PruneIgnoreTags = new string[] { "keep" };
-
             _packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[]{ Settings, this.IndexReader }); 
         }
 
@@ -45,11 +45,11 @@ namespace Tetrifact.Tests.PackagePrune
             PackageHelper.CreateNewPackageFiles("above-week-3");
             PackageHelper.CreateNewPackageFiles("above-week-4");
             PackageHelper.CreateNewPackageFiles("above-week-5");
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-8));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-9));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-10));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-11));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-week-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-12));
 
             // packages above month threshold, two of these should be deleted
             PackageHelper.CreateNewPackageFiles("above-month-1");
@@ -57,11 +57,11 @@ namespace Tetrifact.Tests.PackagePrune
             PackageHelper.CreateNewPackageFiles("above-month-3");
             PackageHelper.CreateNewPackageFiles("above-month-4");
             PackageHelper.CreateNewPackageFiles("above-month-5");
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-91));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-32));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-33));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-34));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-35));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-month-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-36));
 
             // packages above year threshold, two of these should be deleted
             PackageHelper.CreateNewPackageFiles("above-year-1");
@@ -70,10 +70,21 @@ namespace Tetrifact.Tests.PackagePrune
             PackageHelper.CreateNewPackageFiles("above-year-4");
             PackageHelper.CreateNewPackageFiles("above-year-5");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-366));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-466));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-566));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-666));
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-998));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-367));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-3"), "CreatedUtc", DateTime.UtcNow.AddDays(-368));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-369));
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-370));
+
+            PrunePlan plan = _packagePrune.GeneratePrunePlan();
+            
+            // dump out prune contents to bin directoy, this can be useful for debugging.
+            StreamWriter f = new StreamWriter(new FileStream("./.prune-log.txt", FileMode.Create, FileAccess.Write));
+            foreach (string line in plan.Report) 
+                f.WriteLine(line);
+            foreach (PruneBracketProcess bracket in plan.Brackets)
+                f.WriteLine(bracket);
+            
+            f.Close();
 
             // prune multiple times to ensure that randomization doesn't lead to unintended deletes
             for (int i = 0 ; i < 10 ; i ++)
@@ -126,22 +137,22 @@ namespace Tetrifact.Tests.PackagePrune
 
             Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 15 days to put packages into weekly bracket, 1 package should be deleted
-            now = DateTime.UtcNow.AddDays(15);
+            // shift time by 8 days to put packages into weekly bracket, 1 package should be deleted
+            now = DateTime.UtcNow.AddDays(8);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
 
             Assert.Equal(4, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 44 days to put packages into monthly bracket, 1 more package should be deleted
-            now = DateTime.UtcNow.AddDays(44);
+            // shift time by 32 days to put packages into monthly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(32);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
 
             Assert.Equal(3, this.IndexReader.GetAllPackageIds().Count());
 
-            // shift time by 470 days to put packages into yearly bracket, 1 more package should be deleted
-            now = DateTime.UtcNow.AddDays(470);
+            // shift time by 366 days to put packages into yearly bracket, 1 more package should be deleted
+            now = DateTime.UtcNow.AddDays(366);
             for (int i = 0; i < 10; i++)
                 packagePrune.Prune();
 

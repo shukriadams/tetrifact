@@ -16,6 +16,10 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 - Dotnet 6.0 SDK
 - Visual Studio 2019 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version. Visual Studio 2017 isn't supported.
 
+Unit test coverage is done with https://github.com/SteveGilham/altcover, install ReportGenerator with
+
+    dotnet tool install --global dotnet-reportgenerator-globaltool
+
 ## Running from Visual Studio
 
 - Start Visual Studio as administrator
@@ -73,15 +77,10 @@ To run tests in Visual Studio, open Test > Windows > Test Explorer, run desired 
 
 ## Test coverage reports
 
-Unit test coverage is done with https://github.com/SteveGilham/altcover. To visualize your tests
-
-- Install ReportGenerator 
-
-        dotnet tool install --global dotnet-reportgenerator-globaltool
-
-- after testing run 
+After testing run 
 
     cd /src
+
     reportgenerator -reports:./Tetrifact.Tests/coverage.xml -targetdir:./Tetrifact.Tests/coverage -assemblyfilters:+Tetrifact.*;-Tetrifact.Tests -classfilters:-Tetrifact.Core.ThreadDefault;-Tetrifact.Web.DaemonProcessRunner;-Tetrifact.Web.Pager;-Tetrifact.Web.Program;-Tetrifact.Web.Startup;-Tetrifact.Web.ReadLevel;-Tetrifact.Web.WriteLevel;-*f__*
 
 The HTML report is at
