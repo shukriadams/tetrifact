@@ -49,9 +49,7 @@ namespace Tetrifact.Core
 
         void IPackageCreateWorkspace.Initialize()
         {
-            this.Manifest = new Manifest{ 
-                IsCompressed = _settings.StorageCompressionEnabled
-            };
+            this.Manifest = new Manifest();
 
             // workspace folder is super random - date now ticks + guid. We assume this is always unique and we don't check
             // this compromise is done to negate need for test coverage.
@@ -92,18 +90,7 @@ namespace Tetrifact.Core
             if (!_filesystem.File.Exists(targetPath)) {
 
                 _filesystem.Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-
-                if (this.Manifest.IsCompressed)
-                {
-                    using (FileStream zipStream = new FileStream(targetPath, FileMode.Create))
-                    using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
-                    using (Stream entryStream = archive.CreateEntry(filePath).Open())
-                    using (Stream itemStream = new FileStream(incomingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        itemStream.CopyTo(entryStream);
- 
-                } else {
-                    _filesystem.File.Move(incomingPath, targetPath);
-                }
+                _filesystem.File.Move(incomingPath, targetPath);
 
                 onDisk = true;
             }

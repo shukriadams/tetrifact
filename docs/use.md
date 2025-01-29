@@ -121,3 +121,38 @@ To add the tag "MyTag" to the package "MyPackage, use
 To remove the tag
 
     curl -X DELETE http://tetriserver.example.com/v1/tags/MyTag/MyPackage
+
+
+## Pruning
+
+Tetrifact has automated pruning to delete older packages to prevent disk overuse. All prune settings are kept in config.yml.
+
+Pruning is disabled by default, to enable it use
+
+    ...
+    PruneEnabled : True
+    ...
+
+Pruning behaviour works in brackets. A bracket is a period for the age of packages, and x number of packages of a given age can be kept. Using the example below
+
+    PruneBrackets :
+    -   Days: 1
+        Amount: -1
+    -   Days : 3
+        Amount : 5
+    -   Days : 5
+        Amount : 4
+
+The first bracket is for all packages up to 1 day old, an amount of -1 means prune none, ie, keep all packages that are up to a day old. The second bracket indicates that for all packages created more than 1 ago and less than 3 days ago, keep 5 packages.
+
+Pruning can ignore packages marked with one or more tags, use the list 
+
+    PruneIgnoreTags:
+    -   MyKeepTag
+    -   MyImportTag
+
+Pruning runs at 2am server time by default, you can change this with
+
+    PruneCronMask: "0 3 * * *"
+
+

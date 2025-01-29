@@ -82,13 +82,15 @@ namespace Tetrifact.Core
 
             _log.LogInformation("*************************************** Finished prune exectution. **************************************************************************");
 
+            return;
         }
 
         public PrunePlan GeneratePrunePlan()
         {
-            // sort brackets oldest to most recent, clone to change settings without affecting original instances
+            // sort brackets newest to oldest, clone to change settings without affecting original instances
             IList<PruneBracketProcess> processBrackets = _settings.PruneBrackets
                 .Select(p => PruneBracketProcess.FromPruneBracket(p))
+                .OrderBy(p => p.Days)
                 .ToList();
 
             IList<string> taggedKeep = new List<string>();
@@ -104,7 +106,7 @@ namespace Tetrifact.Core
             foreach(PruneBracketProcess pruneBracketProcess in processBrackets) 
             {
                 pruneBracketProcess.Ceiling = ceiling;
-                pruneBracketProcess.Floor = ceiling.AddDays(-1 * pruneBracketProcess.Days);
+                pruneBracketProcess.Floor = utcNow.AddDays(-1 * pruneBracketProcess.Days);
                 ceiling = pruneBracketProcess.Floor;
             }
 
@@ -137,10 +139,18 @@ namespace Tetrifact.Core
                     continue;
                 }
 
-                report.Add($"Package \"{packageId}\" fits into prune bracket {matchingBracket}. This bracket now contains {matchingBracket.Keep.Count} keep packages.");
+                report.Add($"Package \"{packageId}\" fits into prune bracket {matchingBracket}. This bracket currently contains {matchingBracket.Keep.Count} packages for keeping.");
                 matchingBracket.Found++;
 
                 // try to find reasons to keep package
+                    
+                // Bracket with Amount -1 means do not delete any
+                if (matchingBracket.Amount == -1) 
+                {
+                    matchingBracket.Keep.Add(manifest);
+                    report.Add($"Package \"{packageId}\" falls into bracket with no-prune (-1), keeping.");
+                    continue;
+                }
 
                 // packages can be tagged to never be deleted. This ignores keep count, but will push out packages that are not tagged
                 IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
