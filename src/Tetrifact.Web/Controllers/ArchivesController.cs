@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -102,9 +104,14 @@ namespace Tetrifact.Web
                     if (string.IsNullOrEmpty(ticket))
                         return Responses.NoTicket();
 
-                    ProcessItem item = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).FirstOrDefault(i => i.Id == ticket);
-                    if (item == null)
+                    IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
+                    ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
+                    if (userTicket == null)
                         return Responses.NoTicket();
+
+                    int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
+                    if (count > _settings.MaximumSimultaneousDownloads)
+                        return Responses.QueueFull(count, _settings.MaximumSimultaneousDownloads.Value);
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);

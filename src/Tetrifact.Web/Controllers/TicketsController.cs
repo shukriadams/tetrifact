@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Tetrifact.Core;
 
@@ -60,18 +59,9 @@ namespace Tetrifact.Web
                         }
                     });
 
-                if (_processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).Count() >= _settings.MaximumSimultaneousDownloads)
-                    return new JsonResult(new
-                    {
-                        error = new
-                        {
-                            code = 1,
-                            message = $"Queue is full ({_settings.MaximumSimultaneousDownloads} slots allowed), please try again later"
-                        }
-                    });
-
                 string ticket = Guid.NewGuid().ToString();
                 _processManager.AddUnique(ProcessCategories.ArchiveQueueSlot, ticket, requestIdentifier, new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
+
                 return new JsonResult(new
                 {
                     success = new
@@ -80,7 +70,7 @@ namespace Tetrifact.Web
                         clientIdentifier = requestIdentifier,
                         required = true
                     }
-                }); ;
+                });
             }
             catch (Exception ex)
             {

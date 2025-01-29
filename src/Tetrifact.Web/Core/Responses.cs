@@ -23,6 +23,20 @@ namespace Tetrifact.Web
             });
         }
 
+        public static ObjectResult QueueFull(int position, int total) 
+        {
+            return new ObjectResult(new
+            {
+                error = new
+                {
+                    description = $"Queue is full, you are {position} of {total}."
+                }
+            })
+            {
+                StatusCode = 432 // http std code, but way too vague
+            };
+        }
+
         public static ObjectResult NoTicket()
         {
             return new ObjectResult(new
@@ -33,7 +47,7 @@ namespace Tetrifact.Web
                 }
             })
             {
-                StatusCode = 432 // http standard code for "resource locked for now" 
+                StatusCode = 403 // http std code, but way too vague
             };
         }
 
