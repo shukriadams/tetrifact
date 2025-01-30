@@ -16,9 +16,9 @@ If you want to develop Linux on Windows, Vagrant is an excellent and convenient 
 - Dotnet 6.0 SDK
 - Visual Studio 2019 (Windows) or Visual Studio Code with C# extension. If you're using Visual Studio make sure you've update to the latest version. Visual Studio 2017 isn't supported.
 
-Unit test coverage is done with https://github.com/SteveGilham/altcover, install ReportGenerator with
-
-    dotnet tool install --global dotnet-reportgenerator-globaltool
+Unit test coverage is done with https://github.com/SteveGilham/altcover, install ReportGenerator. To get a version compatible with this project run
+    
+    dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.3.11
 
 ## Running from Visual Studio
 

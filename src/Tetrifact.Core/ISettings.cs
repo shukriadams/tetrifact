@@ -121,6 +121,11 @@ namespace Tetrifact.Core
         int DownloadQueueTicketLifespan { get; set; }
 
         /// <summary>
+        /// Static tickets which can be used to bypass the regular download queue.
+        /// </summary>
+        IEnumerable<string> DownloadQueuePriorityTickets { get; set; }
+
+        /// <summary>
         /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
         /// </summary>
         long SpaceSafetyThreshold { get; set; }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -99,19 +98,28 @@ namespace Tetrifact.Web
                 RequestHeaders headers = Request.GetTypedHeaders();
                 bool isLocal = headers.Host.ToString().ToLower() == "localhost";
 
+                // local (this website) downloads always allowed.
                 if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
                 {
                     if (string.IsNullOrEmpty(ticket))
                         return Responses.NoTicket();
 
-                    IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
-                    ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
-                    if (userTicket == null)
-                        return Responses.NoTicket();
+                    // check for priority tickets
+                    if (_settings.DownloadQueuePriorityTickets.Contains(ticket))
+                    {
+                        _log.LogInformation($"Priority ticket {ticket} used from host {headers.Host}");
+                    }
+                    else 
+                    {
+                        IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
+                        ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
+                        if (userTicket == null)
+                            return Responses.NoTicket();
 
-                    int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
-                    if (count > _settings.MaximumSimultaneousDownloads)
-                        return Responses.QueueFull(count, _settings.MaximumSimultaneousDownloads.Value);
+                        int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
+                        if (count > _settings.MaximumSimultaneousDownloads)
+                            return Responses.QueueFull(count, _settings.MaximumSimultaneousDownloads.Value);
+                    }
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
@@ -135,7 +143,11 @@ namespace Tetrifact.Web
                     _processManager.KeepAlive(ticket);
                 };
 
-                return File(progressableStream, "application/octet-stream", $"{packageId}.zip", enableRangeProcessing: true);
+                return File(
+                    progressableStream, 
+                    "application/octet-stream", 
+                    $"{packageId}.zip", 
+                    enableRangeProcessing: true);
             }
             catch (PackageNotFoundException ex)
             {

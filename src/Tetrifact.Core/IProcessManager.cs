@@ -14,7 +14,9 @@ namespace Tetrifact.Core
         bool AnyOfKeyExists(string key);
 
         void AddUnique(ProcessCategories category, string key);
-        
+
+        void AddUnique(ProcessCategories category, string key, string metadata);
+
         void AddUnique(ProcessCategories category, string key, TimeSpan timespan);
 
         void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan);

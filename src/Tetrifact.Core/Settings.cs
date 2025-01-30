@@ -96,6 +96,8 @@ namespace Tetrifact.Core
 
         public int DownloadQueueTicketLifespan { get; set; }
 
+        public IEnumerable<string> DownloadQueuePriorityTickets { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -112,6 +114,7 @@ namespace Tetrifact.Core
             // defaults
             this.DownloadQueueTicketLifespan = 10; // seconds
             this.AccessTokens = new List<string>();
+            this.DownloadQueuePriorityTickets = new List<string>();
             this.PackageDeleteEnabled = true;
             this.PackageCreateEnabled = true;
             this.ArchiveCPUThreads = 4;                 // for compression solutions that support multithreading.

@@ -27,6 +27,13 @@
                                 at @process.AddedUTC.ToHumanString()
                             </text>
                         }
+
+                        @process.KeepAliveUtc.HasValue
+                        {
+                            <text>
+                                at @process.KeepAliveUtc.ToHumanString()
+                            </text>
+                        }
                     </span>
                 </li>
             }

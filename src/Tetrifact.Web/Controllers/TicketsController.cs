@@ -59,13 +59,16 @@ namespace Tetrifact.Web
                     });
 
                 string ticket = Guid.NewGuid().ToString();
-                _processManager.AddUnique(ProcessCategories.ArchiveQueueSlot, ticket, requestIdentifier, new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
+                _processManager.AddUnique(
+                    ProcessCategories.ArchiveQueueSlot, 
+                    ticket, 
+                    requestIdentifier);
 
                 return new JsonResult(new
                 {
                     success = new
                     {
-                        ticket = ticket,
+                        ticket,
                         clientIdentifier = requestIdentifier,
                         required = true
                     }

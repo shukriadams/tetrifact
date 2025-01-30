@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using System;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web

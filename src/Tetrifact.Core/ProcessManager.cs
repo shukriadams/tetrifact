@@ -69,7 +69,28 @@ namespace Tetrifact.Core
                 if (_items.ContainsKey(key))
                     return;
 
-                _items.Add(key, new ProcessItem { Id = key, Category = category });
+                _items.Add(key, new ProcessItem { 
+                    Id = key, 
+                    AddedUTC = DateTime.UtcNow,
+                    Category = category });
+
+                _log.LogInformation($"Created process, category {category}, id {key}, no lifespan limit.");
+            }
+        }
+
+        public void AddUnique(ProcessCategories category, string key, string metadata)
+        {
+            lock (_items)
+            {
+                if (_items.ContainsKey(key))
+                    return;
+
+                _items.Add(key, new ProcessItem { 
+                    Id = key, 
+                    AddedUTC = DateTime.UtcNow,
+                    Category = category, 
+                    Metadata = metadata });
+
                 _log.LogInformation($"Created process, category {category}, id {key}, no lifespan limit.");
             }
         }
@@ -81,7 +102,14 @@ namespace Tetrifact.Core
                 if (_items.ContainsKey(key))
                     return;
 
-                _items.Add(key, new ProcessItem { Id = key, Metadata = metadata, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
+                _items.Add(key, new ProcessItem { 
+                    Id = key, 
+                    Metadata = metadata, 
+                    AddedUTC = DateTime.UtcNow, 
+                    KeepAliveUtc = DateTime.UtcNow, 
+                    MaxLifespan = timespan, 
+                    Category = category });
+
                 _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, forced lifespan {timespan}.");
             }
         }
@@ -93,7 +121,13 @@ namespace Tetrifact.Core
                 if (_items.ContainsKey(key))
                     return;
 
-                _items.Add(key, new ProcessItem{ Id = key, AddedUTC = DateTime.UtcNow, MaxLifespan = timespan, Category = category });
+                _items.Add(key, new ProcessItem{ 
+                    Id = key,
+                    AddedUTC = DateTime.UtcNow,
+                    KeepAliveUtc = DateTime.UtcNow,
+                    MaxLifespan = timespan,
+                    Category = category });
+
                 _log.LogInformation($"Created process, category {category}, id {key}, forced lifespan {timespan}.");
             }
         }
@@ -133,25 +167,28 @@ namespace Tetrifact.Core
                 if (!_items.ContainsKey(key))
                     return;
 
-                _items[key].AddedUTC = DateTime.UtcNow;
+                _items[key].KeepAliveUtc = DateTime.UtcNow;
             }
         }
 
         public void ClearExpired()
         {
-            for (int i = 0 ; i < _items.Count; i ++)
+            lock (_items) 
             {
-                string key = _items.Keys.ElementAt(_items.Count - 1 - i);
-                if (!_items[key].AddedUTC.HasValue || !_items[key].MaxLifespan.HasValue)
-                    continue;
+                for (int i = 0; i < _items.Count; i++)
+                {
+                    string key = _items.Keys.ElementAt(_items.Count - 1 - i);
+                    if (!_items[key].KeepAliveUtc.HasValue || !_items[key].MaxLifespan.HasValue)
+                        continue;
 
-                TimeSpan ts = _items[key].MaxLifespan.Value;
-                DateTime dt = _items[key].AddedUTC.Value;
-                if (DateTime.UtcNow - dt < ts)
-                    continue;
+                    TimeSpan ts = _items[key].MaxLifespan.Value;
+                    DateTime dt = _items[key].KeepAliveUtc.Value;
+                    if (DateTime.UtcNow - dt < ts)
+                        continue;
 
-                _items.Remove(key);
-                _log.LogInformation($"Processes id {key} timed out and removed.");
+                    _items.Remove(key);
+                    _log.LogInformation($"Processes id {key} timed out and removed.");
+                }
             }
         }
 

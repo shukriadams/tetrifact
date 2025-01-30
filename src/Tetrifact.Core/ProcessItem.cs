@@ -20,9 +20,14 @@ namespace Tetrifact.Core
         public ProcessCategories Category { get; set; }
 
         /// <summary>
-        /// If set, the time lock item was created. If not set, lock never times out
+        /// If set, the time item was created. 
         /// </summary>
         public DateTime? AddedUTC { get; set; }
+
+        /// <summary>
+        /// If set, the time item was kept alive. If not set, lock never times out.
+        /// </summary>
+        public DateTime? KeepAliveUtc { get; set; }
 
         /// <summary>
         /// If set, the max age lock item can have before being auto purged.
@@ -44,7 +49,7 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{{{this.GetType().Name} Id:{Id}, MetaData:{Metadata}, Category:{Category}, AddedUtc:{AddedUTC}, MaxLifespace:{MaxLifespan} }}";
+            return $"{{{this.GetType().Name} Id:{Id}, MetaData:{Metadata}, Category:{Category}, AddedUtc:{AddedUTC}, KeepAliveUtc:{KeepAliveUtc}, MaxLifespace:{MaxLifespan} }}";
         }
     }
 }
