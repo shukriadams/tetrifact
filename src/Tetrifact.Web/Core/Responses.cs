@@ -18,7 +18,7 @@ namespace Tetrifact.Web
                 statusCode = 404,
                 error = new
                 {
-                    description = description
+                    description
                 }
             });
         }
@@ -29,7 +29,9 @@ namespace Tetrifact.Web
             {
                 error = new
                 {
-                    description = $"Queue is full, you are {position} of {total}."
+                    description = $"Queue is full, you are {position} of {total}.",
+                    queue_position = position,
+                    queue_length = total
                 }
             })
             {
@@ -128,7 +130,7 @@ namespace Tetrifact.Web
                 error = new
                 {
                     code = 101,
-                    description = description
+                    description
                 }
             });
         }
