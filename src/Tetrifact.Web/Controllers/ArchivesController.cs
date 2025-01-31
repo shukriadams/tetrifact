@@ -96,7 +96,7 @@ namespace Tetrifact.Web
 
                 // enforce ticket if queue enabled
                 RequestHeaders headers = Request.GetTypedHeaders();
-                bool isLocal = headers.Host.ToString().ToLower() == "localhost";
+                bool isLocal = headers.Host.Host.ToLower() == "localhost";
 
                 // local (this website) downloads always allowed.
                 if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
@@ -135,12 +135,13 @@ namespace Tetrifact.Web
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
                 progressableStream.OnComplete = ()=>{
                     // clear ticket once all package has been streamed
-                    if (!isLocal && !string.IsNullOrEmpty(ticket))
+                    if (!string.IsNullOrEmpty(ticket))
                         _processManager.RemoveUnique(ticket);
                 };
                 progressableStream.OnProgress = (long progress, long total) => {
                     // keep ticket alive for duration of download
-                    _processManager.KeepAlive(ticket);
+                    if (!string.IsNullOrEmpty(ticket))
+                        _processManager.KeepAlive(ticket);
                 };
 
                 return File(

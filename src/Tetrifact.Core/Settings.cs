@@ -98,9 +98,6 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> DownloadQueuePriorityTickets { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Theme { get; set; }
 
         public IEnumerable<TagColor> TagColors { get; set; }
