@@ -101,8 +101,11 @@ namespace Tetrifact.Web
                 // local (this website) downloads always allowed.
                 if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
                 {
-                    if (string.IsNullOrEmpty(ticket))
+                    if (string.IsNullOrEmpty(ticket)) 
+                    {
+                        _log.LogDebug($"Host is {headers.Host.Host}");
                         return Responses.NoTicket();
+                    }
 
                     // check for priority tickets
                     if (_settings.DownloadQueuePriorityTickets.Contains(ticket))
