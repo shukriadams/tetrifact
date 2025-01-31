@@ -94,9 +94,15 @@ namespace Tetrifact.Web
                 if (!_indexReader.PackageExists(packageId))
                     throw new PackageNotFoundException(packageId);
 
+                string[] localhosts = new string[] { 
+                    "localhost",
+                    "127.0.0.1",
+                    "0.0.0.0"
+                };
+
                 // enforce ticket if queue enabled
                 RequestHeaders headers = Request.GetTypedHeaders();
-                bool isLocal = headers.Host.Host.ToLower() == "localhost";
+                bool isLocal = localhosts.Contains(headers.Host.Host.ToLower()); 
 
                 // local (this website) downloads always allowed.
                 if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
