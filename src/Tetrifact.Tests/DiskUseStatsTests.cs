@@ -1,6 +1,5 @@
 ﻿using Xunit;
 using Tetrifact.Core;
-using System;
 
 namespace Tetrifact.Tests
 {
