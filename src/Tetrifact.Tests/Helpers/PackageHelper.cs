@@ -62,6 +62,7 @@ namespace Tetrifact.Tests
             IArchiveService archiveService = new Core.ArchiveService(
                 indexReader,
                 new TestMemoryCache(),
+                new LocalFileStreamProvider(),
                 _context.Get<IProcessManager>(),
                 filesystem,
                 new TestLogger<IArchiveService>(),

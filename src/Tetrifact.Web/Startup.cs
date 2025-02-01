@@ -70,7 +70,8 @@ namespace Tetrifact.Web
             services.AddTransient<IDaemon, Daemon>();
             services.AddTransient<ITimeProvideer, TimeProvider>();
             services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
-
+            services.AddTransient<IFileStreamProvider, LocalFileStreamProvider>();
+            
 
             // all ICron types registered here are automatically started in Configure() method below
             services.AddTransient<ICron, MetricsCron>();

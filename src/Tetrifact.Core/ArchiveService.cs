@@ -27,15 +27,18 @@ namespace Tetrifact.Core
 
         private readonly IMemoryCache _cache;
 
+        private readonly IFileStreamProvider _fileStreamProvider;
+
         #endregion
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IProcessManager lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IFileStreamProvider fileStreamProvider, IProcessManager lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
         {
             _settings = settings;
             _cache = cache;
             _indexReader = indexReader;
+            _fileStreamProvider = fileStreamProvider;
             _fileSystem = fileSystem;
             _log = log;
             _lock = lockInstance;
@@ -112,7 +115,7 @@ namespace Tetrifact.Core
             if (!_fileSystem.File.Exists(archivePath))
                 throw new ArchiveNotFoundException();
 
-            return new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return _fileStreamProvider.Read(archivePath);
         }
 
         public ArchiveProgressInfo GetPackageArchiveStatus(string packageId)
