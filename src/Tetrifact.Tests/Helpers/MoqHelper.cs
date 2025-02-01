@@ -109,7 +109,7 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T CreateInstanceWithAllMoqed<T>() where T : class 
+        public T CreateInstance<T>() where T : class 
         {
             return repo.Create<T>(ResolveConstuctorArguments(typeof(T), new object[]{ }, true).ToArray()).Object;
         }
@@ -120,7 +120,7 @@ namespace Tetrifact.Tests
         /// <typeparam name="T"></typeparam>
         /// <param name="dependencyMock"></param>
         /// <returns></returns>
-        public T CreateInstanceWithSingleDependency<T>(object dependency) where T : class
+        public T CreateInstanceWithDependency<T>(object dependency) where T : class
         {
             return repo.Create<T>(ResolveConstuctorArguments(typeof(T), dependency, false).ToArray()).Object;
         }

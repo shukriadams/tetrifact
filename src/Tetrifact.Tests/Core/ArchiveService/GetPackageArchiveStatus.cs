@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.ArchiveService
         public void GetNonExistent()
         {
             // set up
-            IArchiveService archiveService = MoqHelper.CreateInstanceWithAllMoqed<Core.ArchiveService>();
+            IArchiveService archiveService = MoqHelper.CreateInstance<Core.ArchiveService>();
 
             // do
             ArchiveProgressInfo progress = archiveService.GetPackageArchiveStatus("some-invalid-package-id");
