@@ -6,8 +6,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.ArchiveService
 {
-    public class GetPackageArchiveStatus : FileSystemBase
+    public class GetPackageArchiveStatus 
     {
+        MoqHelper MoqHelper { get; set; } = new MoqHelper(new TestContext());
+
         /// <summary>
         /// Requesting an invalid package should return package not found
         /// </summary>
@@ -99,13 +101,36 @@ namespace Tetrifact.Tests.ArchiveService
         [Fact]
         public void GetArchiveComplete()
         {
-            Core.ArchiveService archiveService = TestContext.Get<Core.ArchiveService>();
+            // setup
+            string archivePath = string.Empty;
 
-            // create package, mock existing archive file
-            TestPackage randomPackage = PackageHelper.CreateRandomPackage();
-            PackageHelper.FakeArchiveOnDisk(randomPackage);
+            // force package to exist
+            Mock<IIndexReadService> indexReader = new Mock<IIndexReadService>();
+            indexReader
+                .Setup(r => r.PackageExists(It.IsAny<string>()))
+                .Returns(true);
 
-            Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveAvailable, archiveService.GetPackageArchiveStatus(randomPackage.Id).State);
+            Mock<IFileSystem> filesystem = new Mock<IFileSystem>();
+            filesystem
+                .Setup(r => r.File.Exists(It.IsAny<string>()))
+                .Returns((string path) => {
+                    // force archive to exist
+                    if (path == archivePath)
+                        return true;
+
+                    throw new Exception($"Unexpected path {path} received");
+                });
+
+            IArchiveService archiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { indexReader, filesystem });
+
+            // for filesystem forces above, get the path each item is expected to be at
+            archivePath = archiveService.GetPackageArchivePath("some-package");
+
+            // do
+            PackageArchiveCreationStates status = archiveService.GetPackageArchiveStatus("some-package").State;
+
+            // tests
+            Assert.Equal(PackageArchiveCreationStates.Processed_ArchiveAvailable, status);
         }
     }
 }

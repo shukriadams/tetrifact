@@ -11,11 +11,11 @@ namespace Tetrifact.Tests
     {
         private MockRepository repo = new MockRepository(MockBehavior.Loose) { CallBase = true };
 
-        private TestContext _context;
+        public TestContext Context {get;private set;}
 
         public MoqHelper(TestContext context)
         {
-            _context = context;
+            Context = context;
         }
 
         public Mock CreateMock(Type typeToMock)
@@ -75,7 +75,7 @@ namespace Tetrifact.Tests
                 {
                     // if failed to get argument in override array, try gettin instance from ninject, and ignore errors
                     if (arg == null && !forceMoq)
-                        arg = _context.Kernel.Get(constructorParameter.ParameterType);
+                        arg = Context.Kernel.Get(constructorParameter.ParameterType);
                 }
                 catch (Exception)
                 {
