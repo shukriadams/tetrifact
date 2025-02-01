@@ -63,6 +63,7 @@ namespace Tetrifact.Tests
                 indexReader,
                 new TestMemoryCache(),
                 new LocalFileStreamProvider(),
+                new LocalStorageService(settings),
                 _context.Get<IProcessManager>(),
                 filesystem,
                 new TestLogger<IArchiveService>(),

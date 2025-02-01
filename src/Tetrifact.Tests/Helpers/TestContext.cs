@@ -110,6 +110,8 @@ namespace Tetrifact.Tests
             _kernel.Bind<W.IDaemon>().To<TestDaemon>();
             _kernel.Bind<ITimeProvideer>().To<TimeProvider>();
             _kernel.Bind<ITetrifactMemoryCache>().To<TetrifactTestMemoryCache>();
+            _kernel.Bind<IFileStreamProvider>().To<LocalFileStreamProvider>();
+            _kernel.Bind<IStorageService>().To<LocalStorageService>();
 
             _kernel.Bind<ILogger<W.HomeController>>().To<TestLogger<W.HomeController>>();
             _kernel.Bind<ILogger<W.PruneController>>().To<TestLogger<W.PruneController>>();
