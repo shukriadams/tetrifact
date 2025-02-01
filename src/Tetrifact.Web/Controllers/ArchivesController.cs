@@ -102,6 +102,14 @@ namespace Tetrifact.Web
 
                 // enforce ticket if queue enabled
                 RequestHeaders headers = Request.GetTypedHeaders();
+                string range = string.Empty;
+                if (Request.Headers.Range.Count != 0) 
+                    range = Request.Headers.Range;
+
+                if (Request.Headers.ContentRange.Count != 0)
+                    range = Request.Headers.ContentRange;
+
+                string host = headers.Host.Host;
                 bool isLocal = localhosts.Contains(headers.Host.Host.ToLower()); 
 
                 // local (this website) downloads always allowed.
@@ -138,7 +146,10 @@ namespace Tetrifact.Web
                     return Redirect($"/package/{packageId}");
                 }
 
-                _log.LogInformation($"Serving archive for package \"{packageId}\".");
+                if (!string.IsNullOrEmpty(range))
+                    range = $" range {range}";
+
+                _log.LogInformation($"Serving archive for package {packageId} to {host}{range}");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
