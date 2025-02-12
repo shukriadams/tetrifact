@@ -8,13 +8,6 @@ namespace Tetrifact.Web
     /// </summary>
     public abstract class Cron : ICron
     {
-        public string CronMask { get; set; }
-
-        public Cron()
-        {
-            this.CronMask = "* * * * *";
-        }
-    
         public abstract void Start();
 
         public abstract Task Work();

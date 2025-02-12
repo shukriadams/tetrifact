@@ -23,7 +23,6 @@ namespace Tetrifact.Web
         public ProcessManagerCron(ISettings settings, IDaemon daemonrunner, IProcessManager lockInstance, ILogger<CleanerCron> log)
         {
             _settings = settings;
-            this.CronMask = _settings.CleanCronMask;
             _lock = lockInstance;
             _log = log;
             _daemonrunner = daemonrunner;

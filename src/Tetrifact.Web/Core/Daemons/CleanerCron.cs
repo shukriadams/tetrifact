@@ -29,7 +29,6 @@ namespace Tetrifact.Web
         public CleanerCron(IRepositoryCleanService repositoryCleaner, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
         {
             _settings = settings;
-            this.CronMask = _settings.CleanCronMask;
 
             _archiveService = archiveService;
             _repositoryCleaner = repositoryCleaner;
