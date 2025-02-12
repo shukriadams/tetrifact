@@ -56,6 +56,7 @@ namespace Tetrifact.Web
                         if (useHTTPS)
                             listenOptions.UseHttps(httpsCertPath);
                     });
+
                     Console.WriteLine($"Port bound ({Global.StartTimeUtc.Ago(true)})");
 
                     // SECURITY WARNING : the limit on attachment part size is removed to support large builds. 

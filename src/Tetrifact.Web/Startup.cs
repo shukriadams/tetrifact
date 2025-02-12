@@ -85,17 +85,19 @@ namespace Tetrifact.Web
             ISettings settings = settingsProvider.Get();
             services.AddSingleton(settings);
 
+            // enable async
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
             });
 
+            // enable async
             services.Configure<IISServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
             });
 
-            // register filterws
+            // register HTTP endpoint filters
             services.AddScoped<ReadLevel>();
             services.AddScoped<WriteLevel>();
 
@@ -107,7 +109,7 @@ namespace Tetrifact.Web
                 });
 
             services.AddMemoryCache();
-            services.AddResponseCompression(); // http compression
+            services.AddResponseCompression(); // enable http compression
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddScoped<ConfigurationErrors>();
