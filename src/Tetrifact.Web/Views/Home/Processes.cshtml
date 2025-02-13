@@ -24,14 +24,14 @@
                         @process.AddedUTC.HasValue
                         {
                             <text>
-                                at @process.AddedUTC.ToHumanString()
+                                created @process.AddedUTC.ToHumanString()
                             </text>
                         }
 
                         @process.KeepAliveUtc.HasValue
                         {
                             <text>
-                                at @process.KeepAliveUtc.ToHumanString()
+                                kept alive @process.KeepAliveUtc.ToHumanString()
                             </text>
                         }
                     </span>
