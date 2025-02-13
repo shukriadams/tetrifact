@@ -109,13 +109,17 @@ namespace Tetrifact.Web
                 if (Request.Headers.ContentRange.Count != 0)
                     range = Request.Headers.ContentRange;
 
-                string host = headers.Host.Host;
-                bool isLocal = localhosts.Contains(headers.Host.Host.ToLower()); 
+                string host = string.Empty;
+                if (Request.HttpContext.Connection.RemoteIpAddress != null)
+                    host = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+
+                bool isLocal = localhosts.Contains(headers.Host.Host.ToLower());
+                string ticketLog = string.Empty;
 
                 // local (this website) downloads always allowed.
-                if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue) 
+                if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue)
                 {
-                    if (string.IsNullOrEmpty(ticket)) 
+                    if (string.IsNullOrEmpty(ticket))
                     {
                         _log.LogDebug($"Host is {headers.Host.Host}");
                         return Responses.NoTicket();
@@ -125,8 +129,9 @@ namespace Tetrifact.Web
                     if (_settings.DownloadQueuePriorityTickets.Contains(ticket))
                     {
                         _log.LogInformation($"Priority ticket {ticket} used from host {headers.Host}");
+                        ticketLog = $" priority ticket {ticket},";
                     }
-                    else 
+                    else
                     {
                         IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
                         ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
@@ -136,7 +141,13 @@ namespace Tetrifact.Web
                         int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
                         if (count > _settings.MaximumSimultaneousDownloads)
                             return Responses.QueueFull(count, _settings.MaximumSimultaneousDownloads.Value);
+
+                        ticketLog = $" dynamic ticket {ticket},";
                     }
+                }
+                else 
+                {
+                    ticketLog = $" ticket not enforced, received:{ticket},";
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
@@ -147,9 +158,11 @@ namespace Tetrifact.Web
                 }
 
                 if (!string.IsNullOrEmpty(range))
-                    range = $" range {range}";
+                    range = $" range {range},";
+                else
+                    range = " no range,";
 
-                _log.LogInformation($"Serving archive for package {packageId} to {host}{range}");
+                _log.LogInformation($"Serving archive for package {packageId} to {host}{range}{ticketLog}");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
