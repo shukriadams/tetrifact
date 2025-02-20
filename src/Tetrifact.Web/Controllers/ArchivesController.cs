@@ -121,14 +121,14 @@ namespace Tetrifact.Web
                 {
                     if (string.IsNullOrEmpty(ticket))
                     {
-                        _log.LogDebug($"Host is {headers.Host.Host}");
+                        _log.LogInformation($"Rejected download request because of missing ticket, origin is \"{host}\".");
                         return Responses.NoTicket();
                     }
 
                     // check for priority tickets
                     if (_settings.DownloadQueuePriorityTickets.Contains(ticket))
                     {
-                        _log.LogInformation($"Priority ticket {ticket} used from host {headers.Host}");
+                        _log.LogInformation($"Priority ticket {ticket} used from host \"{host}\".");
                         ticketLog = $" priority ticket {ticket},";
                     }
                     else
@@ -171,6 +171,7 @@ namespace Tetrifact.Web
                     if (!string.IsNullOrEmpty(ticket))
                         _processManager.RemoveUnique(ticket);
                 };
+
                 progressableStream.OnProgress = (long progress, long total) => {
                     // keep ticket alive for duration of download
                     if (!string.IsNullOrEmpty(ticket))

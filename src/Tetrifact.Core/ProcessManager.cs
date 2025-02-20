@@ -91,7 +91,7 @@ namespace Tetrifact.Core
                     Category = category, 
                     Metadata = metadata });
 
-                _log.LogInformation($"Created process, category {category}, id {key}, no lifespan limit.");
+                _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, no lifespan limit.");
             }
         }
 
