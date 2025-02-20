@@ -302,6 +302,7 @@ namespace Tetrifact.Core
                 };
 
             progress.State = PackageArchiveCreationStates.ArchiveGenerating;
+            progress.PercentProgress = 0; // force reset progress to 0, else if zipping ran before, new progress will be appended to this
             progress.StartedUtc = DateTime.UtcNow;
             _cache.Set(progressCacheKey, progress);
 
