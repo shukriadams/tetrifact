@@ -102,6 +102,8 @@ namespace Tetrifact.Core
 
         public IEnumerable<TagColor> TagColors { get; set; }
 
+        public IEnumerable<string> WhiteListedLocalAddresses { get; set; }
+
         #endregion
 
         #region CTORS
@@ -150,6 +152,7 @@ namespace Tetrifact.Core
             this.Theme = "dark";
             this.WipeTempOnStart = true;
             this.WorkerThreadCount = 8;
+            this.WhiteListedLocalAddresses = new string[] { };
         }
 
         #endregion

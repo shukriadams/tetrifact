@@ -237,5 +237,10 @@ namespace Tetrifact.Core
         /// </summary>
         /// <returns></returns>
         bool Validate();
+
+        /// <summary>
+        /// IPs treated as "from own website"
+        /// </summary>
+        IEnumerable<string> WhiteListedLocalAddresses { get; set; }
     }
 }

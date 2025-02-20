@@ -94,12 +94,6 @@ namespace Tetrifact.Web
                 if (!_indexReader.PackageExists(packageId))
                     throw new PackageNotFoundException(packageId);
 
-                string[] localhosts = new string[] { 
-                    "localhost",
-                    "127.0.0.1",
-                    "0.0.0.0"
-                };
-
                 // enforce ticket if queue enabled
                 RequestHeaders headers = Request.GetTypedHeaders();
                 string range = string.Empty;
@@ -113,7 +107,7 @@ namespace Tetrifact.Web
                 if (Request.HttpContext.Connection.RemoteIpAddress != null)
                     host = Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-                bool isLocal = localhosts.Contains(headers.Host.Host.ToLower());
+                bool isLocal = _settings.WhiteListedLocalAddresses.Contains(headers.Host.Host.ToLower());
                 string ticketLog = string.Empty;
 
                 // local (this website) downloads always allowed.
