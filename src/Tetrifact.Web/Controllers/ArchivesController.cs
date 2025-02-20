@@ -105,9 +105,9 @@ namespace Tetrifact.Web
 
                 string host = string.Empty;
                 if (Request.HttpContext.Connection.RemoteIpAddress != null)
-                    host = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+                    host = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
 
-                bool isLocal = _settings.WhiteListedLocalAddresses.Contains(headers.Host.Host.ToLower());
+                bool isLocal = _settings.WhiteListedLocalAddresses.Contains(host.ToLower());
                 string ticketLog = string.Empty;
 
                 // local (this website) downloads always allowed.
