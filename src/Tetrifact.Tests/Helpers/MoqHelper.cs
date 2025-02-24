@@ -51,6 +51,7 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public IEnumerable<object> ResolveConstuctorArguments(Type t, object[] overrides, bool forceMoq)
         {
+            // cannot resolve constructor on interface
             if (t.IsInterface)
                 throw new Exception($"Cannot create instance of interface {t.Name} - please use a concrete type instead");
 

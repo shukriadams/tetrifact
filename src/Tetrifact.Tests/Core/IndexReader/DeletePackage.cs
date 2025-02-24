@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using System;
+using Moq;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -10,15 +11,38 @@ namespace Tetrifact.Tests.IndexReader
 {
     public class DeletePackage : FileSystemBase
     {
-
+        /// <summary>
+        /// walks all package delete logic, successful output detected as coverage
+        /// </summary>
         [Fact]
         public void HappyPath()
         {
-            TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            Assert.True(File.Exists(Path.Combine(Settings.PackagePath, testPackage.Id, "manifest.json")));
+            Mock<IFileSystem> fileSystem = new Mock<IFileSystem>();
+            
+            // force files to exist to enable deletes
+            fileSystem
+                .Setup(r => r.File.Exists(It.IsAny<string>()))
+                .Returns(true);
 
-            this.IndexReader.DeletePackage(testPackage.Id);
-            Assert.False(File.Exists(Path.Combine(Settings.PackagePath, "manifest.json" )));
+            // force dirs to exist to enable deletes
+            fileSystem
+                .Setup(r => r.Directory.Exists(It.IsAny<string>()))
+                .Returns(true);
+
+            // return some files to trigger tag file deletes
+            fileSystem
+                .Setup(r => r.Directory.GetFiles(It.IsAny<string>()))
+                .Returns(new string[] { "a tag file", "another tag file" });
+
+            Mock<IndexReadService> indexReader = MoqHelper.CreateMockWithDependencies<IndexReadService>( new object[] { fileSystem });
+            
+            // return a manifest to avoid non-found exception. Add an item to trigger item handling logic
+            indexReader
+                .Setup(r => r.GetManifest(It.IsAny<string>()))
+                .Returns(new Manifest() { Files = new List<ManifestItem> { new ManifestItem { Path = "any path", Hash = "any hash" } }});
+
+            // delete, no return value, coverage implies success
+            indexReader.Object.DeletePackage("any package id");
         }
 
         

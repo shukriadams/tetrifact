@@ -178,7 +178,7 @@ namespace Tetrifact.Core
             return new FileOnDiskProperties { Hash = hash, Size = fileInfo.Length };
         }
 
-        Manifest IIndexReadService.GetManifest(string packageId)
+        public virtual Manifest GetManifest(string packageId)
         { 
             return this.GetManifest(packageId, "manifest.json");
         }
@@ -265,7 +265,7 @@ namespace Tetrifact.Core
             return (true, string.Empty);
         }
 
-        void IIndexReadService.DeletePackage(string packageId)
+        public virtual void DeletePackage(string packageId)
         {
             if (!_settings.PackageDeleteEnabled)
                 throw new OperationNowAllowedException();
