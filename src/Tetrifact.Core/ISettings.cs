@@ -242,5 +242,16 @@ namespace Tetrifact.Core
         /// IPs treated as "from own website"
         /// </summary>
         IEnumerable<string> WhiteListedLocalAddresses { get; set; }
+    
+        /// <summary>
+        /// If true, packages older than prune brackets will be deleted.
+        /// </summary>
+        public bool DeleteStalePackages { get; set; }
+
+        /// <summary>
+        /// If true, packages with protected tags older than prune brackets will be deleted.
+        /// </summary>
+        public bool DeleteStalePackagesWithProtectedTags { get; set; }
+
     }
 }

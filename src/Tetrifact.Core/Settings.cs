@@ -104,6 +104,10 @@ namespace Tetrifact.Core
 
         public IEnumerable<string> WhiteListedLocalAddresses { get; set; }
 
+        public bool DeleteStalePackages { get; set; }
+        
+        public bool DeleteStalePackagesWithProtectedTags { get; set; }
+
         #endregion
 
         #region CTORS

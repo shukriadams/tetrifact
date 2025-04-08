@@ -105,9 +105,9 @@ namespace Tetrifact.Core
             DateTime ceiling = utcNow;
             foreach(PruneBracketProcess pruneBracketProcess in processBrackets) 
             {
-                pruneBracketProcess.Ceiling = ceiling;
-                pruneBracketProcess.Floor = utcNow.AddDays(-1 * pruneBracketProcess.Days);
-                ceiling = pruneBracketProcess.Floor;
+                pruneBracketProcess.StartUtc = ceiling;
+                pruneBracketProcess.EndUtc = utcNow.AddDays(-1 * pruneBracketProcess.Days);
+                ceiling = pruneBracketProcess.EndUtc;
             }
 
             int startingPackageCount = packageIds.Count;
@@ -131,14 +131,44 @@ namespace Tetrifact.Core
                 int ageInDays = (int)Math.Round((utcNow - manifest.CreatedUtc).TotalDays, 0);
                 report.Add($"Analysing package \"{packageId}\", added {manifest.CreatedUtc.ToIso()} ({ageInDays} days ago). {flattenedTags}.");
 
+                IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
+
                 PruneBracketProcess matchingBracket = processBrackets.FirstOrDefault(bracket => bracket.Contains(manifest.CreatedUtc));
+
+                // package does not fit into a bracket
                 if (matchingBracket == null)
                 {
-                    report.Add($"Package \"{packageId}\" doesn't fit into any prune brackets, will not be pruned.");
-                    ignoringNoBracketCount ++;
+                    // there are later brackets which package will eventually fit into, therefore let it live
+                    if (processBrackets.Any(b => b.StartUtc < manifest.CreatedUtc))
+                    {
+                        report.Add($"Package \"{packageId}\" doesn't currently fit into any prune brackets, but will fit later. Keeping package.");
+                        ignoringNoBracketCount++;
+                        continue;
+                    }
+
+                    // there are no later brackets, but, stale deletes is disabled, so package lives on forever.
+                    if (!_settings.DeleteStalePackages) 
+                    {
+                        report.Add($"Package \"{packageId}\" doesn't fit into any prune brackets, and there are no brackets existing brackets that will. Stale packages are not set to be deleted, so this package will be kept forever.");
+                        ignoringNoBracketCount++;
+                        continue;
+                    }
+
+                    // package is stale, but is protected with a keep tag, and keep tags override stale deletes unless explicitly overridden.
+                    if (keepTagsOnPackage.Any() && !_settings.DeleteStalePackagesWithProtectedTags)
+                    {
+                        report.Add($"Package \"{packageId}\" doesn't fit into any prune brackets and is stale, but is protected with tag(s) {string.Join(",", keepTagsOnPackage)}. Package will be kept forever.");
+                        ignoringNoBracketCount++;
+                        continue;
+                    }
+
+                    // package is stale, unprotected and stale deletes are enabled. Delete.
+                    matchingBracket.Prune.Add(manifest);
+                    report.Add($"Package \"{packageId}\" is stale (too old to fit into any brackets). Will be deleted.");
                     continue;
                 }
 
+                // package does fit into a bracket, do bracket-fitting stuff
                 report.Add($"Package \"{packageId}\" fits into prune bracket {matchingBracket}. This bracket currently contains {matchingBracket.Keep.Count} packages for keeping.");
                 matchingBracket.Found++;
 
@@ -153,7 +183,6 @@ namespace Tetrifact.Core
                 }
 
                 // packages can be tagged to never be deleted. This ignores keep count, but will push out packages that are not tagged
-                IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
                 if (keepTagsOnPackage.Any())
                 {
                     taggedKeep.Add(packageId);
