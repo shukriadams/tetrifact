@@ -58,18 +58,39 @@ namespace Tetrifact.Web
                         }
                     });
 
-                string ticket = Guid.NewGuid().ToString();
-                _processManager.AddUnique(
-                    ProcessCategories.ArchiveQueueSlot, 
-                    ticket, 
-                    requestIdentifier);
+                if (Request.HttpContext.Connection.RemoteIpAddress == null)
+                    return new JsonResult(new
+                    {
+                        error = new
+                        {
+                            message = "Failed to resolve IP",
+                            required = false
+                        }
+                    });
+
+                string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+                string ticket = Obfuscator.Cloak(ip);
+                string requestLoggedIdentifier = $"ReqID:{requestIdentifier},IP:{ip}";
+
+                ProcessCreateResponse response = _processManager.AddRestrained(
+                    ProcessCategories.ArchiveQueueSlot,
+                    ticket,
+                    requestLoggedIdentifier);
+
+                if (!response.Success)
+                    return new JsonResult(new
+                    {
+                        error = new
+                        {
+                            message = response.Message
+                        }
+                    });
 
                 return new JsonResult(new
                 {
                     success = new
                     {
                         ticket,
-                        clientIdentifier = requestIdentifier,
                         required = true
                     }
                 });

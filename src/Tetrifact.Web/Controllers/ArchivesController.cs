@@ -103,11 +103,11 @@ namespace Tetrifact.Web
                 if (Request.Headers.ContentRange.Count != 0)
                     range = Request.Headers.ContentRange;
 
-                string host = string.Empty;
+                string ip = string.Empty;
                 if (Request.HttpContext.Connection.RemoteIpAddress != null)
-                    host = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
+                    ip = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
 
-                bool isLocal = _settings.WhiteListedLocalAddresses.Contains(host.ToLower());
+                bool isLocal = _settings.WhiteListedLocalAddresses.Contains(ip.ToLower());
                 string ticketLog = string.Empty;
 
                 // local (this website) downloads always allowed.
@@ -115,14 +115,14 @@ namespace Tetrifact.Web
                 {
                     if (string.IsNullOrEmpty(ticket))
                     {
-                        _log.LogInformation($"Rejected download request because of missing ticket, origin is \"{host}\".");
+                        _log.LogInformation($"Rejected download request because of missing ticket, origin is \"{ip}\".");
                         return Responses.NoTicket();
                     }
 
                     // check for priority tickets
                     if (_settings.DownloadQueuePriorityTickets.Contains(ticket))
                     {
-                        _log.LogInformation($"Priority ticket {ticket} used from host \"{host}\".");
+                        _log.LogInformation($"Priority ticket {ticket} used from host \"{ip}\".");
                         ticketLog = $" priority ticket {ticket},";
                     }
                     else
@@ -156,7 +156,7 @@ namespace Tetrifact.Web
                 else
                     range = " no range,";
 
-                _log.LogInformation($"Serving archive for package {packageId} to {host}{range}{ticketLog}");
+                _log.LogInformation($"Serving archive for package {packageId} to {ip}{range}{ticketLog}");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);

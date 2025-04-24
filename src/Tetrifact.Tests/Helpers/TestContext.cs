@@ -36,7 +36,7 @@ namespace Tetrifact.Tests
                 if (_lockInstance == null)
                 {
                     ILogger<IProcessManager> log = this.Get<ILogger<IProcessManager>>();
-                    _lockInstance = new ProcessManager(log);
+                    _lockInstance = new ProcessManager(_settings, log);
                 }
 
                 return _lockInstance;
@@ -58,7 +58,7 @@ namespace Tetrifact.Tests
                     Directory.CreateDirectory(testFolder);
 
                     // this should be the only place in the entire test suite that we create an instance of settings.
-                    ISettings settings = new Core.Settings
+                    ISettings settings = new Settings
                     {
                         ArchiveQueuePath = Path.Join(testFolder, "archiveQueue"),
                         MetricsPath = Path.Join(testFolder, "metrics"),
