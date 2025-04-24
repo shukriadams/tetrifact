@@ -15,6 +15,11 @@ namespace Tetrifact.Core
         public string Metadata { get; set; }
 
         /// <summary>
+        /// Soft log field
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Grouping name for item. 
         /// </summary>
         public ProcessCategories Category { get; set; }

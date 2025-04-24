@@ -29,7 +29,7 @@ namespace Tetrifact.Core
         /// Resets to now the creation time of a given process item.
         /// </summary>
         /// <param name="key"></param>
-        void KeepAlive(string key);
+        void KeepAlive(string key, string description);
 
         /// <summary>
         /// Removes all existing processes.

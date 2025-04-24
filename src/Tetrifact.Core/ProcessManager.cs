@@ -168,7 +168,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public void KeepAlive(string key) 
+        public void KeepAlive(string key, string description) 
         {
             lock (_items) 
             {
@@ -176,6 +176,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items[key].KeepAliveUtc = DateTime.UtcNow;
+                _items[key].Description = description;
             }
         }
 

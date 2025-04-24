@@ -154,9 +154,9 @@ namespace Tetrifact.Web
                 if (!string.IsNullOrEmpty(range))
                     range = $" range {range},";
                 else
-                    range = " no range,";
+                    range = " no range";
 
-                _log.LogInformation($"Serving archive for package {packageId} to {ip}{range}{ticketLog}");
+                _log.LogInformation($"Serving archive for package {packageId} to {ip}{range},{ticketLog}");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
@@ -169,7 +169,7 @@ namespace Tetrifact.Web
                 progressableStream.OnProgress = (long progress, long total) => {
                     // keep ticket alive for duration of download
                     if (!string.IsNullOrEmpty(ticket))
-                        _processManager.KeepAlive(ticket);
+                        _processManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
                 };
 
                 return File(
