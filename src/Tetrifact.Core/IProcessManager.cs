@@ -15,11 +15,11 @@ namespace Tetrifact.Core
 
         void AddUnique(ProcessCategories category, string key);
 
-        ProcessCreateResponse AddRestrained(ProcessCategories category, string key, string metadata);
+        ProcessCreateResponse AddConstrained(ProcessCategories category, TimeSpan timespan, string key, string metadata);
 
         void AddUnique(ProcessCategories category, string key, TimeSpan timespan);
 
-        void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan);
+        // void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan);
 
         void ClearExpired();
 

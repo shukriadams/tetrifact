@@ -81,7 +81,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public ProcessCreateResponse AddRestrained(ProcessCategories category, string key, string metadata)
+        public ProcessCreateResponse AddConstrained(ProcessCategories category, TimeSpan timespan, string key, string metadata)
         {
             lock (_items)
             {
@@ -94,31 +94,14 @@ namespace Tetrifact.Core
                 _items.Add(key, new ProcessItem { 
                     Id = key, 
                     AddedUTC = DateTime.UtcNow,
-                    Category = category, 
+                    KeepAliveUtc = DateTime.UtcNow,
+                    Category = category,
+                    MaxLifespan = timespan,
                     Metadata = metadata
                 });
 
                 _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, no lifespan limit.");
                 return new ProcessCreateResponse { Success = true };
-            }
-        }
-
-        public void AddUnique(ProcessCategories category, string key, string metadata, TimeSpan timespan)
-        {
-            lock (_items)
-            {
-                if (_items.ContainsKey(key))
-                    return;
-
-                _items.Add(key, new ProcessItem { 
-                    Id = key, 
-                    Metadata = metadata, 
-                    AddedUTC = DateTime.UtcNow, 
-                    KeepAliveUtc = DateTime.UtcNow, 
-                    MaxLifespan = timespan, 
-                    Category = category });
-
-                _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, forced lifespan {timespan}.");
             }
         }
 
@@ -187,12 +170,19 @@ namespace Tetrifact.Core
                 for (int i = 0; i < _items.Count; i++)
                 {
                     string key = _items.Keys.ElementAt(_items.Count - 1 - i);
-                    if (!_items[key].KeepAliveUtc.HasValue || !_items[key].MaxLifespan.HasValue)
+
+                    // processes need a keepalive value to be eligible for cleanup
+                    if (!_items[key].KeepAliveUtc.HasValue)
+                       continue;
+
+                    // processes need a maxlifespan to be eligible for cleanup
+                    if (!_items[key].MaxLifespan.HasValue)
                         continue;
 
-                    TimeSpan ts = _items[key].MaxLifespan.Value;
-                    DateTime dt = _items[key].KeepAliveUtc.Value;
-                    if (DateTime.UtcNow - dt < ts)
+                    TimeSpan maxLifespan = _items[key].MaxLifespan.Value;
+                    DateTime lastUpdate = _items[key].KeepAliveUtc.Value;
+
+                    if (DateTime.UtcNow - lastUpdate < maxLifespan)
                         continue;
 
                     _items.Remove(key);
