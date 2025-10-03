@@ -80,7 +80,7 @@ namespace Tetrifact.Core
                 }
             }
 
-            _log.LogInformation("*************************************** Finished prune exectution. **************************************************************************");
+            _log.LogInformation("*************************************** Finished prune execution. **************************************************************************");
 
             return;
         }
@@ -133,7 +133,11 @@ namespace Tetrifact.Core
 
                 IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
 
-                PruneBracketProcess matchingBracket = processBrackets.FirstOrDefault(bracket => bracket.Contains(manifest.CreatedUtc));
+                // get most recent bracket package falls into
+                PruneBracketProcess matchingBracket = processBrackets
+                    .Where(bracket => bracket.Contains(manifest.CreatedUtc))
+                    .OrderBy(b => b.Days)
+                    .FirstOrDefault();
 
                 // package does not fit into a bracket
                 if (matchingBracket == null)

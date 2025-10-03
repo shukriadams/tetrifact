@@ -3,14 +3,26 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Core
 {
+    /// <summary>
+    /// Prune bracket, with additional data structures for doing prunes.
+    /// </summary>
     public class PruneBracketProcess : PruneBracket
     {
         #region PROPERTIES
 
+        /// <summary>
+        /// Packages to keep where those packages fall into the time period for this bracket.
+        /// </summary>
         public IList<Manifest> Keep { get ; set; } = new List<Manifest>();
 
+        /// <summary>
+        /// Packages to delete where those packages fall into the time period for this bracket.
+        /// </summary>
         public IList<Manifest> Prune { get; set; }  = new List<Manifest>();
 
+        /// <summary>
+        /// Number of found packages that fell into this bracket's time period.
+        /// </summary>
         public int Found { get; set; }
 
         /// <summary>
@@ -36,6 +48,11 @@ namespace Tetrifact.Core
             return $"Ceiling:{this.StartUtc.ToIsoShort()} floor:{this.EndUtc.ToIsoShort()} (from {this.StartUtc.Ago()} ago to {this.EndUtc.Ago()} ago), {base.ToString()}";
         }
 
+        /// <summary>
+        /// Returns true if the given data falls in the period covered by this bracket.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public bool Contains(DateTime date) 
         {
             // note that we use compare only, not equal. Still trying to trace issues with packages being aggressively deleted by landing
@@ -43,6 +60,11 @@ namespace Tetrifact.Core
             return date < this.StartUtc && date > this.EndUtc;
         }
 
+        /// <summary>
+        /// Creates an instance from a config-level bracket.
+        /// </summary>
+        /// <param name="pruneBracket"></param>
+        /// <returns></returns>
         public static PruneBracketProcess FromPruneBracket(PruneBracket pruneBracket) 
         { 
             return new PruneBracketProcess 

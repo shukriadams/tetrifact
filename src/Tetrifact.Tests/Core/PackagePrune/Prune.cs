@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Moq;
-using Serilog;
+﻿using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -215,7 +213,7 @@ namespace Tetrifact.Tests.PackagePrune
         }
 
         /// <summary>
-        /// Esnure that packages with protected tag are never marked for pruning.
+        /// Ensure that packages with protected tag are never marked for pruning.
         /// </summary>
         [Fact]
         public void Prune_Protected_Tag()
