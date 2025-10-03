@@ -5,7 +5,7 @@
         /// <summary>
         /// Runs a prune event. 
         /// </summary>
-        void Prune();
+        PrunePlan Prune();
 
         /// <summary>
         /// Calculates packages to prune. 

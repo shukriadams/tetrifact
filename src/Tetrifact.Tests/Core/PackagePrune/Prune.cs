@@ -23,11 +23,14 @@ namespace Tetrifact.Tests.PackagePrune
         public void HappyPath()
         {
             Settings.PruneBrackets = new List<PruneBracket>(){
-                new PruneBracket{ Days=7, Amount = -1 },
-                new PruneBracket{ Days=31, Amount = 3 },
-                new PruneBracket{ Days=364, Amount = 3 },
-                new PruneBracket{ Days=999, Amount = 3 }
+                new PruneBracket{ Days=7, Amount = -1 },    // prune none
+                new PruneBracket{ Days=31, Amount = 3 },    // leave 3
+                new PruneBracket{ Days=364, Amount = 3 },   // leave 3
+                new PruneBracket{ Days=999, Amount = 3 }    // leave 3
             };
+
+            PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings );
+            PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, this.IndexReader, pruneBracketProvider });
 
             // create packages :
             // packages under week threshold, none of these should not be deleted
@@ -73,28 +76,18 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-4"), "CreatedUtc", DateTime.UtcNow.AddDays(-369));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, "above-year-5"), "CreatedUtc", DateTime.UtcNow.AddDays(-370));
 
-            PrunePlan plan = _packagePrune.GeneratePrunePlan();
-            
-            // dump out prune contents to bin directoy, this can be useful for debugging.
-            StreamWriter f = new StreamWriter(new FileStream("./.prune-log.txt", FileMode.Create, FileAccess.Write));
-            foreach (string line in plan.Report) 
-                f.WriteLine(line);
-            foreach (PruneBracketProcess bracket in plan.Brackets)
-                f.WriteLine(bracket);
-            
-            f.Close();
-
             // prune multiple times to ensure that randomization doesn't lead to unintended deletes
-            for (int i = 0 ; i < 10 ; i ++)
-                _packagePrune.Prune();
+            List<PrunePlan> plans = new List<PrunePlan>();
+            for (int i = 0; i < 10; i++) 
+                plans.Add(packagePrune.Prune());
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();
 
+            Assert.Equal(5, packages.Where(r => r.StartsWith("under-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-month-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-year-")).Count());
 
-            Assert.Equal(14, packages.Count()); // 5 + 3 + 3 + 3 
 
         }
 

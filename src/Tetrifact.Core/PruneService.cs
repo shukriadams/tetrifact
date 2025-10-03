@@ -19,36 +19,39 @@ namespace Tetrifact.Core
 
         IProcessManager _processManager;
 
+        IPruneBracketProvider _pruneBracketProvider;
+
         #endregion
 
         #region CTORS
 
-        public PruneService(ISettings settings, IProcessManager processManager, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
+        public PruneService(ISettings settings, IPruneBracketProvider pruneBracketProvider, IProcessManager processManager, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;
             _log = log;
             _timeprovider = timeprovider;
             _processManager = processManager;
+            _pruneBracketProvider = pruneBracketProvider;
         }
 
         #endregion
 
         #region METHODS
 
-        public void Prune()
+        public PrunePlan Prune()
         {
             if (!_settings.PruneEnabled)
             {
                 _log.LogInformation("Prune exited on start, disabled.");
-                return;
+                return new PrunePlan { AbortDescription = "Prune exited on start, disabled." };
             }
 
             if (_processManager.AnyWithCategoryExists(ProcessCategories.Package_Create))
             {
                 IEnumerable<ProcessItem> locks = _processManager.GetAll();
                 _log.LogInformation($"Prune exited on start, locks detected  : ({string.Join(", ", locks)}).");
-                return;
+                return new PrunePlan { AbortDescription = $"Prune exited on start, locks detected  : ({string.Join(", ", locks)})." };
             }
 
             PrunePlan report = this.GeneratePrunePlan();
@@ -56,7 +59,7 @@ namespace Tetrifact.Core
             foreach(string line in report.Report)
                _log.LogInformation(line);
 
-            IEnumerable<string> packageToPruneIds = report.Brackets.SelectMany(b => b.Prune).Select(m => m.Id);
+            IEnumerable<string> packageToPruneIds = _pruneBracketProvider.PruneBrackets.SelectMany(b => b.Prune).Select(m => m.Id);
 
             _log.LogInformation($"******************************* Starting prune execution, {packageToPruneIds.Count()} packages marked for delete *******************************");
 
@@ -82,17 +85,11 @@ namespace Tetrifact.Core
 
             _log.LogInformation("*************************************** Finished prune execution. **************************************************************************");
 
-            return;
+            return report;
         }
 
         public PrunePlan GeneratePrunePlan()
         {
-            // sort brackets newest to oldest, clone to change settings without affecting original instances
-            IList<PruneBracketProcess> processBrackets = _settings.PruneBrackets
-                .Select(p => PruneBracketProcess.FromPruneBracket(p))
-                .OrderBy(p => p.Days)
-                .ToList();
-
             IList<string> taggedKeep = new List<string>();
             IList<string> report = new List<string>();
 
@@ -103,12 +100,6 @@ namespace Tetrifact.Core
 
             DateTime utcNow = _timeprovider.GetUtcNow();
             DateTime ceiling = utcNow;
-            foreach(PruneBracketProcess pruneBracketProcess in processBrackets) 
-            {
-                pruneBracketProcess.StartUtc = ceiling;
-                pruneBracketProcess.EndUtc = utcNow.AddDays(-1 * pruneBracketProcess.Days);
-                ceiling = pruneBracketProcess.EndUtc;
-            }
 
             int startingPackageCount = packageIds.Count;
 
@@ -134,16 +125,13 @@ namespace Tetrifact.Core
                 IEnumerable<string> keepTagsOnPackage = manifest.Tags.Where(tag => _settings.PruneIgnoreTags.Any(protectedTag => protectedTag.Equals(tag)));
 
                 // get most recent bracket package falls into
-                PruneBracketProcess matchingBracket = processBrackets
-                    .Where(bracket => bracket.Contains(manifest.CreatedUtc))
-                    .OrderBy(b => b.Days)
-                    .FirstOrDefault();
+                PruneBracketProcess matchingBracket = _pruneBracketProvider.MatchByDate(manifest.CreatedUtc);
 
                 // package does not fit into a bracket
                 if (matchingBracket == null)
                 {
                     // there are later brackets which package will eventually fit into, therefore let it live
-                    if (processBrackets.Any(b => b.StartUtc < manifest.CreatedUtc))
+                    if (_pruneBracketProvider.PruneBrackets.Any(b => b.StartUtc < manifest.CreatedUtc))
                     {
                         report.Add($"Package \"{packageId}\" doesn't currently fit into any prune brackets, but will fit later. Keeping package.");
                         ignoringNoBracketCount++;
@@ -270,7 +258,7 @@ namespace Tetrifact.Core
             int totalKeep = 0;
             int totalPrune = 0;
 
-            foreach (PruneBracketProcess p in processBrackets)
+            foreach (PruneBracketProcess p in _pruneBracketProvider.PruneBrackets)
             {
                 totalKeep += p.Keep.Count;
                 totalPrune += p.Prune.Count;
@@ -293,8 +281,7 @@ namespace Tetrifact.Core
                 report.Add($"ERROR : Package handling count error, expected {packageIds.Count}, got {totalHandled}.");
 
             return new PrunePlan{ 
-                Report = report, 
-                Brackets = processBrackets
+                Report = report
             };
         }
 

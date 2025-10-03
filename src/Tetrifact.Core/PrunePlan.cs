@@ -7,13 +7,23 @@ namespace Tetrifact.Core
     /// </summary>
     public class PrunePlan
     {
-        public IEnumerable<string> Report {get;set; }
-        public IEnumerable<PruneBracketProcess> Brackets { get;set; }
+        public IEnumerable<string> Report { get;set; }
+
+        public string AbortDescription { get; set; }
+
+        public string ReportAll 
+        { 
+            get 
+            { 
+                if (this.Report != null)
+                    return string.Join("\r", this.Report);
+                return string.Empty;
+            } 
+        }
 
         public PrunePlan()
         { 
             this.Report = new List<string>();
-            this.Brackets = new List<PruneBracketProcess>();
         }
     }
 }
