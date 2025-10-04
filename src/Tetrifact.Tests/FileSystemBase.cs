@@ -15,8 +15,6 @@ namespace Tetrifact.Tests
         protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
         
         protected TestLogger<IArchiveService> ArchiveLogger;
-
-        protected TestLogger<IRepositoryCleanService> RepoCleanLog;
        
         protected ThreadDefault ThreadDefault;
         
@@ -29,7 +27,6 @@ namespace Tetrifact.Tests
             IndexReaderLogger = new TestLogger<IIndexReadService>();
             WorkspaceLogger = new TestLogger<IPackageCreateWorkspace>();
             ArchiveLogger = new TestLogger<IArchiveService>();
-            RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
             ThreadDefault = new ThreadDefault();
         }

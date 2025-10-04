@@ -205,6 +205,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         {
             ISettings settings = TestContext.Get<ISettings>();
             IFileSystem fileSystem = TestContext.Get<IFileSystem>();
+            TestLogger<IRepositoryCleanService> repoCleanLog = new TestLogger<IRepositoryCleanService>();
 
             // mock out GetAllPackageIds method to force throw exception
             IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();
@@ -214,9 +215,9 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), settings, fileSystem.Directory, fileSystem.File, RepoCleanLog);
+            IRepositoryCleanService respositoryCleaner = TestContext.Get<IRepositoryCleanService>("indexReader", mockIndexReader, "log", repoCleanLog);
             respositoryCleaner.Clean();
-            Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
+            Assert.True(repoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
 
         /// <summary>
