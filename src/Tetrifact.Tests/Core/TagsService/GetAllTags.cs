@@ -2,6 +2,7 @@ using Xunit;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.TagsService
 {
@@ -28,8 +29,10 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Tag_format_exception()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // write garbage to tag folder
-            Directory.CreateDirectory(Path.Join(Settings.TagsPath, "unencoded-text"));
+            Directory.CreateDirectory(Path.Join(settings.TagsPath, "unencoded-text"));
 
             base.TagService.GetAllTags();
             // can't get entry to show up, not important, this is is a coverage test

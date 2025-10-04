@@ -28,8 +28,8 @@ namespace Tetrifact.Tests.IndexReader
                         return false;
                     }
                 );
-            
-            IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { Settings, filesystem });
+
+            IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { filesystem });
 
             PartialPackageLookupResult lookup = indexReader.FindExisting(new PartialPackageLookupArguments{Files = new List<ManifestItem>{
                 new ManifestItem{Path = "file1", Hash = "" },

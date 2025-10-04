@@ -10,11 +10,13 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Basic()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             string combinedHash = "somehash";
             string package = "somepackage";
             this.PackageCreateWorkspace.WriteManifest(package, combinedHash);
 
-            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(Settings.PackagePath, package, "manifest.json")));
+            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(Path.Join(settings.PackagePath, package, "manifest.json")));
             Assert.Equal(manifest.Hash, combinedHash);
         }
     }

@@ -13,6 +13,9 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void Happy_Path()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
+
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
             int filesToAdd = 10;
@@ -55,7 +58,7 @@ namespace Tetrifact.Tests.PackageCreate
             }
 
             // ensure that workspace has been cleaned up
-            Assert.Empty(Directory.GetDirectories(Settings.TempPath));
+            Assert.Empty(Directory.GetDirectories(settings.TempPath));
         }
 
         [Fact]
@@ -184,6 +187,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void AddPackageAsFiles()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
             Stream file1 = StreamsHelper.StreamFromString(file1Content);
@@ -212,8 +217,8 @@ namespace Tetrifact.Tests.PackageCreate
 
             PackageCreateResult result = PackageCreate.Create(postArgs);
             Assert.True(result.Success);
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 
@@ -241,7 +246,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithAutoArchive()
         {
-            Settings.AutoCreateArchiveOnPackageCreate = true;
+            ISettings settings = TestContext.Get<ISettings>();
+            settings.AutoCreateArchiveOnPackageCreate = true;
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
@@ -261,7 +267,9 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDisabled()
         {
-            Settings.PackageCreateEnabled = false;
+            ISettings settings = TestContext.Get<ISettings>();
+            settings.PackageCreateEnabled = false;
+
             PackageCreateArguments package = new PackageCreateArguments
             {
                 Id = "mypackage",
@@ -279,6 +287,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void AddPackageAsArchive()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             Dictionary<string, string> files = new Dictionary<string, string>();
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
@@ -326,8 +336,8 @@ namespace Tetrifact.Tests.PackageCreate
                 throw new Exception(result.PublicError);
 
             Assert.True(result.Success);
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
-            Assert.True(File.Exists(Path.Join(Settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
+            Assert.True(File.Exists(Path.Join(settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
             Assert.Equal(expectedFullhash, result.PackageHash);
         }
 

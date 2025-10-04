@@ -11,6 +11,8 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Basic()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
             this.PackageCreateWorkspace.AddIncomingFile(file, "test/file.txt");
@@ -25,7 +27,7 @@ namespace Tetrifact.Tests.Workspace
 
             // make sure we didn't do something stupid like nuke the entire temp folder, it's 
             // not like I've never done _that_ before
-            Assert.True(Directory.Exists(Settings.TempPath));
+            Assert.True(Directory.Exists(settings.TempPath));
         }
 
         /// <summary>

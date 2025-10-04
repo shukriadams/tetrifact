@@ -51,18 +51,11 @@ namespace Tetrifact.Tests
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
             TetrifactMemoryCache = TestContext.Get<ITetrifactMemoryCache>();
-
-            TagService = new Core.TagsService(
-                Settings,
-                new TestMemoryCache(),
-                FileSystem,
-                new TestLogger<ITagsService>(), new PackageListCache(TetrifactMemoryCache));
-
             ThreadDefault = new ThreadDefault();
 
-            IndexReader = new IndexReadService(Settings, new TestMemoryCache(), TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance(), TestContext.Get<IProcessManager>());
-            ArchiveService = MoqHelper.CreateInstanceWithDependencies<Core.ArchiveService>(new object[] { Settings }); 
-
+            IndexReader = TestContext.Get<IIndexReadService>("log", IndexReaderLogger);
+            ArchiveService = TestContext.Get<IArchiveService>(); 
+            TagService = TestContext.Get<ITagsService>();
             IndexReader.Initialize();
         }
 

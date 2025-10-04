@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -9,11 +10,13 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetFile()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
             string hash = HashServiceHelper.Instance().FromByteArray(content);
 
-            string packageFolder = Path.Combine(Settings.RepositoryPath, "path", "to", "file", hash);
+            string packageFolder = Path.Combine(settings.RepositoryPath, "path", "to", "file", hash);
             Directory.CreateDirectory(packageFolder);
 
             File.WriteAllBytes(Path.Join(packageFolder, "bin"), content);
@@ -32,7 +35,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidPath()
         {
-            string packageFolder = Path.Combine(Settings.PackagePath, "somepackage", "files");
+            ISettings settings = TestContext.Get<ISettings>();
+            string packageFolder = Path.Combine(settings.PackagePath, "somepackage", "files");
             Directory.CreateDirectory(packageFolder);
 
             Assert.Null(this.IndexReader.GetFile(Core.FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));

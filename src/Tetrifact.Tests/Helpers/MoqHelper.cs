@@ -63,7 +63,7 @@ namespace Tetrifact.Tests
             foreach (ParameterInfo constructorParameter in ctor.GetParameters())
             {
                 // is argument matching ctor parameter in overrides array?
-                object arg = overrides.Where(r => r.GetType() == constructorParameter.ParameterType).SingleOrDefault();
+                object arg = overrides.Where(r => r.GetType() == constructorParameter.ParameterType).FirstOrDefault();
 
                 // does overrides array contain a type that implements interface matching this parameter?
                 if (arg == null)

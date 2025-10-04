@@ -17,6 +17,7 @@ namespace Tetrifact.Tests.PackageList
         public void Happy_Path()
         {
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
+                        ISettings settings = TestContext.Get<ISettings>();
 
             // need to find 3 directories, one per manifest
             mockFileSystem
@@ -43,7 +44,7 @@ namespace Tetrifact.Tests.PackageList
                 .Setup(mq => mq.File.ReadAllText(It.IsAny<string>()))
                 .Returns(manifests.Next());
 
-            IPackageListService listService = MoqHelper.CreateInstanceWithDependencies<PackageListService>(new object[]{ Settings, mockFileSystem });
+            IPackageListService listService = MoqHelper.CreateInstanceWithDependencies<PackageListService>(new object[]{ mockFileSystem });
             PageableData<Package> results = listService.Find("test", 0, 10);
             Assert.Equal(3, results.VirtualItemCount);
         }

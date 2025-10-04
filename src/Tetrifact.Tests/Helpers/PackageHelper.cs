@@ -46,9 +46,10 @@ namespace Tetrifact.Tests
         /// Creates a package with custom file content - use this to test complex packages with difference content. Files have fixed paths in package, iterated by position in content array.
         /// </summary>
         /// <returns>New package id</returns>
-        public string CreateNewPackage(ISettings settings, IEnumerable<string> filesContent)
+        public string CreateNewPackage(IEnumerable<string> filesContent)
         {
-            
+            ISettings settings = _context.Get<ISettings>();
+
             IFileSystem filesystem = new FileSystem();
             ITetrifactMemoryCache memcache = _context.Get<ITetrifactMemoryCache>();
             IIndexReadService indexReader = new IndexReadService(

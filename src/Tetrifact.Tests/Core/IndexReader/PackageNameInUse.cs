@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -9,8 +10,10 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InUse()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             string packageName = Guid.NewGuid().ToString();
-            Directory.CreateDirectory(Path.Join(Settings.PackagePath, packageName));
+            Directory.CreateDirectory(Path.Join(settings.PackagePath, packageName));
 
             Assert.True(this.IndexReader.PackageNameInUse(packageName));
         }

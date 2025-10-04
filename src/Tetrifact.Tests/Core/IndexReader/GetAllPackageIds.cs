@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -13,9 +14,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package1"));
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package2"));
-            Directory.CreateDirectory(Path.Combine(Settings.PackagePath, "package3"));
+            ISettings settings = TestContext.Get<ISettings>();
+
+            Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package1"));
+            Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2"));
+            Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package3"));
 
             IEnumerable<string> packages = this.IndexReader.GetAllPackageIds();
             Assert.Equal(3, packages.Count());

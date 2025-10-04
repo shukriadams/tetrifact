@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.TagsService
@@ -9,8 +10,10 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Tag_format_exception()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // write garbage to tag folder
-            Directory.CreateDirectory(Path.Join(Settings.TagsPath, "unencoded-text"));
+            Directory.CreateDirectory(Path.Join(settings.TagsPath, "unencoded-text"));
 
             base.TagService.GetTagsThenPackages();
             // can't get entry to show up, not important, this is is a coverage test

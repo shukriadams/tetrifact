@@ -23,8 +23,6 @@ namespace Tetrifact.Tests
 
         protected MoqHelper MoqHelper { get { return _moq; } }
 
-        protected ISettings Settings { get; private set;}
-
         /// <summary>
         /// This constructor acts as setup method for all tests that inherit from this type
         /// </summary>
@@ -33,8 +31,6 @@ namespace Tetrifact.Tests
             _testContext = new TestContext();
             _moq = new MoqHelper(_testContext);
             _packageHelper = new PackageHelper(_testContext);
-
-            Settings = _testContext.Get<ISettings>();
         }
 
         public void Dispose()

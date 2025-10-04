@@ -9,11 +9,13 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create a file and write to repository using path convention of path/to/file/bin
             string hash = "somehash";
             string path = "some/path/filename.file";
             string content = "file content";
-            string rootPath = Path.Combine(Settings.RepositoryPath, path, hash);
+            string rootPath = Path.Combine(settings.RepositoryPath, path, hash);
             Directory.CreateDirectory(rootPath);
             File.WriteAllText(Path.Combine(rootPath, "bin"), content);
             string fileIdentifier = FileIdentifier.Cloak(path, hash);

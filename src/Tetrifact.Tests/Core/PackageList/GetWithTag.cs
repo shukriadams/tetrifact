@@ -12,18 +12,20 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void GetsBySingleTag()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(Settings, new Manifest { Id = "package2003" });
-            TagHelper.TagPackage(Settings, "tag2", "package2003");
-            TagHelper.TagPackage(Settings, "tag4", "package2003");
+            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2003" });
+            TagHelper.TagPackage(settings, "tag2", "package2003");
+            TagHelper.TagPackage(settings, "tag4", "package2003");
 
-            PackageHelper.WriteManifest(Settings, new Manifest { Id = "package2002" });
-            TagHelper.TagPackage(Settings, "tag2", "package2002");
-            TagHelper.TagPackage(Settings, "tag3", "package2002");
+            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2002" });
+            TagHelper.TagPackage(settings, "tag2", "package2002");
+            TagHelper.TagPackage(settings, "tag3", "package2002");
 
-            PackageHelper.WriteManifest(Settings, new Manifest { Id = "package2001" });
-            TagHelper.TagPackage(Settings, "tag1", "package2001");
-            TagHelper.TagPackage(Settings, "tag5", "package2001");
+            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2001" });
+            TagHelper.TagPackage(settings, "tag1", "package2001");
+            TagHelper.TagPackage(settings, "tag5", "package2001");
 
             IEnumerable<Package> tags = this.PackageList.GetWithTags(new[] { "tag2" }, 0, 2);
             Assert.Equal(2, tags.Count());
@@ -33,18 +35,20 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void GetsByMultipleTags()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(Settings, new Manifest { Id = "package2003" });
-            TagHelper.TagPackage(Settings, "tag2", "package2003");
-            TagHelper.TagPackage(Settings, "tag4", "package2003");
+            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2003" });
+            TagHelper.TagPackage(settings, "tag2", "package2003");
+            TagHelper.TagPackage(settings, "tag4", "package2003");
 
-            PackageHelper.WriteManifest(Settings, new Manifest { Id = "package2002" });
-            TagHelper.TagPackage(Settings, "tag2", "package2002");
-            TagHelper.TagPackage(Settings, "tag3", "package2002");
+            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2002" });
+            TagHelper.TagPackage(settings, "tag2", "package2002");
+            TagHelper.TagPackage(settings, "tag3", "package2002");
 
-            PackageHelper.WriteManifest(Settings, new Manifest { Id = "package2001" });
-            TagHelper.TagPackage(Settings, "tag1", "package2001");
-            TagHelper.TagPackage(Settings, "tag5", "package2001");
+            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2001" });
+            TagHelper.TagPackage(settings, "tag1", "package2001");
+            TagHelper.TagPackage(settings, "tag5", "package2001");
 
 
             IEnumerable<Package> tags = this.PackageList.GetWithTags(new[] { "tag2", "tag3" }, 0, 2);

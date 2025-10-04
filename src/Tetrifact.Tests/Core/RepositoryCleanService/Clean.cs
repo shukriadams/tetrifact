@@ -17,10 +17,12 @@ namespace Tetrifact.Tests.repositoryCleaner
 
         public Clean()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // clean tests require all locks released - do this BEFORE constructing repocleaner
             IProcessManager lockInstance = TestContext.Get<IProcessManager>();
             lockInstance.Clear();
-            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, new TestMemoryCache(), lockInstance, Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            _respositoryCleaner = new RepositoryCleanService(this.IndexReader, new TestMemoryCache(), lockInstance, settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
         }
 
@@ -32,8 +34,10 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_Case1()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create artbitrary, empty directory
-            string dir = Path.Combine(Settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
+            string dir = Path.Combine(settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
             Directory.CreateDirectory(dir);
 
             _respositoryCleaner.Clean();
@@ -47,8 +51,10 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_Case1_exceptionCover()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create artbitrary, empty directory
-            string dir = Path.Combine(Settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
+            string dir = Path.Combine(settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
             Directory.CreateDirectory(dir);
 
             // override concrete dir deletes to throw exception
@@ -57,7 +63,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
             cleaner.Clean();
         }
 
@@ -67,11 +73,13 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void DontClean_case2()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create a package
             TestPackage package = PackageHelper.CreateRandomPackage();
 
             // case 2 : package subscribed doest not exist
-            string dir = Path.Combine(Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            string dir = Path.Combine(settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(dir, "packages"));
@@ -85,8 +93,10 @@ namespace Tetrifact.Tests.repositoryCleaner
 
         private string Create_Case2_Content()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // case 2 : package subscribed doest not exist
-            string dir = Path.Combine(Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            string dir = Path.Combine(settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(dir, "packages"));
@@ -111,6 +121,8 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_case2_exceptionCover()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             string subscriberFile = Create_Case2_Content();
 
             Mock<TestFile> fileservice = MoqHelper.Mock<TestFile>();
@@ -118,13 +130,14 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", settings);
             cleaner.Clean();
         }
 
         private string Create_case3_content()
         {
-            string dir = Path.Combine(Settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
+            ISettings settings = TestContext.Get<ISettings>();
+            string dir = Path.Combine(settings.RepositoryPath, $"some/path/{Guid.NewGuid()}.file", "somehash");
             Directory.CreateDirectory(dir);
             File.WriteAllText(Path.Combine(dir, "bin"), "I am bin data");
             Directory.CreateDirectory(Path.Combine(dir, "packages"));
@@ -145,6 +158,8 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_case3_exceptionCoveer()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             string dir = Create_case3_content();
 
             Mock<TestDirectory> directoryService = MoqHelper.Mock<TestDirectory>();
@@ -152,7 +167,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
             cleaner.Clean();
         }
 
@@ -162,12 +177,14 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Directory_Exception_GetDirectories()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             Mock<TestDirectory> directoryService = MoqHelper.Mock<TestDirectory>();
             directoryService
                 .Setup(r => r.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService mockedCleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", Settings);
+            IRepositoryCleanService mockedCleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
             mockedCleaner.Clean();
         }
 
@@ -179,6 +196,8 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_Locked_System()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // mock out GetAllPackageIds method to force throw exception
             IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();
             Mock.Get(mockIndexReader)
@@ -187,7 +206,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("System currently locked");
                 });
 
-            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService respositoryCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
             respositoryCleaner.Clean();
             Assert.True(RepoCleanLog.ContainsFragment("Clean aborted, lock detected"));
         }
@@ -198,6 +217,8 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void Clean_Unhandled_Exception()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // mock out GetAllPackageIds method to force throw exception
             IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();
             Mock.Get(mockIndexReader)
@@ -206,7 +227,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                     throw new Exception("!unhandled!");
                 });
 
-            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), Settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
+            RepositoryCleanService mockedCleaner = new RepositoryCleanService(mockIndexReader, new TestMemoryCache(), TestContext.Get<IProcessManager>(), settings, this.DirectoryFs, this.FileFs, RepoCleanLog);
 
             Exception ex = Assert.Throws<Exception>(() => {
                 mockedCleaner.Clean();

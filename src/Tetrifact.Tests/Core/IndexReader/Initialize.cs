@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -11,11 +12,12 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InitializeTest()
         {
-            Assert.True(Directory.Exists(Settings.RepositoryPath));
-            Assert.True(Directory.Exists(Settings.PackagePath));
-            Assert.True(Directory.Exists(Settings.TempPath));
-            Assert.True(Directory.Exists(Settings.ArchivePath));
-            Assert.True(Directory.Exists(Settings.TagsPath));
+            ISettings settings = TestContext.Get<ISettings>();
+            Assert.True(Directory.Exists(settings.RepositoryPath));
+            Assert.True(Directory.Exists(settings.PackagePath));
+            Assert.True(Directory.Exists(settings.TempPath));
+            Assert.True(Directory.Exists(settings.ArchivePath));
+            Assert.True(Directory.Exists(settings.TagsPath));
         }
     }
 }

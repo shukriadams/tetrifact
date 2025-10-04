@@ -36,11 +36,13 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void FilesMissing()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create package
             TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
 
             // delete known package file via disk
-            File.Delete(Path.Join(Settings.RepositoryPath, package.Path, package.Hash, "bin"));
+            File.Delete(Path.Join(settings.RepositoryPath, package.Path, package.Hash, "bin"));
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
@@ -54,11 +56,13 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void FileHashInvalid()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // create package
             TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
 
             // manually change file on disk after package created
-            File.WriteAllText(Path.Join(Settings.RepositoryPath, package.Path, package.Hash, "bin"), "some-different-data");
+            File.WriteAllText(Path.Join(settings.RepositoryPath, package.Path, package.Hash, "bin"), "some-different-data");
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);

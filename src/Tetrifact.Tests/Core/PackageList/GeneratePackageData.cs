@@ -16,6 +16,7 @@ namespace Tetrifact.Tests.PackageList
         {
             // Hit the private GeneratePackageData method by wiping cache.
             MemoryCacheHelper.GetInstance().Remove(Core.PackageListService.CacheKey);
+            ISettings settings = TestContext.Get<ISettings>();
 
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
@@ -30,7 +31,7 @@ namespace Tetrifact.Tests.PackageList
                 .Returns(false);
 
             // do something to cover manifest file lookup
-            this.PackageList = new Core.PackageListService(this.MemoryCache, Settings, new HashService(), TagService, mockFileSystem.Object, this.PackageListLogger);
+            this.PackageList = new Core.PackageListService(this.MemoryCache, settings, new HashService(), TagService, mockFileSystem.Object, this.PackageListLogger);
             this.PackageList.Get(0,1);
         }
     }

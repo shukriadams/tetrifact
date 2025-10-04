@@ -16,12 +16,14 @@ namespace Tetrifact.Tests.TagsService
 
         public Base()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             _memoryCache = MemoryCacheHelper.GetInstance();
             this.TagsServiceLogger = new TestLogger<ITagsService>();
             this.TetrifactMemoryCache = TestContext.Get<ITetrifactMemoryCache>();
             this.PackageListCache = new PackageListCache(TetrifactMemoryCache);
-            this.TagsService = new Core.TagsService(Settings, _memoryCache,this.FileSystem, this.TagsServiceLogger, this.PackageListCache);
-            this.PackageList = new PackageListService(MemoryCacheHelper.GetInstance(), Settings, new HashService(), this.TagsService, this.FileSystem, new TestLogger<IPackageListService>());
+            this.TagsService = new Core.TagsService(settings, _memoryCache,this.FileSystem, this.TagsServiceLogger, this.PackageListCache);
+            this.PackageList = new PackageListService(MemoryCacheHelper.GetInstance(), settings, new HashService(), this.TagsService, this.FileSystem, new TestLogger<IPackageListService>());
         }
 
         public void Dispose()

@@ -49,10 +49,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void DeleteDisabled()
         {
-            Settings.PackageDeleteEnabled = false;
+            ISettings settings = TestContext.Get<ISettings>();
+            settings.PackageDeleteEnabled = false;
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
-            Assert.True(File.Exists(Path.Combine(Settings.PackagePath, testPackage.Id, "manifest.json")));
+            Assert.True(File.Exists(Path.Combine(settings.PackagePath, testPackage.Id, "manifest.json")));
         }
 
         /// <summary>
@@ -112,11 +113,12 @@ namespace Tetrifact.Tests.IndexReader
 
             IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
             PackageListCache PackageListCache = new PackageListCache(TetrifactMemoryCache);
-            ITagsService tagsService = new Core.TagsService(Settings, _memoryCache, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
+            ISettings settings = TestContext.Get<ISettings>();
+            ITagsService tagsService = new Core.TagsService(settings, _memoryCache, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
             
             tagsService.AddTag(testPackage.Id, "mytag");
 
-            string[] tagDirectories = Directory.GetDirectories(Path.Join(Settings.TagsPath));
+            string[] tagDirectories = Directory.GetDirectories(Path.Join(settings.TagsPath));
             Assert.Single(tagDirectories); // should be 1 only
 
             string[] tagSubscribers = Directory.GetFiles(tagDirectories.First());

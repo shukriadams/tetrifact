@@ -108,9 +108,9 @@ namespace Tetrifact.Tests.PackagePrune
             PackageHelper.CreateNewPackageFiles("5");
 
             // run pr
-            ISettings settings = Settings;
+            ISettings settings = TestContext.Get<ISettings>();
             settings.PruneEnabled = true;
-            Settings.PruneBrackets = new List<PruneBracket>(){
+            settings.PruneBrackets = new List<PruneBracket>(){
                 new PruneBracket{ Days=7, Amount = -1 },
                 new PruneBracket{ Days=31, Amount = 4 },
                 new PruneBracket{ Days=365, Amount = 3 },
@@ -128,7 +128,7 @@ namespace Tetrifact.Tests.PackagePrune
             
             for (int i = 0; i < 10; i++) 
             {
-                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
                 PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
                 packagePrune.Prune();
             }
@@ -140,7 +140,7 @@ namespace Tetrifact.Tests.PackagePrune
             List<PrunePlan> prunes = new List<PrunePlan>();
             for (int i = 0; i < 10; i++)
             {
-                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
                 PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
                 var p = packagePrune.Prune();
                 prunes.Add(p);
@@ -152,7 +152,7 @@ namespace Tetrifact.Tests.PackagePrune
             now = DateTime.UtcNow.AddDays(32);
             for (int i = 0; i < 10; i++)
             {
-                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
 
                 PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider , timeProvider.Object });
                 packagePrune.Prune();
@@ -164,7 +164,7 @@ namespace Tetrifact.Tests.PackagePrune
             now = DateTime.UtcNow.AddDays(366);
             for (int i = 0; i < 10; i++) 
             {
-                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
                 PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
                 packagePrune.Prune();
             }
@@ -178,7 +178,8 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Disabled()
         {
-            Settings.PruneEnabled = false;
+            ISettings settings = TestContext.Get<ISettings>();
+            settings.PruneEnabled = false;
             _packagePrune.Prune();
         }
 
@@ -189,8 +190,10 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Missing_Manifest()
         {
+            ISettings settings = TestContext.Get<ISettings>();
+
             // Settings.PruneWeeklyKeep = 0;
-            Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService, IIndexReadService>(new object[]{ Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance() });
+            Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService, IIndexReadService>(new object[]{ TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance() });
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Returns<Manifest>(null);
@@ -200,7 +203,7 @@ namespace Tetrifact.Tests.PackagePrune
             foreach (string manifestPath in PackageHelper.GetManifestPaths("dummy"))
                 File.Delete(manifestPath);
             
-            IPruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, mockedIndexReader.Object }); 
+            IPruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { mockedIndexReader.Object }); 
             mockedPruner.Prune();
         }
 
@@ -210,7 +213,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Delete_Exception()
         {
-            Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService>(new object[]{ Settings, TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance() }).As<IIndexReadService>();
+            Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService>(new object[]{ TagService, IndexReaderLogger, FileSystem, HashServiceHelper.Instance() }).As<IIndexReadService>();
             mockedIndexReader
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Callback(() => {
@@ -223,7 +226,7 @@ namespace Tetrifact.Tests.PackagePrune
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths("dummy1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths("dummy2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
-            IPruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, mockedIndexReader.Object }); 
+            IPruneService mockedPruner = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { mockedIndexReader.Object }); 
             mockedPruner.Prune();
         }
 
@@ -233,14 +236,16 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Protected_Tag()
         {
+
+            ISettings settings = TestContext.Get<ISettings>();
             // two packages above week threshold, one of these should be deleted, but protect both with tags
             PackageHelper.CreateNewPackageFiles("above-week-1");
             PackageHelper.CreateNewPackageFiles("above-week-2");
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths("above-week-1"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
             JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths("above-week-2"), "CreatedUtc", DateTime.UtcNow.AddDays(-22));
 
-            TagHelper.TagPackage(Settings, "keep", "above-week-1");
-            TagHelper.TagPackage(Settings, "keep", "above-week-2");
+            TagHelper.TagPackage(settings, "keep", "above-week-1");
+            TagHelper.TagPackage(settings, "keep", "above-week-2");
             _packagePrune.Prune();
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();

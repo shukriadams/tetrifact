@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                     new Tetrifact.Core.Package()
                     }, 0, 1, 1));
 
-            W.HomeController controller = MoqHelper.CreateInstanceWithDependencies<W.HomeController>(new object[] { Settings, packageList });
+            W.HomeController controller = MoqHelper.CreateInstanceWithDependencies<W.HomeController>(new object[] { packageList });
             ViewResult result = controller.Search("", 0) as ViewResult;
             Assert.NotNull(result);
         }

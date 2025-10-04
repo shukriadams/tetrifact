@@ -12,9 +12,11 @@ namespace Tetrifact.Tests.PackageCreate
 
         public Base()
         {
-            Workspace = new PackageCreateWorkspace(Settings, IndexReader, base.FileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
+            ISettings settings = TestContext.Get<ISettings>();
+
+            Workspace = new PackageCreateWorkspace(settings, IndexReader, base.FileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             Logger = new TestLogger<IPackageCreateService>();
-            PackageCreate = MoqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ Settings, new TestFileSystem() });
+            PackageCreate = MoqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ new TestFileSystem() });
         }
     }
 }

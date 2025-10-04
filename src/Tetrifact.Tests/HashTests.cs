@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests
@@ -20,8 +21,9 @@ namespace Tetrifact.Tests
         [Fact]
         public void FromFile()
         {
-            Directory.CreateDirectory(Settings.TempPath);
-            string path = Path.Join(Settings.TempPath, "hashFromFileTest.txt");
+            ISettings settings = TestContext.Get<ISettings>();
+            Directory.CreateDirectory(settings.TempPath);
+            string path = Path.Join(settings.TempPath, "hashFromFileTest.txt");
             File.WriteAllText(path, _input);
             Assert.Equal(_expectedHash, HashServiceHelper.Instance().FromFile(path).Hash);
         }
