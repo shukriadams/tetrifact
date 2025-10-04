@@ -3,7 +3,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.PackageCreate
 {
-    public abstract class Base : FileSystemBase
+    public abstract class Base : TestBase
     {
         protected IPackageCreateService PackageCreate;
 

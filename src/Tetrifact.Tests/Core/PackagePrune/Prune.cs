@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackagePrune
 {
-    public class Prune : FileSystemBase
+    public class Prune : TestBase
     {
         private readonly IPruneService _packagePrune;
 

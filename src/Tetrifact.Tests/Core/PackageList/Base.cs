@@ -5,7 +5,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class Base : FileSystemBase, IDisposable
+    public class Base : TestBase, IDisposable
     {
         protected IPackageListService PackageList { get; set; }
         protected IPackageListCache PackageListCache { get; set; }

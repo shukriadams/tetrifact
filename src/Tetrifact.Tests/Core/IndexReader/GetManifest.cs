@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetManifest : FileSystemBase
+    public class GetManifest : TestBase
     {
         [Fact]
         public void Get()

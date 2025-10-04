@@ -5,7 +5,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class Base : FileSystemBase, IDisposable
+    public class Base : TestBase, IDisposable
     {
         protected ITagsService TagsService { get; private set; }
         protected IPackageListCache PackageListCache { get; private set; }

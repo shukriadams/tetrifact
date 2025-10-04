@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class UpdatePackageCreateDate : FileSystemBase
+    public class UpdatePackageCreateDate : TestBase
     {
         /// <summary>
         /// Happy path - confirms that package verification works

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class DeletePackage : FileSystemBase
+    public class DeletePackage : TestBase
     {
         /// <summary>
         /// walks all package delete logic, successful output detected as coverage

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageDiff
 {
-    public class PackageDiff : FileSystemBase
+    public class PackageDiff : TestBase
     {
         IPackageDiffService PackageDiffService;
 

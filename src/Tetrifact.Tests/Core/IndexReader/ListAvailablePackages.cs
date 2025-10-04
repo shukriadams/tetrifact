@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class ListAvailablePackages : FileSystemBase
+    public class ListAvailablePackages : TestBase
     {
         [Fact]
         public void ListAll()

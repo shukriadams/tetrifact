@@ -10,7 +10,7 @@ namespace Tetrifact.Tests.repositoryCleaner
     /// <summary>
     /// Note : renaming this class to just "clean" consistently produces race condition errors
     /// </summary>
-    public class Clean : FileSystemBase
+    public class Clean : TestBase
     {
         #region CTORS
 

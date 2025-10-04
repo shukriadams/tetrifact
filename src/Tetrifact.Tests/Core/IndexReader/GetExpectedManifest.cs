@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetExpectedManifest : FileSystemBase
+    public class GetExpectedManifest : TestBase
     {
         /// <summary>
         /// Coverage

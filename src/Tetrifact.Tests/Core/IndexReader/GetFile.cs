@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetFile : FileSystemBase
+    public class GetFile : TestBase
     {
         [Fact]
         public void Basic()

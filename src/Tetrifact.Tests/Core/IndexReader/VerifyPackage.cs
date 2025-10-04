@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class VerifyPackage : FileSystemBase
+    public class VerifyPackage : TestBase
     {
         /// <summary>
         /// Happy path - confirms that package verification works
