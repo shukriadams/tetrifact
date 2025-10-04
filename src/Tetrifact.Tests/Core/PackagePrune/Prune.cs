@@ -16,14 +16,17 @@ namespace Tetrifact.Tests.PackagePrune
         public Prune()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
             settings.PruneEnabled = true;
             settings.PruneIgnoreTags = new string[] { "keep" };
-            _packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[]{ settings, this.IndexReader }); 
+            _packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[]{ settings, indexReader }); 
         }
 
         [Fact]
         public void HappyPath()
         {
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             ISettings settings = TestContext.Get<ISettings>();
             settings.PruneBrackets = new List<PruneBracket>(){
                 new PruneBracket{ Days=7, Amount = -1 },    // prune none
@@ -81,11 +84,11 @@ namespace Tetrifact.Tests.PackagePrune
             List<PrunePlan> plans = new List<PrunePlan>();
             for (int i = 0; i < 10; i++)
             {
-                PruneService pruneService = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { this.IndexReader });
+                PruneService pruneService = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { indexReader });
                 plans.Add(pruneService.Prune());
             }
 
-            IEnumerable<string> packages = IndexReader.GetAllPackageIds();
+            IEnumerable<string> packages = indexReader.GetAllPackageIds();
 
             Assert.Equal(5, packages.Where(r => r.StartsWith("under-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
@@ -101,6 +104,8 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_over_time() 
         {
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
             // create 5 packages with date "now" (for real now)
             PackageHelper.CreateNewPackageFiles("1");
             PackageHelper.CreateNewPackageFiles("2");
@@ -130,11 +135,11 @@ namespace Tetrifact.Tests.PackagePrune
             for (int i = 0; i < 10; i++) 
             {
                 PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
-                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, indexReader, pruneBracketProvider, timeProvider.Object });
                 packagePrune.Prune();
             }
 
-            Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
+            Assert.Equal(5, indexReader.GetAllPackageIds().Count());
 
             // shift time by 8 days to put packages into weekly bracket, 1 package should be deleted
             now = DateTime.UtcNow.AddDays(9);
@@ -142,12 +147,12 @@ namespace Tetrifact.Tests.PackagePrune
             for (int i = 0; i < 10; i++)
             {
                 PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
-                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, indexReader, pruneBracketProvider, timeProvider.Object });
                 var p = packagePrune.Prune();
                 prunes.Add(p);
             }
 
-            Assert.Equal(4, this.IndexReader.GetAllPackageIds().Count());
+            Assert.Equal(4, indexReader.GetAllPackageIds().Count());
 
             // shift time by 32 days to put packages into monthly bracket, 1 more package should be deleted
             now = DateTime.UtcNow.AddDays(32);
@@ -155,22 +160,22 @@ namespace Tetrifact.Tests.PackagePrune
             {
                 PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
 
-                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider , timeProvider.Object });
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, indexReader, pruneBracketProvider , timeProvider.Object });
                 packagePrune.Prune();
             }
 
-            Assert.Equal(3, this.IndexReader.GetAllPackageIds().Count());
+            Assert.Equal(3, indexReader.GetAllPackageIds().Count());
 
             // shift time by 366 days to put packages into yearly bracket, 1 more package should be deleted
             now = DateTime.UtcNow.AddDays(366);
             for (int i = 0; i < 10; i++) 
             {
                 PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("timeProvider", timeProvider.Object);
-                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, indexReader, pruneBracketProvider, timeProvider.Object });
                 packagePrune.Prune();
             }
 
-            Assert.Equal(2, this.IndexReader.GetAllPackageIds().Count());
+            Assert.Equal(2, indexReader.GetAllPackageIds().Count());
         }
 
         /// <summary>
@@ -240,7 +245,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Protected_Tag()
         {
-
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             ISettings settings = TestContext.Get<ISettings>();
             // two packages above week threshold, one of these should be deleted, but protect both with tags
             PackageHelper.CreateNewPackageFiles("above-week-1");
@@ -252,7 +257,7 @@ namespace Tetrifact.Tests.PackagePrune
             TagHelper.TagPackage(settings, "keep", "above-week-2");
             _packagePrune.Prune();
 
-            IEnumerable<string> packages = IndexReader.GetAllPackageIds();
+            IEnumerable<string> packages = indexReader.GetAllPackageIds();
 
             Assert.Equal(2, packages.Count());
             Assert.Contains("above-week-1", packages);

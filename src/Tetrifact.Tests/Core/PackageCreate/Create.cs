@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.PackageCreate
         public void Happy_Path()
         {
             ISettings settings = TestContext.Get<ISettings>();
-
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
@@ -41,17 +41,17 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Null(result.ErrorType);
 
             // check that package can be listed
-            IEnumerable<string> packageIds = IndexReader.GetAllPackageIds();
+            IEnumerable<string> packageIds = indexReader.GetAllPackageIds();
             Assert.Contains(packageId, packageIds);
             Assert.Single(packageIds);
 
             // check that package can be retrieved as manifest
-            Manifest manifest = IndexReader.GetManifest(packageId);
+            Manifest manifest = indexReader.GetManifest(packageId);
             Assert.NotNull(manifest);
             Assert.Equal(manifest.Files.Count, filesToAdd);
 
             // check that a file can be retrieved directly using manifest id
-            GetFileResponse response = IndexReader.GetFile(manifest.Files[0].Id);
+            GetFileResponse response = indexReader.GetFile(manifest.Files[0].Id);
             using (StreamReader reader = new StreamReader(response.Content)) { 
                 string retrievedContent = reader.ReadToEnd();
                 Assert.Equal(retrievedContent, fileContent);
@@ -64,6 +64,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreatePartial() 
         {
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
             // create package 1
             List<PackageCreateItem> files1 = new List<PackageCreateItem>();
             string fileContent1 = "some file 1 content";
@@ -82,7 +84,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = files1
             });
             
-            Manifest package1Manifest = IndexReader.GetManifest(packageId1);
+            Manifest package1Manifest = indexReader.GetManifest(packageId1);
 
             // create package2, it shares 5 files with package, these will not be uploaded again
             List<PackageCreateItem> files2 = new List<PackageCreateItem>();
@@ -110,7 +112,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             });
 
-            Manifest package2Manifest = IndexReader.GetManifest(packageId2);
+            Manifest package2Manifest = indexReader.GetManifest(packageId2);
             Assert.Equal(10, package2Manifest.Files.Count);
             Assert.Contains<string>("folder0/file0", package2Manifest.Files.Select(r => r.Path));
             Assert.Contains<string>("folder1/file1", package2Manifest.Files.Select(r => r.Path));

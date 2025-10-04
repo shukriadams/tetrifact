@@ -50,6 +50,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_Case1_exceptionCover()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             // create artbitrary, empty directory
             string dir = Path.Combine(settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
@@ -61,7 +62,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
+            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", indexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
             cleaner.Clean();
         }
 
@@ -123,6 +124,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_case2_exceptionCover()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             string subscriberFile = Create_Case2_Content();
 
@@ -131,7 +133,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "fileFileSystem", fileservice.Object, "settings", settings);
+            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", indexReader, "fileFileSystem", fileservice.Object, "settings", settings);
             cleaner.Clean();
         }
 
@@ -162,6 +164,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Clean_case3_exceptionCoveer()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             string dir = Create_case3_content();
 
@@ -170,7 +173,7 @@ namespace Tetrifact.Tests.repositoryCleaner
                 .Setup(r => r.Delete(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
+            IRepositoryCleanService cleaner = TestContext.Get<IRepositoryCleanService>("indexReader", indexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
             cleaner.Clean();
         }
 
@@ -181,13 +184,14 @@ namespace Tetrifact.Tests.repositoryCleaner
         public void Directory_Exception_GetDirectories()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             Mock<TestDirectory> directoryService = MoqHelper.Mock<TestDirectory>();
             directoryService
                 .Setup(r => r.GetDirectories(It.IsAny<string>()))
                 .Throws<IOException>();
 
-            IRepositoryCleanService mockedCleaner = TestContext.Get<IRepositoryCleanService>("indexReader", this.IndexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
+            IRepositoryCleanService mockedCleaner = TestContext.Get<IRepositoryCleanService>("indexReader", indexReader, "directoryFileSystem", directoryService.Object, "settings", settings);
             mockedCleaner.Clean();
         }
 

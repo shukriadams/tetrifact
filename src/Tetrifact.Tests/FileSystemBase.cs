@@ -17,9 +17,7 @@ namespace Tetrifact.Tests
         protected TestLogger<IArchiveService> ArchiveLogger;
 
         protected TestLogger<IRepositoryCleanService> RepoCleanLog;
-
-        protected IIndexReadService IndexReader;
-        
+       
         protected ThreadDefault ThreadDefault;
         
         #endregion
@@ -34,9 +32,6 @@ namespace Tetrifact.Tests
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
             ThreadDefault = new ThreadDefault();
-
-            IndexReader = TestContext.Get<IIndexReadService>("log", IndexReaderLogger);
-            IndexReader.Initialize();
         }
 
         #endregion

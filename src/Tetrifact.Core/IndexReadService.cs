@@ -60,7 +60,7 @@ namespace Tetrifact.Core
                     }
                     catch (Exception ex)
                     {
-                        _log.LogWarning($"Error attemtping to purge TempPath on app start, ignoring. {ex}");
+                        _log.LogWarning($"Error attempting to purge TempPath on app start, ignoring. {ex}");
                     }
             }
             else
@@ -75,7 +75,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _log.LogWarning($"Error attemtping to purge ArchiveQueuePath on app start, ignoring. {ex}");
+                _log.LogWarning($"Error attempting to purge ArchiveQueuePath on app start, ignoring. {ex}");
             }
 
             // force recreate all again

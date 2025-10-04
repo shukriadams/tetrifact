@@ -50,9 +50,11 @@ namespace Tetrifact.Tests.IndexReader
         public void DeleteDisabled()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
             settings.PackageDeleteEnabled = false;
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-            OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => this.IndexReader.DeletePackage(testPackage.Id));
+            OperationNowAllowedException ex = Assert.Throws<OperationNowAllowedException>(() => indexReader.DeletePackage(testPackage.Id));
             Assert.True(File.Exists(Path.Combine(settings.PackagePath, testPackage.Id, "manifest.json")));
         }
 
@@ -64,11 +66,12 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             // mock archive
             PackageHelper.FakeArchiveOnDisk(testPackage);
 
-            this.IndexReader.DeletePackage(testPackage.Id);
+            indexReader.DeletePackage(testPackage.Id);
 
             string archivePath = archiveService.GetPackageArchivePath(testPackage.Id);
             Assert.False(File.Exists(archivePath));
@@ -78,8 +81,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InvalidPackage()
         {
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             string packageId = "invalidId";
-            PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(()=> this.IndexReader.DeletePackage(packageId));
+            PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(()=> indexReader.DeletePackage(packageId));
             Assert.Equal(ex.PackageId, packageId);
         }
 
@@ -92,6 +96,7 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             IArchiveService archiveService = TestContext.Get<IArchiveService>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             // mock its archive
             string archivePath = archiveService.GetPackageArchivePath(testPackage.Id);
@@ -101,7 +106,7 @@ namespace Tetrifact.Tests.IndexReader
             using(new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // no need to assert, this test is for coverage, and all we want is no exception to be thrown here
-                this.IndexReader.DeletePackage(testPackage.Id);
+                indexReader.DeletePackage(testPackage.Id);
             }
         }
 
@@ -114,7 +119,8 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             ISettings settings = TestContext.Get<ISettings>();
             ITagsService tagsService = TestContext.Get<ITagsService>();
-            
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
             tagsService.AddTag(testPackage.Id, "mytag");
 
             string[] tagDirectories = Directory.GetDirectories(Path.Join(settings.TagsPath));
@@ -127,7 +133,7 @@ namespace Tetrifact.Tests.IndexReader
             using (new FileStream(tagSubscribers.First(), FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // no need to assert, this test is for coverage, and all we want is no exception to be thrown here
-                this.IndexReader.DeletePackage(testPackage.Id);
+                indexReader.DeletePackage(testPackage.Id);
             }
         }
     }

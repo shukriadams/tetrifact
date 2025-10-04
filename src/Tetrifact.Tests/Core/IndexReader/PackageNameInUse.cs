@@ -11,18 +11,20 @@ namespace Tetrifact.Tests.IndexReader
         public void InUse()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             string packageName = Guid.NewGuid().ToString();
             Directory.CreateDirectory(Path.Join(settings.PackagePath, packageName));
 
-            Assert.True(this.IndexReader.PackageNameInUse(packageName));
+            Assert.True(indexReader.PackageNameInUse(packageName));
         }
 
         [Fact]
         public void NotInUse()
         {
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             string packageName = Guid.NewGuid().ToString();
-            Assert.False(this.IndexReader.PackageNameInUse(packageName));
+            Assert.False(indexReader.PackageNameInUse(packageName));
         }
     }
 }

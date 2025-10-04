@@ -11,6 +11,7 @@ namespace Tetrifact.Tests.IndexReader
         public void Get()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             // create package
             string packagePath = Path.Join(settings.PackagePath, "somepackage");
@@ -24,7 +25,7 @@ namespace Tetrifact.Tests.IndexReader
             manifest.Files.Add(new ManifestItem { Hash = "itemhash", Path = "path/to/item" });
             File.WriteAllText(Path.Join(packagePath, "manifest.json"), JsonConvert.SerializeObject(manifest));
 
-            Manifest testManifest = this.IndexReader.GetManifest("somepackage");
+            Manifest testManifest = indexReader.GetManifest("somepackage");
             Assert.Equal("somehash", testManifest.Hash);
             Assert.Single(testManifest.Files);
             Assert.Equal("itemhash", testManifest.Files[0].Hash);
@@ -37,7 +38,9 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetEmpty()
         {
-            Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
+            Manifest testManifest = indexReader.GetManifest("someinvalidpackage");
             Assert.Null(testManifest);
 
             // should not generate a log message
@@ -50,15 +53,18 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidManifet()
         {
+            TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
+
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>("log", indexReaderLogger);
             ISettings settings = TestContext.Get<ISettings>();
             string packagefolder = Path.Combine(settings.PackagePath, "someinvalidpackage");
             Directory.CreateDirectory(packagefolder);
             File.WriteAllText(Path.Combine(packagefolder, "manifest.json"), "invalid json!");
-            Manifest testManifest = this.IndexReader.GetManifest("someinvalidpackage");
+            Manifest testManifest = indexReader.GetManifest("someinvalidpackage");
             Assert.Null(testManifest);
 
             // should generate a error
-            Assert.Single(this.IndexReaderLogger.LogEntries);
+            Assert.Single(indexReaderLogger.LogEntries);
         }
     }
 }

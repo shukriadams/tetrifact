@@ -1,4 +1,5 @@
 ﻿using System;
+using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
@@ -11,12 +12,14 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Happy_path()
         {
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+
             TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
-            Core.Manifest manifest = this.IndexReader.GetManifest(package.Id);
+            Core.Manifest manifest = indexReader.GetManifest(package.Id);
             Assert.Equal(DateTime.UtcNow.Year, manifest.CreatedUtc.Year);
 
-            this.IndexReader.UpdatePackageCreateDate("mypackage", "2001-01-01");
-            manifest = this.IndexReader.GetManifest(package.Id);
+            indexReader.UpdatePackageCreateDate("mypackage", "2001-01-01");
+            manifest = indexReader.GetManifest(package.Id);
             Assert.Equal(2001, manifest.CreatedUtc.Year);
         }
     }

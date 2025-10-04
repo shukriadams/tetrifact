@@ -15,12 +15,13 @@ namespace Tetrifact.Tests.IndexReader
         public void GetBasic()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package1"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package3"));
 
-            IEnumerable<string> packages = this.IndexReader.GetAllPackageIds();
+            IEnumerable<string> packages = indexReader.GetAllPackageIds();
             Assert.Equal(3, packages.Count());
             Assert.Contains("package1", packages);
             Assert.Contains("package2", packages);

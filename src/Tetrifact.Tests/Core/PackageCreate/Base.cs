@@ -15,8 +15,9 @@ namespace Tetrifact.Tests.PackageCreate
         {
             ISettings settings = TestContext.Get<ISettings>();
             IFileSystem fileSystem = TestContext.Get<IFileSystem>();
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
-            Workspace = new PackageCreateWorkspace(settings, IndexReader, fileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
+            Workspace = new PackageCreateWorkspace(settings, indexReader, fileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
             Logger = new TestLogger<IPackageCreateService>();
             PackageCreate = MoqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ new TestFileSystem() });
         }
