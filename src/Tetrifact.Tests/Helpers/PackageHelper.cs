@@ -31,8 +31,10 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="manifest"></param>
-        public void WriteManifest(ISettings settings, Manifest manifest)
+        public void WriteManifest(Manifest manifest)
         {
+            ISettings settings = _context.Get<ISettings>();
+
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, manifest.Id));
             File.WriteAllText(Path.Combine(settings.PackagePath, manifest.Id, "manifest.json"), JsonConvert.SerializeObject(manifest));
 

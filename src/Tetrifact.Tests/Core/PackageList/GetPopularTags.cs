@@ -15,7 +15,7 @@ namespace Tetrifact.Tests.PackageList
         {
             ISettings settings = TestContext.Get<ISettings>();
 
-            PackageHelper.WriteManifest(settings, new Manifest() { Id = "package" });
+            PackageHelper.WriteManifest(new Manifest() { Id = "package" });
             TagHelper.TagPackage(settings, "tag", "package");
 
             IEnumerable<string> tags = this.PackageList.GetPopularTags(3);
@@ -29,9 +29,9 @@ namespace Tetrifact.Tests.PackageList
             ISettings settings = TestContext.Get<ISettings>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(settings, new Manifest() { Id = "package2004" });
-            PackageHelper.WriteManifest(settings, new Manifest() { Id = "package2003" });
-            PackageHelper.WriteManifest(settings, new Manifest() { Id = "package2002" });
+            PackageHelper.WriteManifest(new Manifest() { Id = "package2004" });
+            PackageHelper.WriteManifest(new Manifest() { Id = "package2003" });
+            PackageHelper.WriteManifest(new Manifest() { Id = "package2002" });
             
             TagHelper.TagPackage(settings, "tag2", "package2004");
             TagHelper.TagPackage(settings, "tag2", "package2003");

@@ -15,15 +15,15 @@ namespace Tetrifact.Tests.PackageList
             ISettings settings = TestContext.Get<ISettings>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2003" });
+            PackageHelper.WriteManifest(new Manifest { Id = "package2003" });
             TagHelper.TagPackage(settings, "tag2", "package2003");
             TagHelper.TagPackage(settings, "tag4", "package2003");
 
-            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2002" });
+            PackageHelper.WriteManifest(new Manifest { Id = "package2002" });
             TagHelper.TagPackage(settings, "tag2", "package2002");
             TagHelper.TagPackage(settings, "tag3", "package2002");
 
-            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2001" });
+            PackageHelper.WriteManifest(new Manifest { Id = "package2001" });
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
@@ -38,15 +38,15 @@ namespace Tetrifact.Tests.PackageList
             ISettings settings = TestContext.Get<ISettings>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2003" });
+            PackageHelper.WriteManifest(new Manifest { Id = "package2003" });
             TagHelper.TagPackage(settings, "tag2", "package2003");
             TagHelper.TagPackage(settings, "tag4", "package2003");
 
-            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2002" });
+            PackageHelper.WriteManifest(new Manifest { Id = "package2002" });
             TagHelper.TagPackage(settings, "tag2", "package2002");
             TagHelper.TagPackage(settings, "tag3", "package2002");
 
-            PackageHelper.WriteManifest(settings, new Manifest { Id = "package2001" });
+            PackageHelper.WriteManifest(new Manifest { Id = "package2001" });
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
