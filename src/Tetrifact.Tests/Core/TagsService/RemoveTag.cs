@@ -9,23 +9,26 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Basic(){
 
-            TestPackage package = PackageHelper.CreateRandomPackage(
-                );
+            TestPackage package = PackageHelper.CreateRandomPackage();
+            ITagsService tagsService = TestContext.Get<ITagsService>();
+
             string[] tags = new[] { "mytag" };
 
             foreach (string tag in tags) {
-                base.TagsService.AddTag(package.Id, tag);
-                base.TagsService.RemoveTag(package.Id, tag);
+                tagsService.AddTag(package.Id, tag);
+                tagsService.RemoveTag(package.Id, tag);
             }
 
-            IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }
 
         [Fact]
         public void InvalidPackage()
         {
-            Assert.Throws<PackageNotFoundException>(() => { base.TagsService.RemoveTag("invalid-package-id", "some tag"); });
+            ITagsService tagsService = TestContext.Get<ITagsService>();
+            Assert.Throws<PackageNotFoundException>(() => { tagsService.RemoveTag("invalid-package-id", "some tag"); });
         }
 
     }

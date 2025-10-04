@@ -9,16 +9,19 @@ namespace Tetrifact.Tests.TagsService
     public class GetAllTags : Base 
     {
         [Fact]
-        public void Basic(){
+        public void Basic()
+        {
             TestPackage package1 = PackageHelper.CreateNewPackageFiles("package1");
+            ITagsService tagsService = TestContext.Get<ITagsService>();
+
             string tag1 = "mytag1";
-            base.TagsService.AddTag(package1.Id, tag1);
+            tagsService.AddTag(package1.Id, tag1);
 
             TestPackage package2 = PackageHelper.CreateNewPackageFiles("package2");
             string tag2 = "mytag2";
-            base.TagsService.AddTag(package2.Id, tag2);
+            tagsService.AddTag(package2.Id, tag2);
 
-            IEnumerable<string> tags = base.TagsService.GetAllTags();
+            IEnumerable<string> tags = tagsService.GetAllTags();
 
             Assert.Equal(2, tags.Count());
             Assert.Contains(tag1, tags);

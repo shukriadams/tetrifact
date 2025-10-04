@@ -9,14 +9,18 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Happy_path(){
+
+            ITagsService tagService = TestContext.Get<ITagsService>();
             TestPackage package = PackageHelper.CreateRandomPackage();
+
             string[] tags = new[] { "mytag", "mytag3" };
 
             foreach (string tag in tags){
-                base.TagsService.AddTag(package.Id, tag);
+                tagService.AddTag(package.Id, tag);
             }
 
-            IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
 
             Assert.Single(packages);
             Assert.True(tags.IsSubsetOf(packages.ElementAt(0).Tags));
@@ -26,7 +30,8 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void InvalidPackage()
         {
-            Assert.Throws<PackageNotFoundException>(()=>{ base.TagsService.AddTag("invalid-package-id", "some tag"); });
+            ITagsService tagsService = TestContext.Get<ITagsService>();
+            Assert.Throws<PackageNotFoundException>(()=>{ tagsService.AddTag("invalid-package-id", "some tag"); });
         }
     }
 }

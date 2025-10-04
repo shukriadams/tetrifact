@@ -1,5 +1,4 @@
-﻿using System.IO.Abstractions;
-using Tetrifact.Core;
+﻿using Tetrifact.Core;
 
 namespace Tetrifact.Tests.PackageCreate
 {
@@ -7,18 +6,8 @@ namespace Tetrifact.Tests.PackageCreate
     {
         protected IPackageCreateService PackageCreate;
 
-        protected IPackageCreateWorkspace Workspace;
-
-        protected TestLogger<IPackageCreateService> Logger;
-
         public Base()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
-
-            Workspace = new PackageCreateWorkspace(settings, indexReader, fileSystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance());
-            Logger = new TestLogger<IPackageCreateService>();
             PackageCreate = MoqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ new TestFileSystem() });
         }
     }

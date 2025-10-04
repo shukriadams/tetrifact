@@ -10,17 +10,20 @@ namespace Tetrifact.Tests.TagsService
     {
         [Fact]
         public void Happy_path(){
+
+            ITagsService tagsService = TestContext.Get<ITagsService>();
+
             string[] tags = new [] { "mytag" };
 
             TestPackage package1 = PackageHelper.CreateNewPackageFiles("package1");
             TestPackage package2 = PackageHelper.CreateNewPackageFiles("package2");
 
             foreach (string tag in tags) {
-                base.TagsService.AddTag(package1.Id, tag);
-                base.TagsService.AddTag(package2.Id, tag);
+                tagsService.AddTag(package1.Id, tag);
+                tagsService.AddTag(package2.Id, tag);
             }
 
-            IEnumerable<string> packageIds = base.TagsService.GetPackageIdsWithTags(tags);
+            IEnumerable<string> packageIds = tagsService.GetPackageIdsWithTags(tags);
 
             Assert.Equal(2, packageIds.Count());
             Assert.Contains("package1", packageIds);

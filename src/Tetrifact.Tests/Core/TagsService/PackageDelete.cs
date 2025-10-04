@@ -14,16 +14,19 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Basic() {
             TestPackage package = PackageHelper.CreateRandomPackage();
+            ITagsService tagsService = TestContext.Get<ITagsService>();
             IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             string[] tags = new[] { "mytag" };
 
             foreach (string tag in tags) { 
-               base.TagsService.AddTag(package.Id, tag);
+               tagsService.AddTag(package.Id, tag);
             }
 
             indexReader.DeletePackage(package.Id);
-            IEnumerable<Package> packages = base.PackageList.GetWithTags(tags, 0, 10);
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
+
+            IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }
     }
