@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.IO.Abstractions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Tests.TagsService
@@ -17,13 +18,14 @@ namespace Tetrifact.Tests.TagsService
         public Base()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
 
             _memoryCache = MemoryCacheHelper.GetInstance();
             this.TagsServiceLogger = new TestLogger<ITagsService>();
             this.TetrifactMemoryCache = TestContext.Get<ITetrifactMemoryCache>();
             this.PackageListCache = new PackageListCache(TetrifactMemoryCache);
-            this.TagsService = new Core.TagsService(settings, _memoryCache,this.FileSystem, this.TagsServiceLogger, this.PackageListCache);
-            this.PackageList = new PackageListService(MemoryCacheHelper.GetInstance(), settings, new HashService(), this.TagsService, this.FileSystem, new TestLogger<IPackageListService>());
+            this.TagsService = new Core.TagsService(settings, _memoryCache, fileSystem, this.TagsServiceLogger, this.PackageListCache);
+            this.PackageList = new PackageListService(MemoryCacheHelper.GetInstance(), settings, new HashService(), this.TagsService, fileSystem, new TestLogger<IPackageListService>());
         }
 
         public void Dispose()

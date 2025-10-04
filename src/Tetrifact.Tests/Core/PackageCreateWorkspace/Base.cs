@@ -1,4 +1,5 @@
-﻿using Tetrifact.Core;
+﻿using System.IO.Abstractions;
+using Tetrifact.Core;
 
 namespace Tetrifact.Tests.Workspace
 {
@@ -9,8 +10,9 @@ namespace Tetrifact.Tests.Workspace
         public Base()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
 
-            PackageCreateWorkspace = new PackageCreateWorkspace(settings, base.IndexReader, base.FileSystem, base.WorkspaceLogger, HashServiceHelper.Instance());
+            PackageCreateWorkspace = new PackageCreateWorkspace(settings, base.IndexReader, fileSystem, base.WorkspaceLogger, HashServiceHelper.Instance());
             PackageCreateWorkspace.Initialize();
         }
     }

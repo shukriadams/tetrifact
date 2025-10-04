@@ -16,6 +16,8 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Happy_Path()
         {
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
+
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
                         ISettings settings = TestContext.Get<ISettings>();
 
@@ -23,9 +25,9 @@ namespace Tetrifact.Tests.PackageList
             mockFileSystem
                 .Setup(mq => mq.DirectoryInfo.FromDirectoryName(It.IsAny<string>()).EnumerateDirectories())
                 .Returns(new List<IDirectoryInfo> { 
-                    FileSystem.DirectoryInfo.FromDirectoryName("/some/path"), 
-                    FileSystem.DirectoryInfo.FromDirectoryName("/some/path2"),
-                    FileSystem.DirectoryInfo.FromDirectoryName("/some/path3")
+                    fileSystem.DirectoryInfo.FromDirectoryName("/some/path"), 
+                    fileSystem.DirectoryInfo.FromDirectoryName("/some/path2"),
+                    fileSystem.DirectoryInfo.FromDirectoryName("/some/path3")
                 });
 
             // manifest files should always exist

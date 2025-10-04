@@ -63,13 +63,14 @@ namespace Tetrifact.Tests.IndexReader
         public void DeleteWithArchive()
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             // mock archive
             PackageHelper.FakeArchiveOnDisk(testPackage);
 
             this.IndexReader.DeletePackage(testPackage.Id);
 
-            string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
+            string archivePath = archiveService.GetPackageArchivePath(testPackage.Id);
             Assert.False(File.Exists(archivePath));
         }
        
@@ -90,9 +91,10 @@ namespace Tetrifact.Tests.IndexReader
         public void LockedArchive()
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
+            IArchiveService archiveService = TestContext.Get<IArchiveService>();
 
             // mock its archive
-            string archivePath = base.ArchiveService.GetPackageArchivePath(testPackage.Id);
+            string archivePath = archiveService.GetPackageArchivePath(testPackage.Id);
             File.WriteAllText(archivePath, string.Empty);
 
             // lock the archive by opening a read stream on it

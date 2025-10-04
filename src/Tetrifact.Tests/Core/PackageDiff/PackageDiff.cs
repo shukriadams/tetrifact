@@ -15,17 +15,19 @@ namespace Tetrifact.Tests.PackageDiff
         public PackageDiff()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
             settings.WorkerThreadCount = 1;
             this.Logger = new TestLogger<IPackageDiffService>();
-            this.PackageDiffService = new PackageDiffService(settings, this.FileSystem, this.IndexReader, MemoryCacheHelper.GetInstance(), this.Logger);
+            this.PackageDiffService = new PackageDiffService(settings, fileSystem, this.IndexReader, MemoryCacheHelper.GetInstance(), this.Logger);
         }
 
         [Fact]
         public void HappyPath_SingleThread()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
             settings.WorkerThreadCount = 1;
-            this.PackageDiffService = new PackageDiffService(settings, this.FileSystem, this.IndexReader, MemoryCacheHelper.GetInstance(), this.Logger);
+            this.PackageDiffService = new PackageDiffService(settings, fileSystem, this.IndexReader, MemoryCacheHelper.GetInstance(), this.Logger);
 
             string upstreamPackageId = PackageHelper.CreateNewPackage(new string[]{ "same content", "packege 1 content", "same content" } );
             string downstreamPackageId = PackageHelper.CreateNewPackage(new string[] { "same content", "packege 2 content", "same content" });
@@ -45,9 +47,10 @@ namespace Tetrifact.Tests.PackageDiff
         [Fact]
         public void HappyPath_MultiThread()
         {
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
             ISettings settings = TestContext.Get<ISettings>();
             settings.WorkerThreadCount = 2;
-            this.PackageDiffService = new PackageDiffService(settings, this.FileSystem, this.IndexReader, MemoryCacheHelper.GetInstance(), this.Logger);
+            this.PackageDiffService = new PackageDiffService(settings, fileSystem, this.IndexReader, MemoryCacheHelper.GetInstance(), this.Logger);
 
             string upstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 1 content", "same content" });
             string downstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 2 content", "same content" });

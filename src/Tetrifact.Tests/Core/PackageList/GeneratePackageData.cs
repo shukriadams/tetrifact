@@ -17,13 +17,14 @@ namespace Tetrifact.Tests.PackageList
             // Hit the private GeneratePackageData method by wiping cache.
             MemoryCacheHelper.GetInstance().Remove(Core.PackageListService.CacheKey);
             ISettings settings = TestContext.Get<ISettings>();
+            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
 
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
             // must have a directory of some kind
             mockFileSystem
                 .Setup(mq => mq.DirectoryInfo.FromDirectoryName(It.IsAny<string>()).EnumerateDirectories())
-                .Returns(new List<IDirectoryInfo> { FileSystem.DirectoryInfo.FromDirectoryName("/some/path"), FileSystem.DirectoryInfo.FromDirectoryName("/some/path2") });
+                .Returns(new List<IDirectoryInfo> { fileSystem.DirectoryInfo.FromDirectoryName("/some/path"), fileSystem.DirectoryInfo.FromDirectoryName("/some/path2") });
 
             // force manifest file lookup to find nothing
             mockFileSystem
