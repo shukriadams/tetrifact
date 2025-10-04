@@ -12,8 +12,9 @@ namespace Tetrifact.Tests.Workspace
             ISettings settings = TestContext.Get<ISettings>();
             IFileSystem fileSystem = TestContext.Get<IFileSystem>();
             IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            TestLogger<IPackageCreateWorkspace> workspaceLogger = new TestLogger<IPackageCreateWorkspace>();
 
-            PackageCreateWorkspace = new PackageCreateWorkspace(settings, indexReader, fileSystem, base.WorkspaceLogger, HashServiceHelper.Instance());
+            PackageCreateWorkspace = new PackageCreateWorkspace(settings, indexReader, fileSystem, workspaceLogger, HashServiceHelper.Instance());
             PackageCreateWorkspace.Initialize();
         }
     }

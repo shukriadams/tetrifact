@@ -10,12 +10,6 @@ namespace Tetrifact.Tests
     {
         #region FIELDS
         
-        protected TestLogger<IIndexReadService> IndexReaderLogger;
-        
-        protected TestLogger<IPackageCreateWorkspace> WorkspaceLogger;
-        
-        protected TestLogger<IArchiveService> ArchiveLogger;
-       
         protected ThreadDefault ThreadDefault;
         
         #endregion
@@ -24,10 +18,6 @@ namespace Tetrifact.Tests
 
         public FileSystemBase()
         {
-            IndexReaderLogger = new TestLogger<IIndexReadService>();
-            WorkspaceLogger = new TestLogger<IPackageCreateWorkspace>();
-            ArchiveLogger = new TestLogger<IArchiveService>();
-
             ThreadDefault = new ThreadDefault();
         }
 

@@ -39,12 +39,13 @@ namespace Tetrifact.Tests.IndexReader
         public void GetEmpty()
         {
             IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
 
             Manifest testManifest = indexReader.GetManifest("someinvalidpackage");
             Assert.Null(testManifest);
 
             // should not generate a log message
-            Assert.Empty(((TestLogger<IIndexReadService>)this.IndexReaderLogger).LogEntries);
+            Assert.Empty(((TestLogger<IIndexReadService>)indexReaderLogger).LogEntries);
         }
 
         /// <summary>

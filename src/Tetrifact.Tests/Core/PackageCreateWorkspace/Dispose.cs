@@ -36,16 +36,18 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Error()
         {
+            TestLogger<IPackageCreateWorkspace> workspaceLogger = new TestLogger<IPackageCreateWorkspace>();
+
             Mock<IFileSystem> fs = new Mock<IFileSystem>();
             fs.Setup(mq => mq.Directory.Exists(It.IsAny<string>()))
                 .Callback(() => {
                     throw new IOException("some-error");
                 });
 
-            IPackageCreateWorkspace workspace = TestContext.Get<IPackageCreateWorkspace>("filesystem", fs.Object, "log", this.WorkspaceLogger);
+            IPackageCreateWorkspace workspace = TestContext.Get<IPackageCreateWorkspace>("filesystem", fs.Object, "log", workspaceLogger);
 
             workspace.Dispose();
-            Assert.True(this.WorkspaceLogger.ContainsFragment("Failed to delete temp folder"));
+            Assert.True(workspaceLogger.ContainsFragment("Failed to delete temp folder"));
         }
     }
 }
