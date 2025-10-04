@@ -20,8 +20,9 @@ namespace Tetrifact.Tests
             _moqHelper = new MoqHelper(_context);
         }
 
-        public IEnumerable<string> GetManifestPaths(ISettings settings, string packageName)
+        public IEnumerable<string> GetManifestPaths(string packageName)
         {
+            ISettings settings = _context.Get<ISettings>();
             return new string[] { Path.Combine(settings.PackagePath, packageName, "manifest.json"), Path.Combine(settings.PackagePath, packageName, "manifest-head.json") };
         }
 

@@ -75,7 +75,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
 
             // corrupt the final hash in the manifest
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(Settings, package.Id), "Hash", "not-a-alid-hash");
+            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(package.Id), "Hash", "not-a-alid-hash");
 
             (bool, string) result = this.IndexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);
