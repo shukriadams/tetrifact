@@ -110,11 +110,8 @@ namespace Tetrifact.Tests.IndexReader
         public void LockedTag()
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
-
-            IMemoryCache _memoryCache = MemoryCacheHelper.GetInstance();
-            PackageListCache PackageListCache = new PackageListCache(TetrifactMemoryCache);
             ISettings settings = TestContext.Get<ISettings>();
-            ITagsService tagsService = new Core.TagsService(settings, _memoryCache, new FileSystem(), new TestLogger<ITagsService>(), PackageListCache);
+            ITagsService tagsService = TestContext.Get<ITagsService>();
             
             tagsService.AddTag(testPackage.Id, "mytag");
 

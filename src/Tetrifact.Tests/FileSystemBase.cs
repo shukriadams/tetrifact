@@ -20,8 +20,6 @@ namespace Tetrifact.Tests
 
         protected IIndexReadService IndexReader;
         
-        protected ITagsService TagService;
-        
         protected IFileSystem FileSystem;
         
         protected IDirectory DirectoryFs;
@@ -31,8 +29,6 @@ namespace Tetrifact.Tests
         protected ThreadDefault ThreadDefault;
         
         protected IArchiveService ArchiveService;
-
-        protected ITetrifactMemoryCache TetrifactMemoryCache;
 
         #endregion
 
@@ -50,12 +46,10 @@ namespace Tetrifact.Tests
             ArchiveLogger = new TestLogger<IArchiveService>();
             RepoCleanLog = new TestLogger<IRepositoryCleanService>();
 
-            TetrifactMemoryCache = TestContext.Get<ITetrifactMemoryCache>();
             ThreadDefault = new ThreadDefault();
 
             IndexReader = TestContext.Get<IIndexReadService>("log", IndexReaderLogger);
             ArchiveService = TestContext.Get<IArchiveService>(); 
-            TagService = TestContext.Get<ITagsService>();
             IndexReader.Initialize();
         }
 

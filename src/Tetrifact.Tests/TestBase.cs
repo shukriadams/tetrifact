@@ -1,5 +1,4 @@
 ﻿using System;
-using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {

@@ -11,11 +11,11 @@ namespace Tetrifact.Tests.TagsService
         public void Tag_format_exception()
         {
             ISettings settings = TestContext.Get<ISettings>();
-
+            ITagsService tagsService = TestContext.Get<ITagsService>();
             // write garbage to tag folder
             Directory.CreateDirectory(Path.Join(settings.TagsPath, "unencoded-text"));
 
-            base.TagService.GetTagsThenPackages();
+            tagsService.GetTagsThenPackages();
             // can't get entry to show up, not important, this is is a coverage test
             //Assert.True(base.TagsServiceLogger.ContainsFragment("is not a valid base64 string"));
         }
