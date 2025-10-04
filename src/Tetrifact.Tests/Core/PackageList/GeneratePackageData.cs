@@ -32,7 +32,7 @@ namespace Tetrifact.Tests.PackageList
                 .Returns(false);
 
             // do something to cover manifest file lookup
-            this.PackageList = new Core.PackageListService(this.MemoryCache, settings, new HashService(), TagService, mockFileSystem.Object, this.PackageListLogger);
+            this.PackageList = TestContext.Get<IPackageListService>("fileSystem", mockFileSystem.Object);
             this.PackageList.Get(0,1);
         }
     }

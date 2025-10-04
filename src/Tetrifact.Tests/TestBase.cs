@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tetrifact.Tests
+﻿namespace Tetrifact.Tests
 {
     /// <summary>
     /// Common utility base for all tests. Useful place to store instances of things which should be unique per 
@@ -8,7 +6,7 @@ namespace Tetrifact.Tests
     /// 
     /// Utility things that are stateless should be placed in helper function.
     /// </summary>
-    public abstract class TestBase : IDisposable
+    public abstract class TestBase
     {
         private TestContext _testContext;
         
@@ -30,11 +28,6 @@ namespace Tetrifact.Tests
             _testContext = new TestContext();
             _moq = new MoqHelper(_testContext);
             _packageHelper = new PackageHelper(_testContext);
-        }
-
-        public void Dispose()
-        {
-
         }
     }
 }

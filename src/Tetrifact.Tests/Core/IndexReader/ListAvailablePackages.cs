@@ -8,7 +8,7 @@ namespace Tetrifact.Tests.IndexReader
     public class ListAvailablePackages : TestBase
     {
         [Fact]
-        public void ListAll()
+        public void HappyPath()
         {
             TestPackage package1 = PackageHelper.CreateRandomPackage();
             TestPackage package2 = PackageHelper.CreateRandomPackage();

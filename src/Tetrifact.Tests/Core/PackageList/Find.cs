@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Linq;
 using Tetrifact.Core;
 using Xunit;
 
