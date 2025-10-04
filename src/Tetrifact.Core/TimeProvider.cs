@@ -2,9 +2,9 @@
 
 namespace Tetrifact.Core
 {
-    public class TimeProvider : ITimeProvideer
+    public class TimeProvider : ITimeProvider
     {
-        public DateTime GetUtcNow() 
+        public virtual DateTime GetUtcNow() 
         {
             return DateTime.UtcNow;
         }

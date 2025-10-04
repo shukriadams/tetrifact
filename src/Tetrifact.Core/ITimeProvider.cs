@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Core
 {
-    public interface ITimeProvideer
+    public interface ITimeProvider
     {
         DateTime GetUtcNow();
     }

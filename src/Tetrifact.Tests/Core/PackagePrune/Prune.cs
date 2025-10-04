@@ -29,8 +29,6 @@ namespace Tetrifact.Tests.PackagePrune
                 new PruneBracket{ Days=999, Amount = 3 }    // leave 3
             };
 
-            PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings );
-            PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, this.IndexReader, pruneBracketProvider });
 
             // create packages :
             // packages under week threshold, none of these should not be deleted
@@ -78,8 +76,12 @@ namespace Tetrifact.Tests.PackagePrune
 
             // prune multiple times to ensure that randomization doesn't lead to unintended deletes
             List<PrunePlan> plans = new List<PrunePlan>();
-            for (int i = 0; i < 10; i++) 
-                plans.Add(packagePrune.Prune());
+            for (int i = 0; i < 10; i++)
+            {
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings);
+                PruneService pruneService = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { Settings, this.IndexReader, pruneBracketProvider });
+                plans.Add(pruneService.Prune());
+            }
 
             IEnumerable<string> packages = IndexReader.GetAllPackageIds();
 
@@ -116,36 +118,55 @@ namespace Tetrifact.Tests.PackagePrune
 
             // mock time provider to return a fixed "now" date, we will be changing "now" ass we go along
             DateTime now = DateTime.UtcNow;
-            Mock<ITimeProvideer> timeProvider = new Mock<ITimeProvideer>();
+            Mock<TimeProvider> timeProvider = new Mock<TimeProvider>();
             timeProvider.Setup(r => r.GetUtcNow())
                 .Returns(()=> now);
 
-            PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, timeProvider.Object });
 
             // prune - no packages must be deleted
-            for (int i = 0; i < 10; i++)
+            
+            for (int i = 0; i < 10; i++) 
+            {
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
                 packagePrune.Prune();
+            }
 
             Assert.Equal(5, this.IndexReader.GetAllPackageIds().Count());
 
             // shift time by 8 days to put packages into weekly bracket, 1 package should be deleted
-            now = DateTime.UtcNow.AddDays(8);
+            now = DateTime.UtcNow.AddDays(9);
+            List<PrunePlan> prunes = new List<PrunePlan>();
             for (int i = 0; i < 10; i++)
-                packagePrune.Prune();
+            {
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
+                var p = packagePrune.Prune();
+                prunes.Add(p);
+            }
 
             Assert.Equal(4, this.IndexReader.GetAllPackageIds().Count());
 
             // shift time by 32 days to put packages into monthly bracket, 1 more package should be deleted
             now = DateTime.UtcNow.AddDays(32);
             for (int i = 0; i < 10; i++)
+            {
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider , timeProvider.Object });
                 packagePrune.Prune();
+            }
 
             Assert.Equal(3, this.IndexReader.GetAllPackageIds().Count());
 
             // shift time by 366 days to put packages into yearly bracket, 1 more package should be deleted
             now = DateTime.UtcNow.AddDays(366);
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++) 
+            {
+                PruneBracketProvider pruneBracketProvider = TestContext.Get<PruneBracketProvider>("settings", Settings, "timeProvider", timeProvider.Object);
+                PruneService packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { settings, this.IndexReader, pruneBracketProvider, timeProvider.Object });
                 packagePrune.Prune();
+            }
 
             Assert.Equal(2, this.IndexReader.GetAllPackageIds().Count());
         }

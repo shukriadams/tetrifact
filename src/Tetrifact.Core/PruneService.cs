@@ -15,17 +15,19 @@ namespace Tetrifact.Core
 
         ILogger<IPruneService> _log;
 
-        ITimeProvideer _timeprovider;
+        ITimeProvider _timeprovider;
 
         IProcessManager _processManager;
 
         IPruneBracketProvider _pruneBracketProvider;
 
+        private bool _hasRun;
+
         #endregion
 
         #region CTORS
 
-        public PruneService(ISettings settings, IPruneBracketProvider pruneBracketProvider, IProcessManager processManager, ITimeProvideer timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
+        public PruneService(ISettings settings, IPruneBracketProvider pruneBracketProvider, IProcessManager processManager, ITimeProvider timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;
@@ -41,6 +43,12 @@ namespace Tetrifact.Core
 
         public PrunePlan Prune()
         {
+            // preven rerun on same _pruneBracketProvider instance, causes over-deleting of packages
+            if (_hasRun)
+                throw new Exception("Cannot reuse instance, generate new");
+
+            _hasRun = true;
+
             if (!_settings.PruneEnabled)
             {
                 _log.LogInformation("Prune exited on start, disabled.");

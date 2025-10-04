@@ -68,7 +68,7 @@ namespace Tetrifact.Web
             services.AddSingleton<IProcessManager, ProcessManager>();
             services.AddSingleton<ISettingsProvider, DefaultSettingsProvider>();
             services.AddTransient<IDaemon, Daemon>();
-            services.AddTransient<ITimeProvideer, TimeProvider>();
+            services.AddTransient<ITimeProvider, TimeProvider>();
             services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
             services.AddTransient<IFileStreamProvider, LocalFileStreamProvider>();
             services.AddTransient<IStorageService, LocalStorageService>();
@@ -82,7 +82,7 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, ArchiveGenerator>();
             services.AddTransient<ICron, ProcessManagerCron>();
 
-            // ignore error, how else are we going to get an instaace of settings from this piece of crap Microsoft IOC framework?
+            // ignore error, how else are we going to get an instance of settings from this piece of crap Microsoft IOC framework?
             ISettingsProvider settingsProvider = services.BuildServiceProvider().GetRequiredService<ISettingsProvider>();
             ISettings settings = settingsProvider.Get();
             services.AddSingleton(settings);
