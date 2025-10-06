@@ -13,6 +13,7 @@ namespace Tetrifact.Tests.PackageList
         public void GetsBySingleTag()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
             PackageHelper.WriteManifest(new Manifest { Id = "package2003" });
@@ -27,7 +28,7 @@ namespace Tetrifact.Tests.PackageList
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
-            IEnumerable<Package> tags = this.PackageList.GetWithTags(new[] { "tag2" }, 0, 2);
+            IEnumerable<Package> tags = packageList.GetWithTags(new[] { "tag2" }, 0, 2);
             Assert.Equal(2, tags.Count());
             Assert.Contains("tag2", tags.ElementAt(0).Tags);
         }
@@ -36,6 +37,7 @@ namespace Tetrifact.Tests.PackageList
         public void GetsByMultipleTags()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
             PackageHelper.WriteManifest(new Manifest { Id = "package2003" });
@@ -51,7 +53,7 @@ namespace Tetrifact.Tests.PackageList
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
 
-            IEnumerable<Package> tags = this.PackageList.GetWithTags(new[] { "tag2", "tag3" }, 0, 2);
+            IEnumerable<Package> tags = packageList.GetWithTags(new[] { "tag2", "tag3" }, 0, 2);
             Assert.Single(tags);
             Assert.Contains("tag2", tags.ElementAt(0).Tags);
             Assert.Contains("tag3", tags.ElementAt(0).Tags);

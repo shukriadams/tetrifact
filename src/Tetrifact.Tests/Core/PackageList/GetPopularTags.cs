@@ -14,11 +14,12 @@ namespace Tetrifact.Tests.PackageList
         public void NoSingles()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
 
             PackageHelper.WriteManifest(new Manifest() { Id = "package" });
             TagHelper.TagPackage(settings, "tag", "package");
 
-            IEnumerable<string> tags = this.PackageList.GetPopularTags(3);
+            IEnumerable<string> tags = packageList.GetPopularTags(3);
             Assert.Empty(tags);
 
         }
@@ -27,6 +28,7 @@ namespace Tetrifact.Tests.PackageList
         public void Basic()
         {
             ISettings settings = TestContext.Get<ISettings>();
+            IPackageListService packageList = TestContext.Get<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
             PackageHelper.WriteManifest(new Manifest() { Id = "package2004" });
@@ -39,7 +41,7 @@ namespace Tetrifact.Tests.PackageList
             TagHelper.TagPackage(settings, "tag1", "package2004");
             TagHelper.TagPackage(settings, "tag1", "package2003");
 
-            IEnumerable<string> tags = this.PackageList.GetPopularTags(3);
+            IEnumerable<string> tags = packageList.GetPopularTags(3);
             Assert.Equal("tag2", tags.First());
             Assert.Equal("tag1", tags.ElementAt(1));
 
