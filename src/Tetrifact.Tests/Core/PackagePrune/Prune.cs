@@ -11,22 +11,16 @@ namespace Tetrifact.Tests.PackagePrune
 {
     public class Prune : TestBase
     {
-        private readonly IPruneService _packagePrune;
-
         public Prune()
         {
             ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
-
             settings.PruneEnabled = true;
             settings.PruneIgnoreTags = new string[] { "keep" };
-            _packagePrune = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[]{ settings, indexReader }); 
         }
 
         [Fact]
         public void HappyPath()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             ISettings settings = TestContext.Get<ISettings>();
             settings.PruneBrackets = new List<PruneBracket>(){
                 new PruneBracket{ Days=7, Amount = -1 },    // prune none
@@ -34,7 +28,6 @@ namespace Tetrifact.Tests.PackagePrune
                 new PruneBracket{ Days=364, Amount = 3 },   // leave 3
                 new PruneBracket{ Days=999, Amount = 3 }    // leave 3
             };
-
 
             // create packages :
             // packages under week threshold, none of these should not be deleted
@@ -84,18 +77,17 @@ namespace Tetrifact.Tests.PackagePrune
             List<PrunePlan> plans = new List<PrunePlan>();
             for (int i = 0; i < 10; i++)
             {
-                PruneService pruneService = MoqHelper.CreateInstanceWithDependencies<PruneService>(new object[] { indexReader });
+                PruneService pruneService = TestContext.Get<PruneService>();
                 plans.Add(pruneService.Prune());
             }
 
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             IEnumerable<string> packages = indexReader.GetAllPackageIds();
 
             Assert.Equal(5, packages.Where(r => r.StartsWith("under-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-week-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-month-")).Count());
             Assert.Equal(3, packages.Where(r => r.StartsWith("above-year-")).Count());
-
-
         }
 
         /// <summary>
@@ -186,7 +178,9 @@ namespace Tetrifact.Tests.PackagePrune
         {
             ISettings settings = TestContext.Get<ISettings>();
             settings.PruneEnabled = false;
-            _packagePrune.Prune();
+
+            IPruneService packagePrune = TestContext.Get<PruneService>();
+            packagePrune.Prune();
         }
 
 
@@ -255,7 +249,9 @@ namespace Tetrifact.Tests.PackagePrune
 
             TagHelper.TagPackage(settings, "keep", "above-week-1");
             TagHelper.TagPackage(settings, "keep", "above-week-2");
-            _packagePrune.Prune();
+
+            IPruneService packagePrune = TestContext.Get<PruneService>();
+            packagePrune.Prune();
 
             IEnumerable<string> packages = indexReader.GetAllPackageIds();
 
