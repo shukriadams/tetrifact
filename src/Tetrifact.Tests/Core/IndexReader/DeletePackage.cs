@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Moq;
+﻿using Moq;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;

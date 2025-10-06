@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using Tetrifact.Core;
@@ -12,12 +11,10 @@ namespace Tetrifact.Tests
     public class PackageHelper
     {
         TestContext _context;
-        MoqHelper _moqHelper;
 
         public PackageHelper(TestContext context)
         {
             _context = context;
-            _moqHelper = new MoqHelper(_context);
         }
 
         public IEnumerable<string> GetManifestPaths(string packageName)
@@ -50,38 +47,7 @@ namespace Tetrifact.Tests
         /// <returns>New package id</returns>
         public string CreateNewPackage(IEnumerable<string> filesContent)
         {
-            ISettings settings = _context.Get<ISettings>();
-
-            IFileSystem filesystem = new FileSystem();
-            ITetrifactMemoryCache memcache = _context.Get<ITetrifactMemoryCache>();
-            IIndexReadService indexReader = new IndexReadService(
-                settings,
-                new TestMemoryCache(),
-                new Core.TagsService(settings, MemoryCacheHelper.GetInstance(), filesystem, new TestLogger<ITagsService>(), new PackageListCache(memcache)),
-                new TestLogger<IIndexReadService>(),
-                filesystem,
-                HashServiceHelper.Instance(),
-                _context.Get<IProcessManager>());
-
-            IArchiveService archiveService = new Core.ArchiveService(
-                indexReader,
-                new TestMemoryCache(),
-                new LocalFileStreamProvider(),
-                new LocalStorageService(settings),
-                _context.Get<IProcessManager>(),
-                filesystem,
-                new TestLogger<IArchiveService>(),
-                settings);
-
-            IPackageCreateService PackageCreate = new PackageCreateService(
-                indexReader,
-                _context.Get<IProcessManager>(),
-                archiveService,
-                settings,
-                new TestLogger<IPackageCreateService>(),
-                new PackageCreateWorkspace(settings, indexReader, filesystem, new TestLogger<IPackageCreateWorkspace>(), HashServiceHelper.Instance()),
-                HashServiceHelper.Instance(),
-                new TestFileSystem());
+            IPackageCreateService PackageCreate = _context.Get<IPackageCreateService>();
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string packageId = Guid.NewGuid().ToString();
