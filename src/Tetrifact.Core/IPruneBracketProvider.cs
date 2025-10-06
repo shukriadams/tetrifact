@@ -9,7 +9,9 @@ namespace Tetrifact.Core
     /// </summary>
     public interface IPruneBracketProvider
     {
-        IEnumerable<PruneBracketProcess> PruneBrackets { get; set; }
+        IEnumerable<PruneBracketProcess> PruneBrackets { get; }
+
+        void SetBrackets(IEnumerable<PruneBracket> brackets);
 
         PruneBracketProcess MatchByDate(DateTime date);
     }

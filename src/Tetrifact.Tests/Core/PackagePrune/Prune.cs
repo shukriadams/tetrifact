@@ -18,6 +18,22 @@ namespace Tetrifact.Tests.PackagePrune
             settings.PruneIgnoreTags = new string[] { "keep" };
         }
 
+        [Fact(DisplayName = "Should match date with the bracket that has the lowest day range")]
+        public void PackageAssignTest() 
+        {
+            IPruneBracketProvider pruneBracketProvider = TestContext.Get<IPruneBracketProvider>();
+            DateTime now = DateTime.UtcNow;
+            
+            pruneBracketProvider.SetBrackets(new List<PruneBracket> {  
+                new PruneBracket { Days = 1 },
+                new PruneBracket { Days = 10 },
+                new PruneBracket { Days = 100 }
+            });
+
+            PruneBracketProcess matchedBracket = pruneBracketProvider.MatchByDate(now);
+            Assert.Equal(1, matchedBracket.Days);
+        }
+
         [Fact]
         public void HappyPath()
         {
@@ -214,9 +230,7 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Delete_Exception()
         {
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
-
-            Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService>(new object[]{ fileSystem, HashServiceHelper.Instance() }).As<IIndexReadService>();
+            Mock<IIndexReadService> mockedIndexReader = MoqHelper.CreateMockWithDependencies<IndexReadService>(new object[]{ }).As<IIndexReadService>();
             mockedIndexReader
                 .Setup(r => r.DeletePackage(It.IsAny<string>()))
                 .Callback(() => {
@@ -239,7 +253,6 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Protected_Tag()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             ISettings settings = TestContext.Get<ISettings>();
             // two packages above week threshold, one of these should be deleted, but protect both with tags
             PackageHelper.CreateNewPackageFiles("above-week-1");
@@ -253,6 +266,7 @@ namespace Tetrifact.Tests.PackagePrune
             IPruneService packagePrune = TestContext.Get<PruneService>();
             packagePrune.Prune();
 
+            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             IEnumerable<string> packages = indexReader.GetAllPackageIds();
 
             Assert.Equal(2, packages.Count());
