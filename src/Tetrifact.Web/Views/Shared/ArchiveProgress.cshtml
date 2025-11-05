@@ -9,8 +9,8 @@
         // TODO :simply this if statement
     }
     @if (Model.State == PackageArchiveCreationStates.Processed_ArchiveNotGenerated || Model.State == PackageArchiveCreationStates.Processed_ArchiveAvailable)
-    { 
-        <a class="button button-header" href="/v1/archives/@packageId">&#10515; Download</a>
+    {
+        <a class="button button-header" href="/v1/archives/@packageId?ticket=_&waiver=_">&#10515; Download</a>
     }
     else if (Model.State == PackageArchiveCreationStates.Queued)
     { 

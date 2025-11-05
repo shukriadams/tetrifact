@@ -25,7 +25,7 @@ namespace Tetrifact.Core
         /// <param name="key"></param>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        ProcessCreateResponse AddInQueue(ProcessCategories category, TimeSpan timespan, string key, string metadata);
+        ProcessCreateResponse AddByCategory(ProcessCategories category, TimeSpan timespan, string key, string metadata);
 
         void AddUnique(ProcessCategories category, string key, TimeSpan timespan);
 

@@ -39,6 +39,12 @@ namespace Tetrifact.Web
 
         #region METHODS
 
+        /// <summary>
+        /// Creates a download ticket. Every request gets a ticket, which is basically just a way to reference when a user has askes to be able 
+        /// to download something. The order in which tickets are serviced is up to the controller servicing the ticket later.
+        /// </summary>
+        /// <param name="requestIdentifier"></param>
+        /// <returns></returns>
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{requestIdentifier}")]
@@ -72,7 +78,7 @@ namespace Tetrifact.Web
                 string ticket = Obfuscator.Cloak(ip);
                 string requestLoggedIdentifier = $"ReqID:{requestIdentifier},IP:{ip}";
 
-                ProcessCreateResponse response = _processManager.AddInQueue(
+                ProcessCreateResponse response = _processManager.AddByCategory(
                     ProcessCategories.ArchiveQueueSlot,
                     new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan),
                     ticket,

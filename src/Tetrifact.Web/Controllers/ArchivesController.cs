@@ -86,8 +86,9 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
-        public ActionResult GetArchive(string packageId, [FromQuery(Name = "ticket")] string ticket)
+        public ActionResult GetArchive(string packageId, [FromQuery(Name = "ticket")] string ticket, [FromQuery(Name = "waiver")] string waiver)
         {
+            // note ticket and waiver are never empty, controller enforces that
             try
             {
                 // if not exists, queue and redirect back to view
@@ -111,18 +112,16 @@ namespace Tetrifact.Web
                 string ticketLog = string.Empty;
 
                 // local (this website) downloads always allowed.
-                if (!isLocal && _settings.MaximumSimultaneousDownloads.HasValue)
+                if (isLocal) 
                 {
-                    if (string.IsNullOrEmpty(ticket))
+                    ticketLog = $" local download, queuing waived";
+                }
+                else if (_settings.MaximumSimultaneousDownloads.HasValue)
+                {
+                    // check for waivers 
+                    if (_settings.DownloadQueuePriorityTickets.Contains(waiver))
                     {
-                        _log.LogInformation($"Rejected download request because of missing ticket, origin is \"{ip}\".");
-                        return Responses.NoTicket();
-                    }
-
-                    // check for priority tickets
-                    if (_settings.DownloadQueuePriorityTickets.Contains(ticket))
-                    {
-                        _log.LogInformation($"Priority ticket {ticket} used from host \"{ip}\".");
+                        _log.LogInformation($"Priority ticket {ticket} from host \"{ip}\", waived with \"{waiver}\".");
                         ticketLog = $" priority ticket {ticket},";
                     }
                     else
@@ -132,9 +131,12 @@ namespace Tetrifact.Web
                         if (userTicket == null)
                             return Responses.NoTicket();
 
+                        // if there are older tickets than the one user has, queue user.
                         int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
-                        if (count > _settings.MaximumSimultaneousDownloads)
+                        if (count > _settings.MaximumSimultaneousDownloads) {
+                            _log.LogInformation($"Queued user {ip} with ticket {ticket}, user is {count}/{_settings.MaximumSimultaneousDownloads.Value} in line.");
                             return Responses.QueueFull(count, _settings.MaximumSimultaneousDownloads.Value);
+                        }
 
                         ticketLog = $" dynamic ticket {ticket},";
                     }
@@ -145,6 +147,7 @@ namespace Tetrifact.Web
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
+                int totalTicketCount = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).Count();
                 if (!_fileSystem.File.Exists(archivePath))
                 {
                     _archiveService.QueueArchiveCreation(packageId);
@@ -156,20 +159,18 @@ namespace Tetrifact.Web
                 else
                     range = " no range";
 
-                _log.LogInformation($"Serving archive for package {packageId} to {ip}{range},{ticketLog}");
+                _log.LogInformation($"Serving archive for package {packageId} to {ip}{range},{ticketLog}, queue size {totalTicketCount}.");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
-                progressableStream.OnComplete = ()=>{
+                progressableStream.OnComplete =()=>{
                     // clear ticket once all package has been streamed
-                    if (!string.IsNullOrEmpty(ticket))
-                        _processManager.RemoveUnique(ticket);
+                    _processManager.RemoveUnique(ticket);
                 };
 
                 progressableStream.OnProgress = (long progress, long total) => {
                     // keep ticket alive for duration of download
-                    if (!string.IsNullOrEmpty(ticket))
-                        _processManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
+                    _processManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
                 };
 
                 return File(

@@ -81,20 +81,10 @@ namespace Tetrifact.Core
             }
         }
 
-        public ProcessCreateResponse AddInQueue(ProcessCategories category, TimeSpan timespan, string key, string metadata)
+        public ProcessCreateResponse AddByCategory(ProcessCategories category, TimeSpan timespan, string key, string metadata)
         {
             lock (_items)
             {
-                if (_items.ContainsKey(key)) 
-                    return new ProcessCreateResponse
-                    {
-                        Success = true,
-                        Message = "Key already exists"
-                    };
-
-                if (_items.Where(i => i.Value.Category == category).Count() > _settings.MaximumSimultaneousDownloads)
-                    return new ProcessCreateResponse { Message = $"Limited for category {category} ({_settings.MaximumSimultaneousDownloads}) reached" }; ; 
-
                 _items.Add(key, new ProcessItem { 
                     Id = key, 
                     AddedUTC = DateTime.UtcNow,
@@ -104,7 +94,7 @@ namespace Tetrifact.Core
                     Metadata = metadata
                 });
 
-                _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, no lifespan limit.");
+                _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, timespan {timespan.ToHumanString()}.");
                 return new ProcessCreateResponse { Success = true };
             }
         }
