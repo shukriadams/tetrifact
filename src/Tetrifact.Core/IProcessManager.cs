@@ -15,7 +15,17 @@ namespace Tetrifact.Core
 
         void AddUnique(ProcessCategories category, string key);
 
-        ProcessCreateResponse AddConstrained(ProcessCategories category, TimeSpan timespan, string key, string metadata);
+        /// <summary>
+        /// Adds an item in a queue if a place is available. Once in queue the item keeps its place until timeout
+        /// or removed. Readding the item will succeed if already in queue, but will not update the item's place
+        /// in queue.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="timespan"></param>
+        /// <param name="key"></param>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        ProcessCreateResponse AddInQueue(ProcessCategories category, TimeSpan timespan, string key, string metadata);
 
         void AddUnique(ProcessCategories category, string key, TimeSpan timespan);
 

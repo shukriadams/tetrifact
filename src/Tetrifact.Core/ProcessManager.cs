@@ -81,12 +81,16 @@ namespace Tetrifact.Core
             }
         }
 
-        public ProcessCreateResponse AddConstrained(ProcessCategories category, TimeSpan timespan, string key, string metadata)
+        public ProcessCreateResponse AddInQueue(ProcessCategories category, TimeSpan timespan, string key, string metadata)
         {
             lock (_items)
             {
-                if (_items.ContainsKey(key))
-                    return new ProcessCreateResponse { Message = "Key already exists" };
+                if (_items.ContainsKey(key)) 
+                    return new ProcessCreateResponse
+                    {
+                        Success = true,
+                        Message = "Key already exists"
+                    };
 
                 if (_items.Where(i => i.Value.Category == category).Count() > _settings.MaximumSimultaneousDownloads)
                     return new ProcessCreateResponse { Message = $"Limited for category {category} ({_settings.MaximumSimultaneousDownloads}) reached" }; ; 

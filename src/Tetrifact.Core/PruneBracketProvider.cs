@@ -10,9 +10,9 @@ namespace Tetrifact.Core
 
         IEnumerable<PruneBracketProcess> IPruneBracketProvider.PruneBrackets { get { return _pruneBrackets; } }
         
-        private readonly TimeProvider _timeProvider;
+        private readonly ITimeProvider _timeProvider;
 
-        public PruneBracketProvider(ISettings settings, TimeProvider timeProvider) 
+        public PruneBracketProvider(ISettings settings, ITimeProvider timeProvider) 
         {
             _timeProvider = timeProvider;
 

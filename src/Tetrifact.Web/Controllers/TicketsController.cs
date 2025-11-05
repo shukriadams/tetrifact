@@ -72,7 +72,7 @@ namespace Tetrifact.Web
                 string ticket = Obfuscator.Cloak(ip);
                 string requestLoggedIdentifier = $"ReqID:{requestIdentifier},IP:{ip}";
 
-                ProcessCreateResponse response = _processManager.AddConstrained(
+                ProcessCreateResponse response = _processManager.AddInQueue(
                     ProcessCategories.ArchiveQueueSlot,
                     new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan),
                     ticket,
