@@ -73,7 +73,8 @@ namespace Tetrifact.Web
             services.AddTransient<IFileStreamProvider, LocalFileStreamProvider>();
             services.AddTransient<IStorageService, LocalStorageService>();
             services.AddTransient<IPruneBracketProvider, PruneBracketProvider>();
-                        
+            services.AddTransient<IQueueHandler, QueueHandler>();
+            
 
             // all ICron types registered here are automatically started in Configure() method below
             services.AddTransient<ICron, MetricsCron>();

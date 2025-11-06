@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using Tetrifact.Core;
+using Tetrifact.Web;
 using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests
@@ -113,6 +114,7 @@ namespace Tetrifact.Tests
             _kernel.Bind<IFileStreamProvider>().To<LocalFileStreamProvider>();
             _kernel.Bind<IStorageService>().To<LocalStorageService>();
             _kernel.Bind<IPruneBracketProvider>().To<PruneBracketProvider>();
+            _kernel.Bind<IQueueHandler>().To<QueueHandler>();
 
             _kernel.Bind<ILogger<W.HomeController>>().To<TestLogger<W.HomeController>>();
             _kernel.Bind<ILogger<W.PruneController>>().To<TestLogger<W.PruneController>>();
@@ -129,12 +131,12 @@ namespace Tetrifact.Tests
             _kernel.Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
             _kernel.Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
             _kernel.Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
-            //Bind<ILogger<IRepositoryCleanService>>().To<TestLogger<IRepositoryCleanService>>();
             _kernel.Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
             _kernel.Bind<ILogger<IPruneService>>().To<TestLogger<IPruneService>>();
             _kernel.Bind<ILogger<IProcessManager>>().To<TestLogger<IProcessManager>>();
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
+
 
             _kernel.Bind<ILogger<IRepositoryCleanService>>().ToMethod(RepositoryCleanServiceFactory).InSingletonScope();
         }

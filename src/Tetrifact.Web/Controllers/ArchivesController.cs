@@ -29,6 +29,8 @@ namespace Tetrifact.Web
 
         private readonly ISettings _settings;
 
+        private readonly IQueueHandler _queueHandler;
+
         #endregion
 
         #region CTORS
@@ -40,8 +42,9 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ArchivesController(IArchiveService archiveService, ISettings settings, IProcessManager processManager, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
+        public ArchivesController(IArchiveService archiveService, IQueueHandler queueHandler, ISettings settings, IProcessManager processManager, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
         {
+            _queueHandler = queueHandler;
             _archiveService = archiveService;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
@@ -77,6 +80,8 @@ namespace Tetrifact.Web
         }
 
 
+
+
         /// <summary>
         /// Downloads an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
         /// Supports range processing for resuming broken downloads.
@@ -108,42 +113,18 @@ namespace Tetrifact.Web
                 if (Request.HttpContext.Connection.RemoteIpAddress != null)
                     ip = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
 
-                bool isLocal = _settings.WhiteListedLocalAddresses.Contains(ip.ToLower());
                 string ticketLog = string.Empty;
-
-                // local (this website) downloads always allowed.
-                if (isLocal) 
+                QueueResponse queueResponse = _queueHandler.ProcessRequest(ip, ticket, waiver);
+                if (queueResponse.Status == QueueStatus.Deny) 
                 {
-                    ticketLog = $" local download, queuing waived";
+                    _log.LogInformation($"archive request rejected for ip {ip} with ticket {ticket}, reason : {queueResponse.Reason}.");
+                    return Responses.NoTicket();
                 }
-                else if (_settings.MaximumSimultaneousDownloads.HasValue)
-                {
-                    // check for waivers 
-                    if (_settings.DownloadQueuePriorityTickets.Contains(waiver))
-                    {
-                        _log.LogInformation($"Priority ticket {ticket} from host \"{ip}\", waived with \"{waiver}\".");
-                        ticketLog = $" priority ticket {ticket},";
-                    }
-                    else
-                    {
-                        IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
-                        ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
-                        if (userTicket == null)
-                            return Responses.NoTicket();
 
-                        // if there are older tickets than the one user has, queue user.
-                        int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
-                        if (count > _settings.MaximumSimultaneousDownloads) {
-                            _log.LogInformation($"Queued user {ip} with ticket {ticket}, user is {count}/{_settings.MaximumSimultaneousDownloads.Value} in line.");
-                            return Responses.QueueFull(count, _settings.MaximumSimultaneousDownloads.Value);
-                        }
-
-                        ticketLog = $" dynamic ticket {ticket},";
-                    }
-                }
-                else 
+                if (queueResponse.Status == QueueStatus.Wait)
                 {
-                    ticketLog = $" ticket not enforced, received:{ticket},";
+                    _log.LogInformation($"Queued ip {ip} with ticket {ticket} forced to wait, position {queueResponse.WaitPosition}.");
+                    return Responses.QueueFull(queueResponse.WaitPosition, queueResponse.WaitPosition); // refactor this
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
