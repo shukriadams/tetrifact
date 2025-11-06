@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
             Mock<IIndexReadService> indexReadService = new Mock<IIndexReadService>();
 
             PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
-            JsonResult result = controller.DeletePackage("any-package-id") as JsonResult;
+            JsonResult result = controller.Delete("any-package-id") as JsonResult;
             Assert.NotNull(result);
         }
 
@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Throws(new PackageNotFoundException("package-id"));
 
             PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
-            NotFoundObjectResult result = controller.DeletePackage("any-package-id") as NotFoundObjectResult;
+            NotFoundObjectResult result = controller.Delete("any-package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
 
@@ -50,7 +50,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Throws(new Exception());
 
             PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
-            BadRequestObjectResult result = controller.DeletePackage("any-package-id") as BadRequestObjectResult;
+            BadRequestObjectResult result = controller.Delete("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }
     }

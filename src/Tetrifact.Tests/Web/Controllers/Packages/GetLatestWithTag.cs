@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Returns(new Package());
 
             PackagesController controller = TestContext.Get<PackagesController>("packageListService", packageListService.Object);
-            JsonResult result = controller.GetLatestPackageWithTag("any-tag") as JsonResult;
+            JsonResult result = controller.GetLatestWithTag("any-tag") as JsonResult;
             Assert.NotNull(result);
         }
 
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Throws(new Exception());
 
             PackagesController controller = TestContext.Get<PackagesController>("packageListService", packageListService.Object);
-            BadRequestObjectResult result = controller.GetLatestPackageWithTag("any-tag") as BadRequestObjectResult;
+            BadRequestObjectResult result = controller.GetLatestWithTag("any-tag") as BadRequestObjectResult;
             Assert.NotNull(result);
         }
     }

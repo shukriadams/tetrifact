@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Returns(true);
 
             PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
-            JsonResult result = controller.PackageExists("any-package-id") as JsonResult;
+            JsonResult result = controller.Exists("any-package-id") as JsonResult;
             Assert.NotNull(result);
         }
 
@@ -37,7 +37,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Throws(new Exception());
 
             PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
-            BadRequestObjectResult result = controller.PackageExists("any-package-id") as BadRequestObjectResult;
+            BadRequestObjectResult result = controller.Exists("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }
     }

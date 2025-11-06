@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
 
             PackagesController controller = TestContext.Get<PackagesController>("packageListService", mockedPackageListService.Object);
 
-            dynamic json = JsonHelper.ToDynamic(controller.ListPackages(false, 0, 10));
+            dynamic json = JsonHelper.ToDynamic(controller.List(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();
             Assert.Equal(3, ids.Count());
         }
@@ -40,7 +40,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 });
 
             PackagesController controller = TestContext.Get<PackagesController>("packageListService", moqListService.Object);
-            dynamic json = JsonHelper.ToDynamic(controller.ListPackages(true, 0, 10));
+            dynamic json = JsonHelper.ToDynamic(controller.List(true, 0, 10));
             Package[] packages = json.success.packages.ToObject<Package[]>();
             Assert.Equal(3, packages.Count());
         }

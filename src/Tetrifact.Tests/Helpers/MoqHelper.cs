@@ -18,7 +18,7 @@ namespace Tetrifact.Tests
             Context = context;
         }
 
-        public Mock CreateMock(Type typeToMock)
+        private Mock CreateMock(Type typeToMock)
         {
             var creator = typeof(Mock<>).MakeGenericType(typeToMock);
             return (Mock)Activator.CreateInstance(creator);

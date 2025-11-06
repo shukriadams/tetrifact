@@ -81,7 +81,7 @@ namespace Tetrifact.Core
             }
         }
 
-        public ProcessCreateResponse AddByCategory(ProcessCategories category, TimeSpan timespan, string key, string metadata)
+        public virtual ProcessCreateResponse AddByCategory(ProcessCategories category, TimeSpan timespan, string key, string metadata)
         {
             lock (_items)
             {

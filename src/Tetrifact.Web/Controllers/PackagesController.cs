@@ -66,7 +66,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
-        public ActionResult ListPackages([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        public ActionResult List([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
         {
             IEnumerable<Package> packages = _packageList.Get(pageIndex, pageSize);
 
@@ -101,7 +101,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("latest/{tags}")]
-        public ActionResult GetLatestPackageWithTag(string tags)
+        public ActionResult GetLatestWithTag(string tags)
         {
             try
             {
@@ -132,7 +132,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("diff/{upstreamPackageId}/{downstreamPackageId}")]
-        public ActionResult GetPackagesDiff(string upstreamPackageId, string downstreamPackageId)
+        public ActionResult GetDiff(string upstreamPackageId, string downstreamPackageId)
         {
             string procId = Guid.NewGuid().ToString();
 
@@ -178,7 +178,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}/exists")]
-        public ActionResult PackageExists(string packageId)
+        public ActionResult Exists(string packageId)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpGet("{packageId}/verify")]
-        public ActionResult VerifyPackage(string packageId)
+        public ActionResult Verify(string packageId)
         {
             string procId = Guid.NewGuid().ToString();
 
@@ -248,7 +248,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
-        public ActionResult GetPackage(string packageId)
+        public ActionResult Get(string packageId)
         {
             try
             {
@@ -275,7 +275,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("createdate/{packageId}/{date}")]
-        public ActionResult SetPackageCreateDate(string packageId, string date)
+        public ActionResult SetCreateDate(string packageId, string date)
         { 
             try 
             { 
@@ -322,7 +322,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{id}")]
         [RequestSizeLimit(long.MaxValue)]
-        public ActionResult AddPackage([FromForm]PackageCreateFromPost incomingPackage)
+        public ActionResult Add([FromForm]PackageCreateFromPost incomingPackage)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -418,7 +418,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpDelete("{packageId}")]
-        public ActionResult DeletePackage(string packageId)
+        public ActionResult Delete(string packageId)
         {
             try
             {

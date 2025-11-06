@@ -28,7 +28,7 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public TicketsController(IArchiveService archiveService, ISettings settings, IProcessManager processManager, ILogger<ArchivesController> log)
+        public TicketsController(ISettings settings, IProcessManager processManager, ILogger<ArchivesController> log)
         {
             _settings = settings;
             _processManager = processManager;
@@ -48,7 +48,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("{requestIdentifier}")]
-        public ActionResult CreateQueueTicket(string requestIdentifier)
+        public ActionResult Add(string requestIdentifier)
         {
             try
             {
@@ -62,20 +62,19 @@ namespace Tetrifact.Web
                             message= "Ticket not required, none generated",
                             required = false
                         }
-                    });
+                    }) { StatusCode = 200 } ;
 
                 if (Request.HttpContext.Connection.RemoteIpAddress == null)
                     return new JsonResult(new
                     {
                         error = new
                         {
-                            message = "Failed to resolve IP",
-                            required = false
+                            message = "Failed to resolve IP"
                         }
-                    });
+                    }) { StatusCode = 500 };
 
                 string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-                string ticket = Obfuscator.Cloak(ip);
+                string ticket = Guid.NewGuid().ToString();
                 string requestLoggedIdentifier = $"ReqID:{requestIdentifier},IP:{ip}";
 
                 ProcessCreateResponse response = _processManager.AddByCategory(
@@ -91,7 +90,7 @@ namespace Tetrifact.Web
                         {
                             message = response.Message
                         }
-                    });
+                    }){ StatusCode = 500 };
 
                 return new JsonResult(new
                 {
@@ -100,7 +99,7 @@ namespace Tetrifact.Web
                         ticket,
                         required = true
                     }
-                });
+                }){ StatusCode = 200 };
             }
             catch (Exception ex)
             {

@@ -16,7 +16,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.UpdatePackageCreateDate(It.IsAny<string>(), It.IsAny<string>()));
 
             PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
-            JsonResult result = controller.SetPackageCreateDate("somePackage", "some-date") as JsonResult;
+            JsonResult result = controller.SetCreateDate("somePackage", "some-date") as JsonResult;
             Assert.NotNull(result);
         }
 
