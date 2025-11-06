@@ -1,18 +1,18 @@
 ﻿@using Tetrifact.Core;
-
+@using Tetrifact.Web;
 @{
     Layout = "~/Views/Shared/Layout.cshtml";
+    PackagePageModel pagemodel = ViewData["pageModel"] as PackagePageModel;
+    //string packageId = ViewData["packageId"] as string;
+    //Manifest manifest = ViewData["manifest"] as Manifest;
+    //PageableData<ManifestItem> filesPage = ViewData["filesPage"] as PageableData<ManifestItem>;
+    //ArchiveProgressInfo archiveGenerationStatus = ViewData["archiveGenerationStatus"] as ArchiveProgressInfo;
+    //string pager = ViewData["filesPager"] as string;
 
-    string packageId = ViewData["packageId"] as string;
-    Manifest manifest = ViewData["manifest"] as Manifest;
-    PageableData<ManifestItem> filesPage = ViewData["filesPage"] as PageableData<ManifestItem>;
-    ArchiveProgressInfo archiveGenerationStatus = ViewData["archiveGenerationStatus"] as ArchiveProgressInfo;
-    string pager = ViewData["filesPager"] as string;
-
-    ViewData["Title"] = $"Package : {packageId}";
+    ViewData["Title"] = $"Package : {pagemodel.PackageId}";
 }
 
-<input type="hidden" class="packageId" value="@packageId" />
+<input type="hidden" class="packageId" value="@pagemodel.PackageId" />
 
 <div class="layout-section layout-table">
 
@@ -30,7 +30,27 @@
             Created
         </div>
         <div class="layout-value">
-            @manifest.CreatedUtc.ToIso()<span class="subtext"> (@manifest.CreatedUtc.Ago() ago)</span>
+            @pagemodel.Manifest.CreatedUtc.ToIso()<span class="subtext"> (@pagemodel.Manifest.CreatedUtc.Ago() ago)</span>
+        </div>
+    </div>
+
+    <div class="layout-row">
+        <div class="layout-label">
+            Archive status
+        </div>
+        <div class="layout-value">
+            @if (pagemodel.ArchiveGenerationStatus.State == PackageArchiveCreationStates.Processed_ArchiveAvailable)
+            {
+                <text>Archive ready</text>               
+            }
+            else if (pagemodel.ArchiveGenerationStatus.State == PackageArchiveCreationStates.ArchiveGenerating)
+            {
+                <text>Archive generating (refresh page for update)</text>
+            }
+            else 
+            {
+                <text>Archive not available</text>
+            }
         </div>
     </div>
 
@@ -39,7 +59,7 @@
             File count
         </div>
         <div class="layout-value">
-            @manifest.Files.Count
+            @pagemodel.Manifest.Files.Count
         </div>
     </div>
 
@@ -48,7 +68,7 @@
             Size
         </div>
         <div class="layout-value">
-            @String.Format("{0:n0}", manifest.Size) bytes
+            @String.Format("{0:n0}", pagemodel.Manifest.Size) bytes
         </div>
     </div>
 
@@ -57,7 +77,7 @@
             Size on disk
         </div>
         <div class="layout-value">
-            @String.Format("{0:n0}", manifest.SizeOnDisk) bytes
+            @String.Format("{0:n0}", pagemodel.Manifest.SizeOnDisk) bytes
         </div>
     </div>
 
@@ -66,7 +86,7 @@
             Hash
         </div>
         <div class="layout-value">
-            @manifest.Hash
+            @pagemodel.Manifest.Hash
         </div>
     </div>
 
@@ -99,10 +119,10 @@
         <button class="button addTag">Add</button>
 
         <div>
-            @if (manifest.Tags.Any())
+            @if (pagemodel.Manifest.Tags.Any())
             {
                 <ul>
-                    @foreach (string tag in manifest.Tags.OrderBy(t => t))
+                    @foreach (string tag in pagemodel.Manifest.Tags.OrderBy(t => t))
                     {
                         <li class="listItem">
                             <a class="package-removeTag" data-tag="@tag" href="javascript:void(null)">
@@ -127,12 +147,12 @@
     <div>
         <h2>Files</h2>
         <a id="manifestFiles"></a>
-        @if (filesPage.Items.Any())
+        @if (pagemodel.FilesPage.Items.Any())
         {
             <div>
 
                 <ul>
-                    @foreach (ManifestItem file in filesPage.Items)
+                    @foreach (ManifestItem file in pagemodel.FilesPage.Items)
                     {
                         <li class="listItem">
                             <a class="listItem-icon package-download" href="/v1/files/@file.Id">&#10515;</a>
@@ -144,7 +164,7 @@
 
                 </ul>
 
-                @Html.Raw(pager)
+                @Html.Raw(pagemodel.Pager)
             </div> 
 
         } else {

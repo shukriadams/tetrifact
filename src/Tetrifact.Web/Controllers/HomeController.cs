@@ -194,11 +194,17 @@ namespace Tetrifact.Web
 
                 layoutViewModel.PageTitle = $"Package : {manifest.Id}";
 
-                ViewData["filesPage"] = filesPage;
-                ViewData["filesPager"] = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles");
+                PackagePageModel model = new PackagePageModel 
+                { 
+                    PackageId = packageId,
+                    FilesPage = filesPage,
+                    Pager = pager.Render(filesPage, _settings.PagesPerPageGroup, $"/package/{packageId}", "page", "#manifestFiles"),
+                    Manifest = manifest,
+                    ArchiveGenerationStatus = archiveGenerationStatus
+                };
+
                 ViewData["layoutViewModel"] = layoutViewModel;
-                ViewData["packageId"] = packageId;
-                ViewData["manifest"] = manifest;
+                ViewData["pageModel"] = model;
                 ViewData["archiveGenerationStatus"] = archiveGenerationStatus;
 
                 return View();
