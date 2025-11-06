@@ -28,12 +28,12 @@ namespace Tetrifact.Web
 
         public virtual QueueResponse ProcessRequest(string ip, string ticket, string waiver) 
         {
-            // local (this website) downloads always allowed.
-            if (_settings.WhiteListedLocalAddresses.Contains(ip.ToLower()))
-                return new QueueResponse { Status = QueueStatus.Pass, Reason = "local" };
-
             if (!_settings.MaximumSimultaneousDownloads.HasValue)
                 return new QueueResponse { Status = QueueStatus.Pass, Reason = "queue-not-enforced" };
+
+            // local (this website) downloads always allowed.
+            if (_settings.WhiteListedLocalAddresses.Contains(ip.ToLower()))
+                return new QueueResponse { Status = QueueStatus.Pass, Reason = "localIP" };
 
             if (_settings.DownloadQueuePriorityTickets.Contains(waiver))
                 return new QueueResponse { Status = QueueStatus.Pass, Reason = "waiver" };
@@ -41,14 +41,14 @@ namespace Tetrifact.Web
             IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
             ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
             if (userTicket == null)
-                return new QueueResponse { Status = QueueStatus.Deny, Reason = "invalid ticket" };
+                return new QueueResponse { Status = QueueStatus.Deny, Reason = "invalidTicket" };
 
             // if there are older tickets than the one user has, queue user.
             int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
-            if (count > _settings.MaximumSimultaneousDownloads)
-                return new QueueResponse { Reason = "waiting in queue", Status = QueueStatus.Wait, WaitPosition = count - _settings.MaximumSimultaneousDownloads.Value, QueueLength = count, };
+            if (count >= _settings.MaximumSimultaneousDownloads)
+                return new QueueResponse { Reason = "inQueue", Status = QueueStatus.Wait, WaitPosition = count - _settings.MaximumSimultaneousDownloads.Value, QueueLength = count, };
 
-            return new QueueResponse { Status = QueueStatus.Pass, Reason = "queue open" };
+            return new QueueResponse { Status = QueueStatus.Pass, Reason = "openQueue" };
         }
 
         #endregion
