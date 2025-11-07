@@ -24,7 +24,9 @@ namespace Tetrifact.Web
 
         private readonly IFileSystem _fileSystem;
 
-        private readonly IProcessManager _processManager;
+        private readonly IProcessManager _ticketManager;
+
+        private readonly IProcessManager _activeDownloadsTracker;
 
         private readonly IQueueHandler _queueHandler;
 
@@ -45,7 +47,8 @@ namespace Tetrifact.Web
             _archiveService = archiveService;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
-            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
+            _ticketManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
+            _activeDownloadsTracker = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveActiveDownloads);
             _log = log;
         }
 
@@ -96,8 +99,10 @@ namespace Tetrifact.Web
                 if (!_indexReader.PackageExists(packageId))
                     throw new PackageNotFoundException(packageId);
 
-                // enforce ticket if queue enabled
                 RequestHeaders headers = Request.GetTypedHeaders();
+
+                // capture optional range request - this is needed if client wants to download
+                // a segment of an archive
                 string range = string.Empty;
                 if (Request.Headers.Range.Count != 0) 
                     range = Request.Headers.Range;
@@ -105,10 +110,12 @@ namespace Tetrifact.Web
                 if (Request.Headers.ContentRange.Count != 0)
                     range = Request.Headers.ContentRange;
 
+                // note : ip is required if queueing is enabled
                 string ip = string.Empty;
                 if (Request.HttpContext.Connection.RemoteIpAddress != null)
                     ip = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
 
+                // enforce ticket if queue enabled
                 string ticketLog = string.Empty;
                 QueueResponse queueResponse = _queueHandler.ProcessRequest(ip, ticket, waiver);
                 if (queueResponse.Status == QueueStatus.Deny) 
@@ -124,7 +131,7 @@ namespace Tetrifact.Web
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
-                int totalTicketCount = _processManager.GetAll().Count();
+                int totalTicketCount = _ticketManager.GetAll().Count();
                 if (!_fileSystem.File.Exists(archivePath))
                 {
                     _archiveService.QueueArchiveCreation(packageId);
@@ -136,19 +143,26 @@ namespace Tetrifact.Web
                 else
                     range = " no range";
 
-                _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{ip}\" range:\"{range}\" ticket:\"{ticket}\" {ticketLog}, queue size {totalTicketCount}.");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
+                string downloadID = Guid.NewGuid().ToString();
+
                 progressableStream.OnComplete =()=>{
                     // clear ticket once all package has been streamed
-                    _processManager.RemoveUnique(ticket);
+                    _ticketManager.RemoveUnique(ticket);
+                    // clear tracked download
+                    _activeDownloadsTracker.RemoveUnique(downloadID);
+
                 };
 
                 progressableStream.OnProgress = (long progress, long total) => {
                     // keep ticket alive for duration of download
-                    _processManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
+                    _ticketManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
                 };
+
+                _activeDownloadsTracker.AddUnique(downloadID, new TimeSpan(0, 10, 0), $"IP:{ip}, package:{packageId}, range:{range}, waiver:{waiver}");
+                _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{ip}\" range:\"{range}\" ticket:\"{ticket}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}.");
 
                 return File(
                     progressableStream, 

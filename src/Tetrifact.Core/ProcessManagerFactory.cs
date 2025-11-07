@@ -40,6 +40,7 @@ namespace Tetrifact.Core
                 lock (_instances) 
                 {
                     IProcessManager instance = _createInstance();
+                    instance.Context = key.ToString();
                     _instances[key] = instance;
                 }
             }

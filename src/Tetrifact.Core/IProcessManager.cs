@@ -5,6 +5,8 @@ namespace Tetrifact.Core
 {
     public interface IProcessManager
     {
+        string Context { get; set; }
+
         IEnumerable<ProcessItem> GetAll();
 
         bool AnyOfKeyExists(string key);
@@ -16,6 +18,8 @@ namespace Tetrifact.Core
         void AddUnique(string key);
         
         void AddUnique(string key, TimeSpan timespan, string metadata = "");
+
+        int Count();
 
         void ClearExpired();
 

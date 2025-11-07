@@ -18,6 +18,12 @@ namespace Tetrifact.Core
 
         #endregion
 
+        #region PROPERTIES
+
+        public string Context { get; set; } = "unset";
+
+        #endregion
+
         #region CTORS
 
         public ProcessManager(ILogger<IProcessManager> log) 
@@ -28,6 +34,12 @@ namespace Tetrifact.Core
         #endregion
 
         #region METHODS
+
+        public int Count()
+        {
+            lock (_items)
+                return _items.Count();
+        }
 
         public bool Any()
         {
@@ -64,7 +76,7 @@ namespace Tetrifact.Core
                     Id = key, 
                     AddedUTC = DateTime.UtcNow});
 
-                _log.LogInformation($"Created process, id {key}, no lifespan limit.");
+                _log.LogInformation($"Created process, id {key}, no lifespan limit, {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
@@ -83,7 +95,7 @@ namespace Tetrifact.Core
                     Metadata = metadata
                 });
 
-                _log.LogInformation($"Created process, id {key}, metadata {metadata}, forced lifespan {timespan}.");
+                _log.LogInformation($"Created process, id {key}, metadata {metadata}, forced lifespan {timespan}, {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
@@ -95,7 +107,7 @@ namespace Tetrifact.Core
                     return;
 
                 _items.Remove(key);
-                _log.LogInformation($"Cleared process id {key}.");
+                _log.LogInformation($"Cleared id {key} from {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
@@ -105,12 +117,12 @@ namespace Tetrifact.Core
             {
                 if (_items.Any()) 
                 {
-                    _log.LogInformation($"Force clearing {_items.Count} processes(s) : {string.Join(",", _items)}.");
+                    _log.LogInformation($"Force clearing {_items.Count} items : {string.Join(",", _items)}, {typeof(ProcessManager).Name}:{this.Context}.");
                     _items.Clear();
                 }
                 else 
                 { 
-                    _log.LogInformation("Force clearing, no processes found.");
+                    _log.LogInformation($"Force clearing, no processes found,{typeof(ProcessManager).Name}:{this.Context}.");
                 }
             }
         }
@@ -150,7 +162,7 @@ namespace Tetrifact.Core
                         continue;
 
                     _items.Remove(key);
-                    _log.LogInformation($"Processes id {key} timed out and removed.");
+                    _log.LogInformation($"Process id {key} timed out and removed from {typeof(ProcessManager).Name}:{this.Context}.");
                 }
             }
         }
