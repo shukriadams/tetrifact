@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Tetrifact.Core;
+using Tetrifact.Web.Core;
 
 namespace Tetrifact.Web
 {
@@ -149,16 +150,19 @@ namespace Tetrifact.Web
                 string downloadID = Guid.NewGuid().ToString();
 
                 progressableStream.OnComplete =()=>{
-                    // clear ticket once all package has been streamed
+                    // clear ticket + tracker once all package has been streamed
                     _ticketManager.RemoveUnique(ticket);
-                    // clear tracked download
                     _activeDownloadsTracker.RemoveUnique(downloadID);
-
                 };
 
-                progressableStream.OnProgress = (long progress, long total) => {
-                    // keep ticket alive for duration of download
+                Debounce keepAlive = new Debounce(new TimeSpan(0, 0, 1), () => {
+                    // keep ticket + tracker alive for duration of download
                     _ticketManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
+                    _activeDownloadsTracker.KeepAlive(downloadID, string.Empty);
+                });
+
+                progressableStream.OnProgress = (long progress, long total) => {
+                    keepAlive.Invoke();
                 };
 
                 _activeDownloadsTracker.AddUnique(downloadID, new TimeSpan(0, 10, 0), $"IP:{ip}, package:{packageId}, range:{range}, waiver:{waiver}");

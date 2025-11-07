@@ -106,8 +106,9 @@ namespace Tetrifact.Core
                 if (!_items.ContainsKey(key))
                     return;
 
+                string meta = _items[key].Metadata;
                 _items.Remove(key);
-                _log.LogInformation($"Cleared id {key} from {typeof(ProcessManager).Name}:{this.Context}.");
+                _log.LogInformation($"Cleared id {key}, meta:{meta}, from {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
@@ -161,8 +162,9 @@ namespace Tetrifact.Core
                     if (DateTime.UtcNow - lastUpdate < maxLifespan)
                         continue;
 
+                    string meta = _items[key].Metadata;
                     _items.Remove(key);
-                    _log.LogInformation($"Process id {key} timed out and removed from {typeof(ProcessManager).Name}:{this.Context}.");
+                    _log.LogInformation($"Process id {key}, meta{meta}, timed out and removed from {typeof(ProcessManager).Name}:{this.Context}.");
                 }
             }
         }
