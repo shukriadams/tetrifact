@@ -140,7 +140,7 @@ namespace Tetrifact.Web
                 else
                     range = " no range";
 
-                _log.LogInformation($"Serving archive for package {packageId} to {ip}{range},{ticketLog}, queue size {totalTicketCount}.");
+                _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{ip}\" range:\"{range}\" ticket:\"{ticket}\" {ticketLog}, queue size {totalTicketCount}.");
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
