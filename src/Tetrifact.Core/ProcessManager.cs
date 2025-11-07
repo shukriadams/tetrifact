@@ -16,16 +16,13 @@ namespace Tetrifact.Core
 
         private readonly ILogger<IProcessManager> _log;
 
-        private readonly ISettings _settings;
-
         #endregion
 
         #region CTORS
 
-        public ProcessManager(ISettings settings, ILogger<IProcessManager> log) 
+        public ProcessManager(ILogger<IProcessManager> log) 
         {
             _log = log;
-            _settings = settings;
         }
 
         #endregion

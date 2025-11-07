@@ -20,8 +20,7 @@ namespace Tetrifact.Web
                 context.HttpContext.Response.StatusCode = 500;
                 context.Result = new ViewResult
                 {
-                    ViewName = "~/Views/Errors/Configuration.cshtml",
-
+                    ViewName = "~/Views/Errors/Configuration.cshtml"
                 };
             }
         }
