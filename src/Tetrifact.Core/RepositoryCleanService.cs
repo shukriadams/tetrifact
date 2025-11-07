@@ -22,7 +22,7 @@ namespace Tetrifact.Core
         
         private readonly IFile _fileFilesystem;
 
-        private readonly IProcessManager _lock;
+        private readonly IProcessManager _repositoryLocks;
     
         private IList<string> _cleaned = new List<string>();
 
@@ -35,6 +35,8 @@ namespace Tetrifact.Core
         private readonly IMemoryCache _cache;
 
         private IEnumerable<string> _existingPackageIds = new string[0];
+
+        private string _processUID;
 
         #endregion
 
@@ -53,7 +55,7 @@ namespace Tetrifact.Core
             _fileFilesystem = fileFileSystem;
             _log = log;
             _indexReader = indexReader;
-            _lock = processManagerFactory.GetInstance(ProcessManagerContext.Package_Create);
+            _repositoryLocks = processManagerFactory.GetInstance(ProcessManagerContext.Repository);
             _cache = cache;
         }
 
@@ -66,15 +68,23 @@ namespace Tetrifact.Core
         /// </summary>
         public CleanResult Clean()
         {
-            string processUID = Guid.NewGuid().ToString();
+            if (_processUID != null)
+                return new CleanResult
+                {
+                    Description = "Clean failed, cannot reuse clean service instance"
+                };
+
+            _processUID = Guid.NewGuid().ToString();
+
             try 
             {
+
                 // get a list of existing packages at time of calling. It is vital that new packages not be created
                 // while clean running, they will be cleaned up as they are not on this list
                 _existingPackageIds = _indexReader.GetAllPackageIds();
                 if (EnsureNoLock(false))
                 {
-                    IEnumerable<ProcessItem> locks = _lock.GetByCategory(ProcessCategories.Package_Create);
+                    IEnumerable<ProcessItem> locks = _repositoryLocks.GetAll();
                     return new CleanResult
                     {
                         Description = $"Package locks found, clean exited before start : ({string.Join(",", locks)})"
@@ -82,7 +92,8 @@ namespace Tetrifact.Core
 
                 }
 
-                _lock.AddUnique(ProcessCategories.CleanRepository, processUID);
+                _repositoryLocks.AddUnique(_processUID);
+
                 _log.LogInformation($"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
 
                 this.LockPasses = 0;
@@ -102,7 +113,7 @@ namespace Tetrifact.Core
                 if (ex.Message.StartsWith("System currently locked"))
                 {
                     _log.LogInformation("Clean aborted, lock detected");
-                    IEnumerable<ProcessItem> locks = _lock.GetByCategory(ProcessCategories.Package_Create);
+                    IEnumerable<ProcessItem> locks = _repositoryLocks.GetAll();
                     return new CleanResult{
                         Cleaned = _cleaned, 
                         Failed = _failed, 
@@ -117,7 +128,7 @@ namespace Tetrifact.Core
             }
             finally 
             {
-                _lock.RemoveUnique(processUID);
+                _repositoryLocks.RemoveUnique(_processUID);
             }
         }
 
@@ -126,7 +137,7 @@ namespace Tetrifact.Core
         /// </summary>
         private bool EnsureNoLock(bool throwOnOLock = true)
         {
-            if (_lock.AnyWithCategoryExists(ProcessCategories.Package_Create))
+            if (_repositoryLocks.AnyOtherThan(_processUID))
             { 
                 if (throwOnOLock)
                     throw new Exception($"System currently locked, clear process aborting");

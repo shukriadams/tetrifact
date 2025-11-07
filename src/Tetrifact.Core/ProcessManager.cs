@@ -29,31 +29,22 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public bool Any()
+        {
+            lock (_items)
+                return _items.Any();
+        }
+
+        public bool AnyOtherThan(string key)
+        {
+            lock (_items)
+                return _items.Any(item => item.Key != key);
+        }
+
         public IEnumerable<ProcessItem> GetAll()
         {
             lock (_items)
-                return _items.Values.Select(v => v.Clone());
-        }
-
-        /// <summary>
-        /// Gets processes of given category
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
-        public IEnumerable<ProcessItem> GetByCategory(ProcessCategories category)
-        {
-            lock (_items)
-                return _items.Where(i => i.Value.Category == category).Select(v => v.Value.Clone());
-        }
-
-        /// <summary>
-        /// Returns true if any process with the given category exists.
-        /// </summary>
-        /// <returns></returns>
-        public bool AnyWithCategoryExists(ProcessCategories category)
-        {
-            lock(_items)
-                return _items.Where(i => i.Value.Category == category).Any();
+                return _items.Values.Select(value => value.Clone());
         }
 
         public bool AnyOfKeyExists(string key)
@@ -62,7 +53,7 @@ namespace Tetrifact.Core
                 return _items.ContainsKey(key);
         }
 
-        public void AddUnique(ProcessCategories category, string key)
+        public virtual void AddUnique(string key)
         {
             lock (_items)
             {
@@ -71,32 +62,13 @@ namespace Tetrifact.Core
 
                 _items.Add(key, new ProcessItem { 
                     Id = key, 
-                    AddedUTC = DateTime.UtcNow,
-                    Category = category });
+                    AddedUTC = DateTime.UtcNow});
 
-                _log.LogInformation($"Created process, category {category}, id {key}, no lifespan limit.");
+                _log.LogInformation($"Created process, id {key}, no lifespan limit.");
             }
         }
 
-        public virtual ProcessCreateResponse AddByCategory(ProcessCategories category, TimeSpan timespan, string key, string metadata)
-        {
-            lock (_items)
-            {
-                _items.Add(key, new ProcessItem { 
-                    Id = key, 
-                    AddedUTC = DateTime.UtcNow,
-                    KeepAliveUtc = DateTime.UtcNow,
-                    Category = category,
-                    MaxLifespan = timespan,
-                    Metadata = metadata
-                });
-
-                _log.LogInformation($"Created process, category {category}, id {key}, metadata {metadata}, timespan {timespan.ToHumanString()}.");
-                return new ProcessCreateResponse { Success = true };
-            }
-        }
-
-        public void AddUnique(ProcessCategories category, string key, TimeSpan timespan)
+        public virtual void AddUnique(string key, TimeSpan timespan, string metadata = "")
         {
             lock (_items)
             {
@@ -108,9 +80,10 @@ namespace Tetrifact.Core
                     AddedUTC = DateTime.UtcNow,
                     KeepAliveUtc = DateTime.UtcNow,
                     MaxLifespan = timespan,
-                    Category = category });
+                    Metadata = metadata
+                });
 
-                _log.LogInformation($"Created process, category {category}, id {key}, forced lifespan {timespan}.");
+                _log.LogInformation($"Created process, id {key}, metadata {metadata}, forced lifespan {timespan}.");
             }
         }
 

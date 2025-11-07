@@ -17,7 +17,7 @@ namespace Tetrifact.Core
 
         ITimeProvider _timeprovider;
 
-        IProcessManager _processManager;
+        IProcessManager _repositoryLocks;
 
         IPruneBracketProvider _pruneBracketProvider;
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Core
             _indexReader = indexReader;
             _log = log;
             _timeprovider = timeprovider;
-            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.Package_Create);
+            _repositoryLocks = processManagerFactory.GetInstance(ProcessManagerContext.Repository);
             _pruneBracketProvider = pruneBracketProvider;
         }
 
@@ -55,9 +55,9 @@ namespace Tetrifact.Core
                 return new PrunePlan { AbortDescription = "Prune exited on start, disabled." };
             }
 
-            if (_processManager.AnyWithCategoryExists(ProcessCategories.Package_Create))
+            if (_repositoryLocks.Any())
             {
-                IEnumerable<ProcessItem> locks = _processManager.GetAll();
+                IEnumerable<ProcessItem> locks = _repositoryLocks.GetAll();
                 _log.LogInformation($"Prune exited on start, locks detected  : ({string.Join(", ", locks)}).");
                 return new PrunePlan { AbortDescription = $"Prune exited on start, locks detected  : ({string.Join(", ", locks)})." };
             }

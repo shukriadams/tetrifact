@@ -34,7 +34,7 @@ namespace Tetrifact.Tests.repositoryCleaner
             ISettings settings = TestContext.Get<ISettings>();
             IRepositoryCleanService repositoryCleaner = TestContext.Get<IRepositoryCleanService>();
 
-            // create arbitrary, empty directory
+            // create arbitrary, empty directory in repo location, we expect this to be removed by clean
             string dir = Path.Combine(settings.RepositoryPath, $"an/empty/{Guid.NewGuid()}");
             Directory.CreateDirectory(dir);
 
@@ -254,8 +254,8 @@ namespace Tetrifact.Tests.repositoryCleaner
             IRepositoryCleanService repoCleaner = TestContext.Get<IRepositoryCleanService>();
 
             // get the lock instance repo cleaner uses. Add a lock to it, this should block cleans
-            IProcessManager lockInstance = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.Package_Create);
-            lockInstance.AddUnique(ProcessCategories.Package_Create, "some-package");
+            IProcessManager lockInstance = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.Repository);
+            lockInstance.AddUnique("some-package");
 
             CleanResult result = repoCleaner.Clean();
 

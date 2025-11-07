@@ -20,11 +20,6 @@ namespace Tetrifact.Core
         public string Description { get; set; }
 
         /// <summary>
-        /// Grouping name for item. 
-        /// </summary>
-        public ProcessCategories Category { get; set; }
-
-        /// <summary>
         /// If set, the time item was created. 
         /// </summary>
         public DateTime? AddedUTC { get; set; }
@@ -54,7 +49,7 @@ namespace Tetrifact.Core
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{{{this.GetType().Name} Id:{Id}, MetaData:{Metadata}, Category:{Category}, AddedUtc:{AddedUTC}, KeepAliveUtc:{KeepAliveUtc}, MaxLifespace:{MaxLifespan} }}";
+            return $"{{{this.GetType().Name} Id:{Id}, MetaData:{Metadata}, AddedUtc:{AddedUTC}, KeepAliveUtc:{KeepAliveUtc}, MaxLifespace:{MaxLifespan} }}";
         }
     }
 }

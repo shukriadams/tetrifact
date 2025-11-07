@@ -13,7 +13,7 @@ namespace Tetrifact.Web
 
         private readonly ILogger<ArchivesController> _log;
 
-        private readonly IProcessManager _processManager;
+        private readonly IProcessManager _ticketManager;
 
         private readonly ISettings _settings;
 
@@ -31,7 +31,7 @@ namespace Tetrifact.Web
         public TicketsController(ISettings settings, IProcessManagerFactory processManagerFactory, ILogger<ArchivesController> log)
         {
             _settings = settings;
-            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            _ticketManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
             _log = log;
         }
 
@@ -77,20 +77,10 @@ namespace Tetrifact.Web
                 string ticket = Guid.NewGuid().ToString();
                 string requestLoggedIdentifier = $"ReqID:{requestIdentifier},IP:{ip}";
 
-                ProcessCreateResponse response = _processManager.AddByCategory(
-                    ProcessCategories.ArchiveQueueSlot,
-                    new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan),
+                _ticketManager.AddUnique(
                     ticket,
+                    new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan),
                     requestLoggedIdentifier);
-
-                if (!response.Success)
-                    return new JsonResult(new
-                    {
-                        error = new
-                        {
-                            message = response.Message
-                        }
-                    }){ StatusCode = 500 };
 
                 return new JsonResult(new
                 {

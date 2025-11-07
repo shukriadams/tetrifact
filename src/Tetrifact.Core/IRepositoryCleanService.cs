@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Tetrifact.Core
 {
     /// <summary>

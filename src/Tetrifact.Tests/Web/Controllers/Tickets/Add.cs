@@ -54,21 +54,11 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
             Settings settings = new Settings();
             settings.MaximumSimultaneousDownloads = 1;
 
-            // mock process manager to return ticket
-            Mock<IProcessManager> processManager = new Mock<IProcessManager>();
-            processManager
-                .Setup(r => r.AddByCategory(It.IsAny<ProcessCategories>(), It.IsAny<TimeSpan>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((ProcessCategories c, TimeSpan ts, string key, string meta) =>
-                {
-                    return new ProcessCreateResponse { Success = true };
-                });
-
-            TicketsController controller = TestContext.Get<TicketsController>("settings", settings, "processManager", processManager.Object);
+            TicketsController controller = TestContext.Get<TicketsController>("settings", settings);
             HttpHelper.EnsureContext(controller);
 
             // ensure request has IP, else request will be ignored
             controller.ControllerContext.HttpContext.Connection.RemoteIpAddress = IPAddress.Parse("0.0.0.0");
-
 
             JsonResult response = controller.Add(string.Empty) as JsonResult;
             dynamic responseJson = JsonHelper.ToDynamic(response);

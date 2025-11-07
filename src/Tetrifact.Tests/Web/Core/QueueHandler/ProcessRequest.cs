@@ -69,13 +69,13 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             settings.MaximumSimultaneousDownloads = 1;
 
             // get process manager used by queuen manager
-            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveTickets);
 
             // add some tickets
             TimeSpan ticketDuration = new TimeSpan(100000);
-            processManager.AddByCategory(ProcessCategories.ArchiveQueueSlot, ticketDuration, "other-user-ticket", string.Empty);
+            processManager.AddUnique("other-user-ticket", ticketDuration,  string.Empty);
             Thread.Sleep(10);// wait a smidge to ensure time seperation of tickets
-            processManager.AddByCategory(ProcessCategories.ArchiveQueueSlot, ticketDuration, "my-ticket", string.Empty);
+            processManager.AddUnique("my-ticket", ticketDuration, string.Empty);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
             QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");
@@ -91,9 +91,9 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             settings.MaximumSimultaneousDownloads = 1;
 
             // get lock manager the queue handler uses
-            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveTickets);
             // make us a ticket
-            processManager.AddByCategory(ProcessCategories.ArchiveQueueSlot, new TimeSpan(100000), "my-ticket", string.Empty);
+            processManager.AddUnique("my-ticket", new TimeSpan(100000), string.Empty);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
             QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");

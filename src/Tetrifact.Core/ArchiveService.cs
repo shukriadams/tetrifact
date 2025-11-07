@@ -43,7 +43,7 @@ namespace Tetrifact.Core
             _storageService = storageService;
             _fileSystem = fileSystem;
             _log = log;
-            _archiveProcesses = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            _archiveProcesses = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
         }
 
         #endregion

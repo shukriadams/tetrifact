@@ -10,7 +10,7 @@ namespace Tetrifact.Web
 
         private ISettings _settings;
 
-        private IProcessManager _processManager;
+        private IProcessManager _ticketManager;
 
         #endregion
 
@@ -19,7 +19,7 @@ namespace Tetrifact.Web
         public QueueHandler(ISettings settings, IProcessManagerFactory processManagerFactory) 
         {
             _settings = settings;
-            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            _ticketManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
         }
 
         #endregion
@@ -38,7 +38,7 @@ namespace Tetrifact.Web
             if (_settings.DownloadQueuePriorityTickets.Contains(waiver))
                 return new QueueResponse { Status = QueueStatus.Pass, Reason = "waiver" };
 
-            IEnumerable<ProcessItem> userTickets = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot);
+            IEnumerable<ProcessItem> userTickets = _ticketManager.GetAll();
             ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
             if (userTicket == null)
                 return new QueueResponse { Status = QueueStatus.Deny, Reason = "invalidTicket" };

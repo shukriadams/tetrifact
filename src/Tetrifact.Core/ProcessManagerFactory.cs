@@ -7,6 +7,11 @@ namespace Tetrifact.Core
     /// </summary>
     public class ProcessManagerFactory : IProcessManagerFactory
     {
+        /// <summary>
+        /// Calls out to some provider to give us an instance of IProcessManager. We do it this way to let us use multiple IOC providers to instantiate
+        /// this type.
+        /// </summary>
+        /// <returns></returns>
         public delegate IProcessManager CreateInstance();
 
         #region FIELDS

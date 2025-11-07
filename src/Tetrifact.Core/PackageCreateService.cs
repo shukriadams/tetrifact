@@ -23,7 +23,7 @@ namespace Tetrifact.Core
 
         private readonly IArchiveService _archiveService;
 
-        private readonly IProcessManager _lock;
+        private readonly IProcessManager _repositoryLocks;
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace Tetrifact.Core
             _workspace = workspace;
             _settings = settings;
             _hashService = hashService;
-            _lock = processManagerFactory.GetInstance(ProcessManagerContext.Package_Create);
+            _repositoryLocks = processManagerFactory.GetInstance(ProcessManagerContext.Repository);
         }
 
         #endregion
@@ -84,7 +84,7 @@ namespace Tetrifact.Core
                 long size = newPackage.Files.Sum(f => f.Content.Length);
 
                 // prevent deletes of empty repository folders this package might need to write to
-                _lock.AddUnique(ProcessCategories.Package_Create, newPackage.Id);
+                _repositoryLocks.AddUnique(newPackage.Id);
 
                 _workspace.Initialize();
 
@@ -193,7 +193,7 @@ namespace Tetrifact.Core
             finally
             {
                 if (newPackage.Id != null)
-                    _lock.RemoveUnique(newPackage.Id);
+                    _repositoryLocks.RemoveUnique(newPackage.Id);
             }
         }
 

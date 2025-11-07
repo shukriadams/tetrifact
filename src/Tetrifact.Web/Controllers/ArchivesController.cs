@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -46,7 +45,7 @@ namespace Tetrifact.Web
             _archiveService = archiveService;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
-            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
             _log = log;
         }
 
@@ -125,7 +124,7 @@ namespace Tetrifact.Web
                 }
 
                 string archivePath = _archiveService.GetPackageArchivePath(packageId);
-                int totalTicketCount = _processManager.GetByCategory(ProcessCategories.ArchiveQueueSlot).Count();
+                int totalTicketCount = _processManager.GetAll().Count();
                 if (!_fileSystem.File.Exists(archivePath))
                 {
                     _archiveService.QueueArchiveCreation(packageId);

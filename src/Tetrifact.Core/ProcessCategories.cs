@@ -1,9 +1,0 @@
-﻿namespace Tetrifact.Core
-{
-    public enum ProcessCategories 
-    {
-        ArchiveQueueSlot, 
-        Package_Create, // rename to repository_lock
-        CleanRepository
-    }
-}
