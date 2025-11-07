@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tetrifact.Web.Core
+namespace Tetrifact.Web
 {
     public class Debounce
     {

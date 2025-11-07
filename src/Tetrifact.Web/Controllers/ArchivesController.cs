@@ -7,7 +7,6 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Tetrifact.Core;
-using Tetrifact.Web.Core;
 
 namespace Tetrifact.Web
 {
