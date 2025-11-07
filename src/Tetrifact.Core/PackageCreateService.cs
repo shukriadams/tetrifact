@@ -25,22 +25,19 @@ namespace Tetrifact.Core
 
         private readonly IProcessManager _lock;
 
-        private readonly IFileSystem _filesystem;
-
         #endregion
 
         #region CTORS
 
-        public PackageCreateService(IIndexReadService indexReader, IProcessManager lockInstance, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService, IFileSystem filesystem)
+        public PackageCreateService(IIndexReadService indexReader, IProcessManagerFactory processManagerFactory, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;
-            _filesystem = filesystem;
             _archiveService = archiveService;
             _workspace = workspace;
             _settings = settings;
             _hashService = hashService;
-            _lock = lockInstance;
+            _lock = processManagerFactory.GetInstance(ProcessManagerContext.Package_Create);
         }
 
         #endregion

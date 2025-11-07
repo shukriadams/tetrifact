@@ -46,8 +46,6 @@ namespace Tetrifact.Web
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
 
-            // register type injections here. Note : Settings is not deliberately not here, we always want
-            // to fetch an instance of settings from ISettingsProvider.
             services.AddTransient<IIndexReadService, IndexReadService>();
             services.AddTransient<IRepositoryCleanService, RepositoryCleanService>();
             services.AddTransient<IPackageCreateWorkspace, PackageCreateWorkspace>();
@@ -65,16 +63,23 @@ namespace Tetrifact.Web
             services.AddTransient<IArchiveService, ArchiveService>();
             services.AddTransient<IMetricsService, MetricsService>();
             services.AddTransient<ISystemCallsService, SystemCallsService>();
-            services.AddSingleton<IProcessManager, ProcessManager>();
+
             services.AddSingleton<ISettingsProvider, DefaultSettingsProvider>();
             services.AddTransient<IDaemon, Daemon>();
+            services.AddTransient<IProcessManager, ProcessManager>();
             services.AddTransient<ITimeProvider, TimeProvider>();
             services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
             services.AddTransient<IFileStreamProvider, LocalFileStreamProvider>();
             services.AddTransient<IStorageService, LocalStorageService>();
             services.AddTransient<IPruneBracketProvider, PruneBracketProvider>();
             services.AddTransient<IQueueHandler, QueueHandler>();
-            
+
+            services.AddSingleton<IProcessManagerFactory>(serviceProvider =>{
+                return new ProcessManagerFactory(() =>
+                {
+                    return serviceProvider.GetRequiredService<IProcessManager>();
+                });
+            });
 
             // all ICron types registered here are automatically started in Configure() method below
             services.AddTransient<ICron, MetricsCron>();
@@ -83,10 +88,10 @@ namespace Tetrifact.Web
             services.AddTransient<ICron, ArchiveGenerator>();
             services.AddTransient<ICron, ProcessManagerCron>();
 
-            // ignore error, how else are we going to get an instance of settings from this piece of crap Microsoft IOC framework?
-            ISettingsProvider settingsProvider = services.BuildServiceProvider().GetRequiredService<ISettingsProvider>();
-            ISettings settings = settingsProvider.Get();
-            services.AddSingleton(settings);
+            services.AddSingleton<ISettings>(serviceProvider => {
+                ISettingsProvider settingsProvider = serviceProvider.GetRequiredService<ISettingsProvider>();
+                return settingsProvider.Get();
+            });
 
             // enable async
             services.Configure<KestrelServerOptions>(options =>
@@ -124,9 +129,8 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ISettings settings, IServiceProvider serviceProvider)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -157,23 +161,18 @@ namespace Tetrifact.Web
                 }
             });
 
+
             Console.WriteLine($"Configuring middleware ({Global.StartTimeUtc.Ago(true)})");
-
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseRouting();
             app.UseResponseCompression(); // http compression
-
-            IServiceProvider serviceProvider = app.ApplicationServices;
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
 
-            ISettingsProvider settingsProvider = serviceProvider.GetService<ISettingsProvider>();
-            ISettings settings = settingsProvider.Get();
             loggerFactory.AddFile(settings.LogPath);
 
             bool isValid = settings.Validate();
@@ -217,7 +216,7 @@ namespace Tetrifact.Web
                 foreach (ICron cron in crons)
                     cron.Start();
 
-                Console.WriteLine($"Server configuration complete ({Global.StartTimeUtc.Ago(true)})");
+                Console.WriteLine($"Server startup completed in {Global.StartTimeUtc.Ago(true)}");
                 Console.WriteLine("*********************************************************************");
             }
         }

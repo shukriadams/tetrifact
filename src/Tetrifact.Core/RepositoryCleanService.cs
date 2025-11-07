@@ -46,14 +46,14 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessManager lockInstance, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessManagerFactory processManagerFactory, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
             _fileFilesystem = fileFileSystem;
             _log = log;
             _indexReader = indexReader;
-            _lock = lockInstance;
+            _lock = processManagerFactory.GetInstance(ProcessManagerContext.Package_Create);
             _cache = cache;
         }
 
@@ -109,7 +109,7 @@ namespace Tetrifact.Core
                         DirectoriesScanned = _directoriesScanned, 
                         FilesScanned = _filesScanned, 
                         PackagesInSystem = _existingPackageIds.Count(),
-                        Description = $"Clean aborted, locked detected : ({string.Join(",", locks)}"
+                        Description = $"Clean aborted, package create locks detected : ({string.Join(",", locks)}"
                     };
                 }
                 else

@@ -27,13 +27,13 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PruneService(ISettings settings, IPruneBracketProvider pruneBracketProvider, IProcessManager processManager, ITimeProvider timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
+        public PruneService(ISettings settings, IPruneBracketProvider pruneBracketProvider, IProcessManagerFactory processManagerFactory, ITimeProvider timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
         {
             _settings = settings;
             _indexReader = indexReader;
             _log = log;
             _timeprovider = timeprovider;
-            _processManager = processManager;
+            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.Package_Create);
             _pruneBracketProvider = pruneBracketProvider;
         }
 

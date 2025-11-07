@@ -28,10 +28,10 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public TicketsController(ISettings settings, IProcessManager processManager, ILogger<ArchivesController> log)
+        public TicketsController(ISettings settings, IProcessManagerFactory processManagerFactory, ILogger<ArchivesController> log)
         {
             _settings = settings;
-            _processManager = processManager;
+            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
             _log = log;
         }
 

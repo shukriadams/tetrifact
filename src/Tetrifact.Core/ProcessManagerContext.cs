@@ -1,8 +1,9 @@
 ﻿namespace Tetrifact.Core
 {
-    public enum ProcessCategories 
+    public enum ProcessManagerContext
     {
-        ArchiveQueueSlot, 
+        ArchiveDownloads,
+        ArchiveQueueSlot,
         Package_Create, // rename to repository_lock
         CleanRepository
     }

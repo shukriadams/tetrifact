@@ -16,10 +16,10 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public QueueHandler(ISettings settings, IProcessManager processManager) 
+        public QueueHandler(ISettings settings, IProcessManagerFactory processManagerFactory) 
         {
             _settings = settings;
-            _processManager = processManager;
+            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
         }
 
         #endregion

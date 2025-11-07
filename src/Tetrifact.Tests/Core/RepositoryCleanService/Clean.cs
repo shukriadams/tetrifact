@@ -251,10 +251,12 @@ namespace Tetrifact.Tests.repositoryCleaner
         [Fact]
         public void EnsureNoLock_Coverage()
         {
-            IProcessManager lockInstance = TestContext.Get<IProcessManager>();
             IRepositoryCleanService repoCleaner = TestContext.Get<IRepositoryCleanService>();
 
+            // get the lock instance repo cleaner uses. Add a lock to it, this should block cleans
+            IProcessManager lockInstance = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.Package_Create);
             lockInstance.AddUnique(ProcessCategories.Package_Create, "some-package");
+
             CleanResult result = repoCleaner.Clean();
 
             Assert.Contains("Package locks found, clean exited before start", result.Description);

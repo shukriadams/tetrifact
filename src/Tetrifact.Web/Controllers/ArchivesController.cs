@@ -27,8 +27,6 @@ namespace Tetrifact.Web
 
         private readonly IProcessManager _processManager;
 
-        private readonly ISettings _settings;
-
         private readonly IQueueHandler _queueHandler;
 
         #endregion
@@ -42,14 +40,13 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ArchivesController(IArchiveService archiveService, IQueueHandler queueHandler, ISettings settings, IProcessManager processManager, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
+        public ArchivesController(IArchiveService archiveService, IQueueHandler queueHandler, IProcessManagerFactory processManagerFactory, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
         {
             _queueHandler = queueHandler;
             _archiveService = archiveService;
             _indexReader = indexReader;
             _fileSystem = fileSystem;
-            _settings = settings;
-            _processManager = processManager;
+            _processManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
             _log = log;
         }
 

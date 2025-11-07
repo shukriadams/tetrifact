@@ -22,8 +22,6 @@ namespace Tetrifact.Tests
 
         ISettings _settings;
 
-        IProcessManager _lockInstance;
-
         TestLogger<IRepositoryCleanService> _repositoryCleanServiceLog;
 
         public StandardKernel Kernel { get { return _kernel; } }
@@ -32,17 +30,6 @@ namespace Tetrifact.Tests
         {
             _kernel = new StandardKernel();
 
-            var processManagerFactory = new Func<IContext, IProcessManager>(context =>
-            {
-                if (_lockInstance == null)
-                {
-                    ILogger<IProcessManager> log = this.Get<ILogger<IProcessManager>>();
-                    _lockInstance = new ProcessManager(_settings, log);
-                }
-
-                return _lockInstance;
-            });
-
             var RepositoryCleanServiceFactory = new Func<IContext, ILogger<IRepositoryCleanService>>(context =>
             {
                 if (_repositoryCleanServiceLog == null)
@@ -50,6 +37,7 @@ namespace Tetrifact.Tests
 
                 return _repositoryCleanServiceLog;
             });
+
 
             var SettingsFactory = new Func<IContext, ISettings>(context =>
             {
@@ -104,7 +92,11 @@ namespace Tetrifact.Tests
             _kernel.Bind<IPruneService>().To<PruneService>();
             _kernel.Bind<IPackageDiffService>().To<PackageDiffService>();
             _kernel.Bind<IArchiveService>().To<Core.ArchiveService>();
-            _kernel.Bind<IProcessManager>().ToMethod(processManagerFactory).InSingletonScope(); // ordinary singleton binding not working, use factory instead
+            _kernel.Bind<IProcessManager>().To<Core.ProcessManager>();
+            _kernel.Bind<IProcessManagerFactory>().ToConstant(new ProcessManagerFactory(() => {
+                return _kernel.Get<IProcessManager>();
+            }));
+
             _kernel.Bind<IMetricsService>().To<MetricsService>();
             _kernel.Bind<ISystemCallsService>().To<SystemCallsService>();
             _kernel.Bind<IHostApplicationLifetime>().To<TestHostApplicationLifetime>();

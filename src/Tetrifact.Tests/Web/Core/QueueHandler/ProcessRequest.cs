@@ -68,7 +68,10 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             // force some queue value to enforce it
             settings.MaximumSimultaneousDownloads = 1;
 
-            IProcessManager processManager = this.TestContext.Get<IProcessManager>();
+            // get process manager used by queuen manager
+            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+
+            // add some tickets
             TimeSpan ticketDuration = new TimeSpan(100000);
             processManager.AddByCategory(ProcessCategories.ArchiveQueueSlot, ticketDuration, "other-user-ticket", string.Empty);
             Thread.Sleep(10);// wait a smidge to ensure time seperation of tickets
@@ -87,9 +90,10 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             // force some queue value to enforce it
             settings.MaximumSimultaneousDownloads = 1;
 
-            IProcessManager processManager = this.TestContext.Get<IProcessManager>();
-            TimeSpan ticketDuration = new TimeSpan(100000);
-            processManager.AddByCategory(ProcessCategories.ArchiveQueueSlot, ticketDuration, "my-ticket", string.Empty);
+            // get lock manager the queue handler uses
+            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveQueueSlot);
+            // make us a ticket
+            processManager.AddByCategory(ProcessCategories.ArchiveQueueSlot, new TimeSpan(100000), "my-ticket", string.Empty);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
             QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");

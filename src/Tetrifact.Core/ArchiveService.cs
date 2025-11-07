@@ -23,7 +23,7 @@ namespace Tetrifact.Core
 
         private readonly IFileSystem _fileSystem;
 
-        private readonly IProcessManager _lock;
+        private readonly IProcessManager _archiveProcesses;
 
         private readonly IMemoryCache _cache;
 
@@ -34,7 +34,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IFileStreamProvider fileStreamProvider, IStorageService storageService, IProcessManager lockInstance, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
+        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IFileStreamProvider fileStreamProvider, IStorageService storageService, IProcessManagerFactory processManagerFactory, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
         {
             _settings = settings;
             _cache = cache;
@@ -43,7 +43,7 @@ namespace Tetrifact.Core
             _storageService = storageService;
             _fileSystem = fileSystem;
             _log = log;
-            _lock = lockInstance;
+            _archiveProcesses = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveQueueSlot);
         }
 
         #endregion
@@ -174,7 +174,7 @@ namespace Tetrifact.Core
 
             foreach (string archive in archives)
             {
-                if (_lock.AnyOfKeyExists(archive))
+                if (_archiveProcesses.AnyOfKeyExists(archive))
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
                     _log.LogWarning($"Failed to purge archive {archive}, assuming in use. Will attempt delete on next pass.");
@@ -333,7 +333,7 @@ namespace Tetrifact.Core
             // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
             // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
-            if (_lock.AnyOfKeyExists(archivePathTemp))
+            if (_archiveProcesses.AnyOfKeyExists(archivePathTemp))
             {
                 _log.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
                 return;
@@ -354,7 +354,7 @@ namespace Tetrifact.Core
             }
             finally
             {
-                _lock.RemoveUnique(archivePathTemp);
+                _archiveProcesses.RemoveUnique(archivePathTemp);
             }
         }
 

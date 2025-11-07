@@ -25,16 +25,13 @@ namespace Tetrifact.Core
         
         private readonly IHashService _hashService;
 
-        private readonly IProcessManager _lock;
-
         private readonly IMemoryCache _cache;
 
         #endregion
 
         #region CTORS
 
-        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService, IProcessManager lockInstance)
-
+        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
@@ -42,7 +39,6 @@ namespace Tetrifact.Core
             _cache = cache;
             _fileSystem = fileSystem;
             _hashService = hashService;
-            _lock = lockInstance;
         }
 
         #endregion
@@ -295,14 +291,7 @@ namespace Tetrifact.Core
             {
                 try
                 {
-                    if (_lock.AnyOfKeyExists(archivePath))
-                    {
-                        _log.LogWarning($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass.");
-                    }
-                    else
-                    {
-                        _fileSystem.File.Delete(archivePath);
-                    }
+                    _fileSystem.File.Delete(archivePath);
                 }
                 catch (IOException ex)
                 {

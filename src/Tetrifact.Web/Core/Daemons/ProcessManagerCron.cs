@@ -10,7 +10,7 @@ namespace Tetrifact.Web
 
         private readonly ILogger<CleanerCron> _log;
 
-        private readonly IProcessManager _lock;
+        private readonly IProcessManagerFactory _processManagerFactory;
 
         private readonly IDaemon _daemonrunner;
 
@@ -20,10 +20,10 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public ProcessManagerCron(ISettings settings, IDaemon daemonrunner, IProcessManager lockInstance, ILogger<CleanerCron> log)
+        public ProcessManagerCron(ISettings settings, IDaemon daemonrunner, IProcessManagerFactory processManagerFactory, ILogger<CleanerCron> log)
         {
             _settings = settings;
-            _lock = lockInstance;
+            _processManagerFactory = processManagerFactory;
             _log = log;
             _daemonrunner = daemonrunner;
         }
@@ -48,7 +48,7 @@ namespace Tetrifact.Web
         /// </summary>
         public override async Task Work()
         {
-            _lock.ClearExpired();
+            _processManagerFactory.ClearExpired();
         }
 
         #endregion

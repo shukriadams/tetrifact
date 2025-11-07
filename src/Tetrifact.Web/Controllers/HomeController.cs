@@ -16,7 +16,7 @@ namespace Tetrifact.Web
         private readonly IIndexReadService _indexService;
         private readonly IPackageListService _packageList;
         private readonly ILogger<HomeController> _log;
-        private readonly IProcessManager _processes;
+        private readonly IProcessManagerFactory _processManagerFactory;
         private readonly IArchiveService _archiveService;
         private readonly IMemoryCache _cache;
 
@@ -24,13 +24,13 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettings settings, IProcessManager processes, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(ISettings settings, IProcessManagerFactory processManagerFactory, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
         {
             _settings = settings;
             _indexService = indexService;
             _packageList = packageList;
             _log = log;
-            _processes = processes;
+            _processManagerFactory = processManagerFactory;
             _cache = cache;
             _archiveService = archiveService;
         }
@@ -112,6 +112,9 @@ namespace Tetrifact.Web
         {
             try
             {
+                /*
+                 * redo list for all instances
+                 * 
                 IEnumerable<ProcessItem> processes = _processes.GetAll();
                 ViewData["processes"] = processes;
                 ViewData["layoutViewModel"] = new LayoutViewModel {
@@ -120,7 +123,7 @@ namespace Tetrifact.Web
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName
                 };
-
+                */
                 return View();
             }
             catch (Exception ex)
