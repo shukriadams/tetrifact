@@ -79,8 +79,6 @@ namespace Tetrifact.Web
         }
 
 
-
-
         /// <summary>
         /// Downloads an archive, starts its creation if archive doesn't exist. Returns when archive is available. 
         /// Supports range processing for resuming broken downloads.
@@ -146,25 +144,23 @@ namespace Tetrifact.Web
 
                 Stream archiveStream = _archiveService.GetPackageAsArchive(packageId);
                 ProgressableStream progressableStream = new ProgressableStream(archiveStream);
-                string downloadID = Guid.NewGuid().ToString();
 
                 progressableStream.OnComplete =()=>{
-                    // clear ticket + tracker once all package has been streamed
-                    _ticketManager.RemoveUnique(ticket);
-                    _activeDownloadsTracker.RemoveUnique(downloadID);
+                    _activeDownloadsTracker.RemoveUnique(ticket);
+                    // don't delete ticket, let it time out passively
                 };
 
                 Debounce keepAlive = new Debounce(new TimeSpan(0, 0, 1), () => {
                     // keep ticket + tracker alive for duration of download
                     _ticketManager.KeepAlive(ticket, $"Range:{range}, package:{packageId}");
-                    _activeDownloadsTracker.KeepAlive(downloadID, string.Empty);
+                    _activeDownloadsTracker.KeepAlive(ticket, string.Empty);
                 });
 
                 progressableStream.OnProgress = (long progress, long total) => {
                     keepAlive.Invoke();
                 };
 
-                _activeDownloadsTracker.AddUnique(downloadID, new TimeSpan(0, 10, 0), $"IP:{ip}, package:{packageId}, range:{range}, waiver:{waiver}");
+                _activeDownloadsTracker.AddUnique(ticket, new TimeSpan(0, 10, 0), $"IP:{ip}, package:{packageId}, range:{range}, waiver:{waiver}");
                 _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{ip}\" range:\"{range}\" ticket:\"{ticket}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}.");
 
                 return File(

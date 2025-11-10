@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -8,9 +9,11 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private ISettings _settings;
+        private readonly ISettings _settings;
 
-        private IProcessManager _ticketManager;
+        private readonly IProcessManager _ticketManager;
+
+        private readonly IProcessManager _activeDownloadsTracker;
 
         #endregion
 
@@ -20,10 +23,11 @@ namespace Tetrifact.Web
         {
             _settings = settings;
             _ticketManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
+            _activeDownloadsTracker = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveActiveDownloads);
         }
 
         #endregion
-        
+
         #region METHODS
 
         public virtual QueueResponse ProcessRequest(string ip, string ticket, string waiver) 
@@ -43,10 +47,14 @@ namespace Tetrifact.Web
             if (userTicket == null)
                 return new QueueResponse { Status = QueueStatus.Deny, Reason = "invalidTicket" };
 
+            // ticket is already being used, wait for it to exit
+            if (_activeDownloadsTracker.AnyOfKeyExists(ticket))
+                return new QueueResponse { Reason = "inQueue", Status = QueueStatus.Wait };
+
             // if there are older tickets than the one user has, queue user.
             int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
             if (count >= _settings.MaximumSimultaneousDownloads)
-                return new QueueResponse { Reason = "inQueue", Status = QueueStatus.Wait, WaitPosition = count - _settings.MaximumSimultaneousDownloads.Value, QueueLength = count, };
+                return new QueueResponse { Reason = "inQueue", Status = QueueStatus.Wait, WaitPosition = count - _settings.MaximumSimultaneousDownloads.Value, QueueLength = count };
 
             return new QueueResponse { Status = QueueStatus.Pass, Reason = "openQueue" };
         }
