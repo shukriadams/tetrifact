@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Web
 {
-    public interface IDaemon : IDisposable
+    public interface IDaemon 
     {
         /// <summary>
         /// Runs a daemon process at interval (millisecond) intervals.
@@ -18,6 +18,6 @@ namespace Tetrifact.Web
         /// <param name="work"></param>
         void Start(string cronmask, DaemonWorkMethod work);
 
-        new void Dispose();
+        new void Stop();
     }
 }

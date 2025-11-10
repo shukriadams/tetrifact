@@ -8,7 +8,7 @@ namespace Tetrifact.Web
     /// <summary>
     /// Runs Daemon on its own task thread. We keep this separate from daemon logic for easier unit testing.
     /// </summary>
-    public class Daemon : IDaemon, IDisposable
+    public class Daemon : IDaemon
     {
         private bool _running;
         
@@ -95,7 +95,7 @@ namespace Tetrifact.Web
         /// <summary>
         /// 
         /// </summary>
-        public void Dispose()
+        public void Stop()
         {
             _running = false;
         }
