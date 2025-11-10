@@ -84,6 +84,27 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
         }
 
         [Fact]
+        public void Wait_Queue_If_Ticket_In_Use()
+        {
+            ISettings settings = new Settings();
+            // force some queue value to enforce it
+            settings.MaximumSimultaneousDownloads = 1;
+
+            // get process manager used by queuen manager
+            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveTickets);
+            IProcessManager activeDownloads = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveActiveDownloads);
+
+            // add a ticket, but also flag that ticket as being an active download
+            processManager.AddUnique("my-ticket", new TimeSpan(100000), string.Empty);
+            activeDownloads.AddUnique("my-ticket", new TimeSpan(100000), string.Empty);
+
+            Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
+            QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");
+            Assert.Equal(QueueStatus.Wait, response.Status);
+            Assert.Equal("inQueue", response.Reason);
+        }
+
+        [Fact]
         public void Pass_Queue_Empty()
         {
             ISettings settings = new Settings();
