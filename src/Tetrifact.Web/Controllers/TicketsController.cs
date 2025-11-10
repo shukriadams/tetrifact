@@ -59,17 +59,17 @@ namespace Tetrifact.Web
                         success = new
                         {
                             ticket = string.Empty,
-                            message= "Ticket not required, none generated",
+                            description = "Ticket not required, none generated",
                             required = false
                         }
-                    }) { StatusCode = 200 } ;
+                    }) { StatusCode = 200 };
 
                 if (Request.HttpContext.Connection.RemoteIpAddress == null)
                     return new JsonResult(new
                     {
                         error = new
                         {
-                            message = "Failed to resolve IP"
+                            description = "Failed to resolve IP"
                         }
                     }) { StatusCode = 500 };
 
@@ -89,13 +89,55 @@ namespace Tetrifact.Web
                         ticket,
                         required = true
                     }
-                }){ StatusCode = 200 };
+                }) { StatusCode = 200 };
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unexpected error");
                 return Responses.UnexpectedError();
             }
+        }
+
+
+        [ServiceFilter(typeof(ConfigurationErrors))]
+        [ServiceFilter(typeof(WriteLevel))]
+        [HttpDelete("{ticket}")]
+        public ActionResult Delete(string ticket)
+        {
+            try 
+            {
+                if (!_ticketManager.AnyOfKeyExists(ticket))
+                    return new JsonResult(new
+                    {
+                        error = new {
+                            description = $"Ticket {ticket} does not exist"
+                        }
+                    }) { StatusCode = 404 };
+
+                _ticketManager.RemoveUnique(ticket);
+
+                return new JsonResult(new
+                {
+                    success = new {
+                        description = "Ticket removed"
+                    }
+                })
+                { StatusCode = 200 };
+
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, $"Unexpected error removing ticket {ticket}");
+            }
+
+            return new JsonResult(new
+            {
+                error = new {
+                    description = "Ticket removal failed. Check logs."
+                }
+            })
+            { StatusCode = 500 };
+
         }
 
         #endregion
