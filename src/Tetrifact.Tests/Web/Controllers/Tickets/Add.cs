@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Net;
-using System.Text.Json;
 using Tetrifact.Core;
 using Tetrifact.Web;
 using Xunit;
@@ -25,7 +21,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
             Assert.Equal(200, response.StatusCode);
 
             dynamic responseJson = JsonHelper.ToDynamic(controller.Add(string.Empty));
-            Assert.Equal((string)responseJson.success.message, "Ticket not required, none generated");
+            Assert.Equal((string)responseJson.success.description, "Ticket not required, none generated");
             Assert.False((bool)responseJson.success.required);
         }
 
@@ -43,7 +39,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
 
             Assert.Equal(500, response.StatusCode);
             dynamic responseJson = JsonHelper.ToDynamic(response);
-            Assert.Equal((string)responseJson.error.message, "Failed to resolve IP");
+            Assert.Equal((string)responseJson.error.description, "Failed to resolve IP");
         }
 
 

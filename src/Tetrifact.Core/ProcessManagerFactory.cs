@@ -53,10 +53,9 @@ namespace Tetrifact.Core
             lock (_instances) 
             {
                 if (_instances.ContainsKey(key))
-                {
                     _instances.Remove(key);
-                    _instances[key] = instance;
-                }
+
+                _instances[key] = instance;
             }
         }
 
