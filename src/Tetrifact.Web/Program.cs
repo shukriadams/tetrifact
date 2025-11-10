@@ -24,13 +24,17 @@ namespace Tetrifact.Web
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging(logging =>{ 
+                .ConfigureLogging(logging => { 
+                    
+
                     // add explicit console.writeline output to all log writes
-                    logging.AddConsole(console =>
-                    {
-                        // add timestamp to logout
-                        console.TimestampFormat = "[HH:mm:ss] ";
-                    });
+                    logging
+                        .ClearProviders()
+                        .AddConsole(console =>
+                        {
+                            // add timestamp to logout
+                            console.TimestampFormat = "[HH:mm:ss] ";
+                        });
 
                     logging.AddCustomFormatter();
                 })
