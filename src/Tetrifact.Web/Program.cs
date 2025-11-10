@@ -12,6 +12,8 @@ namespace Tetrifact.Web
     {
         public static void Main(string[] args)
         {
+            // start logging as soon as app starts, we want to use log times to catch bottlenecks.  Loading continues in Startup.cs.
+
             Console.WriteLine("*********************************************************************");
             Console.WriteLine("TETRIFACT server starting");
             Console.WriteLine("");
@@ -24,7 +26,6 @@ namespace Tetrifact.Web
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>{ 
                     // add explicit console.writeline output to all log writes
-
                     logging.AddConsole(console =>
                     {
                         // add timestamp to logout

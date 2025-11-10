@@ -216,6 +216,7 @@ namespace Tetrifact.Web
                 foreach (ICron cron in crons)
                     cron.Start();
 
+                Console.WriteLine("");
                 Console.WriteLine($"Server startup completed in {Global.StartTimeUtc.Ago(true)}");
                 Console.WriteLine("*********************************************************************");
             }
