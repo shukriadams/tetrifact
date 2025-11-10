@@ -64,16 +64,6 @@ namespace Tetrifact.Core
                 _log.LogInformation("Temp dir wipe disabled, skipping");
             }
 
-            // force purge archive queue
-            try
-            {
-                _fileSystem.Directory.Delete(_settings.ArchiveQueuePath, true);
-            }
-            catch (Exception ex)
-            {
-                _log.LogWarning($"Error attempting to purge ArchiveQueuePath on app start, ignoring. {ex}");
-            }
-
             // force recreate all again
             _fileSystem.Directory.CreateDirectory(_settings.ArchivePath);
             _fileSystem.Directory.CreateDirectory(_settings.ArchiveQueuePath);
