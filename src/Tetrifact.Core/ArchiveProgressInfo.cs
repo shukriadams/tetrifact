@@ -32,7 +32,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// 
         /// </summary>
-        public decimal PercentProgress { get ; set;}
+        public int PercentProgress { get ; set;}
 
         public long ProjectedSize { get; set; }
 
