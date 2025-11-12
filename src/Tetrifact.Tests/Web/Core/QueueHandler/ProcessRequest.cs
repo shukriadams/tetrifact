@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
         public void Pass_If_No_Queue_Enforced()
         {
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>();
-            QueueResponse response = queueHandler.ProcessRequest("my-ip", "some-ticket", "some-waiver");
+            QueueResponse response = queueHandler.ProcessRequest("my-ip");
             Assert.Equal(QueueStatus.Pass, response.Status);
             Assert.Equal("queue-not-enforced", response.Reason);
         }
@@ -28,7 +28,7 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             settings.MaximumSimultaneousDownloads = 1;
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings);
-            QueueResponse response = queueHandler.ProcessRequest("my-local-ip", "some-ticket", "some-waiver");
+            QueueResponse response = queueHandler.ProcessRequest("my-local-ip");
             Assert.Equal(QueueStatus.Pass, response.Status);
             Assert.Equal("localIP", response.Reason);
         }
@@ -37,27 +37,30 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
         public void Pass_With_Waiver()
         {
             ISettings settings = new Settings();
-            settings.DownloadQueuePriorityTickets = new string[] { "my-waiver" };
+            settings.QueueVIPs = new string[] { "my-ip" };
             // force some queue value to enforce it
             settings.MaximumSimultaneousDownloads = 1;
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings);
-            QueueResponse response = queueHandler.ProcessRequest("my-ip", "some-ticket", "my-waiver");
+            QueueResponse response = queueHandler.ProcessRequest("my-ip");
             Assert.Equal(QueueStatus.Pass, response.Status);
             Assert.Equal("waiver", response.Reason);
         }
 
         [Fact]
-        public void Fail_No_Ticket()
+        public void Pass_AutoGenerate_Ticket()
         {
             ISettings settings = new Settings();
             // force some queue value to enforce it
             settings.MaximumSimultaneousDownloads = 1;
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings);
-            QueueResponse response = queueHandler.ProcessRequest("my-ip", "some-ticket", "some-waiver");
-            Assert.Equal(QueueStatus.Deny, response.Status);
-            Assert.Equal("invalidTicket", response.Reason);
+            QueueResponse response = queueHandler.ProcessRequest("my-ip");
+            Assert.Equal(QueueStatus.Pass, response.Status);
+
+            // get tickets from queue, ensure that ip has been added to it
+            IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveTickets);
+            Assert.True(processManager.HasKey("my-ip"));
         }
 
 
@@ -73,12 +76,12 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
 
             // add some tickets
             TimeSpan ticketDuration = new TimeSpan(100000);
-            processManager.AddUnique("other-user-ticket", ticketDuration,  string.Empty);
+            processManager.AddUnique("other-user-ip", ticketDuration,  string.Empty);
             Thread.Sleep(10);// wait a smidge to ensure time seperation of tickets
-            processManager.AddUnique("my-ticket", ticketDuration, string.Empty);
+            processManager.AddUnique("my-ip", ticketDuration, string.Empty);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
-            QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");
+            QueueResponse response = queueHandler.ProcessRequest("my-ip");
             Assert.Equal(QueueStatus.Wait, response.Status);
             Assert.Equal("inQueue", response.Reason);
         }
@@ -95,11 +98,11 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             IProcessManager activeDownloads = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveActiveDownloads);
 
             // add a ticket, but also flag that ticket as being an active download
-            processManager.AddUnique("my-ticket", new TimeSpan(100000), string.Empty);
-            activeDownloads.AddUnique("my-ticket", new TimeSpan(100000), string.Empty);
+            processManager.AddUnique("my-ip", new TimeSpan(100000), string.Empty);
+            activeDownloads.AddUnique("my-ip", new TimeSpan(100000), string.Empty);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
-            QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");
+            QueueResponse response = queueHandler.ProcessRequest("my-ip");
             Assert.Equal(QueueStatus.Wait, response.Status);
             Assert.Equal("inQueue", response.Reason);
         }
@@ -114,10 +117,10 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             // get lock manager the queue handler uses
             IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveTickets);
             // make us a ticket
-            processManager.AddUnique("my-ticket", new TimeSpan(100000), string.Empty);
+            processManager.AddUnique("my-ip", new TimeSpan(100000), string.Empty);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
-            QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-ticket", "some-waiver");
+            QueueResponse response = queueHandler.ProcessRequest("my-ip");
             Assert.Equal(QueueStatus.Pass, response.Status);
             Assert.Equal("openQueue", response.Reason);
         }

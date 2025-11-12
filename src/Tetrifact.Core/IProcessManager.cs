@@ -9,15 +9,22 @@ namespace Tetrifact.Core
 
         IEnumerable<ProcessItem> GetAll();
 
-        bool AnyOfKeyExists(string key);
+        bool HasKey(string key);
 
-        bool AnyOtherThan(string key);
+        bool AnyOtherThanKey(string key);
 
         bool Any();
 
-        void AddUnique(string key);
-        
-        void AddUnique(string key, TimeSpan timespan, string metadata = "");
+        ProcessItem AddUnique(string key);
+
+        ProcessItem AddUnique(string key, TimeSpan timespan, string metadata = "");
+
+        /// <summary>
+        /// Gets item with given key. Returns null if doesn't exist.
+        /// </summary>
+        /// <param name="kkey"></param>
+        /// <returns></returns>
+        ProcessItem TryFind(string key);
 
         int Count();
 

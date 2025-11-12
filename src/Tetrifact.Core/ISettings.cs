@@ -121,9 +121,9 @@ namespace Tetrifact.Core
         int DownloadQueueTicketLifespan { get; set; }
 
         /// <summary>
-        /// Static tickets which can be used to bypass the regular download queue.
+        /// IP numbers that are always allowed to bypass download queue.
         /// </summary>
-        IEnumerable<string> DownloadQueuePriorityTickets { get; set; }
+        IEnumerable<string> QueueVIPs { get; set; }
 
         /// <summary>
         /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
@@ -239,7 +239,7 @@ namespace Tetrifact.Core
         bool Validate();
 
         /// <summary>
-        /// IPs treated as "from own website"
+        /// IPs treated as "from own website" by queueing system
         /// </summary>
         IEnumerable<string> WhiteListedLocalAddresses { get; set; }
     

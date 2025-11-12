@@ -174,7 +174,7 @@ namespace Tetrifact.Core
 
             foreach (string archive in archives)
             {
-                if (_archiveProcesses.AnyOfKeyExists(archive))
+                if (_archiveProcesses.HasKey(archive))
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
                     _log.LogWarning($"Failed to purge archive {archive}, assuming in use. Will attempt delete on next pass.");
@@ -333,7 +333,7 @@ namespace Tetrifact.Core
             // if archive temp file exists, archive is _probably_ still being generated. To check if it is, attempt to
             // delete it. If the delete fails because file is locked, we can safely exit and wait. If it succeeds, previous
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
-            if (_archiveProcesses.AnyOfKeyExists(archivePathTemp))
+            if (_archiveProcesses.HasKey(archivePathTemp))
             {
                 _log.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
                 return;

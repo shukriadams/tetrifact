@@ -10,7 +10,7 @@ namespace Tetrifact.Tests.LinkLock
         {
             IProcessManager processManager = TestContext.Get<IProcessManager>();
             processManager.AddUnique("some package");
-            Assert.True(processManager.AnyOfKeyExists("some package"));
+            Assert.True(processManager.HasKey("some package"));
         }
     }
 }

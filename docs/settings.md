@@ -2,7 +2,7 @@
 
 Most Tetrifact settings are stored in a YML file that is read on start. This file must be placed in the application binary directory, and the default expected name is `config.yml`. 
 
-All settings in the main config file are directly mapped to the class src/Tetrifact.Core/Settings.cs. All property names are capitalize, and must be printed exactly as they appear in that class. Default values are hardcoded in that class' constructure. Most properties are simple primatives, but there are collections that use standard YML notation.
+All settings in the main config file are directly mapped to the class src/Tetrifact.Core/Settings.cs. All property names are capitalized, and must be printed exactly as they appear in that class. Default values are hardcoded in that class' constructor. Most properties are simple primitives, but there are collections that use standard YML notation.
 
     ServerName : My Server Name
     AllowPackageDelete : false

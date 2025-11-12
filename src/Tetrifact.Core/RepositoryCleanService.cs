@@ -137,7 +137,7 @@ namespace Tetrifact.Core
         /// </summary>
         private bool EnsureNoLock(bool throwOnOLock = true)
         {
-            if (_repositoryLocks.AnyOtherThan(_processUID))
+            if (_repositoryLocks.AnyOtherThanKey(_processUID))
             { 
                 if (throwOnOLock)
                     throw new Exception($"System currently locked, clear process aborting");

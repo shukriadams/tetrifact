@@ -47,7 +47,7 @@ namespace Tetrifact.Core
                 return _items.Any();
         }
 
-        public bool AnyOtherThan(string key)
+        public bool AnyOtherThanKey(string key)
         {
             lock (_items)
                 return _items.Any(item => item.Key != key);
@@ -59,43 +59,64 @@ namespace Tetrifact.Core
                 return _items.Values.Select(value => value.Clone());
         }
 
-        public bool AnyOfKeyExists(string key)
+        public bool HasKey(string key)
         {
             lock (_items)
                 return _items.ContainsKey(key);
         }
 
-        public virtual void AddUnique(string key)
+        public virtual ProcessItem AddUnique(string key)
         {
             lock (_items)
             {
                 if (_items.ContainsKey(key))
-                    return;
+                    throw new Exception("Key exists");
 
-                _items.Add(key, new ProcessItem { 
-                    Id = key, 
-                    AddedUTC = DateTime.UtcNow});
+                ProcessItem item = new ProcessItem
+                {
+                    Id = key,
+                    AddedUTC = DateTime.UtcNow
+                };
+
+                _items.Add(key, item);
+                
+                return item;
 
                 _log.LogInformation($"Created process, id {key}, no lifespan limit, {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
-        public virtual void AddUnique(string key, TimeSpan timespan, string metadata = "")
+        public virtual ProcessItem AddUnique(string key, TimeSpan timespan, string metadata = "")
         {
             lock (_items)
             {
                 if (_items.ContainsKey(key))
-                    return;
+                    throw new Exception("Key exists");
 
-                _items.Add(key, new ProcessItem{ 
+                ProcessItem item = new ProcessItem
+                {
                     Id = key,
                     AddedUTC = DateTime.UtcNow,
                     KeepAliveUtc = DateTime.UtcNow,
                     MaxLifespan = timespan,
                     Metadata = metadata
-                });
+                };
+
+                _items.Add(key, item);
 
                 _log.LogInformation($"Created process, id {key}, metadata {metadata}, forced lifespan {timespan}, {typeof(ProcessManager).Name}:{this.Context}.");
+
+                return item;
+            }
+        }
+
+        public virtual ProcessItem TryFind(string key) 
+        {
+            lock (_items)
+            {
+                if (_items.ContainsKey(key))
+                    return _items[key];
+                return null;
             }
         }
 

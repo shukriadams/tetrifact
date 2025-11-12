@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
             JsonResult response = controller.Delete("myticket") as JsonResult;
 
             Assert.Equal(200, response.StatusCode);
-            Assert.False(tickets.AnyOfKeyExists("myticket"));
+            Assert.False(tickets.HasKey("myticket"));
 
             dynamic responseJson = JsonHelper.ToDynamic(response);
             Assert.NotNull(responseJson.success.description);

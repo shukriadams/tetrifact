@@ -13,7 +13,11 @@ namespace Tetrifact.Core
 
         public ProgressEvent OnProgress;
 
-        public CompleteEvent OnComplete;
+        public CompleteEvent OnRangeComplete;
+
+        public CompleteEvent OnResourceComplelete;
+
+        private long _rangeEnd;
 
         #endregion
 
@@ -37,9 +41,16 @@ namespace Tetrifact.Core
 
         #region CTORS
 
+        public ProgressableStream(Stream input, long rangeEnd)
+        {
+            _baseStream = input;
+            _rangeEnd = rangeEnd;
+        }
+
         public ProgressableStream(Stream input)
         {
             _baseStream = input;
+            _rangeEnd = _baseStream.Length;
         }
 
         #endregion
@@ -66,9 +77,14 @@ namespace Tetrifact.Core
             int read = _baseStream.Read(buffer, offset, count);
 
             OnProgress?.Invoke(_baseStream.Position, _baseStream.Length);
-            
-            if (_baseStream.Position == _baseStream.Length)
-                OnComplete?.Invoke();
+
+            // invoke when a specific range is being streamed and that range end is reached
+            if (_baseStream.Position >= _rangeEnd)
+                OnRangeComplete?.Invoke();
+
+            // invoke when the end of the entire stream source is reached
+            if (_baseStream.Position >= _baseStream.Length)
+                OnResourceComplelete?.Invoke();
 
             return read;
         }

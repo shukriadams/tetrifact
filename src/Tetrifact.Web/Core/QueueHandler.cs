@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -30,33 +29,57 @@ namespace Tetrifact.Web
 
         #region METHODS
 
-        public virtual QueueResponse ProcessRequest(string ip, string ticket, string waiver) 
+        public virtual QueueResponse ProcessRequest(string ip) 
         {
             if (!_settings.MaximumSimultaneousDownloads.HasValue)
-                return new QueueResponse { Status = QueueStatus.Pass, Reason = "queue-not-enforced" };
+                return new QueueResponse { 
+                    Status = QueueStatus.Pass, 
+                    Reason = "queue-not-enforced" 
+                };
 
             // local (this website) downloads always allowed.
             if (_settings.WhiteListedLocalAddresses.Contains(ip.ToLower()))
-                return new QueueResponse { Status = QueueStatus.Pass, Reason = "localIP" };
+                return new QueueResponse { 
+                    Status = QueueStatus.Pass, 
+                    IsLocal= true, 
+                    Reason = "localIP" 
+                };
 
-            if (_settings.DownloadQueuePriorityTickets.Contains(waiver))
-                return new QueueResponse { Status = QueueStatus.Pass, Reason = "waiver" };
+            // does user have a golden persistent ticket. These tickets are registered here on server in config,
+            // and can be used by users to waive the queue.
+            if (_settings.QueueVIPs.Contains(ip))
+                return new QueueResponse { 
+                    Status = QueueStatus.Pass, 
+                    Reason = "waiver" 
+                };
 
-            IEnumerable<ProcessItem> userTickets = _ticketManager.GetAll();
-            ProcessItem userTicket = userTickets.FirstOrDefault(i => i.Id == ticket);
-            if (userTicket == null)
-                return new QueueResponse { Status = QueueStatus.Deny, Reason = "invalidTicket" };
+            // ticket is already associated with active download, wait for that download to exit
+            if (_activeDownloadsTracker.HasKey(ip))
+                return new QueueResponse { 
+                    Reason = "inQueue", 
+                    Status = QueueStatus.Wait 
+                };
 
-            // ticket is already being used, wait for it to exit
-            if (_activeDownloadsTracker.AnyOfKeyExists(ticket))
-                return new QueueResponse { Reason = "inQueue", Status = QueueStatus.Wait };
+            // create ticket for this ip if one does not already exist
+            ProcessItem userTicket = _ticketManager.TryFind(ip);
+            if (userTicket == null) 
+                userTicket = _ticketManager.AddUnique(
+                    ip,
+                    new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
 
             // if there are older tickets than the one user has, queue user.
-            int count = userTickets.Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
-            if (count >= _settings.MaximumSimultaneousDownloads)
-                return new QueueResponse { Reason = "inQueue", Status = QueueStatus.Wait, WaitPosition = count - _settings.MaximumSimultaneousDownloads.Value, QueueLength = count };
+            int aheadInLine = _ticketManager.GetAll().Where(t => t.AddedUTC < userTicket.AddedUTC).Count();
+            if (aheadInLine >= _settings.MaximumSimultaneousDownloads)
+                return new QueueResponse { 
+                    Reason = "inQueue",
+                    Status = QueueStatus.Wait, 
+                    QueueLength = aheadInLine 
+                };
 
-            return new QueueResponse { Status = QueueStatus.Pass, Reason = "openQueue" };
+            return new QueueResponse { 
+                Status = QueueStatus.Pass,
+                Reason = "openQueue" 
+            };
         }
 
         #endregion

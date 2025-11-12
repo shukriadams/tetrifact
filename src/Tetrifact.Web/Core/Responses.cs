@@ -23,15 +23,14 @@ namespace Tetrifact.Web
             });
         }
 
-        public static ObjectResult QueueFull(int position, int total) 
+        public static ObjectResult QueueFull(int queue) 
         {
             return new ObjectResult(new
             {
                 error = new
                 {
-                    description = $"Queue is full, you are {position} of {total}.",
-                    queue_position = position,
-                    queue_length = total
+                    description = $"Queue is full, you are {queue}.",
+                    queue
                 }
             })
             {

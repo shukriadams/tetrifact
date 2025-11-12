@@ -106,7 +106,7 @@ namespace Tetrifact.Web
         {
             try 
             {
-                if (!_ticketManager.AnyOfKeyExists(ticket))
+                if (!_ticketManager.HasKey(ticket))
                     return new JsonResult(new
                     {
                         error = new {

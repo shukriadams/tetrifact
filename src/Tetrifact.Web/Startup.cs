@@ -116,6 +116,8 @@ namespace Tetrifact.Web
                     options.JsonSerializerOptions.WriteIndented = true;
                 });
 
+            // prevent validation errors on optional form fields / querystring
+            services.AddControllers().ConfigureApiBehaviorOptions(options => { options.SuppressModelStateInvalidFilter = true; });
             services.AddMemoryCache();
             services.AddResponseCompression(); // enable http compression
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
