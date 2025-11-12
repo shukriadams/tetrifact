@@ -93,7 +93,7 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("{packageId}")]
-        public ActionResult GetArchive(string packageId)
+        public ActionResult GetArchive(string packageId, [FromQuery(Name = "waiver")] string waiver)
         {
             // note ticket and waiver are never empty, controller enforces that
             try
@@ -122,22 +122,25 @@ namespace Tetrifact.Web
                     range = Request.Headers.ContentRange;
 
                 // note : ip is required if queueing is enabled
-                string ip = string.Empty;
+                string address = string.Empty;
                 if (Request.HttpContext.Connection.RemoteIpAddress != null)
-                    ip = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
+                    address = Request.HttpContext.Connection.RemoteIpAddress.ToString().ToLower();
 
                 // enforce ticket if queue enabled
                 string ticketLog = string.Empty;
-                QueueResponse queueResponse = _queueHandler.ProcessRequest(ip);
+                QueueResponse queueResponse = _queueHandler.ProcessRequest(address, waiver);
                 if (queueResponse.Status == QueueStatus.Deny)
                 {
-                    _log.LogInformation($"archive request rejected for ip {ip}, reason : {queueResponse.Reason}.");
+                    _log.LogInformation($"archive request rejected for ip {address}, reason : {queueResponse.Reason}.");
                     return Responses.NoTicket();
                 }
 
+                if (queueResponse.Status == QueueStatus.Pass && queueResponse.Reason == "waiver")
+                    _log.LogInformation($"waived queue for ip {address} based on ip or waiver string {waiver}");
+
                 if (queueResponse.Status == QueueStatus.Wait)
                 {
-                    _log.LogInformation($"Queued ip {ip} forced to wait, position {queueResponse.QueueLength}.");
+                    _log.LogInformation($"Queued ip {address} forced to wait, position {queueResponse.QueueLength}.");
                     return Responses.QueueFull(queueResponse.QueueLength); // refactor this
                 }
 
@@ -168,26 +171,26 @@ namespace Tetrifact.Web
 
                 progressableStream.OnRangeComplete =()=>{
                     // once user has streamed a requested section of an archive, allow them to download another section, keeping their position in queue
-                    _activeDownloadsTracker.RemoveUnique(ip);
+                    _activeDownloadsTracker.RemoveUnique(address);
                 };
 
                 progressableStream.OnResourceComplelete = () => {
                     // once user has streamed the archive in its entirety, yoink their queue ticket
-                    _ticketManager.RemoveUnique(ip);
+                    _ticketManager.RemoveUnique(address);
                 };
 
                 Debounce keepAlive = new Debounce(new TimeSpan(0, 0, 1), () => {
                     // keep ticket + tracker alive for duration of download
-                    _ticketManager.KeepAlive(ip, $"Range:{range}, package:{packageId}");
-                    _activeDownloadsTracker.KeepAlive(ip, string.Empty);
+                    _ticketManager.KeepAlive(address, $"Range:{range}, package:{packageId}");
+                    _activeDownloadsTracker.KeepAlive(address, string.Empty);
                 });
 
                 progressableStream.OnProgress = (long progress, long total) => {
                     keepAlive.Invoke();
                 };
 
-                _activeDownloadsTracker.AddUnique(ip, new TimeSpan(0, 10, 0), $"IP:{ip}, package:{packageId}, range:{range}");
-                _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{ip}\" range:\"{range}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}.");
+                _activeDownloadsTracker.AddUnique(address, new TimeSpan(0, 10, 0), $"IP:{address}, package:{packageId}, range:{range}");
+                _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{address}\" range:\"{range}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}.");
 
                 return File(
                     progressableStream, 

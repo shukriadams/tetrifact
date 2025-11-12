@@ -9,6 +9,6 @@
         /// </summary>
         /// <param name="ip">IP of user requesting.</param>
         /// <returns></returns>
-        QueueResponse ProcessRequest(string ip);
+        QueueResponse ProcessRequest(string ip, string waiver);
     }
 }

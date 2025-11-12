@@ -29,8 +29,14 @@ namespace Tetrifact.Web
 
         #region METHODS
 
-        public virtual QueueResponse ProcessRequest(string ip) 
+        public virtual QueueResponse ProcessRequest(string address, string waiver) 
         {
+            if (string.IsNullOrEmpty(waiver))
+                waiver = string.Empty;
+
+            if (string.IsNullOrEmpty(address))
+                address = string.Empty;
+
             if (!_settings.MaximumSimultaneousDownloads.HasValue)
                 return new QueueResponse { 
                     Status = QueueStatus.Pass, 
@@ -38,7 +44,7 @@ namespace Tetrifact.Web
                 };
 
             // local (this website) downloads always allowed.
-            if (_settings.WhiteListedLocalAddresses.Contains(ip.ToLower()))
+            if (_settings.WhiteListedLocalAddresses.Contains(address.ToLower()))
                 return new QueueResponse { 
                     Status = QueueStatus.Pass, 
                     IsLocal= true, 
@@ -47,24 +53,33 @@ namespace Tetrifact.Web
 
             // does user have a golden persistent ticket. These tickets are registered here on server in config,
             // and can be used by users to waive the queue.
-            if (_settings.QueueVIPs.Contains(ip))
+            if (_settings.DownloadQueueWaivers.Contains(address.ToLower()))
                 return new QueueResponse { 
                     Status = QueueStatus.Pass, 
                     Reason = "waiver" 
                 };
 
+            // does user have a golden persistent ticket. These tickets are registered here on server in config,
+            // and can be used by users to waive the queue.
+            if (_settings.DownloadQueueWaivers.Select(w => w.ToLower()).Contains(waiver.ToLower()))
+                return new QueueResponse
+                {
+                    Status = QueueStatus.Pass,
+                    Reason = "waiver"
+                };
+
             // ticket is already associated with active download, wait for that download to exit
-            if (_activeDownloadsTracker.HasKey(ip))
+            if (_activeDownloadsTracker.HasKey(address))
                 return new QueueResponse { 
                     Reason = "inQueue", 
                     Status = QueueStatus.Wait 
                 };
 
             // create ticket for this ip if one does not already exist
-            ProcessItem userTicket = _ticketManager.TryFind(ip);
+            ProcessItem userTicket = _ticketManager.TryFind(address);
             if (userTicket == null) 
                 userTicket = _ticketManager.AddUnique(
-                    ip,
+                    address,
                     new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
 
             // if there are older tickets than the one user has, queue user.

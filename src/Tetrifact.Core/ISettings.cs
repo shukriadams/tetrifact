@@ -123,7 +123,7 @@ namespace Tetrifact.Core
         /// <summary>
         /// IP numbers that are always allowed to bypass download queue.
         /// </summary>
-        IEnumerable<string> QueueVIPs { get; set; }
+        IEnumerable<string> DownloadQueueWaivers { get; set; }
 
         /// <summary>
         /// Minimum amount of free space (megabytes) on storage drive - if less is available, new uploads will fail.
