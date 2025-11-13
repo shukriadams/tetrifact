@@ -80,7 +80,8 @@ namespace Tetrifact.Web
             if (userTicket == null) 
                 userTicket = _ticketManager.AddUnique(
                     address,
-                    new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan));
+                    new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan),
+                    true);
 
             // if there are older tickets than the one user has, queue user.
             int aheadInLine = _ticketManager.GetAll().Where(t => t.AddedUTC < userTicket.AddedUTC).Count();

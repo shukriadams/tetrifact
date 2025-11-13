@@ -15,9 +15,9 @@ namespace Tetrifact.Core
 
         bool Any();
 
-        ProcessItem AddUnique(string key);
+        ProcessItem AddUnique(string key, bool overwriteIfExists=false);
 
-        ProcessItem AddUnique(string key, TimeSpan timespan, string metadata = "");
+        ProcessItem AddUnique(string key, TimeSpan timespan, bool overwriteIfExists=false, string metadata = "");
 
         /// <summary>
         /// Gets item with given key. Returns null if doesn't exist.

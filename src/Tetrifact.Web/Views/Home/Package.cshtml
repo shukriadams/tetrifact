@@ -3,12 +3,6 @@
 @{
     Layout = "~/Views/Shared/Layout.cshtml";
     PackagePageModel pagemodel = ViewData["pageModel"] as PackagePageModel;
-    //string packageId = ViewData["packageId"] as string;
-    //Manifest manifest = ViewData["manifest"] as Manifest;
-    //PageableData<ManifestItem> filesPage = ViewData["filesPage"] as PageableData<ManifestItem>;
-    //ArchiveProgressInfo archiveGenerationStatus = ViewData["archiveGenerationStatus"] as ArchiveProgressInfo;
-    //string pager = ViewData["filesPager"] as string;
-
     ViewData["Title"] = $"Package : {pagemodel.PackageId}";
 }
 

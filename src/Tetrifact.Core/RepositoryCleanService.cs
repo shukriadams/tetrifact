@@ -92,7 +92,7 @@ namespace Tetrifact.Core
 
                 }
 
-                _repositoryLocks.AddUnique(_processUID);
+                _repositoryLocks.AddUnique(_processUID, false);
 
                 _log.LogInformation($"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
 

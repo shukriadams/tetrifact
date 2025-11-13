@@ -65,12 +65,17 @@ namespace Tetrifact.Core
                 return _items.ContainsKey(key);
         }
 
-        public virtual ProcessItem AddUnique(string key)
+        public virtual ProcessItem AddUnique(string key, bool overwriteIfExists)
         {
             lock (_items)
             {
                 if (_items.ContainsKey(key))
-                    throw new Exception("Key exists");
+                {
+                    if (overwriteIfExists)
+                        _items.Remove(key);
+                    else
+                        throw new Exception("Key exists");
+                }
 
                 ProcessItem item = new ProcessItem
                 {
@@ -86,12 +91,17 @@ namespace Tetrifact.Core
             }
         }
 
-        public virtual ProcessItem AddUnique(string key, TimeSpan timespan, string metadata = "")
+        public virtual ProcessItem AddUnique(string key, TimeSpan timespan, bool overwriteIfExists, string metadata = "")
         {
             lock (_items)
             {
                 if (_items.ContainsKey(key))
-                    throw new Exception("Key exists");
+                { 
+                    if (overwriteIfExists)
+                        _items.Remove(key);
+                    else
+                        throw new Exception("Key exists");
+                }
 
                 ProcessItem item = new ProcessItem
                 {

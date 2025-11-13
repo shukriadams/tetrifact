@@ -189,7 +189,7 @@ namespace Tetrifact.Web
                     keepAlive.Invoke();
                 };
 
-                _activeDownloadsTracker.AddUnique(address, new TimeSpan(0, 10, 0), $"IP:{address}, package:{packageId}, range:{range}");
+                _activeDownloadsTracker.AddUnique(address, new TimeSpan(0, 10, 0), true, $"IP:{address}, package:{packageId}, range:{range}");
                 _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{address}\" range:\"{range}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}.");
 
                 return File(

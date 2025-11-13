@@ -76,9 +76,9 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
 
             // add some tickets
             TimeSpan ticketDuration = new TimeSpan(100000);
-            processManager.AddUnique("other-user-ip", ticketDuration,  string.Empty);
+            processManager.AddUnique("other-user-ip", ticketDuration);
             Thread.Sleep(10);// wait a smidge to ensure time seperation of tickets
-            processManager.AddUnique("my-ip", ticketDuration, string.Empty);
+            processManager.AddUnique("my-ip", ticketDuration);
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
             QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-waiver");
@@ -98,8 +98,8 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             IProcessManager activeDownloads = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveActiveDownloads);
 
             // add a ticket, but also flag that ticket as being an active download
-            processManager.AddUnique("my-ip", new TimeSpan(100000), string.Empty);
-            activeDownloads.AddUnique("my-ip", new TimeSpan(100000), string.Empty);
+            processManager.AddUnique("my-ip", new TimeSpan(100000));
+            activeDownloads.AddUnique("my-ip", new TimeSpan(100000));
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
             QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-waiver");
@@ -117,7 +117,7 @@ namespace Tetrifact.Tests.Web.Core.QueueHandler
             // get lock manager the queue handler uses
             IProcessManager processManager = TestContext.Get<IProcessManagerFactory>().GetInstance(ProcessManagerContext.ArchiveTickets);
             // make us a ticket
-            processManager.AddUnique("my-ip", new TimeSpan(100000), string.Empty);
+            processManager.AddUnique("my-ip", new TimeSpan(100000));
 
             Ws.QueueHandler queueHandler = this.TestContext.Get<Ws.QueueHandler>("settings", settings, "processManager", processManager);
             QueueResponse response = queueHandler.ProcessRequest("my-ip", "my-waiver");

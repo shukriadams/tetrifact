@@ -84,7 +84,7 @@ namespace Tetrifact.Core
                 long size = newPackage.Files.Sum(f => f.Content.Length);
 
                 // prevent deletes of empty repository folders this package might need to write to
-                _repositoryLocks.AddUnique(newPackage.Id);
+                _repositoryLocks.AddUnique(newPackage.Id, false);
 
                 _workspace.Initialize();
 

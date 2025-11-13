@@ -80,6 +80,7 @@ namespace Tetrifact.Web
                 _ticketManager.AddUnique(
                     ticket,
                     new TimeSpan(0, 0, _settings.DownloadQueueTicketLifespan),
+                    true,
                     requestLoggedIdentifier);
 
                 return new JsonResult(new
