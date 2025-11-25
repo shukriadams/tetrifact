@@ -10,7 +10,7 @@ namespace Tetrifact.Tests
     /// 
     /// Utility things that are stateless should be placed in helper function.
     /// </summary>
-    public abstract class TestBase: IDisposable
+    public abstract class TestBase
     {
         private TestContext _testContext;
         
@@ -32,15 +32,6 @@ namespace Tetrifact.Tests
             _testContext = new TestContext();
             _moq = new MoqHelper(_testContext);
             _packageHelper = new PackageHelper(_testContext);
-        }
-        
-        /// <summary>
-        /// Common teardown for all tests using this base
-        /// </summary>
-        public void Dispose()
-        {
-            IMemoryCache memCach = _testContext.Get<IMemoryCache>();
-            memCach.Dispose();
         }
     }
 }

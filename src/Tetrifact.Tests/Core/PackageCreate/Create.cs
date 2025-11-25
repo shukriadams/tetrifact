@@ -8,13 +8,25 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageCreate
 {
-    public class Create : Base
+    public class Create
     {
+        private readonly TestContext _testContext = new TestContext();
+
+        private readonly MoqHelper _moqHelper;
+        
+        private IPackageCreateService _packageCreate;
+
+        public Create()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+            _packageCreate = _moqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ new TestFileSystem() });
+        }
+
         [Fact]
         public void Happy_Path()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
@@ -33,7 +45,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = files
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
 
             Assert.True(result.Success);
             Assert.Null(result.PublicError);
@@ -64,7 +76,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreatePartial() 
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             // create package 1
             List<PackageCreateItem> files1 = new List<PackageCreateItem>();
@@ -78,7 +90,7 @@ namespace Tetrifact.Tests.PackageCreate
                 files1.Add(new PackageCreateItem(fileStream, $"folder{i}/file{i}"));
             }
 
-            PackageCreate.Create(new PackageCreateArguments
+            _packageCreate.Create(new PackageCreateArguments
             {
                 Id = packageId1,
                 Files = files1
@@ -98,7 +110,7 @@ namespace Tetrifact.Tests.PackageCreate
                 files2.Add(new PackageCreateItem(fileStream, $"folder{i}/file{i}"));
             }
 
-            PackageCreate.Create(new PackageCreateArguments
+            _packageCreate.Create(new PackageCreateArguments
             {
                 Id = packageId2,
                 Files = files2,
@@ -148,7 +160,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<PackageCreateItem>()
             };
 
-            PackageCreateResult result = PackageCreate.Create(args);
+            PackageCreateResult result = _packageCreate.Create(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Files collection is empty.", result.PublicError);
         }        
@@ -160,7 +172,7 @@ namespace Tetrifact.Tests.PackageCreate
             args.Files.Add(new PackageCreateItem(fileStream, "folder/file"));
 
 
-            PackageCreateResult result = PackageCreate.Create(args);
+            PackageCreateResult result = _packageCreate.Create(args);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
             Assert.Equal("Id is required.", result.PublicError);
         }   
@@ -177,11 +189,11 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<PackageCreateItem>() {new PackageCreateItem(fileStream, "folder/file")}
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
             Assert.True(result.Success);
 
             // attempt to create package with same name
-            result = PackageCreate.Create(package);
+            result = _packageCreate.Create(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.PackageExists, result.ErrorType);
         }
@@ -189,7 +201,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void AddPackageAsFiles()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
 
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
@@ -217,7 +229,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.Create(postArgs);
+            PackageCreateResult result = _packageCreate.Create(postArgs);
             Assert.True(result.Success);
             Assert.True(File.Exists(Path.Join(settings.RepositoryPath, "folder1/file1.txt", file1Hash, "bin")));
             Assert.True(File.Exists(Path.Join(settings.RepositoryPath, "folder2/file2.txt", file2Hash, "bin")));
@@ -240,7 +252,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidFileCount, result.ErrorType);
         }
@@ -248,7 +260,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithAutoArchive()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
             settings.AutoCreateArchiveOnPackageCreate = true;
             PackageCreateArguments package = new PackageCreateArguments
             {
@@ -258,8 +270,8 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreate.Create(package);
-            IArchiveService archiveService = TestContext.Get<IArchiveService>();
+            _packageCreate.Create(package);
+            IArchiveService archiveService = _testContext.Get<IArchiveService>();
         
             // verify that archiving has been queued, we assume that if this exists, package archiving will be processed later
             string archiveQueuePath = archiveService.GetPackageArchiveQueuePath("mypackage");
@@ -269,7 +281,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDisabled()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
             settings.PackageCreateEnabled = false;
 
             PackageCreateArguments package = new PackageCreateArguments
@@ -280,7 +292,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.CreateNotAllowed, result.ErrorType);
         }
@@ -289,7 +301,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void AddPackageAsArchive()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
 
             Dictionary<string, string> files = new Dictionary<string, string>();
             string file1Content = "file 1 content";
@@ -333,7 +345,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.Create(postArgs);
+            PackageCreateResult result = _packageCreate.Create(postArgs);
             if (!result.Success)
                 throw new Exception(result.PublicError);
 
@@ -359,7 +371,7 @@ namespace Tetrifact.Tests.PackageCreate
                     new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
-            IPackageCreateService _packageService = TestContext.Get<IPackageCreateService>();
+            IPackageCreateService _packageService = _testContext.Get<IPackageCreateService>();
 
             PackageCreateResult result = _packageService.Create(postArgs);
             Assert.False(result.Success);
@@ -379,7 +391,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<PackageCreateItem> { }
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
         }
@@ -394,7 +406,7 @@ namespace Tetrifact.Tests.PackageCreate
                 }
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.MissingValue, result.ErrorType);
         }
@@ -408,7 +420,7 @@ namespace Tetrifact.Tests.PackageCreate
                 Files = new List<PackageCreateItem> { }
             };
 
-            PackageCreateResult result = PackageCreate.Create(package);
+            PackageCreateResult result = _packageCreate.Create(package);
             Assert.False(result.Success);
             Assert.Equal(PackageCreateErrorTypes.InvalidName, result.ErrorType);
         }

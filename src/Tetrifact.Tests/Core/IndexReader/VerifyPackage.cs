@@ -6,13 +6,12 @@ namespace Tetrifact.Tests.IndexReader
 {
     public class VerifyPackage
     {
-        private readonly TestContext _testContext;
+        private readonly TestContext _testContext = new TestContext();
 
         private readonly PackageHelper _packageHelper;
 
         public VerifyPackage()
         {
-            _testContext = new TestContext();
             _packageHelper = new PackageHelper(_testContext);
         }
         
