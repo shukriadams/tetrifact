@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Tetrifact.Core;
 
 namespace Tetrifact.Tests 
 {

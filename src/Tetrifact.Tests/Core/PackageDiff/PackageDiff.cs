@@ -8,38 +8,29 @@ namespace Tetrifact.Tests.PackageDiff
 {
     public class PackageDiff : TestBase
     {
-        IPackageDiffService PackageDiffService;
-
-        readonly TestLogger<IPackageDiffService> Logger;
-
         public PackageDiff()
         {
             ISettings settings = TestContext.Get<ISettings>();
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
             settings.WorkerThreadCount = 1;
-            this.Logger = new TestLogger<IPackageDiffService>();
-            this.PackageDiffService = new PackageDiffService(settings, fileSystem, indexReader, MemoryCacheHelper.GetInstance(), this.Logger);
         }
 
         [Fact]
         public void HappyPath_SingleThread()
         {
             ISettings settings = TestContext.Get<ISettings>();
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             settings.WorkerThreadCount = 1;
-            this.PackageDiffService = new PackageDiffService(settings, fileSystem, indexReader, MemoryCacheHelper.GetInstance(), this.Logger);
+            IPackageDiffService diffService = this.TestContext.Get<IPackageDiffService>();
+            //this.PackageDiffService = new PackageDiffService(settings, fileSystem, indexReader, MemoryCacheHelper.GetInstance(), this.Logger);
 
             string upstreamPackageId = PackageHelper.CreateNewPackage(new string[]{ "same content", "packege 1 content", "same content" } );
             string downstreamPackageId = PackageHelper.CreateNewPackage(new string[] { "same content", "packege 2 content", "same content" });
 
             // get diff
-            this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
+            diffService.GetDifference(upstreamPackageId, downstreamPackageId);
 
             // get diff again, to hit cached version too. This is for coverage.
-            Core.PackageDiff diff = this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
+            Core.PackageDiff diff = diffService.GetDifference(upstreamPackageId, downstreamPackageId);
 
             Assert.Equal(downstreamPackageId, diff.DownstreamPackageId);
             Assert.Equal(upstreamPackageId, diff.UpstreamPackageId);
@@ -50,21 +41,20 @@ namespace Tetrifact.Tests.PackageDiff
         [Fact]
         public void HappyPath_MultiThread()
         {
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
             ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
-
+            // set thread count to 2, aka multi
             settings.WorkerThreadCount = 2;
-            this.PackageDiffService = new PackageDiffService(settings, fileSystem, indexReader, MemoryCacheHelper.GetInstance(), this.Logger);
+            
+            IPackageDiffService diffService = this.TestContext.Get<IPackageDiffService>();
 
             string upstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 1 content", "same content" });
             string downstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 2 content", "same content" });
 
             // get diff
-            this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
+            diffService.GetDifference(upstreamPackageId, downstreamPackageId);
 
             // get diff again, to hit cached version too. This is for coverage.
-            Core.PackageDiff diff = this.PackageDiffService.GetDifference(upstreamPackageId, downstreamPackageId);
+            Core.PackageDiff diff = diffService.GetDifference(upstreamPackageId, downstreamPackageId);
 
             Assert.Equal(downstreamPackageId, diff.DownstreamPackageId);
             Assert.Equal(upstreamPackageId, diff.UpstreamPackageId);
