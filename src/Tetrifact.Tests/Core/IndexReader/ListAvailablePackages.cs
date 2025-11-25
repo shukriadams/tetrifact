@@ -5,16 +5,25 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class ListAvailablePackages : TestBase
+    public class ListAvailablePackages
     {
+        private TestContext _testContext = new TestContext();
+
+        private PackageHelper _packageHelper;
+
+        public ListAvailablePackages()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+        
         [Fact]
         public void HappyPath()
         {
-            TestPackage package1 = PackageHelper.CreateRandomPackage();
-            TestPackage package2 = PackageHelper.CreateRandomPackage();
-            TestPackage package3 = PackageHelper.CreateRandomPackage();
+            TestPackage package1 = _packageHelper.CreateRandomPackage();
+            TestPackage package2 = _packageHelper.CreateRandomPackage();
+            TestPackage package3 = _packageHelper.CreateRandomPackage();
 
-            IPackageListService listService = TestContext.Get<IPackageListService>();
+            IPackageListService listService = _testContext.Get<IPackageListService>();
             IEnumerable<Package> packages = listService.Get(0, 10);
             
             Assert.Equal(3, packages.Count());

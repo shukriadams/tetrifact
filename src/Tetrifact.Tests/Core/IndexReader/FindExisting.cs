@@ -1,13 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit;
 using Tetrifact.Core;
 using Moq;
 using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class FindExisting: TestBase
+    public class FindExisting
     {
+        private MoqHelper _moqHelper;
+
+        private TestContext _testContext = new TestContext();
+        
+        public FindExisting()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+        }
+        
         [Fact]
         public void HappyPath()
         {
@@ -16,7 +27,7 @@ namespace Tetrifact.Tests.IndexReader
             IList<string> mockFilePaths = new List<string>() { "file1", "file2", "file3"};
 
             // mock up file system to match on the above path
-            Mock<TestFileSystem> filesystem = MoqHelper.Mock<TestFileSystem>();
+            Mock<TestFileSystem> filesystem = _moqHelper.Mock<TestFileSystem>();
             filesystem
                 .Setup(r => r.Directory.Exists(It.IsAny<string>()))
                 .Returns((string pathToCheck)=>
@@ -29,7 +40,7 @@ namespace Tetrifact.Tests.IndexReader
                     }
                 );
 
-            IIndexReadService indexReader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { filesystem });
+            IIndexReadService indexReader = _moqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { filesystem });
 
             PartialPackageLookupResult lookup = indexReader.FindExisting(new PartialPackageLookupArguments{Files = new List<ManifestItem>{
                 new ManifestItem{Path = "file1", Hash = "" },

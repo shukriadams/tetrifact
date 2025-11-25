@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 
@@ -8,8 +9,17 @@ namespace Tetrifact.Tests.IndexReader
     /// <summary>
     /// Tests temp folder on index initialize (ergo, app start)
     /// </summary>
-    public class InitializeTemp : TestBase
+    public class InitializeTemp
     {
+        private TestContext _testContext = new TestContext();
+        
+        private MoqHelper _moqHelper;
+        
+        public InitializeTemp()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+        }
+        
         /// <summary>
         /// Tests that temp folder content is wiped when app starts
         /// </summary>
@@ -21,14 +31,14 @@ namespace Tetrifact.Tests.IndexReader
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
             settings.TempPath = Path.Join(testFolder, "Temp");
 
             Directory.CreateDirectory(settings.TempPath);
             string testFilePath = Path.Join(settings.TempPath, "test");
             File.WriteAllText(testFilePath, string.Empty);
 
-            IIndexReadService reader = MoqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { settings });
+            IIndexReadService reader = _moqHelper.CreateInstanceWithDependencies<IndexReadService>(new object[] { settings });
             reader.Initialize();
 
             Assert.False(File.Exists(testFilePath));

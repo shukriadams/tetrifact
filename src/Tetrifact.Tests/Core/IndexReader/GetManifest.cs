@@ -1,17 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.IO;
+using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class GetManifest : TestBase
+    public class GetManifest
     {
+        private TestContext _testContext = new TestContext();
+        
         [Fact]
         public void Get()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             // create package
             string packagePath = Path.Join(settings.PackagePath, "somepackage");
@@ -38,7 +42,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetEmpty()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
             TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
 
             Manifest testManifest = indexReader.GetManifest("someinvalidpackage");
@@ -56,8 +60,8 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
 
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>("log", indexReaderLogger);
-            ISettings settings = TestContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>("log", indexReaderLogger);
+            ISettings settings = _testContext.Get<ISettings>();
             string packagefolder = Path.Combine(settings.PackagePath, "someinvalidpackage");
             Directory.CreateDirectory(packagefolder);
             File.WriteAllText(Path.Combine(packagefolder, "manifest.json"), "invalid json!");

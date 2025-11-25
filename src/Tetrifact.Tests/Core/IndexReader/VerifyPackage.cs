@@ -4,17 +4,27 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class VerifyPackage : TestBase
+    public class VerifyPackage
     {
+        private readonly TestContext _testContext;
+
+        private readonly PackageHelper _packageHelper;
+
+        public VerifyPackage()
+        {
+            _testContext = new TestContext();
+            _packageHelper = new PackageHelper(_testContext);
+        }
+        
         /// <summary>
         /// Happy path - confirms that package verification works
         /// </summary>
         [Fact]
         public void Basic() 
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
-            PackageHelper.CreateNewPackageFiles("mypackage" );
+            _packageHelper.CreateNewPackageFiles("mypackage" );
             (bool, string) result = indexReader.VerifyPackage("mypackage");
             Assert.True(result.Item1);
         }
@@ -26,7 +36,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void PackageNotFound()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             Assert.Throws<PackageNotFoundException>(() =>
             {
@@ -40,11 +50,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void FilesMissing()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
+            TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
 
             // delete known package file via disk
             File.Delete(Path.Join(settings.RepositoryPath, package.Path, package.Hash, "bin"));
@@ -61,11 +71,11 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void FileHashInvalid()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
+            TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
 
             // manually change file on disk after package created
             File.WriteAllText(Path.Join(settings.RepositoryPath, package.Path, package.Hash, "bin"), "some-different-data");
@@ -81,13 +91,13 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void PackageHashInvalid()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             // create package
-            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
+            TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
 
             // corrupt the final hash in the manifest
-            JsonHelper.WriteValuetoRoot(PackageHelper.GetManifestPaths(package.Id), "Hash", "not-a-alid-hash");
+            JsonHelper.WriteValuetoRoot(_packageHelper.GetManifestPaths(package.Id), "Hash", "not-a-alid-hash");
 
             (bool, string) result = indexReader.VerifyPackage("mypackage");
             Assert.False(result.Item1);

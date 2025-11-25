@@ -4,17 +4,26 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class UpdatePackageCreateDate : TestBase
+    public class UpdatePackageCreateDate
     {
+        private TestContext _testContext = new TestContext();
+        
+        private PackageHelper _packageHelper;
+
+        public UpdatePackageCreateDate()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+        
         /// <summary>
         /// Happy path - confirms that package verification works
         /// </summary>
         [Fact]
         public void Happy_path()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
-            TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
+            TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
             Manifest manifest = indexReader.GetManifest(package.Id);
             Assert.Equal(DateTime.UtcNow.Year, manifest.CreatedUtc.Year);
 

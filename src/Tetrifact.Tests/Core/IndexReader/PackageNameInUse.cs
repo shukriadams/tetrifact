@@ -5,13 +5,15 @@ using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class PackageNameInUse : TestBase
+    public class PackageNameInUse
     {
+        private TestContext _testContext = new TestContext();
+        
         [Fact]
         public void InUse()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             string packageName = Guid.NewGuid().ToString();
             Directory.CreateDirectory(Path.Join(settings.PackagePath, packageName));
@@ -22,7 +24,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void NotInUse()
         {
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
             string packageName = Guid.NewGuid().ToString();
             Assert.False(indexReader.PackageNameInUse(packageName));
         }

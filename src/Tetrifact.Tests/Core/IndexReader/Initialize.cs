@@ -1,18 +1,22 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader
 {
-    public class Initialize : TestBase
+    public class Initialize
     {
+        private TestContext _testContext = new TestContext();
+        
         /// <summary>
         /// Confirms that Initialize() worked - this was called in the CTOR of Base.
         /// </summary>
         [Fact]
         public void InitializeTest()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
             Assert.True(Directory.Exists(settings.RepositoryPath));
             Assert.True(Directory.Exists(settings.PackagePath));
             Assert.True(Directory.Exists(settings.TempPath));
