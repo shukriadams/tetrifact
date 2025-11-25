@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class GetTagsThenPackages : Base
+    public class GetTagsThenPackages : TestBase
     {
         // coverage
         [Fact]

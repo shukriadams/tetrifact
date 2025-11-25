@@ -6,7 +6,7 @@ using Moq;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class GetPackageIdsWithTag : Base 
+    public class GetPackageIdsWithTag : TestBase 
     {
         [Fact]
         public void Happy_path(){

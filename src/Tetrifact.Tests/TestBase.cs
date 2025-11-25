@@ -1,4 +1,6 @@
-﻿namespace Tetrifact.Tests
+﻿using System;
+
+namespace Tetrifact.Tests
 {
     /// <summary>
     /// Common utility base for all tests. Useful place to store instances of things which should be unique per 
@@ -6,7 +8,7 @@
     /// 
     /// Utility things that are stateless should be placed in helper function.
     /// </summary>
-    public abstract class TestBase
+    public abstract class TestBase: IDisposable
     {
         private TestContext _testContext;
         
@@ -35,7 +37,7 @@
         /// </summary>
         public void Dispose()
         {
-            
+            MemoryCacheHelper.GetInstance().Dispose();
         }
     }
 }

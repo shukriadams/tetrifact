@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class PackageDelete : Base 
+    public class PackageDelete : TestBase 
     {
         /// <summary>
         /// Confirms that deleting a package removes its tag reference.

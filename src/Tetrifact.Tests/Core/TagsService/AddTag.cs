@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class AddTag : Base 
+    public class AddTag : TestBase 
     {
         [Fact]
         public void Happy_path(){

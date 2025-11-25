@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class RemoveTag : Base 
+    public class RemoveTag : TestBase 
     {
         [Fact]
         public void Basic(){

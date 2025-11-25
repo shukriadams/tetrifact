@@ -6,7 +6,7 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class GetAllTags : Base 
+    public class GetAllTags : TestBase 
     {
         [Fact]
         public void Basic()
