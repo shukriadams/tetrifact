@@ -308,7 +308,7 @@ namespace Tetrifact.Core
 
         DiskUseStats IIndexReadService.GetDiskUseSats()
         {
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string path = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
             DriveInfo drive = new DriveInfo(path);
             DiskUseStats stats = new DiskUseStats();
 
