@@ -16,7 +16,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Wipe()
         {
-            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "__testdata", this.GetType().Name);
+            string testFolder = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "__testdata", Guid.NewGuid().ToString());
             if (Directory.Exists(testFolder))
                 Directory.Delete(testFolder, true);
 
