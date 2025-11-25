@@ -15,7 +15,7 @@ namespace Tetrifact.Tests.IndexReader
             IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
 
             TestPackage package = PackageHelper.CreateNewPackageFiles("mypackage");
-            Core.Manifest manifest = indexReader.GetManifest(package.Id);
+            Manifest manifest = indexReader.GetManifest(package.Id);
             Assert.Equal(DateTime.UtcNow.Year, manifest.CreatedUtc.Year);
 
             indexReader.UpdatePackageCreateDate("mypackage", "2001-01-01");

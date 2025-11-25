@@ -175,7 +175,6 @@ namespace Tetrifact.Core
                         // we should be using manifesthead.id only, but for some older tests we rely on directory name as a simple way to initialize
                         // manifests. REwrite tests and refactor this out 
                         Id = string.IsNullOrEmpty(manifestHead.Id) ? packageId : manifestHead.Id,
-
                         Description = manifestHead.Description,
                         Hash = manifestHead.Hash,
                         Tags = packagesThenTags.ContainsKey(packageId) ? packagesThenTags[packageId].ToHashSet() : new HashSet<string>()

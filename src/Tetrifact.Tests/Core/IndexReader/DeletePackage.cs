@@ -61,7 +61,7 @@ namespace Tetrifact.Tests.IndexReader
         /// Same as BasicDelete(), but handles archive deleting too
         /// </summary>
         [Fact]
-        public void DeleteWithArchive()
+        public void DeletePackageWithExistingArchives()
         {
             TestPackage testPackage = PackageHelper.CreateRandomPackage();
             IArchiveService archiveService = TestContext.Get<IArchiveService>();

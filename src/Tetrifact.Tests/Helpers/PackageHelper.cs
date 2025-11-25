@@ -86,14 +86,6 @@ namespace Tetrifact.Tests
             File.WriteAllText(archivePath, string.Empty);
         }
 
-        public void FakeArchiveQueue(TestPackage package)
-        {
-            Core.ArchiveService archiveService = _context.Get<Core.ArchiveService>();
-            string queuePath = archiveService.GetPackageArchiveQueuePath(package.Id);
-            Directory.CreateDirectory(Path.GetDirectoryName(queuePath));
-            File.WriteAllText(queuePath, string.Empty);
-        }
-
         /// <summary>
         /// Creates a package with some file data. 
         /// </summary>

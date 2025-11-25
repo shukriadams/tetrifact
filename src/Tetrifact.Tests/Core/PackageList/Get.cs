@@ -10,7 +10,7 @@ namespace Tetrifact.Tests.PackageList
     public class Get : Base
     {
         [Fact]
-        public void Basic()
+        public void Gets_Packages_With_Paging()
         {
             ISettings settings = TestContext.Get<ISettings>();
             IPackageListService packageList = TestContext.Get<IPackageListService>();

@@ -29,5 +29,13 @@
             _moq = new MoqHelper(_testContext);
             _packageHelper = new PackageHelper(_testContext);
         }
+        
+        /// <summary>
+        /// Common teardown for all tests using this base
+        /// </summary>
+        public void Dispose()
+        {
+            
+        }
     }
 }
