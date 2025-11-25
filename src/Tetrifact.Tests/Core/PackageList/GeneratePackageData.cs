@@ -1,6 +1,7 @@
 ﻿using Moq;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 
@@ -15,8 +16,8 @@ namespace Tetrifact.Tests.PackageList
         public void Manifest_Not_Found()
         {
             // Hit the private GeneratePackageData method by wiping cache.
-            MemoryCacheHelper.GetInstance().Remove(Core.PackageListService.CacheKey);
-            ISettings settings = TestContext.Get<ISettings>();
+            IMemoryCache memCach = this.TestContext.Get<IMemoryCache>(); 
+            memCach.Remove(Core.PackageListService.CacheKey);
             IFileSystem fileSystem = TestContext.Get<IFileSystem>();
             IPackageListService packageList = TestContext.Get<IPackageListService>();
 

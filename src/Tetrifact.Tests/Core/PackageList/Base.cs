@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tetrifact.Tests.PackageList
 {
@@ -6,7 +7,8 @@ namespace Tetrifact.Tests.PackageList
     {
         public void Dispose()
         {
-            MemoryCacheHelper.GetInstance().Dispose();
+            IMemoryCache memCach = this.TestContext.Get<IMemoryCache>();
+            memCach.Dispose();
         }
     }
 }
