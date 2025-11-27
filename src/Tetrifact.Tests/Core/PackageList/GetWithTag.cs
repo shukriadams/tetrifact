@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GetWithTag : Base
+    public class GetWithTag : TestBase
     {
         [Fact]
         public void GetsBySingleTag()

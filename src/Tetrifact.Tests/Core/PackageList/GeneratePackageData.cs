@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GeneratePackageData : Base
+    public class GeneratePackageData : TestBase
     {
         /// <summary>
         /// Ensure coverage of manifest not found condition

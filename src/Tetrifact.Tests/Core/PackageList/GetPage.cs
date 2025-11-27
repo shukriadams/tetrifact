@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GetPage : Base
+    public class GetPage : TestBase
     {
         [Fact]
         public void Basic()

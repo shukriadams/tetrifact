@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class Find : Base
+    public class Find : TestBase
     {
         /// <summary>
         /// 

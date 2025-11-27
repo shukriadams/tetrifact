@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GetPopularTags : Base
+    public class GetPopularTags : TestBase
     {
         /// <summary>
         /// A single tag should not show up on popular list
