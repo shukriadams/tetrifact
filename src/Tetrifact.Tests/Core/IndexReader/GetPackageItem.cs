@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
-using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 

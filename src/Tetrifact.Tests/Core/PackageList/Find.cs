@@ -7,15 +7,24 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class Find : TestBase
+    public class Find
     {
+        private TestContext _testContext = new TestContext();
+        
+        private readonly MoqHelper _moqHelper;
+
+        public Find()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+        }
+
         /// <summary>
         /// 
         /// </summary>
         [Fact]
         public void Happy_Path()
         {
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
+            IFileSystem fileSystem = _testContext.Get<IFileSystem>();
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
             // need to find 3 directories, one per manifest
@@ -43,7 +52,7 @@ namespace Tetrifact.Tests.PackageList
                 .Setup(mq => mq.File.ReadAllText(It.IsAny<string>()))
                 .Returns(manifests.Next());
 
-            IPackageListService listService = MoqHelper.CreateInstanceWithDependencies<PackageListService>(new object[]{ mockFileSystem });
+            IPackageListService listService = _moqHelper.CreateInstanceWithDependencies<PackageListService>(new object[]{ mockFileSystem });
             PageableData<Package> results = listService.Find("test", 0, 10);
             Assert.Equal(3, results.VirtualItemCount);
         }

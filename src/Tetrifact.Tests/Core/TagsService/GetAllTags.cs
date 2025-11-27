@@ -6,18 +6,27 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class GetAllTags : TestBase 
+    public class GetAllTags 
     {
+        private TestContext _testContext = new TestContext();
+
+        private PackageHelper _packageHelper;
+
+        public GetAllTags()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+
         [Fact]
         public void Basic()
         {
-            TestPackage package1 = PackageHelper.CreateNewPackageFiles("package1");
-            ITagsService tagsService = TestContext.Get<ITagsService>();
+            TestPackage package1 = _packageHelper.CreateNewPackageFiles("package1");
+            ITagsService tagsService = _testContext.Get<ITagsService>();
 
             string tag1 = "mytag1";
             tagsService.AddTag(package1.Id, tag1);
 
-            TestPackage package2 = PackageHelper.CreateNewPackageFiles("package2");
+            TestPackage package2 = _packageHelper.CreateNewPackageFiles("package2");
             string tag2 = "mytag2";
             tagsService.AddTag(package2.Id, tag2);
 
@@ -32,8 +41,8 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Tag_format_exception()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            ITagsService tagsService = TestContext.Get<ITagsService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            ITagsService tagsService = _testContext.Get<ITagsService>();
             // write garbage to tag folder
             Directory.CreateDirectory(Path.Join(settings.TagsPath, "unencoded-text"));
 

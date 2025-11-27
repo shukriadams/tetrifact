@@ -1,30 +1,37 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GetWithTag : TestBase
+    public class GetWithTag
     {
+        private TestContext _testContext = new TestContext();
+        
+        private PackageHelper _packageHelper;
+
+        public GetWithTag()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+        
         [Fact]
         public void GetsBySingleTag()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(new Manifest { Id = "package2003" });
+            _packageHelper.WriteManifest(new Manifest { Id = "package2003" });
             TagHelper.TagPackage(settings, "tag2", "package2003");
             TagHelper.TagPackage(settings, "tag4", "package2003");
 
-            PackageHelper.WriteManifest(new Manifest { Id = "package2002" });
+            _packageHelper.WriteManifest(new Manifest { Id = "package2002" });
             TagHelper.TagPackage(settings, "tag2", "package2002");
             TagHelper.TagPackage(settings, "tag3", "package2002");
 
-            PackageHelper.WriteManifest(new Manifest { Id = "package2001" });
+            _packageHelper.WriteManifest(new Manifest { Id = "package2001" });
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
@@ -36,19 +43,19 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void GetsByMultipleTags()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(new Manifest { Id = "package2003" });
+            _packageHelper.WriteManifest(new Manifest { Id = "package2003" });
             TagHelper.TagPackage(settings, "tag2", "package2003");
             TagHelper.TagPackage(settings, "tag4", "package2003");
 
-            PackageHelper.WriteManifest(new Manifest { Id = "package2002" });
+            _packageHelper.WriteManifest(new Manifest { Id = "package2002" });
             TagHelper.TagPackage(settings, "tag2", "package2002");
             TagHelper.TagPackage(settings, "tag3", "package2002");
 
-            PackageHelper.WriteManifest(new Manifest { Id = "package2001" });
+            _packageHelper.WriteManifest(new Manifest { Id = "package2001" });
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 

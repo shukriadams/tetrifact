@@ -4,8 +4,17 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class PackageDelete : TestBase 
+    public class PackageDelete 
     {
+        private TestContext _testContext = new TestContext();
+
+        private PackageHelper _packageHelper;
+
+        public PackageDelete()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+
         /// <summary>
         /// Confirms that deleting a package removes its tag reference.
         ///
@@ -13,9 +22,9 @@ namespace Tetrifact.Tests.TagsService
         /// </summary>
         [Fact]
         public void Basic() {
-            TestPackage package = PackageHelper.CreateRandomPackage();
-            ITagsService tagsService = TestContext.Get<ITagsService>();
-            IIndexReadService indexReader = TestContext.Get<IIndexReadService>();
+            TestPackage package = _packageHelper.CreateRandomPackage();
+            ITagsService tagsService = _testContext.Get<ITagsService>();
+            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
 
             string[] tags = new[] { "mytag" };
 
@@ -24,7 +33,7 @@ namespace Tetrifact.Tests.TagsService
             }
 
             indexReader.DeletePackage(package.Id);
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);

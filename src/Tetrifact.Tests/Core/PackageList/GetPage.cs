@@ -6,13 +6,15 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GetPage : TestBase
-    {
+    public class GetPage
+    {        
+        private TestContext _testContext = new TestContext();
+        
         [Fact]
         public void Basic()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2003"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2002"));

@@ -5,18 +5,27 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GetPopularTags : TestBase
+    public class GetPopularTags
     {
+        private TestContext _testContext = new TestContext();
+        
+        private PackageHelper _packageHelper;
+
+        public GetPopularTags()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+        
         /// <summary>
         /// A single tag should not show up on popular list
         /// </summary>
         [Fact]
         public void NoSingles()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
-            PackageHelper.WriteManifest(new Manifest() { Id = "package" });
+            _packageHelper.WriteManifest(new Manifest() { Id = "package" });
             TagHelper.TagPackage(settings, "tag", "package");
 
             IEnumerable<string> tags = packageList.GetPopularTags(3);
@@ -27,13 +36,13 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Basic()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
-            PackageHelper.WriteManifest(new Manifest() { Id = "package2004" });
-            PackageHelper.WriteManifest(new Manifest() { Id = "package2003" });
-            PackageHelper.WriteManifest(new Manifest() { Id = "package2002" });
+            _packageHelper.WriteManifest(new Manifest() { Id = "package2004" });
+            _packageHelper.WriteManifest(new Manifest() { Id = "package2003" });
+            _packageHelper.WriteManifest(new Manifest() { Id = "package2002" });
             
             TagHelper.TagPackage(settings, "tag2", "package2004");
             TagHelper.TagPackage(settings, "tag2", "package2003");

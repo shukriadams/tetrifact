@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class GeneratePackageData : TestBase
+    public class GeneratePackageData
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// Ensure coverage of manifest not found condition
         /// </summary>
@@ -16,10 +18,10 @@ namespace Tetrifact.Tests.PackageList
         public void Manifest_Not_Found()
         {
             // Hit the private GeneratePackageData method by wiping cache.
-            IMemoryCache memCach = this.TestContext.Get<IMemoryCache>(); 
+            IMemoryCache memCach = _testContext.Get<IMemoryCache>(); 
             memCach.Remove(Core.PackageListService.CacheKey);
-            IFileSystem fileSystem = TestContext.Get<IFileSystem>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            IFileSystem fileSystem = _testContext.Get<IFileSystem>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
@@ -34,7 +36,7 @@ namespace Tetrifact.Tests.PackageList
                 .Returns(false);
 
             // do something to cover manifest file lookup
-            packageList = TestContext.Get<IPackageListService>("fileSystem", mockFileSystem.Object);
+            packageList = _testContext.Get<IPackageListService>("fileSystem", mockFileSystem.Object);
             packageList.Get(0,1);
         }
     }

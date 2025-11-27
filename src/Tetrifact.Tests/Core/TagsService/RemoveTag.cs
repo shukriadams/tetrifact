@@ -4,13 +4,22 @@ using System.Collections.Generic;
 
 namespace Tetrifact.Tests.TagsService
 {
-    public class RemoveTag : TestBase 
+    public class RemoveTag 
     {
+        private TestContext _testContext = new TestContext();
+
+        private PackageHelper _packageHelper;
+
+        public RemoveTag()
+        {
+            _packageHelper = new PackageHelper(_testContext);
+        }
+        
         [Fact]
         public void Basic(){
 
-            TestPackage package = PackageHelper.CreateRandomPackage();
-            ITagsService tagsService = TestContext.Get<ITagsService>();
+            TestPackage package = _packageHelper.CreateRandomPackage();
+            ITagsService tagsService = _testContext.Get<ITagsService>();
 
             string[] tags = new[] { "mytag" };
 
@@ -19,7 +28,7 @@ namespace Tetrifact.Tests.TagsService
                 tagsService.RemoveTag(package.Id, tag);
             }
 
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
             IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }
@@ -27,7 +36,7 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void InvalidPackage()
         {
-            ITagsService tagsService = TestContext.Get<ITagsService>();
+            ITagsService tagsService = _testContext.Get<ITagsService>();
             Assert.Throws<PackageNotFoundException>(() => { tagsService.RemoveTag("invalid-package-id", "some tag"); });
         }
 

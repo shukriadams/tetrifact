@@ -2,7 +2,7 @@
 
 namespace Tetrifact.Tests.PackageDeleteLocks
 {
-    public class PackageDeleteLocks : TestBase
+    public class PackageDeleteLocks
     {
         public PackageDeleteLocks()
         {

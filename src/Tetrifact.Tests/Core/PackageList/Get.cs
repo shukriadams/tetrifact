@@ -7,13 +7,22 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageList
 {
-    public class Get : TestBase
+    public class Get
     {
+        private TestContext _testContext = new TestContext();
+
+        private readonly MoqHelper _moqHelper;
+
+        public Get()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+        }
+
         [Fact]
         public void Gets_Packages_With_Paging()
         {
-            ISettings settings = TestContext.Get<ISettings>();
-            IPackageListService packageList = TestContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Get<ISettings>();
+            IPackageListService packageList = _testContext.Get<IPackageListService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2003"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2002"));
@@ -34,7 +43,7 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void GracefullyHandleInvalidJSON()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
             TestLogger<IPackageListService> packageListLogger = new TestLogger<IPackageListService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package_one"));
@@ -44,7 +53,7 @@ namespace Tetrifact.Tests.PackageList
             // write a manifest file that consists of invalid JSON
             File.WriteAllText(Path.Combine(settings.PackagePath, "invalidPackage", "manifest.json"), "definitely not some json");
 
-            PackageListService packageList = MoqHelper.CreateInstanceWithDependencies<PackageListService>(new object[] { packageListLogger });
+            PackageListService packageList = _moqHelper.CreateInstanceWithDependencies<PackageListService>(new object[] { packageListLogger });
             IEnumerable<Package> packages = packageList.Get(0, 1);
 
             // the valid manifest should still be in the list

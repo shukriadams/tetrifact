@@ -6,25 +6,30 @@ using Xunit;
 
 namespace Tetrifact.Tests.PackageDiff
 {
-    public class PackageDiff : TestBase
-    {
+    public class PackageDiff
+    {   
+        private TestContext _testContext = new TestContext();
+        
+        private PackageHelper _packageHelper;
+        
         public PackageDiff()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
+            _packageHelper = new PackageHelper(_testContext);
             settings.WorkerThreadCount = 1;
         }
 
         [Fact]
         public void HappyPath_SingleThread()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
 
             settings.WorkerThreadCount = 1;
-            IPackageDiffService diffService = this.TestContext.Get<IPackageDiffService>();
+            IPackageDiffService diffService = _testContext.Get<IPackageDiffService>();
             //this.PackageDiffService = new PackageDiffService(settings, fileSystem, indexReader, MemoryCacheHelper.GetInstance(), this.Logger);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackage(new string[]{ "same content", "packege 1 content", "same content" } );
-            string downstreamPackageId = PackageHelper.CreateNewPackage(new string[] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = _packageHelper.CreateNewPackage(new string[]{ "same content", "packege 1 content", "same content" } );
+            string downstreamPackageId = _packageHelper.CreateNewPackage(new string[] { "same content", "packege 2 content", "same content" });
 
             // get diff
             diffService.GetDifference(upstreamPackageId, downstreamPackageId);
@@ -41,14 +46,14 @@ namespace Tetrifact.Tests.PackageDiff
         [Fact]
         public void HappyPath_MultiThread()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
             // set thread count to 2, aka multi
             settings.WorkerThreadCount = 2;
             
-            IPackageDiffService diffService = this.TestContext.Get<IPackageDiffService>();
+            IPackageDiffService diffService = _testContext.Get<IPackageDiffService>();
 
-            string upstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 1 content", "same content" });
-            string downstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = _packageHelper.CreateNewPackage(new [] { "same content", "packege 1 content", "same content" });
+            string downstreamPackageId = _packageHelper.CreateNewPackage(new [] { "same content", "packege 2 content", "same content" });
 
             // get diff
             diffService.GetDifference(upstreamPackageId, downstreamPackageId);
@@ -79,10 +84,10 @@ namespace Tetrifact.Tests.PackageDiff
                     throw new Exception("some-error-123");
                 });
 
-            IPackageDiffService diffService = TestContext.Get<IPackageDiffService>("filesystem", fs.Object);
+            IPackageDiffService diffService = _testContext.Get<IPackageDiffService>("filesystem", fs.Object);
 
-            string upstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 1 content", "same content" });
-            string downstreamPackageId = PackageHelper.CreateNewPackage(new [] { "same content", "packege 2 content", "same content" });
+            string upstreamPackageId = _packageHelper.CreateNewPackage(new [] { "same content", "packege 1 content", "same content" });
+            string downstreamPackageId = _packageHelper.CreateNewPackage(new [] { "same content", "packege 2 content", "same content" });
 
             Exception ex = Assert.Throws<Exception>(() => diffService.GetDifference(upstreamPackageId, downstreamPackageId));
             Assert.StartsWith("Unexpected error reading diff", ex.Message);
@@ -108,10 +113,10 @@ namespace Tetrifact.Tests.PackageDiff
 
             // spoof manifests in index reader, we will call these by id
             Mock<IIndexReadService> indexReader = new Mock<IIndexReadService>();
-            indexReader.Setup(mq => mq.GetExpectedManifest("package-1")).Returns(PackageHelper.CreateInMemoryManifest());
-            indexReader.Setup(mq => mq.GetExpectedManifest("package-2")).Returns(PackageHelper.CreateInMemoryManifest());
+            indexReader.Setup(mq => mq.GetExpectedManifest("package-1")).Returns(_packageHelper.CreateInMemoryManifest());
+            indexReader.Setup(mq => mq.GetExpectedManifest("package-2")).Returns(_packageHelper.CreateInMemoryManifest());
 
-            IPackageDiffService diffService = TestContext.Get<IPackageDiffService>(
+            IPackageDiffService diffService = _testContext.Get<IPackageDiffService>(
                 "filesystem", fs.Object, 
                 "indexReader", indexReader.Object);
 
