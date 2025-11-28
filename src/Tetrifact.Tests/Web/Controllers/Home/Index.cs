@@ -7,8 +7,10 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Index : TestBase
+    public class Index
     {
+        private TestContext _testContext = new TestContext();
+
          /// <summary>
         /// Confirms that the controller initialized and can be called.
         /// </summary>
@@ -24,7 +26,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetPopularTags(It.IsAny<int>()))
                 .Returns(new List<string>() { });
 
-            W.HomeController controller = TestContext.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = _testContext.Get<W.HomeController>("packageList", packageList.Object);
             
             ViewResult result = controller.Summary() as ViewResult; 
             Assert.NotNull(result);

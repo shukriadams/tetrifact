@@ -6,15 +6,24 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Core.Daemon
 {
-    public class Start : TestBase
+    public class Start
     {
+        private TestContext _testContext = new TestContext();
+
+        private readonly MoqHelper _moqHelper;
+
+        public Start()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+        }
+
         /// <summary>
         /// Coverage test
         /// </summary>
         [Fact]
         public void Happy_path()
         {
-            var cleanerCron = MoqHelper.CreateInstance<W.CleanerCron>();
+            var cleanerCron =_moqHelper.CreateInstance<W.CleanerCron>();
             cleanerCron.Work();
         }
 
@@ -29,7 +38,7 @@ namespace Tetrifact.Tests.Web.Core.Daemon
                  .Setup(r => r.PurgeOldArchives())
                  .Throws(new Exception("some error"));
 
-            var cleanerCron = MoqHelper.CreateInstanceWithDependency<W.CleanerCron>(archiveService.Object);
+            var cleanerCron = _moqHelper.CreateInstanceWithDependency<W.CleanerCron>(archiveService.Object);
             cleanerCron.Work();
         }
 

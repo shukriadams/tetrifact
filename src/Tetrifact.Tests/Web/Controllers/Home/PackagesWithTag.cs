@@ -7,8 +7,10 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class PackagesWithTag : TestBase
+    public class PackagesWithTag
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Happy_path()
         {
@@ -17,7 +19,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetWithTags(It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(new List<Tetrifact.Core.Package>());
 
-            W.HomeController controller = TestContext.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = _testContext.Get<W.HomeController>("packageList", packageList.Object);
 
             ViewResult result = controller.PackagesWithTag("any-tag") as ViewResult;
             Assert.NotNull(result);
@@ -34,7 +36,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetWithTags(It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new TagNotFoundException());
 
-            W.HomeController controller = TestContext.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = _testContext.Get<W.HomeController>("packageList", packageList.Object);
 
             controller.PackagesWithTag("any-tag");
         }

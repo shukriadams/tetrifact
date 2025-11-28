@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Controllers.Clean
 {
-    public class Clean : TestBase
+    public class Clean
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// Confirms that the controller initialized and can be called.
         /// </summary>
@@ -24,7 +26,7 @@ namespace Tetrifact.Tests.Controllers.Clean
             archiveServiceMock
                 .Setup(r => r.PurgeOldArchives());
 
-            CleanController controller = TestContext.Get<CleanController>("repositoryCleaner", repoCleanServiceMock.Object, "archiveService", archiveServiceMock.Object);
+            CleanController controller = _testContext.Get<CleanController>("repositoryCleaner", repoCleanServiceMock.Object, "archiveService", archiveServiceMock.Object);
             JsonResult result = controller.Clean() as JsonResult;
             Assert.NotNull(result);
         }
@@ -41,7 +43,7 @@ namespace Tetrifact.Tests.Controllers.Clean
                 .Setup(r => r.Clean())
                 .Throws(new Exception("unexpected error"));
 
-            CleanController controller = TestContext.Get<CleanController>("repositoryCleaner", repoCleanServiceMock.Object);
+            CleanController controller = _testContext.Get<CleanController>("repositoryCleaner", repoCleanServiceMock.Object);
             BadRequestObjectResult result = controller.Clean() as BadRequestObjectResult;
             Assert.NotNull(result);
         }

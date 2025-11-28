@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class GetLatestPackageWithTag : TestBase
+    public class GetLatestPackageWithTag
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// coverage
         /// </summary>
@@ -20,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetLatestWithTags(It.IsAny<string[]>()))
                 .Returns(new Package());
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageListService", packageListService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageListService", packageListService.Object);
             JsonResult result = controller.GetLatestWithTag("any-tag") as JsonResult;
             Assert.NotNull(result);
         }
@@ -36,7 +38,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetLatestWithTags(It.IsAny<string[]>()))
                 .Throws(new Exception());
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageListService", packageListService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageListService", packageListService.Object);
             BadRequestObjectResult result = controller.GetLatestWithTag("any-tag") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

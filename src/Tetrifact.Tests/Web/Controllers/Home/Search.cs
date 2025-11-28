@@ -6,8 +6,17 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Search : TestBase
+    public class Search
     {
+        private TestContext _testContext = new TestContext();
+
+        private MoqHelper _moqHelper;
+
+        public Search()
+        {
+            _moqHelper = new MoqHelper(_testContext);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -23,7 +32,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                     new Tetrifact.Core.Package()
                     }, 0, 1, 1));
 
-            W.HomeController controller = MoqHelper.CreateInstanceWithDependencies<W.HomeController>(new object[] { packageList });
+            W.HomeController controller = _moqHelper.CreateInstanceWithDependencies<W.HomeController>(new object[] { packageList });
             ViewResult result = controller.Search("", 0) as ViewResult;
             Assert.NotNull(result);
         }

@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class GetPackagesDiff : TestBase
+    public class GetPackagesDiff
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// coverage
         /// </summary>
@@ -20,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new Tetrifact.Core.PackageDiff());
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
             JsonResult result = controller.GetDiff("upstream", "downstream") as JsonResult;
             Assert.NotNull(result);
         }
@@ -36,7 +38,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
             NotFoundObjectResult result = controller.GetDiff("upstream", "downstream") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -52,7 +54,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
             BadRequestObjectResult result = controller.GetDiff("upstream", "downstream") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

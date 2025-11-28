@@ -6,8 +6,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Tickets
 {
-    public class Add : TestBase
+    public class Add
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Skips_Ticket_Creation_If_Tickets_Not_Required()
         {
@@ -15,7 +17,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
             Settings settings = new Settings();
             settings.MaximumSimultaneousDownloads = null;
 
-            TicketsController controller = TestContext.Get<TicketsController>("settings", settings);
+            TicketsController controller = _testContext.Get<TicketsController>("settings", settings);
             
             JsonResult response = controller.Add(string.Empty) as JsonResult;
             Assert.Equal(200, response.StatusCode);
@@ -32,7 +34,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
             Settings settings = new Settings();
             settings.MaximumSimultaneousDownloads = 1;
 
-            TicketsController controller = TestContext.Get<TicketsController>("settings", settings);
+            TicketsController controller = _testContext.Get<TicketsController>("settings", settings);
             HttpHelper.EnsureContext(controller);
             
             JsonResult response = controller.Add(string.Empty) as JsonResult;
@@ -50,7 +52,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
             Settings settings = new Settings();
             settings.MaximumSimultaneousDownloads = 1;
 
-            TicketsController controller = TestContext.Get<TicketsController>("settings", settings);
+            TicketsController controller = _testContext.Get<TicketsController>("settings", settings);
             HttpHelper.EnsureContext(controller);
 
             // ensure request has IP, else request will be ignored

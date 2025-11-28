@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests
 {
-    public class FileIdentifierTests : TestBase
+    public class FileIdentifierTests
     {
         [Fact]
         public void HappyPath()

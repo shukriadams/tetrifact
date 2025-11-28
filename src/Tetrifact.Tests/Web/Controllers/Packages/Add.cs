@@ -7,8 +7,9 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class AddPackage : TestBase
+    public class AddPackage
     {
+        private TestContext _testContext = new TestContext();
 
         [Fact]
         public void Happy_path()
@@ -18,7 +19,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { Success = true });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             JsonResult result = controller.Add(new PackageCreateFromPost{ }) as JsonResult;
             Assert.NotNull(result);
         }
@@ -34,7 +35,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDiskUseSats())
                 .Returns(new DiskUseStats{ });
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -50,7 +51,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidArchiveFormat });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -66,7 +67,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -82,7 +83,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -98,7 +99,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.MissingValue });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -114,7 +115,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Returns(new PackageCreateResult { ErrorType = PackageCreateErrorTypes.UnexpectedError });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -130,7 +131,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.Create(It.IsAny<PackageCreateArguments>()))
                 .Throws(new Exception());
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
             Assert.NotNull(result);
         }

@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Controllers
 {
-    public class GetTags : TestBase
+    public class GetTags
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// 
         /// </summary>
@@ -20,7 +22,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetAllTags())
                 .Returns(new string[] { });
 
-            TagsController controller = TestContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
             JsonResult result = controller.GetTags() as JsonResult;
             Assert.NotNull(result);
         }
@@ -36,7 +38,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetAllTags())
                 .Throws(new Exception());
 
-            TagsController controller = TestContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
             BadRequestObjectResult result = controller.GetTags() as BadRequestObjectResult;
             Assert.NotNull(result);
         }

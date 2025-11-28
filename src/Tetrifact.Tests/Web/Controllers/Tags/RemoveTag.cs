@@ -7,14 +7,16 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Tags
 {
-    public class RemoveTag : TestBase
+    public class RemoveTag
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Happy_path()
         {
             Mock<ITagsService> tagsService = new Mock<ITagsService>();
 
-            TagsController controller = TestContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
             JsonResult result = controller.RemoveTag("tag", "package-id") as JsonResult;
             Assert.NotNull(result);
         }
@@ -27,7 +29,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
                 .Setup(r => r.RemoveTag(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            TagsController controller = TestContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
             NotFoundObjectResult result = controller.RemoveTag("tag", "package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -40,7 +42,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
                 .Setup(r => r.RemoveTag(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
-            TagsController controller = TestContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
             BadRequestObjectResult result = controller.RemoveTag("tag", "package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

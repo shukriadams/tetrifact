@@ -4,7 +4,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Core.Pager
 {
-    public class Render : TestBase
+    public class Render
     {
         [Fact]
         public void Happy_path()

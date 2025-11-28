@@ -3,7 +3,7 @@ using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Core.CurrentVersion
 {
-    public class Get : TestBase
+    public class Get
     {
         [Fact]
         public void Happy_path()

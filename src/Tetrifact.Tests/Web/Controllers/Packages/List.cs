@@ -7,8 +7,10 @@ using System.Linq;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class ListPackages : TestBase
+    public class ListPackages
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Package_Id_List()
         {
@@ -22,7 +24,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                         new Package { Id = "3" } 
                     });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageListService", mockedPackageListService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageListService", mockedPackageListService.Object);
 
             dynamic json = JsonHelper.ToDynamic(controller.List(false, 0, 10));
             string[] ids = json.success.packages.ToObject<string[]>();
@@ -39,7 +41,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                     new Package(), new Package(), new Package() // inject 3 packages
                 });
 
-            PackagesController controller = TestContext.Get<PackagesController>("packageListService", moqListService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("packageListService", moqListService.Object);
             dynamic json = JsonHelper.ToDynamic(controller.List(true, 0, 10));
             Package[] packages = json.success.packages.ToObject<Package[]>();
             Assert.Equal(3, packages.Count());

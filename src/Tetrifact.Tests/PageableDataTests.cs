@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tetrifact.Tests
 {
-    public class PageableDataTests : TestBase
+    public class PageableDataTests
     {
         /// <summary>
         /// Coverage compliance tests, ensures that modulus condition in PageableData ctor is reached.

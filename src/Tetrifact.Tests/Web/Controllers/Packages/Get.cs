@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class Get : TestBase
+    public class Get
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// 
         /// </summary>
@@ -20,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Returns(new Manifest());
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             JsonResult result = controller.Get("any-package-id") as JsonResult;
             Assert.NotNull(result);
         }
@@ -35,7 +37,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
             indexReadService
                 .Setup(r => r.GetManifest(It.IsAny<string>())); // return null
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             NotFoundObjectResult result = controller.Get("any-package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -51,7 +53,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Throws(new Exception());
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             BadRequestObjectResult result = controller.Get("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

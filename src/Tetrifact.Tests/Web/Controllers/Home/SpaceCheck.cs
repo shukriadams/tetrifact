@@ -3,12 +3,14 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class SpaceCheck : TestBase
+    public class SpaceCheck
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Happy_path()
         {
-            W.HomeController controller = TestContext.Get<W.HomeController>();
+            W.HomeController controller = _testContext.Get<W.HomeController>();
             controller.SpaceCheck();
         }
     }

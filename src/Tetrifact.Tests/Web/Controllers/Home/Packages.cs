@@ -6,8 +6,10 @@ using W=Tetrifact.Web;
 
 namespace Tetrifact.Tests.Web.Controllers.Home
 {
-    public class Packages : TestBase
+    public class Packages
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Happy_path()
         {
@@ -18,7 +20,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                     new Tetrifact.Core.Package[]{ },1,1,1)
                 );
 
-            W.HomeController controller = TestContext.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = _testContext.Get<W.HomeController>("packageList", packageList.Object);
 
             ViewResult result = controller.Index(1) as ViewResult;
             Assert.NotNull(result);

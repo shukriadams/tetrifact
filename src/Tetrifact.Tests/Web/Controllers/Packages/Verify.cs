@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class VerifyPackage : TestBase
+    public class VerifyPackage
     {
+        private TestContext _testContext = new TestContext();
+
         /// <summary>
         /// coverage
         /// </summary>
@@ -20,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.VerifyPackage(It.IsAny<string>()))
                 .Returns((true, "some-description"));
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             JsonResult result = controller.Verify("any-package-id") as JsonResult;
             Assert.NotNull(result);
         }
@@ -36,7 +38,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.VerifyPackage(It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             NotFoundObjectResult result = controller.Verify("any-package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -52,7 +54,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.VerifyPackage(It.IsAny<string>()))
                 .Throws(new Exception());
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             BadRequestObjectResult result = controller.Verify("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

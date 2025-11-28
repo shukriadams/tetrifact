@@ -6,8 +6,10 @@ using Xunit;
 
 namespace Tetrifact.Tests.Web.Controllers.Packages
 {
-    public class SetPackageCreateDate : TestBase
+    public class SetPackageCreateDate
     {
+        private TestContext _testContext = new TestContext();
+
         [Fact]
         public void Happy_path()
         {
@@ -15,7 +17,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
             indexReadService
                 .Setup(r => r.UpdatePackageCreateDate(It.IsAny<string>(), It.IsAny<string>()));
 
-            PackagesController controller = TestContext.Get<PackagesController>("indexReadService", indexReadService.Object);
+            PackagesController controller = _testContext.Get<PackagesController>("indexReadService", indexReadService.Object);
             JsonResult result = controller.SetCreateDate("somePackage", "some-date") as JsonResult;
             Assert.NotNull(result);
         }
