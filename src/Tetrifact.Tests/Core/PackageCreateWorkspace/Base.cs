@@ -2,13 +2,15 @@
 
 namespace Tetrifact.Tests.Workspace
 {
-    public class Base : TestBase
+    public class Base
     {
+        private readonly TestContext _testContext = new TestContext();
+
         protected IPackageCreateWorkspace PackageCreateWorkspace;
 
         public Base()
         {
-            PackageCreateWorkspace = TestContext.Get<IPackageCreateWorkspace>();
+            PackageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
             PackageCreateWorkspace.Initialize();
         }
     }

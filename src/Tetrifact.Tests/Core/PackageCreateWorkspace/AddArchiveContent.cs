@@ -6,6 +6,7 @@ namespace Tetrifact.Tests.Workspace
 {
     public class AddArchiveContent : Base
     {
+        
         [Fact]
         public void Add()
         {

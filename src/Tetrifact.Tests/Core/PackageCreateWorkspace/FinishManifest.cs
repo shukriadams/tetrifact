@@ -7,10 +7,12 @@ namespace Tetrifact.Tests.Workspace
 {
     public class FinishManifest : Base
     {
+        private readonly TestContext _testContext = new TestContext();
+
         [Fact]
         public void Basic()
         {
-            ISettings settings = TestContext.Get<ISettings>();
+            ISettings settings = _testContext.Get<ISettings>();
 
             string combinedHash = "somehash";
             string package = "somepackage";

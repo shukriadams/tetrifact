@@ -6,6 +6,8 @@ namespace Tetrifact.Tests.Workspace
 {
     public class AddIncomingFile : Base
     {
+        private readonly TestContext _testContext = new TestContext();
+
         [Fact]
         public void Add()
         {
@@ -24,7 +26,7 @@ namespace Tetrifact.Tests.Workspace
         public void EmptyStream()
         {
             // returns false if attempting to send empty stream 
-            IPackageCreateWorkspace workspace = TestContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace workspace = _testContext.Get<IPackageCreateWorkspace>();
             bool result = workspace.AddIncomingFile(StreamsHelper.StreamFromString(string.Empty), string.Empty);
             Assert.False(result);
         }

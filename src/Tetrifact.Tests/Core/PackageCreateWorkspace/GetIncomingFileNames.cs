@@ -6,6 +6,8 @@ namespace Tetrifact.Tests.Workspace
 {
     public class GetIncomingFileNames : Base
     {
+        private readonly TestContext _testContext = new TestContext();
+
         [Fact]
         public void Get()
         {
