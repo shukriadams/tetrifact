@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.Caching.Memory;
-using Tetrifact.Core;
+﻿using Tetrifact.Core;
 using Xunit;
 
 namespace Tetrifact.Tests.IndexReader

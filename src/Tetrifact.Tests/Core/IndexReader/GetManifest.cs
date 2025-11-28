@@ -1,7 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.IO;
-using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 

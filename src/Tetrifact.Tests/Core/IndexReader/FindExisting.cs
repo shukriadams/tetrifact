@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit;
 using Tetrifact.Core;
 using Moq;
 using System.Linq;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Tetrifact.Tests.IndexReader
 {
