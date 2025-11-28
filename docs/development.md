@@ -28,7 +28,7 @@ Unit test coverage is done with https://github.com/SteveGilham/altcover, install
 
 To access your solution from another PC, open `<project root>/src/.vs/Tetrifact/config/applicationhost.config` and find all instances of `<binding protocol="http" bindingInformation="*:<PORT>:localhost" />` and replace `localhost` with `*`. There should be two instances, for ports `7313` and `8080`, but this might vary for your system.
 
-Visual Studio performs poorly with large builds, most likely as a result of IISExpress. If you want to work with very large uploads (10's if K of files, 10+ gigs of data), try running Tetrifact from the command line instead.
+Visual Studio performs poorly with large builds. If you want to work with very large uploads (10K+ files, 10+ gigs of data), try running Tetrifact from the command line instead.
 
 ## Running from command line 
 
@@ -85,7 +85,9 @@ After testing run
 
 The HTML report is at
 
-    /src/coverage/index.html
+    /src/Tetrifact.Tests/coverage/index.html
+
+You can also run /src/cover.sh or cover.bat, either will test and cover all-in-one.
 
 ## Architecture
 
