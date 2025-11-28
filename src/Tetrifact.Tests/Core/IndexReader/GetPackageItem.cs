@@ -14,10 +14,11 @@ namespace Tetrifact.Tests.IndexReader
         {
             ISettings settings = _testContext.Get<ISettings>();
             IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
-
+            IHashService hashService = new HashService();
+            
             // create package, files folder and item location in one
-            byte[] content = Encoding.ASCII.GetBytes("some content");
-            string hash = HashServiceHelper.Instance().FromByteArray(content);
+            byte[] content = Encoding.ASCII.GetBytes("some content"); 
+            string hash = hashService.FromByteArray(content);
 
             string packageFolder = Path.Combine(settings.RepositoryPath, "path", "to", "file", hash);
             Directory.CreateDirectory(packageFolder);

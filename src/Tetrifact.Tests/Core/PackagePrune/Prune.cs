@@ -214,11 +214,8 @@ namespace Tetrifact.Tests.PackagePrune
         [Fact]
         public void Prune_Missing_Manifest()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IFileSystem fileSystem = _testContext.Get<IFileSystem>();
-
             // Settings.PruneWeeklyKeep = 0;
-            Mock<IIndexReadService> mockedIndexReader = _moqHelper.CreateMockWithDependencies<IndexReadService, IIndexReadService>(new object[]{ fileSystem, HashServiceHelper.Instance() });
+            Mock<IIndexReadService> mockedIndexReader = _moqHelper.Mock<IIndexReadService>();
             mockedIndexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
                 .Returns<Manifest>(null);

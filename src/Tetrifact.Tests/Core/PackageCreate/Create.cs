@@ -202,14 +202,13 @@ namespace Tetrifact.Tests.PackageCreate
         public void AddPackageAsFiles()
         {
             ISettings settings = _testContext.Get<ISettings>();
-
+            IHashService hashService = new HashService();
+            
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
             Stream file1 = StreamsHelper.StreamFromString(file1Content);
             Stream file2 = StreamsHelper.StreamFromString(file2Content);
-
-            IHashService hashService = HashServiceHelper.Instance();
-
+            
             string file1Hash = hashService.FromString(file1Content);
             string file2Hash = hashService.FromString(file2Content);
 
@@ -302,19 +301,19 @@ namespace Tetrifact.Tests.PackageCreate
         public void AddPackageAsArchive()
         {
             ISettings settings = _testContext.Get<ISettings>();
-
+            IHashService hashService = new HashService();
+            
             Dictionary<string, string> files = new Dictionary<string, string>();
             string file1Content = "file 1 content";
             string file2Content = "file 2 content";
 
-            IHashService hashService = HashServiceHelper.Instance();
             string file1Hash = hashService.FromString(file1Content);
             string file2Hash = hashService.FromString(file2Content);
 
-            string expectedFullhash = HashServiceHelper.Instance().FromString(
-                HashServiceHelper.Instance().FromString("folder1/file1.txt") +
+            string expectedFullhash = hashService.FromString(
+                hashService.FromString("folder1/file1.txt") +
                 file1Hash +
-                HashServiceHelper.Instance().FromString("folder2/file2.txt") +
+                hashService.FromString("folder2/file2.txt") +
                 file2Hash);
 
             files.Add("folder1/file1.txt", file1Content);

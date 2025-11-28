@@ -94,17 +94,19 @@ namespace Tetrifact.Tests
         /// <returns></returns>
         public TestPackage CreateNewPackageFiles(string packageName)
         {
+            IHashService hashService = new HashService();
+            
             // create package, files folder and item location in one
             byte[] content = Encoding.ASCII.GetBytes("some content");
             TestPackage testPackage = new TestPackage
             {
                 Content = content,
                 Path = $"path/to/{packageName}",
-                Hash = HashServiceHelper.Instance().FromByteArray(content),
+                Hash = hashService.FromByteArray(content),
                 Id = packageName
             };
 
-            string filePathHash = HashServiceHelper.Instance().FromString(testPackage.Path);
+            string filePathHash = hashService.FromString(testPackage.Path);
 
             // create via workspace writer. Note that workspace has no logic of its own to handle hashing, it relies on whatever
             // calls it to do that. We could use PackageCreate to do this, but as we want to test PackageCreate with this helper
@@ -114,7 +116,7 @@ namespace Tetrifact.Tests
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);
-            workspace.WriteManifest(testPackage.Id, HashServiceHelper.Instance().FromString(filePathHash + testPackage.Hash));
+            workspace.WriteManifest(testPackage.Id, hashService.FromString(filePathHash + testPackage.Hash));
 
             return testPackage;
         }
@@ -140,10 +142,10 @@ namespace Tetrifact.Tests
         public Manifest CreateInMemoryManifest(IEnumerable<string> filesContent)
         {
             List<ManifestItem> items = new List<ManifestItem>();
-
+            IHashService hashService = new HashService();
             foreach (string fileContent in filesContent)
             {
-                string contentHash = HashServiceHelper.Instance().FromString(fileContent);
+                string contentHash = hashService.FromString(fileContent);
                 string path = $"{Guid.NewGuid()}/{Guid.NewGuid()}";
                 items.Add(new ManifestItem
                 {
