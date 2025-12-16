@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -10,7 +9,7 @@ namespace Tetrifact.Web
     {
         private readonly ILogger<PruneCron> _log;
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IPruneServiceFactory _serviceFactory;
 
         private readonly IDaemon _daemonrunner;
 
@@ -18,11 +17,11 @@ namespace Tetrifact.Web
 
         private readonly IPackageListCache _packageListCache;
     
-        public PruneCron(IServiceProvider serviceProvider, ISettings settings, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
+        public PruneCron(IPruneServiceFactory serviceFactory, ISettings settings, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
             _settings = settings;
             _log = log;
-            _serviceProvider = serviceProvider;
+            _serviceFactory = serviceFactory;
             _daemonrunner = daemonrunner;
             _packageListCache = packageListCache;
         }
@@ -43,7 +42,7 @@ namespace Tetrifact.Web
             try
             {
                 _log.LogInformation("Starting prune from daemon");
-                IPruneService pruneService = _serviceProvider.GetService<IPruneService>();
+                IPruneService pruneService = _serviceFactory.Create();
                 pruneService.Prune();
                 _packageListCache.Clear();
             }

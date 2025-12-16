@@ -30,15 +30,14 @@ namespace Tetrifact.Tests
         {
             _kernel = new StandardKernel();
 
-            var RepositoryCleanServiceFactory = new Func<IContext, ILogger<IRepositoryCleanService>>(context =>
+            var repositoryCleanServiceLogFactory = new Func<IContext, ILogger<IRepositoryCleanService>>(context =>
             {
                 if (_repositoryCleanServiceLog == null)
                     _repositoryCleanServiceLog = new TestLogger<IRepositoryCleanService>();
 
                 return _repositoryCleanServiceLog;
             });
-
-
+            
             var SettingsFactory = new Func<IContext, ISettings>(context =>
             {
                 if (_settings == null)
@@ -93,8 +92,17 @@ namespace Tetrifact.Tests
             _kernel.Bind<IPackageDiffService>().To<PackageDiffService>();
             _kernel.Bind<IArchiveService>().To<Core.ArchiveService>();
             _kernel.Bind<IProcessManager>().To<Core.ProcessManager>();
+            
             _kernel.Bind<IProcessManagerFactory>().ToConstant(new ProcessManagerFactory(() => {
                 return _kernel.Get<IProcessManager>();
+            }));
+
+            _kernel.Bind<IPruneServiceFactory>().ToConstant(new PruneServiceFactory(() => {
+                return _kernel.Get<IPruneService>();
+            }));
+
+            _kernel.Bind<IRepositoryCleanServiceFactory>().ToConstant(new RepositoryCleanServiceFactory(() => {
+                return _kernel.Get<IRepositoryCleanService>();
             }));
 
             _kernel.Bind<IMetricsService>().To<MetricsService>();
@@ -130,7 +138,7 @@ namespace Tetrifact.Tests
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
 
 
-            _kernel.Bind<ILogger<IRepositoryCleanService>>().ToMethod(RepositoryCleanServiceFactory).InSingletonScope();
+            _kernel.Bind<ILogger<IRepositoryCleanService>>().ToMethod(repositoryCleanServiceLogFactory).InSingletonScope();
         }
 
 

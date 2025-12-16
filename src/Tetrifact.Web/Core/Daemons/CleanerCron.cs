@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Tetrifact.Core;
 
 namespace Tetrifact.Web
@@ -13,7 +12,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IRepositoryCleanServiceFactory _serviceFactory;
 
         private readonly IArchiveService _archiveService;
 
@@ -27,12 +26,11 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public CleanerCron(IServiceProvider serviceProvider, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
+        public CleanerCron(IRepositoryCleanServiceFactory serviceFactory, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
         {
             _settings = settings;
-
             _archiveService = archiveService;
-            _serviceProvider = serviceProvider;
+            _serviceFactory = serviceFactory;
             _log = log;
             _daemonrunner = daemonrunner;
         }
@@ -60,7 +58,7 @@ namespace Tetrifact.Web
             try
             {
                 _log.LogInformation("Starting clean from daemon");
-                IRepositoryCleanService cleanService = _serviceProvider.GetService<IRepositoryCleanService>();
+                IRepositoryCleanService cleanService = _serviceFactory.Create();
                 cleanService.Clean();
             }
             catch (Exception ex)
@@ -76,7 +74,6 @@ namespace Tetrifact.Web
             {
                 _log.LogError($"Daemon Purge archives error {ex}");
             }
-
         }
 
         #endregion
