@@ -246,12 +246,21 @@ namespace Tetrifact.Core
         /// <summary>
         /// If true, packages older than prune brackets will be deleted.
         /// </summary>
-        public bool DeleteStalePackages { get; set; }
+        bool DeleteStalePackages { get; set; }
 
         /// <summary>
         /// If true, packages with protected tags older than prune brackets will be deleted.
         /// </summary>
-        public bool DeleteStalePackagesWithProtectedTags { get; set; }
-
+        bool DeleteStalePackagesWithProtectedTags { get; set; }
+        
+        /// <summary>
+        /// If true, allows clean to be invoked directly via http controller route.
+        /// </summary>
+        bool EnableCleanViaController { get; set; }
+        
+        /// <summary>
+        /// If true, allows prune to be invoked directly via http controller route.
+        /// </summary>
+        bool EnablePruneViaController { get; set; }
     }
 }

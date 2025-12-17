@@ -108,6 +108,10 @@ namespace Tetrifact.Core
         
         public bool DeleteStalePackagesWithProtectedTags { get; set; }
 
+        public bool EnableCleanViaController { get; set; }
+        
+        public bool EnablePruneViaController { get; set; }
+        
         #endregion
 
         #region CTORS

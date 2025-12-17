@@ -13,9 +13,11 @@ namespace Tetrifact.Web
 
         private readonly IArchiveService _archiveService;
 
-        private readonly IRepositoryCleanService _repositoryCleaner;
-
+        private readonly IRepositoryCleanServiceFactory _serviceFactory;
+        
         private readonly ILogger<CleanController> _log;
+
+        private readonly ISettings _settings;
 
         #endregion
 
@@ -28,10 +30,11 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(IRepositoryCleanService repositoryCleaner, IArchiveService archiveService, ILogger<CleanController> log)
+        public CleanController(IRepositoryCleanServiceFactory serviceFactory, ISettings settings, IArchiveService archiveService, ILogger<CleanController> log)
         {
-            _repositoryCleaner = repositoryCleaner;
+            _serviceFactory = serviceFactory;
             _archiveService = archiveService;
+            _settings = settings;
             _log = log;
         }
 
@@ -48,10 +51,14 @@ namespace Tetrifact.Web
         [HttpGet("")]
         public ActionResult Clean()
         {
-            try 
+            try
             {
+                if (!_settings.EnableCleanViaController)
+                    return Responses.NoPermission();
+                
                 _log.LogInformation("Starting clean from controller");
-                CleanResult cleaned = _repositoryCleaner.Clean();
+                IRepositoryCleanService repositoryCleaner = _serviceFactory.Create();
+                CleanResult cleaned = repositoryCleaner.Clean();
                 _archiveService.PurgeOldArchives();
 
                 return new JsonResult(new
