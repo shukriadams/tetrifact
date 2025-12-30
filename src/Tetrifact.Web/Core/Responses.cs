@@ -38,6 +38,20 @@ namespace Tetrifact.Web
             };
         }
 
+        public static ObjectResult NoPermission()
+        {
+            return new ObjectResult(new
+            {
+                error = new
+                {
+                    description = $"You do not have permission to perform this action."
+                }
+            })
+            {
+                StatusCode = 401 
+            };
+        }
+        
         public static ObjectResult NoTicket()
         {
             return new ObjectResult(new

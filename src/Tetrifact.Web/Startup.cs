@@ -81,6 +81,20 @@ namespace Tetrifact.Web
                 });
             });
 
+            services.AddTransient<IRepositoryCleanServiceFactory>(serviceProvider =>{
+                return new RepositoryCleanServiceFactory(() =>
+                {
+                    return serviceProvider.GetRequiredService<IRepositoryCleanService>();
+                });
+            });
+
+            services.AddTransient<IPruneServiceFactory>(serviceProvider =>{
+                return new PruneServiceFactory(() =>
+                {
+                    return serviceProvider.GetRequiredService<IPruneService>();
+                });
+            });
+
             // all ICron types registered here are automatically started in Configure() method below
             services.AddTransient<ICron, MetricsCron>();
             services.AddTransient<ICron, PruneCron>();
