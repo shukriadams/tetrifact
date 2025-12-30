@@ -37,7 +37,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Logging__LogLevel__System": "Debug"
       },
-      "applicationUrl": "http://0.0.0.0:3000"
+      "applicationUrl": "http://0.0.0.0:5000"
     }
   }
 }
