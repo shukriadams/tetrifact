@@ -136,7 +136,7 @@ namespace Tetrifact.Tests
             _kernel.Bind<ILogger<IProcessManager>>().To<TestLogger<IProcessManager>>();
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
             _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
-            _kernel.Bind<ILogger<IRepositoryCleanService>>().ToMethod(RepositoryCleanServiceFactory).InSingletonScope();
+            _kernel.Bind<ILogger<IRepositoryCleanService>>().ToMethod(repositoryCleanServiceLogFactory).InSingletonScope();
             
             // force wipe memcache at start of each test
             IMemoryCache memCach = _kernel.Get<IMemoryCache>();

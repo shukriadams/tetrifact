@@ -6,26 +6,29 @@ using Xunit;
 
 namespace Tetrifact.Tests.Workspace
 {
-    public class Dispose : Base
+    public class Dispose
     {
         private readonly TestContext _testContext = new TestContext();
 
         [Fact]
         public void Basic()
         {
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+            packageCreateWorkspace.Initialize();  
+
             ISettings settings = _testContext.Get<ISettings>();
 
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
-            this.PackageCreateWorkspace.AddIncomingFile(file, "test/file.txt");
+            packageCreateWorkspace.AddIncomingFile(file, "test/file.txt");
 
             // Ensure that the workspace has content in it
-            Assert.True(Directory.Exists(this.PackageCreateWorkspace.WorkspacePath));
+            Assert.True(Directory.Exists(packageCreateWorkspace.WorkspacePath));
 
-            this.PackageCreateWorkspace.Dispose();
+            packageCreateWorkspace.Dispose();
 
             // after flush,workspace should be empty
-            Assert.False(Directory.Exists(this.PackageCreateWorkspace.WorkspacePath));
+            Assert.False(Directory.Exists(packageCreateWorkspace.WorkspacePath));
 
             // make sure we didn't do something stupid like nuke the entire temp folder, it's 
             // not like I've never done _that_ before

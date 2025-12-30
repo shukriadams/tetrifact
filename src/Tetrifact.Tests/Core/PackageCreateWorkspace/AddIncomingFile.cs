@@ -4,18 +4,20 @@ using Xunit;
 
 namespace Tetrifact.Tests.Workspace
 {
-    public class AddIncomingFile : Base
+    public class AddIncomingFile
     {
         private readonly TestContext _testContext = new TestContext();
 
         [Fact]
         public void Add()
         {
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
-            this.PackageCreateWorkspace.AddIncomingFile(file, "test/file.txt");
+            packageCreateWorkspace.AddIncomingFile(file, "test/file.txt");
 
-            string testContent = File.ReadAllText(Path.Join(this.PackageCreateWorkspace.WorkspacePath, "incoming/test/file.txt"));
+            string testContent = File.ReadAllText(Path.Join(packageCreateWorkspace.WorkspacePath, "incoming/test/file.txt"));
             Assert.Equal(testContent, content);
         }
 
