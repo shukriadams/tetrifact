@@ -54,7 +54,8 @@ namespace Tetrifact.Core
             {
                 _settings = new Settings();
 
-                // try to get YML config location from env var, all other settings will be loaded from this file. Note that this value can be overwritten by a different settings path 
+                // try to get YML config location from env var, all other settings will be loaded from this file.
+                // Note that this value can be overwritten by a different settings path 
                 // the YML config file, but that value will never be used.
                 _settings.SettingsPath = TryGetSetting("TETRIFACT_SETTINGS_PATH", _settings.SettingsPath);
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
 using Tetrifact.Core;
+using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
 
 namespace Tetrifact.Web
 {
@@ -9,8 +10,10 @@ namespace Tetrifact.Web
     {
         private readonly ISettings _settings;
 
-        public WriteLevel(ISettings settings)
+        public WriteLevel()
         {
+            SimpleDI di = new SimpleDI();
+            ISettings settings = di.Resolve<ISettings>(); 
             _settings = settings;
         }
 

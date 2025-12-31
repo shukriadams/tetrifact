@@ -1,0 +1,7 @@
+{
+  "name" : "Tetrifact.Web",
+  "runtimes" : [ 6 ],
+  "packages" : [
+    "github.shukriadams.simpledi@0.0.4"
+  ]
+}

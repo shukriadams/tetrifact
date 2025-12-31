@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Compression;
+using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
 {
@@ -262,5 +263,10 @@ namespace Tetrifact.Core
         /// If true, allows prune to be invoked directly via http controller route.
         /// </summary>
         bool EnablePruneViaController { get; set; }
+        
+        /// <summary>
+        /// Log verbosity level.
+        /// </summary>
+        LogLevel LogLevel { get; set; }
     }
 }

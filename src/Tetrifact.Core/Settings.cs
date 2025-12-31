@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Tetrifact.Core
 {
@@ -111,6 +112,8 @@ namespace Tetrifact.Core
         public bool EnableCleanViaController { get; set; }
         
         public bool EnablePruneViaController { get; set; }
+
+        public LogLevel LogLevel { get; set; }
         
         #endregion
 
@@ -137,6 +140,7 @@ namespace Tetrifact.Core
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+            this.LogLevel = LogLevel.Error;
             this.IndexTagListLength = 20;
             this.MaximumArchivesToKeep = 10;
             this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am
