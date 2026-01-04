@@ -23,8 +23,8 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Basic() {
             TestPackage package = _packageHelper.CreateRandomPackage();
-            ITagsService tagsService = _testContext.Get<ITagsService>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             string[] tags = new[] { "mytag" };
 
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests.TagsService
             }
 
             indexReader.DeletePackage(package.Id);
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);

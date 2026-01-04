@@ -26,7 +26,7 @@ namespace Tetrifact.Tests.Controllers.Clean
             archiveServiceMock
                 .Setup(r => r.PurgeOldArchives());
 
-            CleanController controller = _testContext.Get<CleanController>("repositoryCleaner", repoCleanServiceMock.Object, "archiveService", archiveServiceMock.Object);
+            CleanController controller = _testContext.Instantiate<CleanController>("repositoryCleaner", repoCleanServiceMock.Object, "archiveService", archiveServiceMock.Object);
             object result = controller.Clean();
             Assert.NotNull(result);
         }
@@ -43,7 +43,7 @@ namespace Tetrifact.Tests.Controllers.Clean
                 .Setup(r => r.Clean())
                 .Throws(new Exception("unexpected error"));
 
-            CleanController controller = _testContext.Get<CleanController>("repositoryCleaner", repoCleanServiceMock.Object);
+            CleanController controller = _testContext.Instantiate<CleanController>("repositoryCleaner", repoCleanServiceMock.Object);
             object result = controller.Clean();
             Assert.NotNull(result);
         }

@@ -37,6 +37,13 @@ namespace Tetrifact.Tests
             return JsonConvert.DeserializeObject(jrawJson);
         }
 
+        
+        public static dynamic ToDynamic(ActionResult<string> actionResult)
+        {
+            string jrawJson = JsonConvert.SerializeObject(actionResult);
+            return JsonConvert.DeserializeObject(jrawJson);
+        }
+        
         /// <summary>
         /// Writes a value to the root level of a JSON file
         /// </summary>

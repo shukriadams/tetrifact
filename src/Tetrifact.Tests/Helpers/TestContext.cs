@@ -18,14 +18,24 @@ namespace Tetrifact.Tests
     /// </summary>
     public class TestContext
     {
+        #region FIELDS
+        
         StandardKernel _kernel;
 
         ISettings _settings;
 
         TestLogger<IRepositoryCleanService> _repositoryCleanServiceLog;
 
+        #endregion
+        
+        #region PROPERTIES
+        
         public StandardKernel Kernel { get { return _kernel; } }
 
+        #endregion
+        
+        #region CTORS
+        
         public TestContext()
         {
             _kernel = new StandardKernel();
@@ -122,6 +132,8 @@ namespace Tetrifact.Tests
             _kernel.Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
             _kernel.Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
             _kernel.Bind<ILogger<W.ArchivesController>>().To<TestLogger<W.ArchivesController>>();
+            _kernel.Bind<ILogger<W.MetricsController>>().To<TestLogger<W.MetricsController>>();
+            _kernel.Bind<ILogger<W.ErrorsController>>().To<TestLogger<W.ErrorsController>>();
             _kernel.Bind<ILogger<W.TagsController>>().To<TestLogger<W.TagsController>>();
             _kernel.Bind<ILogger<IPackageCreateWorkspace>>().To<TestLogger<IPackageCreateWorkspace>>();
             _kernel.Bind<ILogger<IMetricsService>>().To<TestLogger<IMetricsService>>();
@@ -143,8 +155,9 @@ namespace Tetrifact.Tests
             memCach.Dispose();
         }
 
+        #endregion
 
-        private T Get<T>(ConstructorArgument[] args)
+        private T Instantiate<T>(ConstructorArgument[] args)
         {
             return _kernel.Get<T>(args);
         }
@@ -154,9 +167,9 @@ namespace Tetrifact.Tests
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T Get<T>()
+        public T Instantiate<T>()
         {
-            return Get<T>(new ConstructorArgument[] { });
+            return Instantiate<T>(new ConstructorArgument[] { });
         }
 
         /// <summary>
@@ -166,9 +179,9 @@ namespace Tetrifact.Tests
         /// <param name="name1"></param>
         /// <param name="arg1"></param>
         /// <returns></returns>
-        public T Get<T>(string name, object arg)
+        public T Instantiate<T>(string name, object arg)
         {
-            return Get<T>(new[] {
+            return Instantiate<T>(new[] {
                 new ConstructorArgument(name, arg)
             });
         }
@@ -182,9 +195,9 @@ namespace Tetrifact.Tests
         /// <param name="arg2Name"></param>
         /// <param name="arg2Value"></param>
         /// <returns></returns>
-        public T Get<T>(string arg1Name, object arg1Value, string arg2Name, object arg2Value)
+        public T Instantiate<T>(string arg1Name, object arg1Value, string arg2Name, object arg2Value)
         {
-            return Get<T>(new[] {
+            return Instantiate<T>(new[] {
                 new ConstructorArgument(arg1Name, arg1Value),
                 new ConstructorArgument(arg2Name, arg2Value)
             });
@@ -201,9 +214,9 @@ namespace Tetrifact.Tests
         /// <param name="name3"></param>
         /// <param name="arg3"></param>
         /// <returns></returns>
-        public T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3)
+        public T Instantiate<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3)
         {
-            return Get<T>(new[] {
+            return Instantiate<T>(new[] {
                 new ConstructorArgument(name1, arg1),
                 new ConstructorArgument(name2, arg2),
                 new ConstructorArgument(name3, arg3)
@@ -223,9 +236,9 @@ namespace Tetrifact.Tests
         /// <param name="name4"></param>
         /// <param name="arg4"></param>
         /// <returns></returns>
-        public T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4)
+        public T Instantiate<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4)
         {
-            return Get<T>(new[] {
+            return Instantiate<T>(new[] {
                 new ConstructorArgument(name1, arg1),
                 new ConstructorArgument(name2, arg2),
                 new ConstructorArgument(name3, arg3),
@@ -248,9 +261,9 @@ namespace Tetrifact.Tests
         /// <param name="name5"></param>
         /// <param name="arg5"></param>
         /// <returns></returns>
-        public T Get<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4, string name5, object arg5)
+        public T Instantiate<T>(string name1, object arg1, string name2, object arg2, string name3, object arg3, string name4, object arg4, string name5, object arg5)
         {
-            return Get<T>(new[] {
+            return Instantiate<T>(new[] {
                 new ConstructorArgument(name1, arg1),
                 new ConstructorArgument(name2, arg2),
                 new ConstructorArgument(name3, arg3),

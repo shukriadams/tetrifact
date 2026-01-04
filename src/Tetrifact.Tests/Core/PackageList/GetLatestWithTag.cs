@@ -18,8 +18,8 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void BasicList()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             // list works by reading manifest json files on system. Create two manifests. All we need are dates on them.
             _packageHelper.WriteManifest(new Manifest() { Id = "package2001", CreatedUtc = DateTime.Parse("2001/1/1") });

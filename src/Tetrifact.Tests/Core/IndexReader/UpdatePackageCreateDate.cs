@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Happy_path()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
             Manifest manifest = indexReader.GetManifest(package.Id);

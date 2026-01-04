@@ -12,8 +12,8 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Tag_format_exception()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            ITagsService tagsService = _testContext.Get<ITagsService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
             // write garbage to tag folder
             Directory.CreateDirectory(Path.Join(settings.TagsPath, "unencoded-text"));
 

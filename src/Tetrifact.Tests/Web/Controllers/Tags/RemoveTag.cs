@@ -16,7 +16,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
         {
             Mock<ITagsService> tagsService = new Mock<ITagsService>();
 
-            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Instantiate<TagsController>("tagsService", tagsService.Object);
             JsonResult result = controller.RemoveTag("tag", "package-id") as JsonResult;
             Assert.NotNull(result);
         }
@@ -29,7 +29,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
                 .Setup(r => r.RemoveTag(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Instantiate<TagsController>("tagsService", tagsService.Object);
             NotFoundObjectResult result = controller.RemoveTag("tag", "package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -42,7 +42,7 @@ namespace Tetrifact.Tests.Web.Controllers.Tags
                 .Setup(r => r.RemoveTag(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
-            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Instantiate<TagsController>("tagsService", tagsService.Object);
             BadRequestObjectResult result = controller.RemoveTag("tag", "package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

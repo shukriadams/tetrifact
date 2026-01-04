@@ -18,10 +18,10 @@ namespace Tetrifact.Tests.PackageList
         public void Manifest_Not_Found()
         {
             // Hit the private GeneratePackageData method by wiping cache.
-            IMemoryCache memCach = _testContext.Get<IMemoryCache>(); 
+            IMemoryCache memCach = _testContext.Instantiate<IMemoryCache>(); 
             memCach.Remove(Core.PackageListService.CacheKey);
-            IFileSystem fileSystem = _testContext.Get<IFileSystem>();
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            IFileSystem fileSystem = _testContext.Instantiate<IFileSystem>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
@@ -36,7 +36,7 @@ namespace Tetrifact.Tests.PackageList
                 .Returns(false);
 
             // do something to cover manifest file lookup
-            packageList = _testContext.Get<IPackageListService>("fileSystem", mockFileSystem.Object);
+            packageList = _testContext.Instantiate<IPackageListService>("fileSystem", mockFileSystem.Object);
             packageList.Get(0,1);
         }
     }

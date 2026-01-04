@@ -12,10 +12,10 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Basic()
         {
-            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Instantiate<IPackageCreateWorkspace>();
             packageCreateWorkspace.Initialize();  
 
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
 
             string combinedHash = "somehash";
             string package = "somepackage";

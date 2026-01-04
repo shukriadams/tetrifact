@@ -282,7 +282,7 @@ namespace Tetrifact.Core
             else
                 report.Add("No packages were kept due to tag matching. Note that packages need to fall into a bracket first before keep tagging rules are applied.");
 
-            report.Add($"Total packages in system:{packageIds.Count}, no bracket match:{ignoringNoBracketCount}, pruning:{totalPrune}, keeping:{totalKeep}.");
+            report.Add($"Total packages in system: {packageIds.Count}, no bracket match:{ignoringNoBracketCount}, pruning:{totalPrune}, keeping:{totalKeep}.");
 
             int totalHandled = totalKeep + totalPrune + ignoringNoBracketCount;
             if (packageIds.Count != totalHandled) 

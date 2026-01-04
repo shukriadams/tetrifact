@@ -13,8 +13,8 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Basic()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2003"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2002"));

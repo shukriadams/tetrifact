@@ -14,7 +14,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InitializeTest()
         {
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             Assert.True(Directory.Exists(settings.RepositoryPath));
             Assert.True(Directory.Exists(settings.PackagePath));
             Assert.True(Directory.Exists(settings.TempPath));

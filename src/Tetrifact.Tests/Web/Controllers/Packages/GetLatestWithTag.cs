@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetLatestWithTags(It.IsAny<string[]>()))
                 .Returns(new Package());
 
-            PackagesController controller = _testContext.Get<PackagesController>("packageListService", packageListService.Object);
+            PackagesController controller = _testContext.Instantiate<PackagesController>("packageListService", packageListService.Object);
             JsonResult result = controller.GetLatestWithTag("any-tag") as JsonResult;
             Assert.NotNull(result);
         }
@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetLatestWithTags(It.IsAny<string[]>()))
                 .Throws(new Exception());
 
-            PackagesController controller = _testContext.Get<PackagesController>("packageListService", packageListService.Object);
+            PackagesController controller = _testContext.Instantiate<PackagesController>("packageListService", packageListService.Object);
             BadRequestObjectResult result = controller.GetLatestWithTag("any-tag") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

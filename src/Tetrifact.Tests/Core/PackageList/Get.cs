@@ -21,8 +21,8 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Gets_Packages_With_Paging()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2003"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2002"));
@@ -43,7 +43,7 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void GracefullyHandleInvalidJSON()
         {
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             TestLogger<IPackageListService> packageListLogger = new TestLogger<IPackageListService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package_one"));

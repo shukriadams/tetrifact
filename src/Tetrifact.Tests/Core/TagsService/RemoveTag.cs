@@ -19,7 +19,7 @@ namespace Tetrifact.Tests.TagsService
         public void Basic(){
 
             TestPackage package = _packageHelper.CreateRandomPackage();
-            ITagsService tagsService = _testContext.Get<ITagsService>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
 
             string[] tags = new[] { "mytag" };
 
@@ -28,7 +28,7 @@ namespace Tetrifact.Tests.TagsService
                 tagsService.RemoveTag(package.Id, tag);
             }
 
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
             IEnumerable<Package> packages = packageList.GetWithTags(tags, 0, 10);
             Assert.Empty(packages);
         }
@@ -36,7 +36,7 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void InvalidPackage()
         {
-            ITagsService tagsService = _testContext.Get<ITagsService>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
             Assert.Throws<PackageNotFoundException>(() => { tagsService.RemoveTag("invalid-package-id", "some tag"); });
         }
 

@@ -26,7 +26,7 @@ namespace Tetrifact.Tests.Web.Controllers.Home
                 .Setup(r => r.GetPopularTags(It.IsAny<int>()))
                 .Returns(new List<string>() { });
 
-            W.HomeController controller = _testContext.Get<W.HomeController>("packageList", packageList.Object);
+            W.HomeController controller = _testContext.Instantiate<W.HomeController>("packageList", packageList.Object);
             
             ViewResult result = controller.Summary() as ViewResult; 
             Assert.NotNull(result);

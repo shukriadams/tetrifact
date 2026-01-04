@@ -18,7 +18,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetFile(It.IsAny<string>()))
                 .Returns(new GetFileResponse(StreamsHelper.StreamFromString("some-content"), "some-file"));
 
-            W.FilesController controller = _testContext.Get<W.FilesController>("indexService", repoCleanServiceMock.Object);
+            W.FilesController controller = _testContext.Instantiate<W.FilesController>("indexService", repoCleanServiceMock.Object);
             FileStreamResult result = controller.GetItem("any-id") as FileStreamResult;
             Assert.Equal("some-content", StreamsHelper.StreamToString(result.FileStream));
         }
@@ -31,7 +31,7 @@ namespace Tetrifact.Tests.Controllers
             repoCleanServiceMock
                 .Setup(r => r.GetFile(It.IsAny<string>()));
 
-            W.FilesController controller = _testContext.Get<W.FilesController>("indexService", repoCleanServiceMock.Object);
+            W.FilesController controller = _testContext.Instantiate<W.FilesController>("indexService", repoCleanServiceMock.Object);
             NotFoundObjectResult result = controller.GetItem("any-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -45,7 +45,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetFile(It.IsAny<string>()))
                 .Returns(new GetFileResponse(null, "some-file"));
 
-            W.FilesController controller = _testContext.Get<W.FilesController>("indexService", repoCleanServiceMock.Object);
+            W.FilesController controller = _testContext.Instantiate<W.FilesController>("indexService", repoCleanServiceMock.Object);
             BadRequestObjectResult result = controller.GetItem("any-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }
@@ -59,7 +59,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetFile(It.IsAny<string>()))
                 .Throws(new InvalidFileIdentifierException(""));
 
-            W.FilesController controller = _testContext.Get<W.FilesController>("indexService", repoCleanServiceMock.Object);
+            W.FilesController controller = _testContext.Instantiate<W.FilesController>("indexService", repoCleanServiceMock.Object);
             BadRequestObjectResult result = controller.GetItem("any-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

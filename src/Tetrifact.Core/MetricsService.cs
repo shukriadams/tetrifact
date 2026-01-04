@@ -132,13 +132,13 @@ namespace Tetrifact.Core
 
         public string GetInfluxMetrics() 
         { 
+            string metricsFilePath = Path.Join(_settings.MetricsPath, "influx");
+
+            if (!File.Exists(metricsFilePath))
+                throw new MetricsStaleException("Influx metrics file not found. File might not have been generated yet. Check servers logs if you suspect an error has occurred.");
+
             try 
             {
-                string metricsFilePath = Path.Join(_settings.MetricsPath, "influx");
-
-                if (!File.Exists(metricsFilePath))
-                    throw new MetricsStaleException("Influx metrics file not found. File might not have been generated yet. Check servers logs if you suspect an error has occurred.");
-
                 // Note that there is a (small) chance of a race condition here where we can attempt to read a metrics file while it is being written.
                 // As we don't deam metrics to be critical for data integrity, we ignore this possibility. For now.
                 string metrics = File.ReadAllText(metricsFilePath);
@@ -155,7 +155,7 @@ namespace Tetrifact.Core
             catch(Exception ex)
             {
                 if (ex is MetricsStaleException)
-                    throw ex;
+                    throw;
 
                 _log.LogError($"Unexpected error on influx metrics get {ex}");
                 throw new MetricsStaleException("An unexpected error occurred attempting to retrieve influx metrics. See logs for details.");

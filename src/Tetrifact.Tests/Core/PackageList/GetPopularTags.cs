@@ -22,8 +22,8 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void NoSingles()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             _packageHelper.WriteManifest(new Manifest() { Id = "package" });
             TagHelper.TagPackage(settings, "tag", "package");
@@ -36,8 +36,8 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Basic()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IPackageListService packageList = _testContext.Get<IPackageListService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
             // tag list work by reading manifest json files on system. Create three manifests,  tag first two with one tag, and last with other tag
             _packageHelper.WriteManifest(new Manifest() { Id = "package2004" });

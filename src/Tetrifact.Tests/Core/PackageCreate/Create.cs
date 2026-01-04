@@ -25,8 +25,8 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void Happy_Path()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string fileContent = "some file content";
@@ -76,7 +76,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreatePartial() 
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // create package 1
             List<PackageCreateItem> files1 = new List<PackageCreateItem>();
@@ -201,7 +201,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void AddPackageAsFiles()
         {
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             IHashService hashService = new HashService();
             
             string file1Content = "file 1 content";
@@ -259,7 +259,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateWithAutoArchive()
         {
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             settings.AutoCreateArchiveOnPackageCreate = true;
             PackageCreateArguments package = new PackageCreateArguments
             {
@@ -270,7 +270,7 @@ namespace Tetrifact.Tests.PackageCreate
             };
 
             _packageCreate.Create(package);
-            IArchiveService archiveService = _testContext.Get<IArchiveService>();
+            IArchiveService archiveService = _testContext.Instantiate<IArchiveService>();
         
             // verify that archiving has been queued, we assume that if this exists, package archiving will be processed later
             string archiveQueuePath = archiveService.GetPackageArchiveQueuePath("mypackage");
@@ -280,7 +280,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void CreateDisabled()
         {
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             settings.PackageCreateEnabled = false;
 
             PackageCreateArguments package = new PackageCreateArguments
@@ -300,7 +300,7 @@ namespace Tetrifact.Tests.PackageCreate
         [Fact]
         public void AddPackageAsArchive()
         {
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             IHashService hashService = new HashService();
             
             Dictionary<string, string> files = new Dictionary<string, string>();
@@ -370,7 +370,7 @@ namespace Tetrifact.Tests.PackageCreate
                     new PackageCreateItem(file, "folder2/file.txt"),
                 }
             };
-            IPackageCreateService _packageService = _testContext.Get<IPackageCreateService>();
+            IPackageCreateService _packageService = _testContext.Instantiate<IPackageCreateService>();
 
             PackageCreateResult result = _packageService.Create(postArgs);
             Assert.False(result.Success);

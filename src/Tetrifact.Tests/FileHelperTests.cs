@@ -17,7 +17,7 @@ namespace Tetrifact.Tests
         [Fact]
         public void GetDiskUseStats_Coverage()
         {
-            IIndexReadService indexReadServices = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReadServices = _testContext.Instantiate<IIndexReadService>();
             DiskUseStats stats = indexReadServices.GetDiskUseSats();
 
             // We don't really care about specific values, this test is mostly for coverage, and

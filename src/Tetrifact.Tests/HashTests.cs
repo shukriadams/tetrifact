@@ -27,7 +27,7 @@ namespace Tetrifact.Tests
         public void FromFile()
         {
             IHashService hashService = new HashService();
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             Directory.CreateDirectory(settings.TempPath);
             string path = Path.Join(settings.TempPath, "hashFromFileTest.txt");
             File.WriteAllText(path, _input);

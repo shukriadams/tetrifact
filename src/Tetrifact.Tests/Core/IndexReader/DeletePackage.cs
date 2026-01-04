@@ -62,8 +62,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void DeleteDisabled()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             settings.PackageDeleteEnabled = false;
             TestPackage testPackage = _packageHelper.CreateRandomPackage();
@@ -78,8 +78,8 @@ namespace Tetrifact.Tests.IndexReader
         public void DeletePackageWithExistingArchives()
         {
             TestPackage testPackage = _packageHelper.CreateRandomPackage();
-            IArchiveService archiveService = _testContext.Get<IArchiveService>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IArchiveService archiveService = _testContext.Instantiate<IArchiveService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // mock archive
             _packageHelper.FakeArchiveOnDisk(testPackage);
@@ -94,7 +94,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InvalidPackage()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
             string packageId = "invalidId";
             PackageNotFoundException ex = Assert.Throws<PackageNotFoundException>(()=> indexReader.DeletePackage(packageId));
             Assert.Equal(ex.PackageId, packageId);
@@ -108,8 +108,8 @@ namespace Tetrifact.Tests.IndexReader
         public void LockedArchive()
         {
             TestPackage testPackage = _packageHelper.CreateRandomPackage();
-            IArchiveService archiveService = _testContext.Get<IArchiveService>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IArchiveService archiveService = _testContext.Instantiate<IArchiveService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // mock its archive
             string archivePath = archiveService.GetPackageArchivePath(testPackage.Id);
@@ -130,9 +130,9 @@ namespace Tetrifact.Tests.IndexReader
         public void LockedTag()
         {
             TestPackage testPackage = _packageHelper.CreateRandomPackage();
-            ISettings settings = _testContext.Get<ISettings>();
-            ITagsService tagsService = _testContext.Get<ITagsService>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             tagsService.AddTag(testPackage.Id, "mytag");
 

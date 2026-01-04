@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Fails_If_Duplicate_Item_Added()
         { 
-            IProcessManager lockInstance = _testContext.Get<IProcessManager>();
+            IProcessManager lockInstance = _testContext.Instantiate<IProcessManager>();
             lockInstance.AddUnique("123");
             Assert.Throws<Exception>(() =>
             {
@@ -26,7 +26,7 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Timeout_Clear_Respects_Item_Timeout()
         {
-            IProcessManager lockInstance = _testContext.Get<IProcessManager>();
+            IProcessManager lockInstance = _testContext.Instantiate<IProcessManager>();
 
             // set timeout for 2 seconds
             lockInstance.AddUnique("123", new TimeSpan(0, 0, 0, 2));
@@ -44,7 +44,7 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Items_Time_Out()
         {
-            IProcessManager lockInstance = _testContext.Get<IProcessManager>();
+            IProcessManager lockInstance = _testContext.Instantiate<IProcessManager>();
             lockInstance.AddUnique("123", new TimeSpan(0,0,0,1));
             Thread.Sleep(2000);
             lockInstance.ClearExpired();

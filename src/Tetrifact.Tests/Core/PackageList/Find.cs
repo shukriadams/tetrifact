@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.PackageList
         [Fact]
         public void Happy_Path()
         {
-            IFileSystem fileSystem = _testContext.Get<IFileSystem>();
+            IFileSystem fileSystem = _testContext.Instantiate<IFileSystem>();
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
             // need to find 3 directories, one per manifest
