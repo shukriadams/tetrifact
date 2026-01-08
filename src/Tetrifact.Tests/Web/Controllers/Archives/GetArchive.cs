@@ -18,18 +18,19 @@ namespace Tetrifact.Tests.Controllers.Archives
         [Fact]
         public void Happy_path()
         {
-            // stub out method so lookup passes
+            // pathway stub : all packages exist
             Mock<IIndexReadService> indexReaderMock = new Mock<IIndexReadService>();
             indexReaderMock
                 .Setup(r => r.PackageExists(It.IsAny<string>()))
                 .Returns(true);
 
-            // stub out filesystem lookup so archive appears to exist
+            // pathway stub : all package archives exist
             Mock<IFileSystem> filesystem = new Mock<IFileSystem>();
             filesystem
                 .Setup(r => r.File.Exists(It.IsAny<string>()))
                 .Returns(true);
-
+            
+            // pathway stub : archive lookup returns a stream with known content
             Mock<IArchiveService> archiveServiceMock = new Mock<IArchiveService>();
             archiveServiceMock
                 .Setup(r => r.GetPackageAsArchive(It.IsAny<string>()))
@@ -40,9 +41,14 @@ namespace Tetrifact.Tests.Controllers.Archives
 
             FileStreamResult result = controller.GetArchive("any-package-id", "my-waiver") as FileStreamResult;
             Assert.NotNull(result);
+            // confirm known content in stub
             Assert.Equal("abc", StreamsHelper.StreamToString(result.FileStream));
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="PackageNotFoundException"></exception>
         [Fact]
         public void Handle_404()
         {
