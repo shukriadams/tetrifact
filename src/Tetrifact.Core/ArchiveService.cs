@@ -196,8 +196,8 @@ namespace Tetrifact.Core
         {
             DateTime compressStart = DateTime.Now;
             int copyStepSize = 10000000;
-            double progress = 0;
-            double total = 0;
+            long progress = 0;
+            long total = 0;
             int percent = 0;
             string progressCacheKey = this.GetArchiveProgressKey(packageId);
 
