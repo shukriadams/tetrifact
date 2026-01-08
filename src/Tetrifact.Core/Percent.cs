@@ -42,7 +42,7 @@
                 return 0;
 
             double p = (double)first / (double)second;
-            return (int)System.Math.Round((double)(p * 100), 0);
+            return (int)System.Math.Round(p * 100, 0);
         }
     }
 }
