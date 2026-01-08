@@ -9,12 +9,18 @@ namespace Tetrifact.Web
     [ApiController]
     public class PruneController
     {
+        #region FIELDS
+        
         private readonly IPruneServiceFactory _serviceFactory;
 
         private readonly ILogger<PruneController> _log;
 
         private readonly ISettings _settings;
-            
+        
+        #endregion
+        
+        #region CTORS
+        
         public PruneController(IPruneServiceFactory serviceFactory, ISettings settings, ILogger<PruneController> log)
         {
             _serviceFactory = serviceFactory;
@@ -22,6 +28,10 @@ namespace Tetrifact.Web
             _settings = settings;
         }
 
+        #endregion
+        
+        #region METHODS
+        
         /// <summary>
         /// Forces a prune.
         /// </summary>
@@ -68,5 +78,7 @@ namespace Tetrifact.Web
 
             return s;
         }
+        
+        #endregion
     }
 }
