@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.IndexReader
             TestPackage package2 = _packageHelper.CreateRandomPackage();
             TestPackage package3 = _packageHelper.CreateRandomPackage();
 
-            IPackageListService listService = _testContext.Get<IPackageListService>();
+            IPackageListService listService = _testContext.Instantiate<IPackageListService>();
             IEnumerable<Package> packages = listService.Get(0, 10);
             
             Assert.Equal(3, packages.Count());

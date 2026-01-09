@@ -261,6 +261,10 @@ namespace Tetrifact.Web
         [Route("{page?}")]
         public IActionResult Index([FromQuery(Name = "page")] int page)
         {
+            _log.LogInformation("some info");
+            _log.LogDebug("a bug");
+            _log.LogError("error!");
+            
             try
             {
                 // user-facing page values start at 1 instead of 0. reset

@@ -13,10 +13,10 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Basic()
         {
-            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Instantiate<IPackageCreateWorkspace>();
             packageCreateWorkspace.Initialize();  
 
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
 
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
@@ -49,7 +49,7 @@ namespace Tetrifact.Tests.Workspace
                     throw new IOException("some-error");
                 });
 
-            IPackageCreateWorkspace workspace = _testContext.Get<IPackageCreateWorkspace>("filesystem", fs.Object, "log", workspaceLogger);
+            IPackageCreateWorkspace workspace = _testContext.Instantiate<IPackageCreateWorkspace>("filesystem", fs.Object, "log", workspaceLogger);
 
             workspace.Dispose();
             Assert.True(workspaceLogger.ContainsFragment("Failed to delete temp folder"));

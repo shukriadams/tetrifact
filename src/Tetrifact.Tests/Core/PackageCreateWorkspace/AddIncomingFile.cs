@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Add()
         {
-            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Instantiate<IPackageCreateWorkspace>();
 
             string content = "a test file";
             Stream file = StreamsHelper.StreamFromString(content);
@@ -28,7 +28,7 @@ namespace Tetrifact.Tests.Workspace
         public void EmptyStream()
         {
             // returns false if attempting to send empty stream 
-            IPackageCreateWorkspace workspace = _testContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace workspace = _testContext.Instantiate<IPackageCreateWorkspace>();
             bool result = workspace.AddIncomingFile(StreamsHelper.StreamFromString(string.Empty), string.Empty);
             Assert.False(result);
         }

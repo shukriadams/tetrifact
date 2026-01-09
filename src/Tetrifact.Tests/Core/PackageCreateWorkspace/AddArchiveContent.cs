@@ -12,7 +12,7 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Add()
         {
-            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Instantiate<IPackageCreateWorkspace>();
             packageCreateWorkspace.Initialize();  
 
             using (MemoryStream memoryStream = new MemoryStream())

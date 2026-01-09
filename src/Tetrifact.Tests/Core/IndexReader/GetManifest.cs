@@ -12,8 +12,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Get()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // create package
             string packagePath = Path.Join(settings.PackagePath, "somepackage");
@@ -40,7 +40,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetEmpty()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
             TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
 
             Manifest testManifest = indexReader.GetManifest("someinvalidpackage");
@@ -58,8 +58,8 @@ namespace Tetrifact.Tests.IndexReader
         {
             TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
 
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>("log", indexReaderLogger);
-            ISettings settings = _testContext.Get<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>("log", indexReaderLogger);
+            ISettings settings = _testContext.Instantiate<ISettings>();
             string packagefolder = Path.Combine(settings.PackagePath, "someinvalidpackage");
             Directory.CreateDirectory(packagefolder);
             File.WriteAllText(Path.Combine(packagefolder, "manifest.json"), "invalid json!");

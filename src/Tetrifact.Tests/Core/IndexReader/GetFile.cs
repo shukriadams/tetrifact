@@ -11,8 +11,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // create a file and write to repository using path convention of path/to/file/bin
             string hash = "somehash";
@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetFileByInvalidIdentifier()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             Assert.Throws<InvalidFileIdentifierException>(()=> 
             {
@@ -52,7 +52,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetNonExistentFile()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             string fileIdentifier = FileIdentifier.Cloak("nonexistent/path", "nonexistent-hash");
             GetFileResponse response = indexReader.GetFile(fileIdentifier);

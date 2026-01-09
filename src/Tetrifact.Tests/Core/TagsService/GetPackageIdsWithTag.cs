@@ -23,7 +23,7 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Happy_path(){
 
-            ITagsService tagsService = _testContext.Get<ITagsService>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
 
             string[] tags = new [] { "mytag" };
 
@@ -53,7 +53,7 @@ namespace Tetrifact.Tests.TagsService
                 .Setup(r => r.Directory.Exists(It.IsAny<string>()))
                 .Returns(false);
 
-            ITagsService tagservice = _testContext.Get<ITagsService>("fileSystem", fs.Object);
+            ITagsService tagservice = _testContext.Instantiate<ITagsService>("fileSystem", fs.Object);
 
             Assert.Throws<TagNotFoundException>(()=>{ tagservice.GetPackageIdsWithTags(new [] { "tag123" }); });
         }

@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Tetrifact.Core;
+using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
 
 namespace Tetrifact.Web
 {
@@ -11,8 +12,6 @@ namespace Tetrifact.Web
     public class CleanerCron : Cron
     {
         #region FIELDS
-
-        private readonly IRepositoryCleanServiceFactory _serviceFactory;
 
         private readonly IArchiveService _archiveService;
 
@@ -26,11 +25,10 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public CleanerCron(IRepositoryCleanServiceFactory serviceFactory, ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
+        public CleanerCron(ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
         {
             _settings = settings;
             _archiveService = archiveService;
-            _serviceFactory = serviceFactory;
             _log = log;
             _daemonrunner = daemonrunner;
         }
@@ -58,7 +56,8 @@ namespace Tetrifact.Web
             try
             {
                 _log.LogInformation("Starting clean from daemon");
-                IRepositoryCleanService cleanService = _serviceFactory.Create();
+                SimpleDI di = new SimpleDI();
+                IRepositoryCleanService cleanService = di.Resolve<IRepositoryCleanService>();
                 cleanService.Clean();
             }
             catch (Exception ex)

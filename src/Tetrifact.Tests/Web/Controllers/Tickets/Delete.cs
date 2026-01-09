@@ -13,12 +13,12 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
         public void Happy_Path_Delets_Existing_Ticket()
         {
             // disable queue in settings
-            IProcessManager tickets = _testContext.Get<IProcessManager>();
+            IProcessManager tickets = _testContext.Instantiate<IProcessManager>();
             tickets.AddUnique("myticket");
-            IProcessManagerFactory processes = _testContext.Get<IProcessManagerFactory>();
+            IProcessManagerFactory processes = _testContext.Instantiate<IProcessManagerFactory>();
             processes.SetInstance(ProcessManagerContext.ArchiveTickets, tickets);
 
-            TicketsController controller = _testContext.Get<TicketsController>("processManagerFactory", processes);
+            TicketsController controller = _testContext.Instantiate<TicketsController>("processManagerFactory", processes);
 
             JsonResult response = controller.Delete("myticket") as JsonResult;
 
@@ -33,12 +33,12 @@ namespace Tetrifact.Tests.Web.Controllers.Tickets
         public void Returns_404_On_Invalid_Ticket()
         {
             // disable queue in settings
-            IProcessManager tickets = _testContext.Get<IProcessManager>();
+            IProcessManager tickets = _testContext.Instantiate<IProcessManager>();
             tickets.AddUnique("myticket");
-            IProcessManagerFactory processes = _testContext.Get<IProcessManagerFactory>();
+            IProcessManagerFactory processes = _testContext.Instantiate<IProcessManagerFactory>();
             processes.SetInstance(ProcessManagerContext.ArchiveTickets, tickets);
 
-            TicketsController controller = _testContext.Get<TicketsController>();
+            TicketsController controller = _testContext.Instantiate<TicketsController>();
 
             JsonResult response = controller.Delete("a-ticket-that-hasn't-been-created") as JsonResult;
 

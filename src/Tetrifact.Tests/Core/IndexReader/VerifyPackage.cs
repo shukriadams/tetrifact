@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void Basic() 
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             _packageHelper.CreateNewPackageFiles("mypackage" );
             (bool, string) result = indexReader.VerifyPackage("mypackage");
@@ -35,7 +35,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void PackageNotFound()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             Assert.Throws<PackageNotFoundException>(() =>
             {
@@ -49,8 +49,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void FilesMissing()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // create package
             TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
@@ -70,8 +70,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void FileHashInvalid()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // create package
             TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");
@@ -90,7 +90,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void PackageHashInvalid()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             // create package
             TestPackage package = _packageHelper.CreateNewPackageFiles("mypackage");

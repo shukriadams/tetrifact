@@ -21,7 +21,7 @@ namespace Tetrifact.Tests.TagsService
         public void Basic()
         {
             TestPackage package1 = _packageHelper.CreateNewPackageFiles("package1");
-            ITagsService tagsService = _testContext.Get<ITagsService>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
 
             string tag1 = "mytag1";
             tagsService.AddTag(package1.Id, tag1);
@@ -41,8 +41,8 @@ namespace Tetrifact.Tests.TagsService
         [Fact]
         public void Tag_format_exception()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            ITagsService tagsService = _testContext.Get<ITagsService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            ITagsService tagsService = _testContext.Instantiate<ITagsService>();
             // write garbage to tag folder
             Directory.CreateDirectory(Path.Join(settings.TagsPath, "unencoded-text"));
 

@@ -17,7 +17,7 @@ namespace Tetrifact.Tests.Controllers.Archives
         [Fact]
         public void Happy_path()
         {
-            ArchivesController controller = _testContext.Get<ArchivesController>();
+            ArchivesController controller = _testContext.Instantiate<ArchivesController>();
             dynamic result = JsonHelper.ToDynamic(controller.GetArchiveStatus("invalid-package"));
             Assert.Equal(result.success.status.State.ToString(), ((int)PackageArchiveCreationStates.Processed_PackageNotFound).ToString());
         }
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.Controllers.Archives
                 .Setup(r => r.GetPackageArchiveStatus(It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("123"));
 
-            ArchivesController controller = _testContext.Get<ArchivesController>("archiveService", archiveServiceMock.Object);
+            ArchivesController controller = _testContext.Instantiate<ArchivesController>("archiveService", archiveServiceMock.Object);
             NotFoundObjectResult result = controller.GetArchiveStatus("any-package-id") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -43,7 +43,7 @@ namespace Tetrifact.Tests.Controllers.Archives
                 .Setup(r => r.GetPackageArchiveStatus(It.IsAny<string>()))
                 .Throws(new Exception("123"));
 
-            ArchivesController controller = _testContext.Get<ArchivesController>("archiveService", archiveServiceMock.Object);
+            ArchivesController controller = _testContext.Instantiate<ArchivesController>("archiveService", archiveServiceMock.Object);
             BadRequestObjectResult result = controller.GetArchiveStatus("any-package-id") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

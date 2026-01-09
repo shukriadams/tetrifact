@@ -13,7 +13,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InvalidManifest()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
             Assert.Throws<PackageNotFoundException>(()=>{ indexReader.GetExpectedManifest("invalid id"); });
         }
     }

@@ -16,8 +16,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetBasic()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package1"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package2"));

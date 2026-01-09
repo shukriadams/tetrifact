@@ -25,7 +25,6 @@ namespace Tetrifact.Web
         {
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging => { 
-                    
 
                     // add explicit console.writeline output to all log writes
                     logging
@@ -54,7 +53,6 @@ namespace Tetrifact.Web
             {
                 builder.UseKestrel(options =>
                 {
-
                     options.Listen(IPAddress.Any, port, listenOptions =>
                     {
                         listenOptions.Protocols = HttpProtocols.Http1AndHttp2;

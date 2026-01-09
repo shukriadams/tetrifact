@@ -10,8 +10,12 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Tetrifact.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Caching.Memory;
+using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
 
 namespace Tetrifact.Web
 {
@@ -45,68 +49,101 @@ namespace Tetrifact.Web
                 // builds. 
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
+            
+            SimpleDI di = new SimpleDI();
+            
+            di.Register<IIndexReadService, IndexReadService>();
+            di.Register<IRepositoryCleanService, RepositoryCleanService>();
+            di.Register<IPackageCreateWorkspace, PackageCreateWorkspace>();
+            di.Register<ITagsService, TagsService>();
+            di.Register<IPackageCreateService, PackageCreateService>();
+            di.Register<IPackageListService, PackageListService>();
+            di.Register<IPackageListCache, PackageListCache>();
+            di.Register<IHashService, HashService>();
+            di.Register<IFileSystem, FileSystem>();
+            di.Register<IFile, FileWrapper>();
+            di.Register<IDirectory, DirectoryWrapper>();
+            di.Register<IThread, ThreadDefault>();
+            di.Register<IPruneService, PruneService>();
+            di.Register<IPackageDiffService, PackageDiffService>();
+            di.Register<IArchiveService, ArchiveService>();
+            di.Register<IMetricsService, MetricsService>();
+            di.Register<ISystemCallsService, SystemCallsService>();
 
-            services.AddTransient<IIndexReadService, IndexReadService>();
-            services.AddTransient<IRepositoryCleanService, RepositoryCleanService>();
-            services.AddTransient<IPackageCreateWorkspace, PackageCreateWorkspace>();
-            services.AddTransient<ITagsService, TagsService>();
-            services.AddTransient<IPackageCreateService, PackageCreateService>();
-            services.AddTransient<IPackageListService, PackageListService>();
-            services.AddTransient<IPackageListCache, PackageListCache>();
-            services.AddTransient<IHashService, HashService>();
-            services.AddTransient<IFileSystem, FileSystem>();
-            services.AddTransient<IFile, FileWrapper>();
-            services.AddTransient<IDirectory, DirectoryWrapper>();
-            services.AddTransient<IThread, ThreadDefault>();
-            services.AddTransient<IPruneService, PruneService>();
-            services.AddTransient<IPackageDiffService, PackageDiffService>();
-            services.AddTransient<IArchiveService, ArchiveService>();
-            services.AddTransient<IMetricsService, MetricsService>();
-            services.AddTransient<ISystemCallsService, SystemCallsService>();
+            di.Register<ISettingsProvider, DefaultSettingsProvider>();
+            di.Register<IDaemon, Daemon>();
+            di.Register<IProcessManager, ProcessManager>();
+            di.Register<ITimeProvider, TimeProvider>();
+            di.Register<ITetrifactMemoryCache, TetrifactMemoryCache>();
+            di.Register<IFileStreamProvider, LocalFileStreamProvider>();
+            di.Register<IStorageService, LocalStorageService>();
+            di.Register<IPruneBracketProvider, PruneBracketProvider>();
+            di.Register<IQueueHandler, QueueHandler>();
+            di.RegisterSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions { }));
 
-            services.AddSingleton<ISettingsProvider, DefaultSettingsProvider>();
-            services.AddTransient<IDaemon, Daemon>();
-            services.AddTransient<IProcessManager, ProcessManager>();
-            services.AddTransient<ITimeProvider, TimeProvider>();
-            services.AddTransient<ITetrifactMemoryCache, TetrifactMemoryCache>();
-            services.AddTransient<IFileStreamProvider, LocalFileStreamProvider>();
-            services.AddTransient<IStorageService, LocalStorageService>();
-            services.AddTransient<IPruneBracketProvider, PruneBracketProvider>();
-            services.AddTransient<IQueueHandler, QueueHandler>();
-
-            services.AddSingleton<IProcessManagerFactory>(serviceProvider =>{
-                return new ProcessManagerFactory(() =>
-                {
-                    return serviceProvider.GetRequiredService<IProcessManager>();
-                });
-            });
-
-            services.AddTransient<IRepositoryCleanServiceFactory>(serviceProvider =>{
-                return new RepositoryCleanServiceFactory(() =>
-                {
-                    return serviceProvider.GetRequiredService<IRepositoryCleanService>();
-                });
-            });
-
-            services.AddTransient<IPruneServiceFactory>(serviceProvider =>{
-                return new PruneServiceFactory(() =>
-                {
-                    return serviceProvider.GetRequiredService<IPruneService>();
-                });
-            });
+            di.Register<ILogger<HomeController>, Logger<HomeController>>();
+            di.Register<ILogger<PruneController>, Logger<PruneController>>();
+            di.Register<ILogger<PackagesController>, Logger<PackagesController>>();
+            di.Register<ILogger<CleanController>, Logger<CleanController>>();
+            di.Register<ILogger<FilesController>, Logger<FilesController>>();
+            di.Register<ILogger<ArchivesController>, Logger<ArchivesController>>();
+            di.Register<ILogger<TagsController>, Logger<TagsController>>();
+            di.Register<ILogger<IPackageCreateWorkspace>, Logger<IPackageCreateWorkspace>>();
+            di.Register<ILogger<IMetricsService>, Logger<IMetricsService>>();
+            di.Register<ILogger<ISystemCallsService>, Logger<ISystemCallsService>>();
+            di.Register<ILogger<IPackageCreateService>, Logger<IPackageCreateService>>();
+            di.Register<ILogger<IPackageDiffService>, Logger<IPackageDiffService>>();
+            di.Register<ILogger<IPackageListService>, Logger<IPackageListService>>();
+            di.Register<ILogger<ITagsService>, Logger<ITagsService>>();
+            di.Register<ILogger<IArchiveService>, Logger<IArchiveService>>();
+            di.Register<ILogger<IIndexReadService>, Logger<IIndexReadService>>();
+            di.Register<ILogger<IPruneService>, Logger<IPruneService>>();
+            di.Register<ILogger<IProcessManager>, Logger<IProcessManager>>();
+            di.Register<ILogger<IDaemon>, Logger<IDaemon>>();
+            di.Register<ILogger<Daemon>, Logger<Daemon>>();
+            di.Register<ILogger<MetricsCron>, Logger<MetricsCron>>();
+            di.Register<ILogger<PruneCron>, Logger<PruneCron>>();
+            di.Register<ILogger<CleanerCron>, Logger<CleanerCron>>();
+            di.Register<ILogger<ArchiveGenerator>, Logger<ArchiveGenerator>>();
+            di.Register<ILogger<ProcessManagerCron>, Logger<ProcessManagerCron>>();
+            di.Register<ILogger<IRepositoryCleanService>, Logger<IRepositoryCleanService>>();
 
             // all ICron types registered here are automatically started in Configure() method below
-            services.AddTransient<ICron, MetricsCron>();
-            services.AddTransient<ICron, PruneCron>();
-            services.AddTransient<ICron, CleanerCron>();
-            services.AddTransient<ICron, ArchiveGenerator>();
-            services.AddTransient<ICron, ProcessManagerCron>();
+            di.RegisterSingleton<MetricsCron, MetricsCron>();
+            di.Tag<MetricsCron, ICron>();
+            di.RegisterSingleton<PruneCron, PruneCron>();
+            di.Tag<PruneCron, ICron>();
+            di.RegisterSingleton<CleanerCron, CleanerCron>();
+            di.Tag<CleanerCron, ICron>();
 
-            services.AddSingleton<ISettings>(serviceProvider => {
-                ISettingsProvider settingsProvider = serviceProvider.GetRequiredService<ISettingsProvider>();
+            di.RegisterSingleton<ArchiveGenerator, ArchiveGenerator>();
+            di.Tag<ArchiveGenerator, ICron>();
+            di.RegisterSingleton<ProcessManagerCron, ProcessManagerCron>();
+            di.Tag<ProcessManagerCron, ICron>();
+
+            di.Register<HomeController, HomeController>();
+            di.Register<ArchivesController, ArchivesController>();
+            di.Register<CleanController, CleanController>();
+            di.Register<ErrorsController, ErrorsController>();
+            di.Register<FilesController, FilesController>();
+            di.Register<PackagesController, PackagesController>();
+            di.Register<PruneController, PruneController>();
+            di.Register<TagsController, TagsController>();
+            di.Register<TicketsController, TicketsController>();
+            di.RegisterFactory<ILogger, LogFactory>(isSingleton: true);
+            
+            di.RegisterFunction<ISettings>(() => {
+                ISettingsProvider settingsProvider = di.Resolve<ISettingsProvider>();
                 return settingsProvider.Get();
+            }, isSingleton : true);
+            
+            di.RegisterFunction<IProcessManagerFactory>(() =>{
+                return new ProcessManagerFactory(() =>
+                {
+                    return di.Resolve<IProcessManager>();
+                });
             });
-
+            
             // enable async
             services.Configure<KestrelServerOptions>(options =>
             {
@@ -131,11 +168,13 @@ namespace Tetrifact.Web
                 });
 
             // prevent validation errors on optional form fields / querystring
-            services.AddControllers().ConfigureApiBehaviorOptions(options => { options.SuppressModelStateInvalidFilter = true; });
+            //services.AddControllers().ConfigureApiBehaviorOptions(options => { options.SuppressModelStateInvalidFilter = true; });
             services.AddMemoryCache();
             services.AddResponseCompression(); // enable http compression
+            services.AddSingleton<IControllerActivator, ControllerProvider>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
+            
+            // 
             services.AddScoped<ConfigurationErrors>();
         }
 
@@ -145,7 +184,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ISettings settings, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env/*, ILoggerFactory loggerFactory*/, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -189,7 +228,10 @@ namespace Tetrifact.Web
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
 
-            loggerFactory.AddFile(settings.LogPath);
+            SimpleDI di = new SimpleDI();
+            ISettings settings = di.Resolve<ISettings>(); 
+            
+            //loggerFactory.AddFile(settings.LogPath);
 
             bool isValid = settings.Validate();
             if (!isValid)
@@ -227,10 +269,13 @@ namespace Tetrifact.Web
                     indexReader.Initialize();
 
                 // start daemons after index initialization
-                Console.WriteLine("Starting daemons");
-                IEnumerable<ICron> crons = serviceProvider.GetServices<ICron>();
+                IEnumerable<ICron> crons = di.ResolveAll<ICron>();
+                Console.WriteLine($"Starting {crons.Count()} daemons : ");
                 foreach (ICron cron in crons)
+                {
                     cron.Start();
+                    Console.WriteLine($"{cron.GetType().Name}");
+                }
 
                 Console.WriteLine("");
                 Console.WriteLine($"Server startup completed in {Global.StartTimeUtc.Ago(true)}");

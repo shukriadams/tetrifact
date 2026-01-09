@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.Workspace
         [Fact]
         public void Get()
         {
-            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace packageCreateWorkspace = _testContext.Instantiate<IPackageCreateWorkspace>();
             packageCreateWorkspace.Initialize();  
 
             packageCreateWorkspace.AddIncomingFile(StreamsHelper.StreamFromString("content"), "path1/file1.txt");

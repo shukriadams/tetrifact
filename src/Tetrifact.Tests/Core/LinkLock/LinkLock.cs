@@ -10,7 +10,7 @@ namespace Tetrifact.Tests.LinkLock
         [Fact]
         public void IsNamedLocked()
         {
-            IProcessManager processManager = _testContext.Get<IProcessManager>();
+            IProcessManager processManager = _testContext.Instantiate<IProcessManager>();
             processManager.AddUnique("some package");
             Assert.True(processManager.HasKey("some package"));
         }

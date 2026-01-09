@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new Tetrifact.Core.PackageDiff());
 
-            PackagesController controller = _testContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = _testContext.Instantiate<PackagesController>("packageDiffService", packageDiffService.Object);
             JsonResult result = controller.GetDiff("upstream", "downstream") as JsonResult;
             Assert.NotNull(result);
         }
@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new PackageNotFoundException("package-id"));
 
-            PackagesController controller = _testContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = _testContext.Instantiate<PackagesController>("packageDiffService", packageDiffService.Object);
             NotFoundObjectResult result = controller.GetDiff("upstream", "downstream") as NotFoundObjectResult;
             Assert.NotNull(result);
         }
@@ -54,7 +54,7 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
                 .Setup(r => r.GetDifference(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
-            PackagesController controller = _testContext.Get<PackagesController>("packageDiffService", packageDiffService.Object);
+            PackagesController controller = _testContext.Instantiate<PackagesController>("packageDiffService", packageDiffService.Object);
             BadRequestObjectResult result = controller.GetDiff("upstream", "downstream") as BadRequestObjectResult;
             Assert.NotNull(result);
         }

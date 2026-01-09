@@ -13,8 +13,6 @@ namespace Tetrifact.Web
         private ILogger<MetricsCron> _log;
 
         private IMetricsService _metricsService;
-
-        private IHostApplicationLifetime _applicationLifetime;
         
         private readonly IDaemon _daemonrunner;
 
@@ -24,12 +22,11 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public MetricsCron(IMetricsService metricsService, ISettings settings, IDaemon daemonrunner, IHostApplicationLifetime applicationLifetime, ILogger<MetricsCron> log) 
+        public MetricsCron(IMetricsService metricsService, ISettings settings, IDaemon daemonrunner, ILogger<MetricsCron> log) 
         {
             _settings = settings;
             _log = log;
             _metricsService = metricsService;
-            _applicationLifetime = applicationLifetime;
             _daemonrunner = daemonrunner;
         }
 
@@ -58,8 +55,7 @@ namespace Tetrifact.Web
             {
                 // error has already been logged, go straight to shutdown
                 _log.LogError($"Fatal error - failed to delete corrupt last_run file : {ex}");
-                _applicationLifetime.StopApplication();
-            }
+  }
             catch (Exception ex)
             {
                 _log.LogError($"Daemon metrics generated error {ex}");

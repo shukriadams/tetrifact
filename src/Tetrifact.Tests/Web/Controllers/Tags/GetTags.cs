@@ -22,7 +22,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetAllTags())
                 .Returns(new string[] { });
 
-            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Instantiate<TagsController>("tagsService", tagsService.Object);
             JsonResult result = controller.GetTags() as JsonResult;
             Assert.NotNull(result);
         }
@@ -38,7 +38,7 @@ namespace Tetrifact.Tests.Controllers
                 .Setup(r => r.GetAllTags())
                 .Throws(new Exception());
 
-            TagsController controller = _testContext.Get<TagsController>("tagsService", tagsService.Object);
+            TagsController controller = _testContext.Instantiate<TagsController>("tagsService", tagsService.Object);
             BadRequestObjectResult result = controller.GetTags() as BadRequestObjectResult;
             Assert.NotNull(result);
         }

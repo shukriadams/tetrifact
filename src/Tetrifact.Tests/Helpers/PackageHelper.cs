@@ -19,7 +19,7 @@ namespace Tetrifact.Tests
 
         public IEnumerable<string> GetManifestPaths(string packageName)
         {
-            ISettings settings = _context.Get<ISettings>();
+            ISettings settings = _context.Instantiate<ISettings>();
             return new string[] { Path.Combine(settings.PackagePath, packageName, "manifest.json"), Path.Combine(settings.PackagePath, packageName, "manifest-head.json") };
         }
 
@@ -30,7 +30,7 @@ namespace Tetrifact.Tests
         /// <param name="manifest"></param>
         public void WriteManifest(Manifest manifest)
         {
-            ISettings settings = _context.Get<ISettings>();
+            ISettings settings = _context.Instantiate<ISettings>();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, manifest.Id));
             File.WriteAllText(Path.Combine(settings.PackagePath, manifest.Id, "manifest.json"), JsonConvert.SerializeObject(manifest));
@@ -47,7 +47,7 @@ namespace Tetrifact.Tests
         /// <returns>New package id</returns>
         public string CreateNewPackage(IEnumerable<string> filesContent)
         {
-            IPackageCreateService PackageCreate = _context.Get<IPackageCreateService>();
+            IPackageCreateService PackageCreate = _context.Instantiate<IPackageCreateService>();
 
             List<PackageCreateItem> files = new List<PackageCreateItem>();
             string packageId = Guid.NewGuid().ToString();
@@ -80,7 +80,7 @@ namespace Tetrifact.Tests
 
         public void FakeArchiveOnDisk(TestPackage package)
         {
-            Core.ArchiveService archiveService = _context.Get<Core.ArchiveService>();
+            Core.ArchiveService archiveService = _context.Instantiate<Core.ArchiveService>();
             string archivePath = archiveService.GetPackageArchivePath(package.Id);
             Directory.CreateDirectory(Path.GetDirectoryName(archivePath));
             File.WriteAllText(archivePath, string.Empty);
@@ -112,7 +112,7 @@ namespace Tetrifact.Tests
             // calls it to do that. We could use PackageCreate to do this, but as we want to test PackageCreate with this helper
             // we keep this as low-level as possible
 
-            IPackageCreateWorkspace workspace = _context.Get<IPackageCreateWorkspace>();
+            IPackageCreateWorkspace workspace = _context.Instantiate<IPackageCreateWorkspace>();
             workspace.Initialize();
             workspace.AddIncomingFile(StreamsHelper.StreamFromBytes(testPackage.Content), testPackage.Path);
             workspace.WriteFile(testPackage.Path, testPackage.Hash, testPackage.Content.Length, testPackage.Id);

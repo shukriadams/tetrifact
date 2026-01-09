@@ -12,8 +12,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void InUse()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             string packageName = Guid.NewGuid().ToString();
             Directory.CreateDirectory(Path.Join(settings.PackagePath, packageName));
@@ -24,7 +24,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void NotInUse()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
             string packageName = Guid.NewGuid().ToString();
             Assert.False(indexReader.PackageNameInUse(packageName));
         }

@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Tetrifact.Core;
+using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
 
 namespace Tetrifact.Web
 {
@@ -9,19 +10,16 @@ namespace Tetrifact.Web
     {
         private readonly ILogger<PruneCron> _log;
 
-        private readonly IPruneServiceFactory _serviceFactory;
-
         private readonly IDaemon _daemonrunner;
 
         private readonly ISettings _settings;
 
         private readonly IPackageListCache _packageListCache;
     
-        public PruneCron(IPruneServiceFactory serviceFactory, ISettings settings, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
+        public PruneCron(ISettings settings, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
         {
             _settings = settings;
             _log = log;
-            _serviceFactory = serviceFactory;
             _daemonrunner = daemonrunner;
             _packageListCache = packageListCache;
         }
@@ -42,7 +40,8 @@ namespace Tetrifact.Web
             try
             {
                 _log.LogInformation("Starting prune from daemon");
-                IPruneService pruneService = _serviceFactory.Create();
+                SimpleDI di = new SimpleDI();
+                IPruneService pruneService = di.Resolve<IPruneService>();
                 pruneService.Prune();
                 _packageListCache.Clear();
             }

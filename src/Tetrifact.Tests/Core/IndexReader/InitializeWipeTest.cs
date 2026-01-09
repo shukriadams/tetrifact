@@ -30,7 +30,7 @@ namespace Tetrifact.Tests.IndexReader
                 Directory.Delete(testFolder, true);
 
             Directory.CreateDirectory(testFolder);
-            ISettings settings = _testContext.Get<ISettings>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
             settings.TempPath = Path.Join(testFolder, "Temp");
 
             Directory.CreateDirectory(settings.TempPath);

@@ -11,7 +11,7 @@ namespace Tetrifact.Tests.Locks
         [Fact]
         public void Happy_path()
         { 
-            IProcessManager lockInstance = _testContext.Get<IProcessManager>();
+            IProcessManager lockInstance = _testContext.Instantiate<IProcessManager>();
             lockInstance.AddUnique("1", new TimeSpan(0,0,0)); // expires
             lockInstance.AddUnique("2", new TimeSpan(1, 1, 1)); // doesn't expire
             lockInstance.AddUnique("3");

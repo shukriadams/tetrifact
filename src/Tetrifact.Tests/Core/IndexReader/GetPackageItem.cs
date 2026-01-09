@@ -12,8 +12,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetFile()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
             IHashService hashService = new HashService();
             
             // create package, files folder and item location in one
@@ -33,7 +33,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidPackageAndPath()
         {
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             Assert.Null(indexReader.GetFile(Core.FileIdentifier.Cloak("invalid/path/to/file", "invalid hash")));
         }
@@ -41,8 +41,8 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidPath()
         {
-            ISettings settings = _testContext.Get<ISettings>();
-            IIndexReadService indexReader = _testContext.Get<IIndexReadService>();
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
 
             string packageFolder = Path.Combine(settings.PackagePath, "somepackage", "files");
             Directory.CreateDirectory(packageFolder);

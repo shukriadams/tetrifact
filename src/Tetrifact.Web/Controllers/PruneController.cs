@@ -7,7 +7,7 @@ namespace Tetrifact.Web
 {
     [Route("v1/[controller]")]
     [ApiController]
-    public class PruneController
+    public class PruneController : Controller
     {
         #region FIELDS
         
