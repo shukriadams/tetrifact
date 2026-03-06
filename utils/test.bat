@@ -2,6 +2,8 @@
 
 cd ./../src
 
+rmdir coverage /s /q
+
 :: run test
 dotnet test /p:AltCover=true
 
