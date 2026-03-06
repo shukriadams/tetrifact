@@ -1,5 +1,4 @@
 # single-file shim server for Tetrifact for Python3
-
 from http.server import BaseHTTPRequestHandler, HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 import pathlib
@@ -20,7 +19,7 @@ class GetHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/v1/packages' or self.path.startswith('/v1/packages?'):
             self.list_packages()
-        elif regex.match('\/v1\/archives\/(.*)\/status', self.path):
+        elif regex.match('/v1/archives/(.*)/status', self.path):
             self.archive_status()
         elif self.path.startswith('/v1/archives'):
             self.archive_get()
@@ -30,7 +29,7 @@ class GetHandler(SimpleHTTPRequestHandler):
             self.default_get()
 
     def do_POST(self):
-        if regex.match('\/v1\/tickets\/(.*)', self.path):
+        if regex.match('/v1/tickets/(.*)', self.path):
             self.ticket_create()
         else:
             self.default_post()
@@ -118,11 +117,22 @@ def random_date(start, end):
     random_second = randrange(int_delta)
     return start + timedelta(seconds=random_second)
 
-if not os.path.isfile('./v1/packages.json'):
+def generate_packages():
 
-    shutil.rmtree('./v1/packages')
+    if os.path.isfile('./v1/packages.json'):
+        return
+
+    # wipe existing package dir, ignore error is if directory doesn't exist
+    shutil.rmtree('./v1/packages', ignore_errors=True)
+    
+    # create packages directory. 
+    # Let's take a minute to admire the incoherent mess that Pytho is.
+    # We use shutil to remove a directory, it needs error suppression to not
+    # throw an exception if the dir doesn't exist. Then we use a whole other 
+    # module to create a directory, and it too needs a mess of switches to work.
+    # Python looks like it was written by ten different people at ten different 
+    # times.
     pathlib.Path('./v1/packages').mkdir(parents=True, exist_ok=True) 
-
 
     if os.path.isfile('./.package'):
 
@@ -202,6 +212,7 @@ if not os.path.isfile('./v1/packages.json'):
 
     print('generated packages')    
 
+generate_packages()
 port=8000
 print(f'starting local tetrifact clone server on port {port}...')
 httpd=HTTPServer(('localhost', port), GetHandler)

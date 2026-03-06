@@ -48,3 +48,5 @@ utils/upload/.client
 utils/upload/.ticket
 utils/upload/.package.zip
 .idea/
+utils/server-shim/v1/packages
+utils/server-shim/v1/packages.json
