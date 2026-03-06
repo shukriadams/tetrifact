@@ -3,10 +3,10 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Tests
 {
-    public class DiskUseStatsTests
+    public class ToPercent
     {
         [Fact]
-        public void ToPercent()
+        public void HappyPath()
         {
             DiskUseStats stats = new DiskUseStats();
             stats.FreeBytes = 50;
