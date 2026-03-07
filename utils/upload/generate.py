@@ -41,6 +41,41 @@ output_directory = './packages'
 generate_directory = os.path.join(output_directory, 'generate')
 assemble_directory = os.path.join(output_directory, 'assemble')
 
+class SegmentStats:
+    def __init__(self):
+        self.hash = None
+        self.length = 0
+        self.isReused = False
+
+    def ToString(self):
+        return f'hash:{self.hash}, length:{self.length}, isReused:{self.isReused}'    
+
+class FileStats:
+    def __init__(self, name):
+        self.name = name
+        self.isReused = False
+        self.segments = []
+
+    def ToString(self):
+        string = f'name:{self.name}, isReused:{self.isReused}\n'
+        for segment in self.segments:
+            string = string + f'{segment.ToString()}\n'
+
+        return string
+
+class PackageStats:
+    def __init__(self, name):
+        self.name = name
+        self.files = []
+
+    def ToString(self):
+        string = f'name:{self.name}\n'
+        for file in self.files:
+            string = string + f'{file.ToString()}\n'
+
+        return string
+
+
 print("GENERATING CONTENT")
 
 files_in_package = random.randint(package_file_count_min, package_file_count_max)
@@ -54,18 +89,24 @@ Path(generate_directory).mkdir(parents=True, exist_ok=True)
 Path(assemble_directory).mkdir(parents=True, exist_ok=True)
 
 # generate content
+
 for n_package in range(package_count):
+    
+    packageStats = PackageStats(str(n_package))
 
     package_directory = os.path.join(generate_directory, str(n_package))
     os.makedirs(package_directory)
 
     for n_file in range(files_in_package):
-        
+
+        fileStats = FileStats(str(n_file))
+        packageStats.files.append(fileStats)
+
         reuseFile = n_package > 0 and random.randint(0, 100) > file_reuse_chance
         previous_package_directory = os.path.join(generate_directory, str(n_package - 1))
 
         if reuseFile:
-    
+            fileStats.isReused = True
             # copy file from previous package to current
             files = glob.glob(f'{previous_package_directory}/*')
             source_file = files[random.randint(0, len(files) - 1)]
@@ -81,13 +122,22 @@ for n_package in range(package_count):
 
             # A file consists of a series of blocks. Each block can either be reused or newly generated.
             for n_segment in range(segments_in_file):
-                
+                segment = SegmentStats()
+                fileStats.segments.append(segment)
+
                 reuseSegment = n_package > 0 and n_file > 0 and random.randint(0, 100) > 50
                 this_segment_path = os.path.join(package_directory, str(n_file), str(n_segment))
 
                 if reuseSegment:
-                    shutil.copyfile(os.path.join(previous_package_directory, str(n_file), str(n_segment)), 
-                        this_segment_path)
+                    source_segment_path = os.path.join(previous_package_directory, str(n_file), str(n_segment))
+                    shutil.copyfile(source_segment_path, this_segment_path)
+
+                    with open(source_segment_path, 'rb') as binary_file:
+                        data = binary_file.read()
+                        segment.hash = hashlib.sha1(data).hexdigest()
+                        segment.length = len(data)
+
+                    segment.isReused = True
 
                     print(f'copied segment {n_segment}, file {n_file}, package {n_package}')
                 else:
@@ -95,10 +145,17 @@ for n_package in range(package_count):
                         bytes_array = bytearray(os.urandom(fileSize))
                         binary_file.write(bytes_array)
                     
+                    import hashlib
+
+                    segment.hash = hashlib.sha1(bytes_array).hexdigest()
+
+                    segment.length = len(bytes_array)
                     print(f'created new segment {n_segment}, file {n_file}, package {n_package}')
             
             print (f'for package {n_package}, generating file {n_file}/{files_in_package}, size {fileSize}')
-
+            with open(os.path.join(generate_directory, str(n_package), 'stats.txt'), 'w', encoding='utf-8') as f:
+                f.write(packageStats.ToString())                
+            
 # assemble content blocks into zip files
 for n_package in range(package_count):
     
