@@ -1,3 +1,6 @@
+# directly sets the dates of all packages in the target tetrifact file store location
+# to a spread
+
 import os
 import sys
 import glob

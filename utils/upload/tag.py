@@ -1,3 +1,4 @@
+# tags a given package with a given tag - passed in arguments to this script
 # Requires Python >= 3.4
 from importlib.machinery import SourceFileLoader
 import subprocess

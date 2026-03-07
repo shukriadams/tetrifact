@@ -1,4 +1,7 @@
+# requests a download ticket from a tetrifact instance
 # Requires Python >= 3.4
+
+
 from importlib.machinery import SourceFileLoader
 import subprocess
 import argparse
