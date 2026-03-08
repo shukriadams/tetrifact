@@ -63,15 +63,44 @@ class FileStats:
 
         return string
 
+    def GetLength(self):
+        length = 0
+        for segment in self.segments:
+            length = length + segment.length
+
+        return length
+
+    def GetUniqueLength(self):
+        length = 0
+        for segment in self.segments:
+            if not segment.isReused:
+                length = length + segment.length
+
+        return length
+
 class PackageStats:
     def __init__(self, name):
         self.name = name
+        self.length = 0
         self.files = []
 
     def ToString(self):
         string = f'name:{self.name}\n'
         for file in self.files:
             string = string + f'{file.ToString()}\n'
+
+        length = 0
+        for file in self.files:
+            length = length + file.GetLength()
+        
+        string = string + f'length: {length}\n'
+
+        lengthUnique = 0
+        for file in self.files:
+            lengthUnique = lengthUnique + file.GetUniqueLength()
+        
+        string = string + f'length: {lengthUnique} (unique)\n'
+        string = string + f'percent unique: {((lengthUnique / length)*100)}\n'
 
         return string
 
