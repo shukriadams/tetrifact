@@ -22,7 +22,10 @@ namespace Tetrifact.Web
         [FromForm] public IList<IFormFile> Files { get; set; }
 
         /// <summary>
-        /// Optional. If partial upload, JSON-formated string for exsting files to link to. Must deserialize to IEnumerable<ManifestItem>
+        /// Optional. A list of files that we assume exists on the server, which should be included in the incoming package. This is used to do
+        /// deduping on the client, before uploading. This might be preferable if bandwidth is limited.
+        ///
+        /// This field must be a JSON-formated string for existing files to link to, and must deserialize to IEnumerable<ManifestItem>.
         /// </summary>
         [FromForm] public IFormFile ExistingFiles { get; set; }
 

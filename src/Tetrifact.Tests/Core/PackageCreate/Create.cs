@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Moq;
 using Tetrifact.Core;
 using Xunit;
 
@@ -73,6 +74,56 @@ namespace Tetrifact.Tests.PackageCreate
             Assert.Empty(Directory.GetDirectories(settings.TempPath));
         }
 
+        /// <summary>
+        /// Coverage for functionality that blocks uploads when storage disk is full.
+        /// </summary>
+        [Fact]
+        public void Insufficient_disk_space_error()
+        {
+            Mock<IIndexReadService> indexReadService = new Mock<IIndexReadService>();
+            indexReadService
+                .Setup(r => r.GetDiskUseSats())
+                .Returns(new DiskUseStats{ FreeBytes = 0, TotalBytes = 0 });
+            
+            IPackageCreateService packageCreateService = _moqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ indexReadService });
+            
+            List<PackageCreateItem> files = new List<PackageCreateItem>();
+            Stream fileStream = StreamsHelper.StreamFromString("mydata");
+            files.Add(new PackageCreateItem(fileStream, $"folder/file"));
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = "mypackage",
+                Files = files
+            };
+
+            PackageCreateResult result = packageCreateService.Create(package);
+            Assert.Equal(result.ErrorType, PackageCreateErrorTypes.OutOfSpace);
+        }
+        
+        [Fact]
+        public void MaxAllowedSpaceReached()
+        {
+            // set a limit on max repo size
+            ISettings settings = _testContext.Instantiate<ISettings>();
+            settings.MaxRepositorySize = 10;
+        
+            // create a package that bytes greater than allowed max size
+            List<PackageCreateItem> files = new List<PackageCreateItem>();
+            Stream fileStream = StreamsHelper.StreamFromBytes(new byte[11] );
+            files.Add(new PackageCreateItem(fileStream, $"folder/file"));
+
+            PackageCreateArguments package = new PackageCreateArguments
+            {
+                Id = "mypackage",
+                Files = files
+            };
+            
+            IPackageCreateService packageCreateService = _moqHelper.CreateInstanceWithDependencies<PackageCreateService>(new object[]{ settings});
+            PackageCreateResult result = packageCreateService.Create(package);
+            Assert.Equal(PackageCreateErrorTypes.OutOfSpace, result.ErrorType);
+        }
+        
         [Fact]
         public void CreatePartial() 
         {

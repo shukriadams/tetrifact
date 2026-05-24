@@ -42,13 +42,14 @@ namespace Tetrifact.Core
         IEnumerable<string> GetIncomingFileNames();
 
         /// <summary>
-        /// Moves a file from incoming to respository folder. This file will immediately be directly accessible if looked for in the repo.
+        /// Moves a file from incoming to repository folder. This file will immediately be directly accessible if looked for in the repo.
         /// </summary>
         /// <param name="fileInIncoming"></param>
         /// <param name="hash"></param>
         /// <param name="packageId"></param>
         /// <param name="enableCompression"></param>
-        void WriteFile(string fileInIncoming, string hash, long fileSize, string packageId);
+        /// <returns>Response containing information about file write to repository.</returns>
+        RepositoryAddResponse WriteFile(string fileInIncoming, string hash, long fileSize, string packageId);
         
         /// <summary>
         /// 

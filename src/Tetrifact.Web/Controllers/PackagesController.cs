@@ -332,10 +332,7 @@ namespace Tetrifact.Web
             {
                 _log.LogInformation($"Controller:AddPackage:proc {procId}.{incomingPackage.Id}.Start");
 
-                // check if there is space available
-                DiskUseStats useStats = _indexService.GetDiskUseSats();
-                if (useStats.ToPercent() <= _settings.SpaceSafetyThreshold)
-                    return Responses.InsufficientSpace("Insufficient space on storage drive.");
+
 
                 // attempt to parse incoming existing files
                 IEnumerable<ManifestItem> existingFiles = null;
@@ -383,7 +380,10 @@ namespace Tetrifact.Web
                         }
                     });
                 }
-
+                
+                if (result.ErrorType == PackageCreateErrorTypes.OutOfSpace)
+                    return Responses.InsufficientSpace("Insufficient space on storage drive, or fixed size limit reached.");
+                
                 if (result.ErrorType == PackageCreateErrorTypes.InvalidArchiveFormat)
                     return Responses.InvalidArchiveFormatError(incomingPackage.Format);
 

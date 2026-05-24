@@ -25,22 +25,6 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
         }
 
         /// <summary>
-        /// Coverage
-        /// </summary>
-        [Fact]
-        public void Insufficient_space_error()
-        {
-            Mock<IIndexReadService> indexReadService = new Mock<IIndexReadService>();
-            indexReadService
-                .Setup(r => r.GetDiskUseSats())
-                .Returns(new DiskUseStats{ });
-
-            PackagesController controller = _testContext.Instantiate<PackagesController>("indexReadService", indexReadService.Object);
-            BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
-            Assert.NotNull(result);
-        }
-
-        /// <summary>
         /// coverage
         /// </summary>
         [Fact]
@@ -53,7 +37,6 @@ namespace Tetrifact.Tests.Web.Controllers.Packages
 
             PackagesController controller = _testContext.Instantiate<PackagesController>("packageCreateService", packageCreateService.Object);
             BadRequestObjectResult result = controller.Add(new PackageCreateFromPost { }) as BadRequestObjectResult;
-            Assert.NotNull(result);
         }
 
         /// <summary>

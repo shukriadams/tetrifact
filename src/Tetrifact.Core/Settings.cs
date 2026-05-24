@@ -95,6 +95,8 @@ namespace Tetrifact.Core
 
         public int? MaximumSimultaneousDownloads { get; set; }
 
+        public long? MaxRepositorySize { get; set; }
+        
         public int DownloadQueueTicketLifespan { get; set; }
 
         public IEnumerable<string> DownloadQueueWaivers { get; set; }

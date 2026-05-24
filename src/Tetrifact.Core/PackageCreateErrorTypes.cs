@@ -8,6 +8,7 @@
         InvalidArchiveFormat,
         UnexpectedError,
         CreateNotAllowed,
-        InvalidName
+        InvalidName,
+        OutOfSpace
     }
 }

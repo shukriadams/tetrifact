@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -50,14 +49,12 @@ namespace Tetrifact.Core
         /// <param name="manifest"></param>
         PackageCreateResult IPackageCreateService.Create(PackageCreateArguments newPackage)
         {
-            List<string> transactionLog = new List<string>();
-
             try
             {
                 DateTime started = DateTime.Now;
 
                 _log.LogInformation($"Package create started for package \"{newPackage.Id}\".");
-
+                
                 if (!_settings.PackageCreateEnabled)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };
 
@@ -76,19 +73,39 @@ namespace Tetrifact.Core
                 if (_indexReader.PackageNameInUse(newPackage.Id))
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.PackageExists };
 
-                // if archive, ensure correct file count
+                // if new package is archive, ensure correct file count
                 if (newPackage.IsArchive && newPackage.Files.Count() != 1)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.InvalidFileCount };
 
-                // write attachments to work folder 
-                long size = newPackage.Files.Sum(f => f.Content.Length);
+                // check if there is absolute space available on storage backend. SpaceSafetyThreshold is zero by default
+                // therefore has no effect if not set. This is also a disk % free type check, which might be too
+                // rudimentary. There is an additional and newer space limit further down.
+                DiskUseStats useStats = _indexReader.GetDiskUseSats();
+                if (useStats.ToPercent() <= _settings.SpaceSafetyThreshold)
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.OutOfSpace };
 
-                // prevent deletes of empty repository folders this package might need to write to
+                // calculate if repository is at max size. Note that we don't yet know the size of the incoming package,
+                // that check is done further down, but if we can detect we're at capacity already, we can bug out early.                
+                long repositorySize = 0;
+                if (_settings.MaxRepositorySize.HasValue)
+                {
+                    foreach (string packageId in _indexReader.GetAllPackageIds())
+                    {
+                        Manifest manifest = _indexReader.GetManifestHead(packageId);
+                        repositorySize += manifest.SizeOnDisk;
+                    }
+                    
+                    if (repositorySize > _settings.MaxRepositorySize)
+                        return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.OutOfSpace };
+                }
+ 
+                // lock repository while doing upload, this is to prevent parallel deletes etc from other processes.
+                // That sort of thing would be bad.
                 _repositoryLocks.AddUnique(newPackage.Id, false);
 
                 _workspace.Initialize();
 
-                // if archive, unzip
+                // if new package is archive, unzip
                 if (newPackage.IsArchive)
                     _workspace.AddArchiveContent(newPackage.Files.First().Content);
                 else
@@ -98,7 +115,7 @@ namespace Tetrifact.Core
                 // get all files which were uploaded, sort alphabetically for combined hashing
                 IEnumerable<string> files = _workspace.GetIncomingFileNames().ToList();
                 
-                // if merging with existing filees, add those files to files collection
+                // if merging with existing files, add those files to files collection
                 IEnumerable<string> existingFiles = new string[] { };
                 if (newPackage.ExistingFiles != null)
                     existingFiles = newPackage.ExistingFiles.Select(r => r.Path);
@@ -126,6 +143,8 @@ namespace Tetrifact.Core
                 if (files.Count() > 100)
                     stepSize = (int)Math.Round((double)files.Count() / 100, 0);
 
+                long newPackageSizeOnDisk = 0;
+                
                 // write incoming files to repo, get hash of each
                 files.AsParallel().ForAll(delegate(string filePath) {
                     try 
@@ -133,9 +152,11 @@ namespace Tetrifact.Core
                         count ++;
                         if (count % stepSize == 0)
                             _log.LogDebug($"Processing file {count}/{files.Count()}, package \"{newPackage.Id}\".");
-
+                
                         if (existingFiles.Contains(filePath))
                         { 
+                            // handle if incoming file is in a partial upload, ie, an uploaded that has been deduped on the client before uploading.
+
                             FileOnDiskProperties filePropertiesOnDisk = _indexReader.GetRepositoryFileProperties(filePath, hashes[filePath]);
                             if (filePropertiesOnDisk == null)
                             {
@@ -149,20 +170,23 @@ namespace Tetrifact.Core
                             
                             // overwrite content hash with filepath hash + content hash, needed to calc full package hash
                             hashes[filePath] = _hashService.FromString(filePath) + hashes[filePath];
-                            return;
-                        }
-                        
-                        FileOnDiskProperties fileProperties = _workspace.GetIncomingFileProperties(filePath);
-
-                        lock(hashes)
+                        } 
+                        else
                         {
-                            // 2 hashes are stored here, the hash of the path, AND the hash of the content at that path
-                            hashes[filePath] = _hashService.FromString(filePath) + fileProperties.Hash;
-                        }
+                            // handle if incoming file is not in a partial upload, ie, all package files are in the uploaded package and
+                            // we dedupe here on the server.
+                            
+                            FileOnDiskProperties fileProperties = _workspace.GetIncomingFileProperties(filePath);
 
-                        // todo : this would be a good place to confirm that existingPackageId is actually valid
-                        _workspace.WriteFile(filePath, fileProperties.Hash, fileProperties.Size, newPackage.Id);
+                            lock(hashes)
+                            {
+                                // 2 hashes are stored here, the hash of the path, AND the hash of the content at that path
+                                hashes[filePath] = _hashService.FromString(filePath) + fileProperties.Hash;
+                            }
                         
+                            RepositoryAddResponse response = _workspace.WriteFile(filePath, fileProperties.Hash, fileProperties.Size, newPackage.Id);
+                            newPackageSizeOnDisk += response.SizeOnDisk;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -170,6 +194,11 @@ namespace Tetrifact.Core
                             errors.Add($"Error processing hash for file {filePath} {ex}");
                     }
                 });
+
+                // check if new incoming files would exceed allowed max repo size. Abort new package if so. This still leaves all incoming files
+                // on disk, but these will be removed in next clean cycle.
+                if (_settings.MaxRepositorySize.HasValue && newPackageSizeOnDisk + repositorySize > _settings.MaxRepositorySize)
+                    return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.OutOfSpace };
 
                 if (errors.Any())
                     throw new Exception($"{errors.Count} errors occurred. Up to ten summarized are : {string.Join("/r", errors.Take(10))}");

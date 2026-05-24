@@ -115,7 +115,12 @@ namespace Tetrifact.Core
         /// 
         /// </summary>
         int? MaximumSimultaneousDownloads { get; set; }
-
+        
+        /// <summary>
+        /// Maximum size of repository (in bytes). Ie, total size of all unique files, on-disk. Optional.
+        /// </summary>
+        long? MaxRepositorySize { get; set; }
+        
         /// <summary>
         /// Time in seconds download tickets live for.
         /// </summary>

@@ -76,11 +76,13 @@ namespace Tetrifact.Core
         }
 
 
-        void IPackageCreateWorkspace.WriteFile(string filePath, string hash, long fileSize, string packageId)
+        RepositoryAddResponse IPackageCreateWorkspace.WriteFile(string filePath, string hash, long fileSize, string packageId)
         {
             if (string.IsNullOrEmpty(hash))
                 throw new ArgumentException("Hash value required");
-
+            
+            RepositoryAddResponse response = new RepositoryAddResponse();
+                
             // move file to public folder
             string targetPath = Path.Combine(_settings.RepositoryPath, filePath, hash, "bin");
 
@@ -93,10 +95,17 @@ namespace Tetrifact.Core
                 _filesystem.File.Move(incomingPath, targetPath);
 
                 onDisk = true;
+                IFileInfo fileInfo = _filesystem.FileInfo.FromFileName(targetPath); 
+                response.SizeOnDisk = fileInfo.Length; 
             }
+            
+            response.IsUnique = onDisk;
+            
 
             // write package id into package subscription directory, associating it with this hash 
             ((IPackageCreateWorkspace)this).SubscribeToHash(filePath, hash, packageId, fileSize, onDisk);
+            
+            return response;
         }
 
 

@@ -1,10 +1,8 @@
-﻿using System;
-using Moq;
+﻿using Moq;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core;
 using Xunit;
 
@@ -52,7 +50,7 @@ namespace Tetrifact.Tests.IndexReader
             // return a manifest to avoid non-found exception. Add an item to trigger item handling logic
             indexReader
                 .Setup(r => r.GetManifest(It.IsAny<string>()))
-                .Returns(new Manifest() { Files = new List<ManifestItem> { new ManifestItem { Path = "any path", Hash = "any hash" } }});
+                .Returns(new Manifest { Files = new List<ManifestItem> { new ManifestItem { Path = "any path", Hash = "any hash" } }});
 
             // delete, no return value, coverage implies success
             indexReader.Object.DeletePackage("any package id");
