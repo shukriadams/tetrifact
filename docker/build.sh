@@ -1,3 +1,5 @@
+#! /bin/sh
+
 # Use this script to manually build container locally. This script is NOT used by CI systems.
 
 # fail on all errors
@@ -8,43 +10,49 @@ TAG=$(git describe --abbrev=0 --tags)
 if [ -z $TAG ]; then
    echo "Error, tag not set - please tag then rerun";
    exit 1;
+
 fi
 
-rm -rf .artefacts 
-mkdir -p .artefacts
-
-
-
-# kill any existing build container
-docker compose -f docker-compose-build.yml kill 
-
-# build and start new build container. the dotnetcore sdk takes up 1.7 gig of space
-# so we want to compile the app in a private build container, then copy the artefacts out to the
-# leaner hosting container
-docker compose -f docker-compose-build.yml up -d 
-
+BUILD_CONTAINER=mcr.microsoft.com/dotnet/sdk:6.0
 
 # copy source code into build container and compile it.
-docker cp ./../src/. tetrifactbuild:/tmp/tetrifact 
+echo "Cleaning up"
+
+rm -rf ./.artefacts
+
+mkdir -p ./.artefacts
+mkdir -p ./.tmp
+
+# dotnet clean will not properly delete custom app data if present
+# also, we delete via a container command because these files were created in a container, so, ownership
+echo "manually cleaning up dev data if present"
+docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER rm -rf /tmp/tetrifact/Tetrifact.Tests/bin
+docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER rm -rf /tmp/tetrifact/Tetrifact.Tests/obj
+docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER rm -rf /tmp/tetrifact/Tetrifact.Web/bin
+docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER rm -rf /tmp/tetrifact/Tetrifact.Web/obj
 
 
-# dotnet clean will not properly delete custom app data, remove manually
-docker exec tetrifactbuild sh -c "rm -rf /tmp/tetrifact/Tetrifact.Tests/bin"
-docker exec tetrifactbuild sh -c "rm -rf /tmp/tetrifact/Tetrifact.Tests/obj"
-docker exec tetrifactbuild sh -c "rm -rf /tmp/tetrifact/Tetrifact.Web/bin"
-docker exec tetrifactbuild sh -c "rm -rf /tmp/tetrifact/Tetrifact.Web/obj"
+echo "Copying src to tmp"
+rsync -avP --exclude 'bin/*' --exclude 'obj/*' ./../src/. ./.tmp/.
 
 # write tag to currentVersion.txt in source, this will be displayed by web ui
-docker exec tetrifactbuild sh -c "echo ${TAG} > /tmp/tetrifact/Tetrifact.Web/currentVersion.txt"
+echo "Writing current version"
+echo ${TAG} > ./.tmp/Tetrifact.Web/currentVersion.txt
 
 # build it
-docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet restore' 
-docker exec tetrifactbuild sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet publish /property:PublishWithAspNetCoreTargetManifest=false' 
-docker cp tetrifactbuild:/tmp/tetrifact/Tetrifact.Web/bin/Debug/net6.0/publish/. ./.artefacts 
+echo "Building src"
+docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet restore' 
+docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet publish /property:PublishWithAspNetCoreTargetManifest=false' 
+cp -r ./.tmp/Tetrifact.Web/bin/Debug/net6.0/publish/. ./.artefacts 
 
-# kill build container
-docker compose -f docker-compose-build.yml kill 
 
 # build hosting container
+echo "Building deploy container"
 docker build -t shukriadams/tetrifact . 
+
+# test container, it should exit with 0 if successful
+export TETRIFACT_SMOKETEST="true"
+docker run -e TETRIFACT_SMOKETEST shukriadams/tetrifact:latest 
+
 docker tag shukriadams/tetrifact:latest shukriadams/tetrifact:$TAG 
+

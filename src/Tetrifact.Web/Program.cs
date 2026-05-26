@@ -12,8 +12,17 @@ namespace Tetrifact.Web
     {
         public static void Main(string[] args)
         {
-            // start logging as soon as app starts, we want to use log times to catch bottlenecks.  Loading continues in Startup.cs.
+            // Look for smoketest flag and exit cleanly immediately. We can do this any point during startup, 
+            // but the sooner the better for faster builds. Currently, smoketest proves only that 
+            // application can be started.
+            bool isSmokeTest = Environment.GetEnvironmentVariable("TETRIFACT_SMOKETEST") == "true";
+            if (isSmokeTest){
+                Console.WriteLine("Tetrifact smoketest flag detected, exiting normally. If you can see this, smoketest has passed.");
+                Environment.Exit(0);
+            }
 
+
+            // start logging as soon as app starts, we want to use log times to catch bottlenecks.  Loading continues in Startup.cs.
             Console.WriteLine("*********************************************************************");
             Console.WriteLine("TETRIFACT server starting");
             Console.WriteLine("");
