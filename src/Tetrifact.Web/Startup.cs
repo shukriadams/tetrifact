@@ -184,7 +184,7 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env/*, ILoggerFactory loggerFactory*/, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -264,7 +264,7 @@ namespace Tetrifact.Web
                 Console.WriteLine($"Temp path: {settings.TempPath}");
 
                 Console.WriteLine("Initializing indices");
-                IEnumerable<IIndexReadService> indexReaders = serviceProvider.GetServices<IIndexReadService>();
+                IEnumerable<IIndexReadService> indexReaders = di.ResolveAll<IIndexReadService>();
                 foreach (IIndexReadService indexReader in indexReaders)
                     indexReader.Initialize();
 
