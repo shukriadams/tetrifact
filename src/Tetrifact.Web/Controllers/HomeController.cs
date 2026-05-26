@@ -112,10 +112,11 @@ namespace Tetrifact.Web
         {
             try
             {
-                /*
-                 * redo list for all instances
-                 * 
-                IEnumerable<ProcessItem> processes = _processes.GetAll();
+                IList<ProcessItem> processes = new List<ProcessItem>();
+                foreach(var manager in _processManagerFactory.GetInstances())
+                foreach (var process in manager.GetAll())
+                    processes.Add(process.Clone());
+                
                 ViewData["processes"] = processes;
                 ViewData["layoutViewModel"] = new LayoutViewModel {
                     PageTitle = "Processes",
@@ -123,7 +124,7 @@ namespace Tetrifact.Web
                     ServerName = _settings.ServerName,
                     ServerSecondaryName = _settings.ServerSecondaryName
                 };
-                */
+                
                 return View();
             }
             catch (Exception ex)

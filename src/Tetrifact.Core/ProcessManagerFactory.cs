@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Tetrifact.Core
 {
@@ -33,6 +34,14 @@ namespace Tetrifact.Core
 
         #region METHODS
 
+        public IEnumerable<IProcessManager> GetInstances() 
+        {
+            lock (_instances)
+            {
+                return _instances.Values;
+            }
+        }
+        
         public IProcessManager GetInstance(ProcessManagerContext key) 
         {
             if (!_instances.ContainsKey(key))
