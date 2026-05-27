@@ -177,8 +177,12 @@ namespace Tetrifact.Core
         {
             bool isValid = true;
 
-            // detect overlapping prune brackets 
-            IList<IGrouping<int, PruneBracket>> duplicateGroups = this.PruneBrackets.GroupBy(p => p.Days).Where(g => g.Count() > 1).ToList();
+            // detect overlapping prune brackets
+            // NOTE : this hour + minute grouping looks suss, but hey, it's for dev mostly
+            IList<IGrouping<int, PruneBracket>> duplicateGroups = this.PruneBrackets
+                .GroupBy(p => p.Days + (p.Hours*24) + (p.Minutes*1440))
+                .Where(g => g.Count() > 1).ToList();
+            
             if (duplicateGroups.Count > 0)
             {
                 foreach (IGrouping<int, PruneBracket> duplicateGroup in duplicateGroups) 

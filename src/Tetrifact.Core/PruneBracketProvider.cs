@@ -25,6 +25,8 @@ namespace Tetrifact.Core
             IList<PruneBracketProcess> pruneBrackets = brackets
                 .Select(p => PruneBracketProcess.FromPruneBracket(p))
                 .OrderBy(p => p.Days)
+                .ThenBy(p => p.Hours)
+                .ThenBy(p => p.Minutes)
                 .ToList();
 
             DateTime utcNow = _timeProvider.GetUtcNow();
@@ -33,7 +35,7 @@ namespace Tetrifact.Core
             foreach (PruneBracketProcess pruneBracketProcess in pruneBrackets)
             {
                 pruneBracketProcess.StartUtc = ceiling;
-                pruneBracketProcess.EndUtc = utcNow.AddDays(-1 * pruneBracketProcess.Days);
+                pruneBracketProcess.EndUtc = utcNow.AddDays(-1 * pruneBracketProcess.Days).AddHours(-1 * pruneBracketProcess.Hours).AddMinutes(-1 * pruneBracketProcess.Minutes);
                 ceiling = pruneBracketProcess.EndUtc;
             }
 
@@ -46,6 +48,8 @@ namespace Tetrifact.Core
             return ((IPruneBracketProvider)this).PruneBrackets
                 .Where(bracket => bracket.Contains(date))
                 .OrderBy(b => b.Days)
+                .ThenBy(b => b.Hours)
+                .ThenBy(b => b.Minutes)
                 .FirstOrDefault();
         }
     }

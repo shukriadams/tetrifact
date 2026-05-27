@@ -71,6 +71,8 @@ namespace Tetrifact.Core
             { 
                 Amount = pruneBracket.Amount,
                 Days = pruneBracket.Days,
+                Hours = pruneBracket.Hours,
+                Minutes = pruneBracket.Minutes,
                 Grouping = pruneBracket.Grouping
             };
         }
