@@ -249,6 +249,7 @@ namespace Tetrifact.Web
                 Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
                 Console.WriteLine($"Auto-create archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
                 Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
+                Console.WriteLine($"Clean cron mask: {settings.CleanCronMask}");
                 Console.WriteLine($"Download archive compression: {settings.ArchiveCompression}");
                 Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
                 Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
@@ -258,6 +259,7 @@ namespace Tetrifact.Web
                 Console.WriteLine($"PackagePath: {settings.PackagePath}");
                 Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
                 Console.WriteLine($"Prune brackets: {string.Join(", ", settings.PruneBrackets)}");
+                Console.WriteLine($"Prune cron mask: {settings.PruneCronMask}");
                 Console.WriteLine($"Repository path: {settings.RepositoryPath}");
                 Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
                 Console.WriteLine($"Tags path: {settings.TagsPath}");

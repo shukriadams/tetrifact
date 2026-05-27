@@ -1,0 +1,10 @@
+version: "2"
+services:
+  tetrifact:
+    image: shukriadams/tetrifact:latest
+    container_name: tetrifact-test
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS : http://*:5000
+    ports:
+    - "49022:5000"

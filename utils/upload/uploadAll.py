@@ -11,7 +11,7 @@ from pathlib import Path
 
 pause=0 # seconds
 zipPath = './content.zip'
-packages = glob.glob(f'./packages/*.zip')
+packages = glob.glob(f'./packages/**/*.zip')
 server_address='http://localhost:5000'
 
 # check if tetrifact is running
@@ -27,13 +27,13 @@ except Exception as e:
     sys.exit(1)
 
 if len(packages) == 0 :
-    print ('no pacakges found. Run generate.py to create some')
+    print ('no packages found. Run generate.py to create some')
 else:
     print (f'Found {len(packages)} packages to upload.')
 
 for package in packages:
-    # packageName = os.path.basename(package)
-    packageName = Path(package).stem
+    packageName = uuid.uuid4()
+    # packageName = Path(package).stem
     print (f'uploading package {packageName}')
     uploadResult = subprocess.run(
         [
