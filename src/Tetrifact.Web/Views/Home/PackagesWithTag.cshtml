@@ -15,7 +15,7 @@
             @foreach (Package package in packages)
             {
                 <li class="listItem">
-                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">(@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago)</div>
+                    <a href="/package/@package.Id">@package.Id</a> <div class="subtext">@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago</div>
                 </li>
             }
         </ul>

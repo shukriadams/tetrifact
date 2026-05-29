@@ -21,7 +21,7 @@
             {
                 <li class="listItem">
                     <a href="/package/@package.Id">@package.Id</a> 
-                    <div class="subtext">(@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago)</div>
+                    <div class="subtext">@package.CreatedUtc.ToIso() - @package.CreatedUtc.Ago() ago</div>
                     @await Html.PartialAsync("TagsList", new TagsModel{ Settings = settings, Tags = package.Tags })
                 </li>
             }
