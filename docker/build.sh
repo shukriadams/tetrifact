@@ -18,6 +18,7 @@ BUILD_CONTAINER=mcr.microsoft.com/dotnet/sdk:6.0
 echo "Cleaning up"
 
 rm -rf ./.artefacts
+rm -rf ./.tmp
 
 mkdir -p ./.artefacts
 mkdir -p ./.tmp
@@ -32,16 +33,21 @@ docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER rm -rf /tmp/tetrifact/Tet
 
 
 echo "Copying src to tmp"
-rsync -avP --exclude 'bin/*' --exclude 'obj/*' ./../src/. ./.tmp/.
+rsync -avP \
+   --exclude 'bin/*' \
+   --exclude 'obj/*' \
+   ./../src/. ./.tmp/.
 
 # write tag to currentVersion.txt in source, this will be displayed by web ui
-echo "Writing current version"
+echo "Writing current version ${TAG} to file"
 echo ${TAG} > ./.tmp/Tetrifact.Web/currentVersion.txt
 
 # build it
-echo "Building src"
+#echo "Restoring project"
 docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet restore' 
+echo "Building project"
 docker run -v "./.tmp:/tmp/tetrifact" $BUILD_CONTAINER sh -c 'cd /tmp/tetrifact/Tetrifact.Web && dotnet publish /property:PublishWithAspNetCoreTargetManifest=false' 
+echo "Staging artefacts"
 cp -r ./.tmp/Tetrifact.Web/bin/Debug/net6.0/publish/. ./.artefacts 
 
 
