@@ -10,7 +10,6 @@ TAG=$(git describe --abbrev=0 --tags)
 if [ -z $TAG ]; then
    echo "Error, tag not set - please tag then rerun";
    exit 1;
-
 fi
 
 BUILD_CONTAINER=mcr.microsoft.com/dotnet/sdk:6.0
