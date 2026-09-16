@@ -1,2 +1,0 @@
-python tag.py
-pause

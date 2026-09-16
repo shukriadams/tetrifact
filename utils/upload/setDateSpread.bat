@@ -1,3 +1,0 @@
-python setDateSpread.py
-
-pause

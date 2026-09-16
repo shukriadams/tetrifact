@@ -1,2 +1,0 @@
-python tetrifact.py
-pause
