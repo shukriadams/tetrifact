@@ -7,14 +7,23 @@ import glob
 import os
 import urllib.request
 import sys
+import argparse
+
 from pathlib import Path
 
 pause=0 # seconds
 zipPath = './content.zip'
 packages = glob.glob(f'./packages/**/*.zip')
-server_address='http://localhost:5000'
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument('--server_address', default='localhost:5000')
+args = vars(argParser.parse_args())
+
+server_address = args['server_address']
+server_address=f'http://{server_address}'
 
 # check if tetrifact is running
+print(f'attemtping to contact server @ {server_address}')
 try :
     response =  urllib.request.urlopen(server_address)
     response_code = response.getcode()
@@ -47,5 +56,7 @@ for package in packages:
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE).stdout.decode('utf8')
 
-    print(f'Upload result : {uploadResult}')
+    print(f'Upload result : {uploadResult}, sleeping {pause} seconds...')
     time.sleep(pause)
+
+print(f'Finished uploading {len(packages)} packages')

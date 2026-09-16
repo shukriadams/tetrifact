@@ -1,4 +1,4 @@
-
+# Wipes local tetrifact dev server files. Stop server before running this.
 import os
 import sys
 import shutil
