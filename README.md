@@ -65,7 +65,7 @@ All configuration is passed in as environment variables - these can also be set 
 
 ### Docker image
 
-A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/shukriadams/tetrifact 
+Tetrifact is available as a Docker image @ https://hub.docker.com/r/shukriadams/tetrifact 
 
 - Create a "data" directory in your intended Tetrifact deploy directory, Tetrifact will write all its files to this. 
 - Tetrifact runs with user id 1000, and needs permission to control this folder, set this with
@@ -80,18 +80,16 @@ A Linux version of Tetrifact is available via Docker @ https://hub.docker.com/r/
             image: shukriadams/tetrifact:<TAG>
             container_name: tetrifact
             restart: unless-stopped
-            environment:
-              ASPNETCORE_URLS : http://*:5000
             volumes:
               - ./data:/var/tetrifact/data/:rw
             ports:
             - "49022:5000"
 
-Note that Docker for Windows now supports Linux containers, so you can run this container on Windows hosts too. 
+Substitute external port `49022` with whatever port is convenient on your system.
 
 ## What it isn't
 
-Tetrifact is use-at-your-own risk open source software. It is intended for use in your in-house CI build chain, and replaces the awful practice of storing builds on SMB file servers. Tetrifact is not a version control system or bullet-proof archive. It's written to be robust and fault-tolerant in a real-life game studio with multiple large daily builds, but you should still probably not use it for absolutely irreplacable files such as release-to-manufacture builds. 
+Tetrifact is use-at-your-own risk open source software. It is intended for use in your in-house CI build chain, and replaces the awful practice of storing builds on SMB file servers. Tetrifact is not a version control system or bullet-proof archive. It's written to be robust and fault-tolerant in a real-life game studio with multiple large daily builds, and it has been battle-tested in production for years, but you should still probably not use it for absolutely irreplacable files such as "gold master" RTM builds.
 
 ## Using
 
