@@ -2,6 +2,13 @@
 
 Most Tetrifact settings are stored in a YML file that is read on start. This file must be placed in the application binary directory, and the default expected name is `config.yml`. 
 
+If you're running Tetrifact in Docker, your compose volume mount for this file would look like
+
+    services:
+        tetrifact:
+            volumes:
+            - ./config.yml:/var/tetrifact/config.yml
+
 All settings in the main config file are directly mapped to the class src/Tetrifact.Core/Settings.cs. All property names are capitalized, and must be printed exactly as they appear in that class. Default values are hardcoded in that class' constructor. Most properties are simple primitives, but there are collections that use standard YML notation.
 
     ServerName : My Server Name
@@ -12,7 +19,7 @@ All settings in the main config file are directly mapped to the class src/Tetrif
       - MyToken2
     TagColors:
       - Start: "MyTag:"  
-      - Color: "#a1a1a1"
+        Color: "#a1a1a1"
 
 `ServerName` above is a string, `AllowPackageDelete` boolean, and `ListPageSize` an integer. `AccessTokens` is a list of strings, while `TagColors` is a collection of `TagColor` objects, each has two named string properties, `Start` and `Color`.
 
