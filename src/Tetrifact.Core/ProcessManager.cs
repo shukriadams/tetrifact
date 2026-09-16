@@ -84,10 +84,9 @@ namespace Tetrifact.Core
                 };
 
                 _items.Add(key, item);
-                
+                _log.LogInformation($"Created process, id {key}, no lifespan limit, {typeof(ProcessManager).Name}:{this.Context}.");
                 return item;
 
-                _log.LogInformation($"Created process, id {key}, no lifespan limit, {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
