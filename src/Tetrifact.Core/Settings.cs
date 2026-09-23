@@ -11,112 +11,116 @@ namespace Tetrifact.Core
     {
         #region PROPERTIES
 
-        public string PackagePath { get; set; }
+        public bool AutoCreateArchiveOnPackageCreate { get; set; }
 
-        public string TempPath { get; set; }
+        public string ArchiveQueuePath { get; set; }
+        
+        public CompressionLevel ArchiveCompression { get; set; }
 
-        public string RepositoryPath { get; set; }
+        public AuthorizationLevel AuthorizationLevel { get; set; }
+
+        public IEnumerable<string> AccessTokens { get; set; } = new List<string>();
 
         public string ArchivePath { get; set; }
-
-        public string TagsPath { get; set; }
-
-        public string MetricsPath { get; set; }
-
-        public string PackageDiffsPath { get; set; }
 
         public int ArchiveAvailablePollInterval { get; set; }
 
         public int ArchiveWaitTimeout { get; set; }
 
-        public int ListPageSize { get; set; }
-
-        public int IndexTagListLength { get; set; }
-
-        public int PagesPerPageGroup { get; set; }
-
-        public int CacheTimeout { get; set; }
-
-        public int LinkLockWaitTime { get; set; }
-
-        public int MaximumArchivesToKeep { get; set; }
-
-        public long SpaceSafetyThreshold { get; set; }
-
-        public AuthorizationLevel AuthorizationLevel { get; set; }
-
-        public IEnumerable<string> AccessTokens { get; set; }
-        
-        public bool StorageCompressionEnabled { get; set; }
-
-        public bool AutoCreateArchiveOnPackageCreate { get; set; }
-        
-        public CompressionLevel ArchiveCompression { get; set; }
-
-        public bool PruneEnabled { get; set; }
-
-        public int WorkerThreadCount { get; set; }
-
-        public IEnumerable<string> PruneIgnoreTags { get; set; }
-
-        public  bool PackageDeleteEnabled { get; set; }
-
-        public  bool PackageCreateEnabled { get; set; }
-
-        public int MetricsGenerationInterval { get; set; }
-
-        public string ServerName { get; set; }
-
-        public string ServerSecondaryName { get; set; }
-
-        public string LogPath { get; set; }
-
-        public string ArchiveQueuePath { get; set; }
-
-        public string CleanCronMask { get; set; }
-
-        public string PruneCronMask { get; set; }
-
-        public string MetricsCronMask { get; set; }
-
-        public bool PruneDeletesEnabled { get ;set; }
-
-        public int MetricsGenerationBufferTime { get; set; }
-
-        public bool WipeTempOnStart { get; set; }
-
         public ArchivingModes ArchivingMode { get; set; }
 
         public int ArchiveCPUThreads { get; set; }
 
-        public IEnumerable<PruneBracket> PruneBrackets { get; set; }
+        public int CacheTimeout { get; set; }
 
-        public string SettingsPath { get; set; }
+        public string CleanCronMask { get; set; }
 
-        public int? MaximumSimultaneousDownloads { get; set; }
-
-        public long? MaxRepositorySize { get; set; }
-        
-        public int DownloadQueueTicketLifespan { get; set; }
-
-        public IEnumerable<string> DownloadQueueWaivers { get; set; }
-
-        public string Theme { get; set; }
-
-        public IEnumerable<TagColor> TagColors { get; set; }
-
-        public IEnumerable<string> WhiteListedLocalAddresses { get; set; }
+        public int DataRoot { get; set; }
 
         public bool DeleteStalePackages { get; set; }
         
         public bool DeleteStalePackagesWithProtectedTags { get; set; }
 
+        public int DownloadQueueTicketLifespan { get; set; }
+
+        public IEnumerable<string> DownloadQueueWaivers { get; set; } = new List<string>();
+
         public bool EnableCleanViaController { get; set; }
         
         public bool EnablePruneViaController { get; set; }
 
+        public int IndexTagListLength { get; set; }
+
+        public int ListPageSize { get; set; }
+
+        public int LinkLockWaitTime { get; set; }
+
+        public string LogPath { get; set; }
+
         public LogLevel LogLevel { get; set; }
+
+        public int MetricsGenerationInterval { get; set; }
+
+        public string MetricsPath { get; set; }
+
+        public int MaximumArchivesToKeep { get; set; }
+
+        public string MetricsCronMask { get; set; }
+
+        public int MetricsGenerationBufferTime { get; set; }
+
+        public int? MaximumSimultaneousDownloads { get; set; }
+
+        public long? MaxRepositorySize { get; set; }
+
+        public string PackageDiffsPath { get; set; }
+
+        public int PagesPerPageGroup { get; set; }
+
+        public string PackagePath { get; set; }
+
+        public IEnumerable<PruneBracket> PruneBrackets { get; set; } = new List<PruneBracket>();
+
+        public string PruneCronMask { get; set; }
+
+        public bool PruneEnabled { get; set; }
+
+        public IEnumerable<string> PruneIgnoreTags { get; set; } = new string[] { };
+
+        public  bool PackageDeleteEnabled { get; set; }
+
+        public  bool PackageCreateEnabled { get; set; }
+
+        public bool PruneDeletesEnabled { get ;set; }
+
+        public string RepositoryPath { get; set; }
+
+        public string SettingsPath { get; set; }
         
+        public string ServerName { get; set; }
+
+        public long SpaceSafetyThreshold { get; set; }
+        
+        public bool StorageCompressionEnabled { get; set; }
+
+        public string ServerSecondaryName { get; set; }
+
+        public string TagsPath { get; set; }
+
+        public string Theme { get; set; }
+
+        public string TempPath { get; set; }
+
+        public IEnumerable<TagColor> TagColors { get; set; } = new List<TagColor>();
+
+        public IEnumerable<Project> Projects { get; set; } = new List<Project>();
+
+        public IEnumerable<string> WhiteListedLocalAddresses { get; set; } = new string[] { };
+
+        public int WorkerThreadCount { get; set; }
+
+        public bool WipeTempOnStart { get; set; }
+
         #endregion
 
         #region CTORS
@@ -124,11 +128,6 @@ namespace Tetrifact.Core
         public Settings()
         {
             // defaults
-            this.DownloadQueueTicketLifespan = 10; // seconds
-            this.AccessTokens = new List<string>();
-            this.DownloadQueueWaivers = new List<string>();
-            this.PackageDeleteEnabled = true;
-            this.PackageCreateEnabled = true;
             this.ArchiveCPUThreads = 4;                 // for compression solutions that support multithreading.
             this.ArchivingMode = ArchivingModes.Default;   // default dotnet zip compression
             this.ArchiveAvailablePollInterval = 1000;   // 1 second
@@ -136,9 +135,11 @@ namespace Tetrifact.Core
             this.ArchiveQueuePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archiveQueue");
             this.ArchivePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "archives");
             this.AuthorizationLevel = AuthorizationLevel.None;
+            this.ArchiveCompression = CompressionLevel.Optimal;
             this.CacheTimeout = 60 * 60;                // 1 hour
             this.CleanCronMask = "0 0 * * *"; // once a day at midnight
-            this.ArchiveCompression = CompressionLevel.Optimal;
+            this.DataRoot = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data");
+            this.DownloadQueueTicketLifespan = 10; // seconds
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
@@ -152,21 +153,19 @@ namespace Tetrifact.Core
             this.PackageDiffsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packageDiffs");
             this.PackagePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "packages");
             this.PagesPerPageGroup = 10;
-            this.PruneIgnoreTags = new string[] { };
             this.PruneDeletesEnabled = true;
             this.PruneCronMask = "0 2 * * *"; // once a day at 2 am
-            this.PruneBrackets = new List<PruneBracket>();
+            this.PackageDeleteEnabled = true;
+            this.PackageCreateEnabled = true;
             this.RepositoryPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "repository");
             this.ServerName = "Tetrifact";
             this.ServerSecondaryName = "Artefact Storage";
             this.SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.yml");
-            this.TagColors = new List<TagColor>();
             this.TagsPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "tags");
             this.TempPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "temp");
             this.Theme = "dark";
             this.WipeTempOnStart = true;
             this.WorkerThreadCount = 8;
-            this.WhiteListedLocalAddresses = new string[] { };
         }
 
         #endregion

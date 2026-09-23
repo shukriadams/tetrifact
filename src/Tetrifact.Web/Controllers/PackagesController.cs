@@ -12,10 +12,10 @@ namespace Tetrifact.Web
     /// <summary>
     /// - Creates and serves archives of packages.
     /// - Archive files are created on demand - this can take a while for large packages, so there
-    /// can be a long wait time before the standard get method returns.
+    ///   can be a long wait time before the standard get method returns.
     /// - To save disk space, older archive files are cleaned out if space is limited.
     /// - For systems that cannot wait for the standard get to return, use the /order endpoint. This
-    /// immediately returns a code for archive status.
+    ///   immediately returns a code for archive status.
     /// </summary>
     [Route("v1/[controller]")]
     [ApiController]
@@ -43,7 +43,14 @@ namespace Tetrifact.Web
         /// <param name="indexReadService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreateService packageCreateService, IPackageListService packageListService, IPackageListCache packageListCache, IIndexReadService indexReadService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
+        public PackagesController(
+            IPackageCreateService packageCreateService, 
+            IPackageListService packageListService, 
+            IPackageListCache packageListCache, 
+            IIndexReadService indexReadService, 
+            IPackageDiffService packageDiffService, 
+            ISettings settings, 
+            ILogger<PackagesController> log)
         {
             _packageList = packageListService;
             _packageCreateService = packageCreateService;
@@ -66,7 +73,10 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("")]
-        public ActionResult List([FromQuery(Name = "isFull")] bool isFull, [FromQuery(Name = "index")] int pageIndex, [FromQuery(Name = "size")] int pageSize = 25)
+        public ActionResult List(
+            [FromQuery(Name = "isFull")] bool isFull, 
+            [FromQuery(Name = "index")] int pageIndex, 
+            [FromQuery(Name = "size")] int pageSize = 25)
         {
             IEnumerable<Package> packages = _packageList.Get(pageIndex, pageSize);
 
@@ -101,7 +111,8 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("latest/{tags}")]
-        public ActionResult GetLatestWithTag(string tags)
+        public ActionResult GetLatestWithTag(
+            string tags)
         {
             try
             {
@@ -132,7 +143,9 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(ReadLevel))]
         [HttpGet("diff/{upstreamPackageId}/{downstreamPackageId}")]
-        public ActionResult GetDiff(string upstreamPackageId, string downstreamPackageId)
+        public ActionResult GetDiff(
+            string upstreamPackageId, 
+            string downstreamPackageId)
         {
             string procId = Guid.NewGuid().ToString();
 
@@ -169,6 +182,7 @@ namespace Tetrifact.Web
             }
         }
 
+
         /// <summary>
         /// Get rid of this, use GetPackage instead
         /// Returns 1 if the package exists, 0 if not
@@ -196,6 +210,7 @@ namespace Tetrifact.Web
                 return Responses.UnexpectedError();
             }
         }
+
 
         /// <summary>
         /// 
@@ -240,6 +255,7 @@ namespace Tetrifact.Web
             }
         }
 
+
         /// <summary>
         /// Returns the manifest for a package
         /// </summary>
@@ -275,7 +291,9 @@ namespace Tetrifact.Web
         [ServiceFilter(typeof(ConfigurationErrors))]
         [ServiceFilter(typeof(WriteLevel))]
         [HttpPost("createdate/{packageId}/{date}")]
-        public ActionResult SetCreateDate(string packageId, string date)
+        public ActionResult SetCreateDate(
+            string packageId, 
+            string date)
         { 
             try 
             { 

@@ -54,6 +54,8 @@ namespace Tetrifact.Web
             
             di.Register<IIndexReadService, IndexReadService>();
             di.Register<IRepositoryCleanService, RepositoryCleanService>();
+            di.Register<IRepositoryCleanServiceFactory, RepositoryCleanServiceFactory>();
+
             di.Register<IPackageCreateWorkspace, PackageCreateWorkspace>();
             di.Register<ITagsService, TagsService>();
             di.Register<IPackageCreateService, PackageCreateService>();

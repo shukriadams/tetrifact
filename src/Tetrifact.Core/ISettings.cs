@@ -122,6 +122,11 @@ namespace Tetrifact.Core
         long? MaxRepositorySize { get; set; }
         
         /// <summary>
+        /// 
+        /// </summary>
+        int DataRoot { get; set; }
+
+        /// <summary>
         /// Time in seconds download tickets live for.
         /// </summary>
         int DownloadQueueTicketLifespan { get; set; }
@@ -273,5 +278,10 @@ namespace Tetrifact.Core
         /// Log verbosity level.
         /// </summary>
         LogLevel LogLevel { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IEnumerable<Project> Projects { get; set; }
     }
 }
