@@ -124,7 +124,7 @@ namespace Tetrifact.Core
                     };
                 }
                 else
-                    throw ex;
+                    throw;
             }
             finally 
             {
