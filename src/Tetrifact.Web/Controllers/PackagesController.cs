@@ -484,6 +484,7 @@ namespace Tetrifact.Web
             } 
             catch (Exception ex)
             {
+                _log.LogError(ex, "An unexpected error occurred.");
                 return Responses.UnexpectedError();
             }
         }
