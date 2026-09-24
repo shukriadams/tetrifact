@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -15,7 +16,7 @@ namespace Tetrifact.Web
         private readonly ISettings _settings;
         private readonly IIndexReadService _indexService;
         private readonly IPackageListService _packageList;
-        private readonly ILogger<HomeController> _log;
+        private readonly ILoggger _log;
         private readonly IProcessManagerFactory _processManagerFactory;
         private readonly IArchiveService _archiveService;
         private readonly IMemoryCache _cache;
@@ -24,7 +25,14 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public HomeController(ISettings settings, IProcessManagerFactory processManagerFactory, IMemoryCache cache, IArchiveService archiveService, IIndexReadService indexService, IPackageListService packageList, ILogger<HomeController> log)
+        public HomeController(
+            ISettings settings, 
+            IProcessManagerFactory processManagerFactory, 
+            IMemoryCache cache, 
+            IArchiveService archiveService, 
+            IIndexReadService indexService, 
+            IPackageListService packageList, 
+            ILoggger log)
         {
             _settings = settings;
             _indexService = indexService;
@@ -64,7 +72,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -98,7 +106,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -129,7 +137,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -158,7 +166,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -215,7 +223,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -247,7 +255,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -285,7 +293,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -329,7 +337,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }

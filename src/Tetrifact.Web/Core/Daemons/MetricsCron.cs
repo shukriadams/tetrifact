@@ -45,6 +45,11 @@ namespace Tetrifact.Web
             }
         }
 
+        public override void Stop()
+        {
+            _daemonrunner.Stop();
+        }
+
         public override async Task Work()
         {
             try

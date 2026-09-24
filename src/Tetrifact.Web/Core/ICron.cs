@@ -6,6 +6,8 @@ namespace Tetrifact.Web
     {
         void Start();
 
+        void Stop();
+
         Task Work();
     }
 }

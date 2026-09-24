@@ -272,6 +272,6 @@ namespace Tetrifact.Core
         /// <summary>
         /// Log verbosity level.
         /// </summary>
-        LogLevel LogLevel { get; set; }
+        Microsoft.Extensions.Logging.LogLevel LogLevel { get; set; }
     }
 }

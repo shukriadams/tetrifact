@@ -19,6 +19,8 @@ namespace Tetrifact.Web
         private DateTime _lastRun;
 
         private ILogger<Daemon> _log;
+        
+        private Thread _thread;
 
         public Daemon(ILogger<Daemon> log)
         {
@@ -32,7 +34,7 @@ namespace Tetrifact.Web
         /// <param name="interval">milliseconds</param>
         public void Start(int interval, DaemonWorkMethod work)
         {
-            new Thread(async delegate ()
+            _thread = new Thread(async delegate ()
             {
                 while (_running)
                 {
@@ -54,7 +56,12 @@ namespace Tetrifact.Web
                         _busy = false;
                     }
                 }
-            }).Start();
+
+                Console.WriteLine($"Daemon exiting {this.GetType().Name}");
+
+            });
+
+            _thread.Start();
         }
 
         public void Start(string cronmask, DaemonWorkMethod work)
@@ -62,7 +69,7 @@ namespace Tetrifact.Web
             _cronExpression = CronExpression.Parse(cronmask);
             _lastRun = DateTime.UtcNow;
 
-            new Thread(async delegate ()
+            _thread = new Thread(async delegate ()
             {
                 while (_running)
                 {
@@ -86,10 +93,17 @@ namespace Tetrifact.Web
                     finally
                     {
                         _busy = false;
-                        Thread.Sleep(60000); // recheck cron tick every minute, no need to check more frequently given minute resolution of cronmask
+                        
+                         // recheck cron tick every 20 seconds, no need to check more 
+                         // frequently given minute resolution of cronmask
+                        Thread.Sleep(20000);
                     }
                 }
-            }).Start();
+
+                Console.WriteLine($"Daemon exiting {this.GetType().Name}");
+            });
+            
+            _thread.Start();
         }
 
         /// <summary>
@@ -98,6 +112,9 @@ namespace Tetrifact.Web
         public void Stop()
         {
             _running = false;
+            // wake if sleeping
+            if (_thread != null)
+                _thread.Interrupt(); 
         }
     }
 }

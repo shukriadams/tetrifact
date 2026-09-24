@@ -1,0 +1,7 @@
+{
+    "name" : "Tetrifact.Core",
+    "runtimes" : [ 6 ],
+    "packages" : [
+        "github.shukriadams.loggger@0.0.1"
+    ]
+}

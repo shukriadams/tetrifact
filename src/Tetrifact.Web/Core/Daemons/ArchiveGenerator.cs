@@ -36,6 +36,11 @@ namespace Tetrifact.Web
             _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
         }
 
+        public override void Stop()
+        {
+            _daemonrunner.Stop();
+        }
+
         /// <summary>
         /// 
         /// </summary>

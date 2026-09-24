@@ -304,6 +304,9 @@ namespace Tetrifact.Core
                     _log.LogWarning($"Failed to delete tag {tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
                 }
             }
+
+            _log.LogWarning($"Deleted package {packageId}");
+
         }
 
         DiskUseStats IIndexReadService.GetDiskUseSats()

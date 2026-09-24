@@ -9,7 +9,7 @@ using Tetrifact.Core;
 namespace Tetrifact.Web
 {
     public class Program
-    {
+    {   
         public static void Main(string[] args)
         {
             // Look for smoketest flag and exit cleanly immediately. We can do this any point during startup, 
@@ -20,7 +20,6 @@ namespace Tetrifact.Web
                 Console.WriteLine("Tetrifact smoketest flag detected, exiting normally. If you can see this, smoketest has passed.");
                 Environment.Exit(0);
             }
-
 
             // start logging as soon as app starts, we want to use log times to catch bottlenecks.  Loading continues in Startup.cs.
             Console.WriteLine("*********************************************************************");
@@ -82,5 +81,17 @@ namespace Tetrifact.Web
 
             return builder;
         }
+
+
+        ///
+        /// Set to true when sigterm/sigkill received. 
+        /// 
+        public static VoidEvent OnShutdown;
+
+        public static bool IsShuttingDown {get;set;}
+
     }
+
+    public delegate void VoidEvent();
+
 }

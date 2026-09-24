@@ -20,6 +20,10 @@ sudo wget https://github.com/docker/compose/releases/download/v2.29.1/docker-com
 sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 echo "export PATH=/usr/libexec/docker/cli-plugins:$PATH" >> /home/vagrant/.bashrc
 
+# porter
+sudo wget https://github.com/shukriadams/porter/releases/download/0.0.3/porter_linux-x64 -O /usr/bin/porter
+sudo chmod +x /usr/bin/porter
+
 # force startup folder to vagrant project
 echo "cd /vagrant/src" >> /home/vagrant/.bashrc
 

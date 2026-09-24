@@ -16,11 +16,17 @@ using Tetrifact.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
+using System.Runtime.Loader;
+using System.IO;
+using System.Threading;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
     public class Startup 
     {
+        private IList<ICron> _daemons = new List<ICron>();
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -34,6 +40,7 @@ namespace Tetrifact.Web
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+
             Console.WriteLine($"Configuring services ({Global.StartTimeUtc.Ago(true)})");
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -54,6 +61,7 @@ namespace Tetrifact.Web
             
             di.Register<IIndexReadService, IndexReadService>();
             di.Register<IRepositoryCleanService, RepositoryCleanService>();
+            di.Register<IRepositoryCleanServiceFactory, RepositoryCleanServiceFactory>();
             di.Register<IPackageCreateWorkspace, PackageCreateWorkspace>();
             di.Register<ITagsService, TagsService>();
             di.Register<IPackageCreateService, PackageCreateService>();
@@ -176,6 +184,18 @@ namespace Tetrifact.Web
             
             // 
             services.AddScoped<ConfigurationErrors>();
+
+            ILoggger log = new Loggger(System.IO.Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "special-log-.txt"));
+            di.RegisterSingleton<ILoggger>(log);
+
+            Program.OnShutdown =()=>{
+                // gracefully stop all the things
+                
+                log.Dispose();
+
+                foreach(ICron daemon in _daemons)
+                    daemon.Stop();
+            };
         }
 
 
@@ -186,6 +206,17 @@ namespace Tetrifact.Web
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // register listener for SIGKILL / SIGTERM, which we can use to gracefully shutdown worker threads
+            IHostApplicationLifetime applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>(); 
+            applicationLifetime.ApplicationStopping.Register(() => 
+            { 
+                Console.WriteLine("Tetrifact shutdown order received");
+                Program.IsShuttingDown = true;
+                if (Program.OnShutdown != null)
+                    Program.OnShutdown.Invoke();
+            });
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -266,6 +297,7 @@ namespace Tetrifact.Web
                 Console.WriteLine($"Temp path: {settings.TempPath}");
 
                 Console.WriteLine("Initializing indices");
+                
                 IEnumerable<IIndexReadService> indexReaders = di.ResolveAll<IIndexReadService>();
                 foreach (IIndexReadService indexReader in indexReaders)
                     indexReader.Initialize();
@@ -277,6 +309,7 @@ namespace Tetrifact.Web
                 {
                     cron.Start();
                     Console.WriteLine($"{cron.GetType().Name}");
+                    _daemons.Add(cron);
                 }
 
                 Console.WriteLine("");

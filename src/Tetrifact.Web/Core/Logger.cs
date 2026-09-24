@@ -21,24 +21,24 @@ namespace Tetrifact.Web
             return null;
         }
 
-        public bool IsEnabled(LogLevel logLevel)
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel)
         {
             return logLevel >= _settings.LogLevel;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (logLevel == LogLevel.Critical)
+            if (logLevel == Microsoft.Extensions.Logging.LogLevel.Critical)
                 _logWriter.LogCritical($"{logLevel.ToString()}:{formatter(state, exception)}");
-            else if (logLevel == LogLevel.Debug)
+            else if (logLevel == Microsoft.Extensions.Logging.LogLevel.Debug)
                 _logWriter.LogDebug($"{logLevel.ToString()}:{formatter(state, exception)}");
-            else if (logLevel == LogLevel.Error)
+            else if (logLevel == Microsoft.Extensions.Logging.LogLevel.Error)
                 _logWriter.LogError($"{logLevel.ToString()}:{formatter(state, exception)}");
-            else if (logLevel == LogLevel.Information)
+            else if (logLevel == Microsoft.Extensions.Logging.LogLevel.Information)
                 _logWriter.LogInformation($"{logLevel.ToString()}:{formatter(state, exception)}");
-            else if (logLevel == LogLevel.Trace)
+            else if (logLevel == Microsoft.Extensions.Logging.LogLevel.Trace)
                 _logWriter.LogTrace($"{logLevel.ToString()}:{formatter(state, exception)}");
-            else if (logLevel == LogLevel.Warning)
+            else if (logLevel == Microsoft.Extensions.Logging.LogLevel.Warning)
                 _logWriter.LogWarning($"{logLevel.ToString()}:{formatter(state, exception)}");
         }
 

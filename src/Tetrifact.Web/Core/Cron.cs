@@ -10,6 +10,8 @@ namespace Tetrifact.Web
     {
         public abstract void Start();
 
+        public abstract void Stop();
+
         public abstract Task Work();
     }
 }
