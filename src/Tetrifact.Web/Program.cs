@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Tetrifact.Core;
@@ -32,19 +31,6 @@ namespace Tetrifact.Web
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging(logging => { 
-
-                    // add explicit console.writeline output to all log writes
-                    logging
-                        .ClearProviders()
-                        .AddConsole(console =>
-                        {
-                            // add timestamp to logout
-                            console.TimestampFormat = "[HH:mm:ss] ";
-                        });
-
-                    logging.AddCustomFormatter();
-                })
                 .UseStartup<Startup>();
 
             bool use_IIS = Environment.GetEnvironmentVariable("TETRIFACT_USE_IIS") == "true";

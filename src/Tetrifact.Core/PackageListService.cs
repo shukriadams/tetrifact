@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IPackageListService> _log;
+        private readonly ILoggger _log;
 
         private readonly ITagsService _tagService;
 
@@ -36,7 +36,13 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageListService(IMemoryCache memoryCache, ISettings settings, IHashService hashService, ITagsService tagService, IFileSystem fileSystem, ILogger<IPackageListService> log)
+        public PackageListService(
+            IMemoryCache memoryCache, 
+            ISettings settings, 
+            IHashService hashService, 
+            ITagsService tagService, 
+            IFileSystem fileSystem, 
+            ILoggger log)
         {
             _cache = memoryCache;
             _settings = settings;
@@ -182,7 +188,7 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError(ex, $"Unexpected error trying to reading manifest @ {packageDirectory}");
+                    _log.Error(this, $"Unexpected error trying to reading manifest @ {packageDirectory}", ex);
                 }
             }
 

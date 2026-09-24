@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Tetrifact.Core
 
         IIndexReadService _indexReader;
 
-        ILogger<IPruneService> _log;
+        ILoggger _log;
 
         ITimeProvider _timeprovider;
 
@@ -27,7 +27,13 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PruneService(ISettings settings, IPruneBracketProvider pruneBracketProvider, IProcessManagerFactory processManagerFactory, ITimeProvider timeprovider, IIndexReadService indexReader, ILogger<IPruneService> log)
+        public PruneService(
+            ISettings settings, 
+            IPruneBracketProvider pruneBracketProvider, 
+            IProcessManagerFactory processManagerFactory, 
+            ITimeProvider timeprovider, 
+            IIndexReadService indexReader, 
+            ILoggger log)
         {
             _settings = settings;
             _indexReader = indexReader;
@@ -51,25 +57,25 @@ namespace Tetrifact.Core
 
             if (!_settings.PruneEnabled)
             {
-                _log.LogInformation("Prune exited on start, disabled.");
+                _log.Status(this, "Prune exited on start, disabled.");
                 return new PrunePlan { AbortDescription = "Prune exited on start, disabled." };
             }
 
             if (_repositoryLocks.Any())
             {
                 IEnumerable<ProcessItem> locks = _repositoryLocks.GetAll();
-                _log.LogInformation($"Prune exited on start, locks detected  : ({string.Join(", ", locks)}).");
+                _log.Status(this, $"Prune exited on start, locks detected  : ({string.Join(", ", locks)}).");
                 return new PrunePlan { AbortDescription = $"Prune exited on start, locks detected  : ({string.Join(", ", locks)})." };
             }
 
             PrunePlan report = this.GeneratePrunePlan();
 
             foreach(string line in report.Report)
-               _log.LogInformation(line);
+               _log.Status(this, line);
 
             IEnumerable<string> packageToPruneIds = _pruneBracketProvider.PruneBrackets.SelectMany(b => b.Prune).Select(m => m.Id);
 
-            _log.LogInformation($"******************************* Starting prune execution, {packageToPruneIds.Count()} packages marked for delete *******************************");
+            _log.Status(this, $"******************************* Starting prune execution, {packageToPruneIds.Count()} packages marked for delete *******************************");
 
             foreach (string packageId in packageToPruneIds)
             {
@@ -78,20 +84,20 @@ namespace Tetrifact.Core
                     if (_settings.PruneDeletesEnabled) 
                     {
                         _indexReader.DeletePackage(packageId);
-                        _log.LogInformation($"Pruned package {packageId}");
+                        _log.Status(this, $"Pruned package {packageId}");
                     }
                     else 
                     {
-                        _log.LogInformation($"Would have pruned package {packageId} (PruneDeletesEnabled is false)");
+                        _log.Status(this, $"Would have pruned package {packageId} (PruneDeletesEnabled is false)");
                     }
                 } 
                 catch (Exception ex)
                 {
-                    _log.LogError($"Prune failed for package {packageId} {ex}");
+                    _log.Status(this, $"Prune failed for package {packageId} {ex}");
                 }
             }
 
-            _log.LogInformation("*************************************** Finished prune execution. **************************************************************************");
+            _log.Status(this, "*************************************** Finished prune execution. **************************************************************************");
 
             return report;
         }
@@ -120,7 +126,7 @@ namespace Tetrifact.Core
 
                 if (manifest == null)
                 {
-                    _log.LogWarning($"Expected manifest for package {packageId} was not found, skipping.");
+                    _log.Warn(this, $"Expected manifest for package {packageId} was not found, skipping.");
                     continue;
                 }
 

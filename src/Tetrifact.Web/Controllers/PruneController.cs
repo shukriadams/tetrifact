@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -13,7 +14,7 @@ namespace Tetrifact.Web
         
         private readonly IPruneServiceFactory _serviceFactory;
 
-        private readonly ILogger<PruneController> _log;
+        private readonly ILoggger _log;
 
         private readonly ISettings _settings;
         
@@ -21,7 +22,10 @@ namespace Tetrifact.Web
         
         #region CTORS
         
-        public PruneController(IPruneServiceFactory serviceFactory, ISettings settings, ILogger<PruneController> log)
+        public PruneController(
+            IPruneServiceFactory serviceFactory, 
+            ISettings settings, 
+            ILoggger log)
         {
             _serviceFactory = serviceFactory;
             _log = log;
@@ -46,7 +50,7 @@ namespace Tetrifact.Web
                 if (!_settings.EnablePruneViaController)
                     return Responses.NoPermission();
                 
-                _log.LogInformation("Starting clean from controller");
+                _log.Status(this, "Starting clean from controller");
                 IPruneService pruneService = _serviceFactory.Create();
                 PrunePlan prunePlan = pruneService.Prune();
 
@@ -60,7 +64,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError(ex.Message);
             }
         }

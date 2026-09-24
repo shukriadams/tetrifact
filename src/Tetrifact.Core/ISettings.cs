@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Compression;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Core
 {
@@ -272,6 +272,6 @@ namespace Tetrifact.Core
         /// <summary>
         /// Log verbosity level.
         /// </summary>
-        Microsoft.Extensions.Logging.LogLevel LogLevel { get; set; }
+        LogLevel LogLevel { get; set; }
     }
 }

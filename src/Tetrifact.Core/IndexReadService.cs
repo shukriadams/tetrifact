@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Core
 {
@@ -17,7 +17,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IIndexReadService> _log;
+        private readonly ILoggger _log;
 
         private readonly ITagsService _tagService;
 
@@ -31,7 +31,13 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public IndexReadService(ISettings settings, IMemoryCache cache, ITagsService tagService, ILogger<IIndexReadService> log, IFileSystem fileSystem, IHashService hashService)
+        public IndexReadService(
+            ISettings settings, 
+            IMemoryCache cache, 
+            ITagsService tagService, 
+            ILoggger log, 
+            IFileSystem fileSystem, 
+            IHashService hashService)
         {
             _settings = settings;
             _tagService = tagService;
@@ -56,12 +62,12 @@ namespace Tetrifact.Core
                     }
                     catch (Exception ex)
                     {
-                        _log.LogWarning($"Error attempting to purge TempPath on app start, ignoring. {ex}");
+                        _log.Warn(this, $"Error attempting to purge TempPath on app start, ignoring.", ex);
                     }
             }
             else
             {
-                _log.LogInformation("Temp dir wipe disabled, skipping");
+                _log.Status(this, "Temp dir wipe disabled, skipping");
             }
 
             // force recreate all again
@@ -191,7 +197,7 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.");
+                _log.Error(this, $"Unexpected error trying to parse JSON from manifest @ {filePath}. File is likely corrupt.", ex);
                 return null;
             }
         }
@@ -286,7 +292,7 @@ namespace Tetrifact.Core
                 catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _log.LogError($"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _log.Error(this, $"Failed to purge archive {archivePath}, assuming in use. Will attempt delete on next pass.", ex);
                 }
             }
 
@@ -301,11 +307,11 @@ namespace Tetrifact.Core
                 catch (IOException ex)
                 {
                     // ignore these, file is being downloaded, it will eventually be nuked by routine cleanup
-                    _log.LogWarning($"Failed to delete tag {tagFile}, assuming in use. Will attempt delete on next pass. ${ex}");
+                    _log.Warn(this, $"Failed to delete tag {tagFile}, assuming in use. Will attempt delete on next pass.", ex);
                 }
             }
 
-            _log.LogWarning($"Deleted package {packageId}");
+            _log.Warn(this, $"Deleted package {packageId}");
 
         }
 
@@ -346,7 +352,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // give exception more context, AsParallel should pass exception back up to waiting parenting thread
-                    _log.LogError($"Error looking up existing repo file {repositoryPathDir} {file} {ex}");
+                    _log.Error(this, $"Error looking up existing repo file {repositoryPathDir} {file}", ex);
                     errors = true;
                 }
             });

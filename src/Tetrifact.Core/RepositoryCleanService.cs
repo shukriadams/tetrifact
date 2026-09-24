@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Core
 {
@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IRepositoryCleanService> _log;
+        private readonly ILoggger _log;
 
         private readonly IIndexReadService _indexReader;
 
@@ -48,7 +48,14 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public RepositoryCleanService(IIndexReadService indexReader, IMemoryCache cache, IProcessManagerFactory processManagerFactory, ISettings settings, IDirectory directoryFileSystem, IFile fileFileSystem, ILogger<IRepositoryCleanService> log)
+        public RepositoryCleanService(
+            IIndexReadService indexReader, 
+            IMemoryCache cache, 
+            IProcessManagerFactory processManagerFactory, 
+            ISettings settings, 
+            IDirectory directoryFileSystem, 
+            IFile fileFileSystem, 
+            ILoggger log)
         {
             _settings = settings;
             _directoryFileSystem = directoryFileSystem;
@@ -94,7 +101,7 @@ namespace Tetrifact.Core
 
                 _repositoryLocks.AddUnique(_processUID, false);
 
-                _log.LogInformation($"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
+                _log.Status(this, $"CLEANUP started, {_existingPackageIds.Count()} package(s) present.");
 
                 this.LockPasses = 0;
                 this.Clean_Internal(_settings.RepositoryPath, false);
@@ -112,7 +119,7 @@ namespace Tetrifact.Core
             { 
                 if (ex.Message.StartsWith("System currently locked"))
                 {
-                    _log.LogInformation("Clean aborted, lock detected");
+                    _log.Status(this, "Clean aborted, lock detected");
                     IEnumerable<ProcessItem> locks = _repositoryLocks.GetAll();
                     return new CleanResult{
                         Cleaned = _cleaned, 
@@ -168,7 +175,7 @@ namespace Tetrifact.Core
             }
             catch (IOException ex)
             {
-                _log.LogError($"Failed to read content of directory {currentDirectory} {ex}");
+                _log.Error(this, $"Failed to read content of directory {currentDirectory}", ex);
                 _failed.Add(currentDirectory);
                 // if we can't read the files or directories in the current path, skip it and try to clean up other paths
                 return;
@@ -177,7 +184,7 @@ namespace Tetrifact.Core
             // file @ hash can be reserved for incoming partial uploads
             if (_cache.Get($"{currentDirectory}::LOOKUP_RESERVE::") != null)
             {
-                _log.LogInformation($"Skipping clean for {currentDirectory}, lookup reserve detected.");
+                _log.Status(this, $"Skipping clean for {currentDirectory}, lookup reserve detected.");
                 return;
             }
 
@@ -190,11 +197,11 @@ namespace Tetrifact.Core
                     EnsureNoLock();
                     _directoryFileSystem.Delete(currentDirectory, true);
                     _cleaned.Add(currentDirectory);
-                    _log.LogWarning($"CLEANUP : deleted directory {currentDirectory}, no children.");
+                    _log.Warn(this, $"CLEANUP : deleted directory {currentDirectory}, no children.");
                 }
                 catch (IOException ex)
                 {
-                    _log.LogError($"ERROR : Failed to delete directory {currentDirectory} {ex}");
+                    _log.Error(this, $"ERROR : Failed to delete directory {currentDirectory}", ex);
                     _failed.Add(currentDirectory);
                 }
             }
@@ -215,11 +222,11 @@ namespace Tetrifact.Core
                                 EnsureNoLock();
                                 _fileFilesystem.Delete(file);
                                 _cleaned.Add(file);
-                                _log.LogWarning($"CLEANUP : deleted file {file}, package not found.");
+                                _log.Warn(this, $"CLEANUP : deleted file {file}, package not found.");
                             }
                             catch (IOException ex)
                             {
-                                _log.LogError($"ERROR : Failed to delete file {file} {ex}");
+                                _log.Error(this, $"ERROR : Failed to delete file {file}", ex);
                                 _failed.Add(file);
                             }
                         }
@@ -249,11 +256,11 @@ namespace Tetrifact.Core
                         EnsureNoLock();
                         _directoryFileSystem.Delete(currentDirectory, true);
                         _cleaned.Add(currentDirectory);
-                        _log.LogWarning($"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
+                        _log.Warn(this, $"CLEANUP : deleted package directory {currentDirectory}, not associated with any packages.");
                     }
                     catch (IOException ex)
                     {
-                        _log.LogError($"ERROR deleting bin file file {currentDirectory} {ex}");
+                        _log.Error(this, $"ERROR deleting bin file file {currentDirectory}", ex);
                         _failed.Add(currentDirectory);
                     }
 

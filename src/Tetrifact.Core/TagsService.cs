@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<ITagsService> _log;
+        private readonly ILoggger _log;
 
         private readonly IPackageListCache _packageListCache;
 
@@ -32,7 +32,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public TagsService(ISettings settings, IMemoryCache cache, IFileSystem fileSystem, ILogger<ITagsService> log, IPackageListCache packageListCache)
+        public TagsService(
+            ISettings settings, 
+            IMemoryCache cache, 
+            IFileSystem fileSystem, 
+            ILoggger log, 
+            IPackageListCache packageListCache)
         {
             _settings = settings;
             _log = log;
@@ -99,7 +104,7 @@ namespace Tetrifact.Core
                     catch (InvalidFileIdentifierException)
                     {
                         // log invalid tag folders, and continue.
-                        _log.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
+                        _log.Error(this, $"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
                     }
                 }
 
@@ -136,7 +141,7 @@ namespace Tetrifact.Core
                     catch (InvalidFileIdentifierException)
                     {
                         // log invalid tag folders, and continue.
-                        _log.LogError($"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
+                        _log.Error(this, $"The tag \"{rawTag}\" is not a valid base64 string. This node in the tags folder should be pruned out.");
                     }
                 }
 

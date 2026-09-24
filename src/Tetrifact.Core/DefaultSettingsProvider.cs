@@ -82,6 +82,7 @@ namespace Tetrifact.Core
                     {
                         IDeserializer deserializer = YmlHelper.GetDeserializer();
                         _settings = deserializer.Deserialize<Settings>(ymlTextContent);
+                        // write directly to console, do not use logger here
                         Console.WriteLine($"Config loaded from file at {_settings.SettingsPath}.");
                     }
                 }

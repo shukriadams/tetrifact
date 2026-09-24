@@ -52,3 +52,4 @@ utils/server-shim/v1/packages
 utils/server-shim/v1/packages.json
 .env
 src/Tetrifact.Core/porter
+src/Tetrifact.Tests/porter/

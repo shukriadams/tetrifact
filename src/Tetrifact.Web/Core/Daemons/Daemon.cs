@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Cronos;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -18,11 +18,11 @@ namespace Tetrifact.Web
 
         private DateTime _lastRun;
 
-        private ILogger<Daemon> _log;
+        private ILoggger _log;
         
         private Thread _thread;
 
-        public Daemon(ILogger<Daemon> log)
+        public Daemon(ILoggger log)
         {
             _log = log;
             _running = true;
@@ -48,7 +48,7 @@ namespace Tetrifact.Web
                     }
                     catch(Exception ex)
                     { 
-                        _log.LogError(ex, $"Unhandled daemon exception from {work.Method.DeclaringType.Name}");
+                        _log.Error(this, $"Unhandled daemon exception from {work.Method.DeclaringType.Name}", ex);
                     }
                     finally
                     {
@@ -88,7 +88,7 @@ namespace Tetrifact.Web
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError(ex, $"Unhandled daemon exception from {work.Method.DeclaringType.Name}");
+                        _log.Error(this, $"Unhandled daemon exception from {work.Method.DeclaringType.Name}", ex);
                     }
                     finally
                     {

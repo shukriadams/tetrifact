@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -15,7 +15,7 @@ namespace Tetrifact.Web
 
         private readonly IArchiveService _archiveService;
 
-        private readonly ILogger<CleanerCron> _log;
+        private readonly ILoggger _log;
         
         private readonly IDaemon _daemonrunner;
 
@@ -25,7 +25,11 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public CleanerCron(ISettings settings, IDaemon daemonrunner, IArchiveService archiveService, ILogger<CleanerCron> log)
+        public CleanerCron(
+            ISettings settings, 
+            IDaemon daemonrunner, 
+            IArchiveService archiveService, 
+            ILoggger log)
         {
             _settings = settings;
             _archiveService = archiveService;
@@ -40,10 +44,10 @@ namespace Tetrifact.Web
         public override void Start()
         {
             if (string.IsNullOrEmpty(_settings.CleanCronMask))
-                _log.LogInformation("Clean mask empty, cleaner daemon disabled.");
+                _log.Status(this, "Clean mask empty, cleaner daemon disabled.");
             else
             {
-                _log.LogInformation("Starting cleaner daemon");
+                _log.Status(this, "Starting cleaner daemon");
                 _daemonrunner.Start(_settings.CleanCronMask, new DaemonWorkMethod(this.Work));
             }
         }
@@ -60,14 +64,14 @@ namespace Tetrifact.Web
         {
             try
             {
-                _log.LogInformation("Starting clean from daemon");
+                _log.Status(this, "Starting clean from daemon");
                 SimpleDI di = new SimpleDI();
                 IRepositoryCleanService cleanService = di.Resolve<IRepositoryCleanService>();
                 cleanService.Clean();
             }
             catch (Exception ex)
             {
-                _log.LogError($"Daemon repository clean error {ex}");
+                _log.Error(this, $"Daemon repository clean error", ex);
             }
 
             try
@@ -76,7 +80,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError($"Daemon Purge archives error {ex}");
+                _log.Error(this, $"Daemon Purge archives error", ex);
             }
         }
 

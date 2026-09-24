@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 
@@ -8,7 +8,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ILogger<CleanerCron> _log;
+        private readonly ILoggger _log;
 
         private readonly IProcessManagerFactory _processManagerFactory;
 
@@ -20,7 +20,11 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public ProcessManagerCron(ISettings settings, IDaemon daemonrunner, IProcessManagerFactory processManagerFactory, ILogger<CleanerCron> log)
+        public ProcessManagerCron(
+            ISettings settings, 
+            IDaemon daemonrunner, 
+            IProcessManagerFactory processManagerFactory, 
+            ILoggger log)
         {
             _settings = settings;
             _processManagerFactory = processManagerFactory;
@@ -35,10 +39,10 @@ namespace Tetrifact.Web
         public override void Start()
         {
             if (string.IsNullOrEmpty(_settings.CleanCronMask))
-                _log.LogInformation("Clean mask empty, cleaner daemon disabled.");
+                _log.Status(this, "Clean mask empty, cleaner daemon disabled.");
             else
             {
-                _log.LogInformation("Starting cleaner daemon");
+                _log.Status(this, "Starting cleaner daemon");
                 _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
             }
         }

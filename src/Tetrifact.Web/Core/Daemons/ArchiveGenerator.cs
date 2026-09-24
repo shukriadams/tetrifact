@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 
@@ -8,7 +8,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ILogger<ArchiveGenerator> _log;
+        private readonly ILoggger _log;
         
         private readonly IDaemon _daemonrunner;
 
@@ -19,7 +19,10 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public ArchiveGenerator(IDaemon daemonrunner, IArchiveService archiveService, ILogger<ArchiveGenerator> log)
+        public ArchiveGenerator(
+            IDaemon daemonrunner, 
+            IArchiveService archiveService, 
+            ILoggger log)
         {
             _archiveService = archiveService;
             _daemonrunner = daemonrunner;
@@ -32,7 +35,7 @@ namespace Tetrifact.Web
 
         public override void Start()
         {
-            _log.LogInformation("Starting archive generating daemon");
+            _log.Status(this, "Starting archive generating daemon");
             _daemonrunner.Start(1000, new DaemonWorkMethod(this.Work));
         }
 

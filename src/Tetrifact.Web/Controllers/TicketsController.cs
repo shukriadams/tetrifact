@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -11,7 +11,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private readonly ILogger<ArchivesController> _log;
+        private readonly ILoggger _log;
 
         private readonly IProcessManager _ticketManager;
 
@@ -28,7 +28,10 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public TicketsController(ISettings settings, IProcessManagerFactory processManagerFactory, ILogger<ArchivesController> log)
+        public TicketsController(
+            ISettings settings, 
+            IProcessManagerFactory processManagerFactory, 
+            ILoggger log)
         {
             _settings = settings;
             _ticketManager = processManagerFactory.GetInstance(ProcessManagerContext.ArchiveTickets);
@@ -94,7 +97,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -128,7 +131,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, $"Unexpected error removing ticket {ticket}");
+                _log.Error(this, $"Unexpected error removing ticket {ticket}", ex);
             }
 
             return new JsonResult(new
@@ -137,7 +140,9 @@ namespace Tetrifact.Web
                     description = "Ticket removal failed. Check logs."
                 }
             })
-            { StatusCode = 500 };
+            { 
+                StatusCode = 500 
+            };
 
         }
 

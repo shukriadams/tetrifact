@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -12,7 +12,8 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly IMetricsService _metricsService;
-        private readonly ILogger<MetricsController> _log;
+
+        private readonly ILoggger _log;
 
         #endregion
 
@@ -23,7 +24,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tagsService"></param>
         /// <param name="log"></param>
-        public MetricsController(IMetricsService metricsService, ILogger<MetricsController> log)
+        public MetricsController(
+            IMetricsService metricsService, 
+            ILoggger log)
         {
             _metricsService = metricsService;
             _log = log;
@@ -48,12 +51,12 @@ namespace Tetrifact.Web
             }
             catch (MetricsStaleException ex) 
             {
-                _log.LogError(ex, "Failed to get current influx metrics.");
+                _log.Error(this, "Failed to get current influx metrics.", ex);
                 return Responses.UnexpectedError($"Metrics retrievail failed : {ex}. You can check logs for additional information.");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }

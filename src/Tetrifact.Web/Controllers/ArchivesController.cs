@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -22,7 +22,7 @@ namespace Tetrifact.Web
 
         private readonly IIndexReadService _indexReader;
 
-        private readonly ILogger<ArchivesController> _log;
+        private readonly ILoggger _log;
 
         private readonly IFileSystem _fileSystem;
 
@@ -45,7 +45,14 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public ArchivesController(IArchiveService archiveService, IMemoryCache cache, IQueueHandler queueHandler, IProcessManagerFactory processManagerFactory, IFileSystem fileSystem, IIndexReadService indexReader, ILogger<ArchivesController> log)
+        public ArchivesController(
+            IArchiveService archiveService, 
+            IMemoryCache cache, 
+            IQueueHandler queueHandler, 
+            IProcessManagerFactory processManagerFactory, 
+            IFileSystem fileSystem, 
+            IIndexReadService indexReader, 
+            ILoggger log)
         {
             _cache = cache;
             _queueHandler = queueHandler;
@@ -73,12 +80,12 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package \"{packageId}\" not found", 1);
                 return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -131,16 +138,16 @@ namespace Tetrifact.Web
                 QueueResponse queueResponse = _queueHandler.ProcessRequest(address, waiver);
                 if (queueResponse.Status == QueueStatus.Deny)
                 {
-                    _log.LogInformation($"archive request rejected for ip {address}, reason : {queueResponse.Reason}.");
+                    _log.Status(this, $"archive request rejected for ip {address}, reason : {queueResponse.Reason}.");
                     return Responses.NoTicket();
                 }
 
                 if (queueResponse.Status == QueueStatus.Pass && queueResponse.Reason == "waiver")
-                    _log.LogInformation($"waived queue for ip {address} based on ip or waiver string {waiver}");
+                    _log.Status(this, $"waived queue for ip {address} based on ip or waiver string {waiver}", 1);
 
                 if (queueResponse.Status == QueueStatus.Wait)
                 {
-                    _log.LogInformation($"Queued ip {address} forced to wait, position {queueResponse.QueueLength}.");
+                    _log.Status(this, $"Queued ip {address} forced to wait, position {queueResponse.QueueLength}.", 1);
                     return Responses.QueueFull(queueResponse.QueueLength); // refactor this
                 }
 
@@ -190,7 +197,9 @@ namespace Tetrifact.Web
                 };
 
                 _activeDownloadsTracker.AddUnique(address, new TimeSpan(0, 10, 0), true, $"IP:{address}, package:{packageId}, range:{range}");
-                _log.LogInformation($"Serving archive for package \"{packageId}\" to IP:\"{address}\" range:\"{range}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}.");
+
+                _log.Status(this, $"Serving archive for package \"{packageId}\"", 1); 
+                _log.Status(this, $"Serverd to IP:\"{address}\" range:\"{range}\" {ticketLog}, queue reason:{queueResponse.Reason}, queue size {totalTicketCount}, active download count is {_activeDownloadsTracker.Count()}", 2);
 
                 return File(
                     progressableStream, 
@@ -200,12 +209,12 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package {packageId} not found", 1);
                 return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -260,12 +269,12 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package {packageId} not found", 1);
                 return Responses.NotFoundError(this, packageId);
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Unexpected error");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,10 +15,15 @@ namespace Tetrifact.Core
         private readonly ISettings _settings;
         private readonly IFileSystem _fileSystem;
         private readonly IIndexReadService _indexReader;
-        private readonly ILogger<IPackageDiffService> _log;
+        private readonly ILoggger _log;
         private readonly IMemoryCache _cache;
 
-        public PackageDiffService(ISettings settings, IFileSystem filesystem, IIndexReadService indexReader, IMemoryCache cache, ILogger<IPackageDiffService> log)
+        public PackageDiffService(
+            ISettings settings, 
+            IFileSystem filesystem, 
+            IIndexReadService indexReader, 
+            IMemoryCache cache, 
+            ILoggger log)
         {
             _settings = settings;
             _fileSystem = filesystem;
@@ -43,7 +48,7 @@ namespace Tetrifact.Core
             {
                 if (alertDefer)
                 {
-                    _log.LogInformation($"Diff already in progress for {cacheKey}, waiting until done");
+                    _log.Status(this, $"Diff already in progress for {cacheKey}, waiting until done");
                     alertDefer = false;
                 }
 
@@ -77,7 +82,7 @@ namespace Tetrifact.Core
                 {
                     _cache.Set(cacheKey, new object());
 
-                    _log.LogInformation($"Generating diff between \"{upstreamPackageId}\" and \"{downstreamPackageId}\".");
+                    _log.Status(this, $"Generating diff between \"{upstreamPackageId}\" and \"{downstreamPackageId}\".");
 
                     Manifest downstreamPackage = _indexReader.GetExpectedManifest(downstreamPackageId);
                     Manifest upstreamPackage = _indexReader.GetExpectedManifest(upstreamPackageId);
@@ -110,7 +115,7 @@ namespace Tetrifact.Core
                         Difference = diffs.GroupBy(p => p.Path).Select(p => p.First()).ToList() // get distinct by path
                     };
 
-                    _log.LogInformation($"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
+                    _log.Status(this, $"Generated diff for upstream {upstreamPackageId} and downstream {downstreamPackageId}, tool {(DateTime.UtcNow - start).TotalSeconds} seconds");
 
                     try
                     {

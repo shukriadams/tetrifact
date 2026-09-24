@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System;
 using System.IO;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace Tetrifact.Core
 
         private ISettings _settings;
 
-        private ILogger<IMetricsService> _log;
+        private ILoggger _log;
 
         private ISystemCallsService _systemCallsService;
 
@@ -24,7 +24,10 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public MetricsService(ISystemCallsService systemCallsService, ISettings settings, ILogger<IMetricsService> log) 
+        public MetricsService(
+            ISystemCallsService systemCallsService, 
+            ISettings settings, 
+            ILoggger log) 
         {
             _settings = settings;
             _systemCallsService = systemCallsService;
@@ -51,7 +54,7 @@ namespace Tetrifact.Core
                 catch (Exception ex)
                 {
                     // if we reach here, last_run is corrupt, force delete
-                    _log.LogError($"last_run for metrics generation is corrupt, attempting hard wipe of file {ex}");
+                    _log.Error(this, $"last_run for metrics generation is corrupt, attempting hard wipe of file", ex);
 
                     try 
                     {
@@ -59,8 +62,8 @@ namespace Tetrifact.Core
                     } 
                     catch(Exception fataException)
                     { 
-                        // if we reach here, we can't delete the corrupt last_run error, this should never happen and we should ideally force an app shutdown.
-                        // This error will however be thrown within the dae
+                        // if we reach here, we can't delete the corrupt last_run error, 
+                        // this should never happen and we should ideally force an app shutdown.
                         throw new FatalException($"Fatal error - failed to delete corrupt last_run file :", fataException);
                     }
                 }
@@ -82,13 +85,13 @@ namespace Tetrifact.Core
 
             if (result.ExitCode != 0 || result.StdErr.Count() != 0)
             {
-                _log.LogError($"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
+                _log.Error(this, $"Repo file count failed, exit code {result.ExitCode}, stderr {string.Join(",", result.StdErr)}");
             }
             else 
             {
                 string incomingFileCount = string.Join("", result.StdOut);
                 if (!long.TryParse(incomingFileCount, out respositoryFileCount))
-                    _log.LogError($"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
+                    _log.Error(this, $"Repo file count failed, count result \"{incomingFileCount}\" is not a valid long");
             }
 
             s.AppendLine($"tetrifact repository_files_count={respositoryFileCount}u");
@@ -96,7 +99,9 @@ namespace Tetrifact.Core
 
             long respositoryFileSize = 0;
             /*       
-             *       disabled, extremely slow on systems with a lot of files
+             *       Disabled, extremely slow on systems with a lot of files, on ZFS with 400 million files
+                     this section will fail to exit after hours
+
             result = _systemCallsService.GetRepoFilesSize();
 
             if (result.ExitCode != 0 || result.StdErr.Count() != 0)
@@ -127,7 +132,7 @@ namespace Tetrifact.Core
             File.WriteAllText(Path.Join(_settings.MetricsPath, "influx"), s.ToString());
             File.WriteAllText(lastRunPath, DateTime.UtcNow.ToString());
 
-            _log.LogInformation("Generated metrics");
+            _log.Status(this, "Generated metrics", 1);
         }
 
         public string GetInfluxMetrics() 
@@ -157,7 +162,7 @@ namespace Tetrifact.Core
                 if (ex is MetricsStaleException)
                     throw;
 
-                _log.LogError($"Unexpected error on influx metrics get {ex}");
+                _log.Error(this, ex);
                 throw new MetricsStaleException("An unexpected error occurred attempting to retrieve influx metrics. See logs for details.");
             }
         }

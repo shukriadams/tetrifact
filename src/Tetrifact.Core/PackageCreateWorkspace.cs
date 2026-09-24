@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly ISettings _settings;
 
-        private readonly ILogger<IPackageCreateWorkspace> _log;
+        private readonly ILoggger _log;
 
         private readonly IHashService _hashService;
 
@@ -34,7 +34,12 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateWorkspace(ISettings settings, IIndexReadService indexReadService, IFileSystem filesystem, ILogger<IPackageCreateWorkspace> log, IHashService hashService)
+        public PackageCreateWorkspace(
+            ISettings settings, 
+            IIndexReadService indexReadService, 
+            IFileSystem filesystem, 
+            ILoggger log, 
+            IHashService hashService)
         {
             _indexReadService = indexReadService;
             _settings = settings;
@@ -184,7 +189,7 @@ namespace Tetrifact.Core
             }
             catch (IOException ex)
             {
-                _log.LogWarning($"Failed to delete temp folder {this.WorkspacePath}", ex);
+                _log.Warn(this, $"Failed to delete temp folder {this.WorkspacePath}", ex);
             }
         }
 

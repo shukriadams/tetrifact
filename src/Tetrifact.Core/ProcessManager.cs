@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly Dictionary<string, ProcessItem> _items = new Dictionary<string, ProcessItem>();
 
-        private readonly ILogger<IProcessManager> _log;
+        private readonly ILoggger _log;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ProcessManager(ILogger<IProcessManager> log) 
+        public ProcessManager(ILoggger log) 
         {
             _log = log;
         }
@@ -84,7 +84,7 @@ namespace Tetrifact.Core
                 };
 
                 _items.Add(key, item);
-                _log.LogInformation($"Created process, id {key}, no lifespan limit, {typeof(ProcessManager).Name}:{this.Context}.");
+                _log.Status(this, $"Created process, id {key}, no lifespan limit, {typeof(ProcessManager).Name}:{this.Context}.");
                 return item;
 
             }
@@ -113,7 +113,7 @@ namespace Tetrifact.Core
 
                 _items.Add(key, item);
 
-                _log.LogInformation($"Created process, id {key}, metadata {metadata}, forced lifespan {timespan}, {typeof(ProcessManager).Name}:{this.Context}.");
+                _log.Status(this, $"Created process, id {key}, metadata {metadata}, forced lifespan {timespan}, {typeof(ProcessManager).Name}:{this.Context}.");
 
                 return item;
             }
@@ -138,7 +138,7 @@ namespace Tetrifact.Core
 
                 string meta = _items[key].Metadata;
                 _items.Remove(key);
-                _log.LogInformation($"Cleared id {key}, meta:{meta}, from {typeof(ProcessManager).Name}:{this.Context}.");
+                _log.Status(this, $"Cleared id {key}, meta:{meta}, from {typeof(ProcessManager).Name}:{this.Context}.");
             }
         }
 
@@ -148,12 +148,12 @@ namespace Tetrifact.Core
             {
                 if (_items.Any()) 
                 {
-                    _log.LogInformation($"Force clearing {_items.Count} items : {string.Join(",", _items)}, {typeof(ProcessManager).Name}:{this.Context}.");
+                    _log.Status(this, $"Force clearing {_items.Count} items : {string.Join(",", _items)}, {typeof(ProcessManager).Name}:{this.Context}.");
                     _items.Clear();
                 }
                 else 
                 { 
-                    _log.LogInformation($"Force clearing, no processes found,{typeof(ProcessManager).Name}:{this.Context}.");
+                    _log.Status(this, $"Force clearing, no processes found,{typeof(ProcessManager).Name}:{this.Context}.");
                 }
             }
         }
@@ -194,7 +194,7 @@ namespace Tetrifact.Core
 
                     string meta = _items[key].Metadata;
                     _items.Remove(key);
-                    _log.LogInformation($"Process id {key}, meta{meta}, timed out and removed from {typeof(ProcessManager).Name}:{this.Context}.");
+                    _log.Status(this, $"Process id {key}, meta{meta}, timed out and removed from {typeof(ProcessManager).Name}:{this.Context}.");
                 }
             }
         }

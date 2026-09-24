@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Web;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -14,7 +14,7 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly ITagsService _tagsService;
-        private readonly ILogger<TagsController> _log;
+        private readonly ILoggger _log;
 
         #endregion
 
@@ -25,7 +25,9 @@ namespace Tetrifact.Web
         /// </summary>
         /// <param name="tagsService"></param>
         /// <param name="log"></param>
-        public TagsController(ITagsService tagsService, ILogger<TagsController> log)
+        public TagsController(
+            ITagsService tagsService, 
+            ILoggger log)
         {
             _tagsService = tagsService;
             _log = log;
@@ -56,7 +58,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -87,7 +89,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -117,14 +119,14 @@ namespace Tetrifact.Web
                     }
                 });
             }
-            catch (PackageNotFoundException ex)
+            catch (PackageNotFoundException)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package \"{packageId}\" not found");
                 return Responses.NotFoundError(this, $"Package {packageId} not found.");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -155,14 +157,14 @@ namespace Tetrifact.Web
                 });
 
             }
-            catch (PackageNotFoundException ex)
+            catch (PackageNotFoundException)
             {
-                _log.LogInformation($"{ex}");
-                return Responses.NotFoundError(this, $"Package {packageId} not found.");
+                _log.Status(this, $"Package \"{packageId}\" not found");
+                return Responses.NotFoundError(this, $"Package {packageId} not found");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }

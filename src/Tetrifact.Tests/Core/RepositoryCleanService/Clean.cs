@@ -211,7 +211,7 @@ namespace Tetrifact.Tests.repositoryCleaner
         {
             ISettings settings = _testContext.Instantiate<ISettings>();
             IFileSystem fileSystem = _testContext.Instantiate<IFileSystem>();
-            TestLogger<IRepositoryCleanService> repoCleanLog = new TestLogger<IRepositoryCleanService>();
+            TestLogger repoCleanLog = new TestLogger();
 
             // mock out GetAllPackageIds method to force throw exception
             IIndexReadService mockIndexReader = Mock.Of<IIndexReadService>();

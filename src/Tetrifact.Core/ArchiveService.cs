@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Tetrifact.Core
 
         private readonly IIndexReadService _indexReader;
 
-        private readonly ILogger<IArchiveService> _log;
+        private readonly ILoggger _log;
 
         private readonly IFileSystem _fileSystem;
 
@@ -34,7 +34,15 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public ArchiveService(IIndexReadService indexReader, IMemoryCache cache, IFileStreamProvider fileStreamProvider, IStorageService storageService, IProcessManagerFactory processManagerFactory, IFileSystem fileSystem, ILogger<IArchiveService> log, ISettings settings)
+        public ArchiveService(
+            IIndexReadService indexReader, 
+            IMemoryCache cache, 
+            IFileStreamProvider fileStreamProvider, 
+            IStorageService storageService, 
+            IProcessManagerFactory processManagerFactory, 
+            IFileSystem fileSystem, 
+            ILoggger log, 
+            ISettings settings)
         {
             _settings = settings;
             _cache = cache;
@@ -106,7 +114,7 @@ namespace Tetrifact.Core
             };
 
             _cache.Set(this.GetArchiveProgressKey(packageId), progress, new DateTimeOffset(DateTime.UtcNow.AddYears(1))); // don't let progress expire
-            _log.LogInformation($"Queued archive creation for package \"{packageId}\".");
+            _log.Status(this, $"Queued archive creation for package \"{packageId}\".");
         }
 
         public virtual Stream GetPackageAsArchive(string packageId)
@@ -177,7 +185,7 @@ namespace Tetrifact.Core
                 if (_archiveProcesses.HasKey(archive))
                 {
                     // ignore these, file might be in use, in which case we'll try to delete it next purge
-                    _log.LogWarning($"Failed to purge archive {archive}, assuming in use. Will attempt delete on next pass.");
+                    _log.Warn(this, $"Failed to purge archive {archive}, assuming in use. Will attempt delete on next pass.");
                     continue;
                 }
 
@@ -187,7 +195,7 @@ namespace Tetrifact.Core
                 }
                 catch (Exception ex)
                 {
-                    _log.LogWarning($"Failed to purge archive {archive}, assuming in use. Will attempt delete on next pass. {ex}");
+                    _log.Warn(this, $"Failed to purge archive {archive}, assuming in use. Will attempt delete on next pass. {ex}");
                 }
             }
         }
@@ -201,7 +209,7 @@ namespace Tetrifact.Core
             int percent = 0;
             string progressCacheKey = this.GetArchiveProgressKey(packageId);
 
-            _log.LogInformation($"Starting archive generation for package \"{packageId}\". Type: .Net compression. Rate : {_settings.ArchiveCompression}.");
+            _log.Status(this, $"Starting archive generation for package \"{packageId}\". Type: .Net compression. Rate : {_settings.ArchiveCompression}.", 0);
 
             // static progress handler, this calculates percentage from tick events returned by zip 
             ProgressEvent progressEvent = (long delta, long localTotal) => {
@@ -250,14 +258,14 @@ namespace Tetrifact.Core
                                 await copy.Work();
                             }
 
-                            _log.LogDebug($"Added file \"{file.Path}\" to archive for package \"{packageId}\"");
+                            _log.Debug(this, $"Added file \"{file.Path}\" to archive for package \"{packageId}\"");
                         }
                     }
                 }
             }
 
             TimeSpan compressTaken = DateTime.Now - compressStart;
-            _log.LogInformation($"Archive compression with default DotNet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
+            _log.Status(this, $"Archive compression with default DotNet ZipArchive complete, took {Math.Round(compressTaken.TotalSeconds, 0)} seconds.");
         }
 
         public async Task CreateNextQueuedArchive() 
@@ -270,7 +278,7 @@ namespace Tetrifact.Core
             if (queuedFile == null)
                 return;
 
-            _log.LogInformation($"Processing archive generation for \"{queuedFile}\".");
+            _log.Status(this, $"Processing archive generation for \"{queuedFile}\".");
             string queueFileContent = string.Empty;
 
             try
@@ -280,14 +288,15 @@ namespace Tetrifact.Core
             }
             catch (Exception ex)
             {
-                _log.LogError($"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Error is: {ex}. Force deleting queued file.");
+                _log.Error(this, $"Corrupt queue file {queuedFile}, content is \n\n{queueFileContent}\n\n. Force deleting queued file.", ex);
+
                 try
                 {
                     _fileSystem.File.Delete(queuedFile);
                 }
                 catch (Exception ex2)
                 {
-                    _log.LogError($"Failed to delete corrupt queue file {queuedFile}. Error is: {ex2}.");
+                    _log.Error(this, $"Failed to delete corrupt queue file {queuedFile}.", ex2);
                 }
                 return;
             }
@@ -335,7 +344,7 @@ namespace Tetrifact.Core
             // archive generation must have failed, and we can proceed to restart archive creation. This is crude but effective.
             if (_archiveProcesses.HasKey(archivePathTemp))
             {
-                _log.LogInformation($"Archive generation for package {packageId} skipped, existing process detected");
+                _log.Status(this, $"Archive generation for package {packageId} skipped, existing process detected");
                 return;
             }
 
@@ -346,11 +355,11 @@ namespace Tetrifact.Core
                 // flip temp file to final path, it is ready for use only when this happens
                 _fileSystem.File.Move(archivePathTemp, archivePath);
                 TimeSpan totalTaken = DateTime.Now - totalStart;
-                _log.LogInformation($"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds.");
+                _log.Status(this, $"Archive generation : package {packageId} complete, total time {Math.Round(totalTaken.TotalSeconds, 0)} seconds.");
             }
             catch(Exception ex) 
             { 
-                _log.LogError($"Package archive for {packageId} failed unexpectedly with {ex}.");
+                _log.Error(this, $"Package archive for {packageId} failed unexpectedly.", ex);
             }
             finally
             {

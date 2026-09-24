@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -10,7 +10,7 @@ namespace Tetrifact.Web
     {
         #region FIELDS
 
-        private ILogger<MetricsCron> _log;
+        private ILoggger _log;
 
         private IMetricsService _metricsService;
         
@@ -22,7 +22,11 @@ namespace Tetrifact.Web
 
         #region CTORS
 
-        public MetricsCron(IMetricsService metricsService, ISettings settings, IDaemon daemonrunner, ILogger<MetricsCron> log) 
+        public MetricsCron(
+            IMetricsService metricsService, 
+            ISettings settings, 
+            IDaemon daemonrunner, 
+            ILoggger log) 
         {
             _settings = settings;
             _log = log;
@@ -37,10 +41,10 @@ namespace Tetrifact.Web
         public override void Start()
         {
             if (string.IsNullOrEmpty(_settings.MetricsCronMask))
-                _log.LogInformation("Metrics mask empty, metrics daemon disabled.");
+                _log.Status(this, "Metrics mask empty, metrics daemon disabled.");
             else
             {
-                _log.LogInformation("Starting metrics daemon");
+                _log.Status(this, "Starting metrics daemon");
                 _daemonrunner.Start(_settings.MetricsCronMask, new DaemonWorkMethod(this.Work));
             }
         }
@@ -59,11 +63,11 @@ namespace Tetrifact.Web
             catch (FatalException ex)
             {
                 // error has already been logged, go straight to shutdown
-                _log.LogError($"Fatal error - failed to delete corrupt last_run file : {ex}");
+                _log.Error(this, $"Fatal error - failed to delete corrupt last_run file", ex);
   }
             catch (Exception ex)
             {
-                _log.LogError($"Daemon metrics generated error {ex}");
+                _log.Error(this, $"Daemon metrics generated error", ex);
             }
         }
 

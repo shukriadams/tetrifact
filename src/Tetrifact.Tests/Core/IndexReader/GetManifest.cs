@@ -41,13 +41,13 @@ namespace Tetrifact.Tests.IndexReader
         public void GetEmpty()
         {
             IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>();
-            TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
+            TestLogger indexReaderLogger = new TestLogger();
 
             Manifest testManifest = indexReader.GetManifest("someinvalidpackage");
             Assert.Null(testManifest);
 
             // should not generate a log message
-            Assert.Empty(((TestLogger<IIndexReadService>)indexReaderLogger).LogEntries);
+            Assert.Empty(((TestLogger)indexReaderLogger).LogEntries);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Tetrifact.Tests.IndexReader
         [Fact]
         public void GetInvalidManifet()
         {
-            TestLogger<IIndexReadService> indexReaderLogger = new TestLogger<IIndexReadService>();
+            TestLogger indexReaderLogger = new TestLogger();
 
             IIndexReadService indexReader = _testContext.Instantiate<IIndexReadService>("log", indexReaderLogger);
             ISettings settings = _testContext.Instantiate<ISettings>();

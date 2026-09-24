@@ -20,7 +20,6 @@
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Ninject" Version="3.3.4" />
-    <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
     <PackageReference Include="xunit" Version="2.4.1" />

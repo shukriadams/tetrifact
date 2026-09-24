@@ -3,7 +3,6 @@ using Tetrifact.Core;
 using System.Linq;
 using System.Collections.Generic;
 using System;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 

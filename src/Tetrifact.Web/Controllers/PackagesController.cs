@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
-using Microsoft.Extensions.Logging;
 using Tetrifact.Core;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -24,7 +24,7 @@ namespace Tetrifact.Web
         #region FIELDS
 
         private readonly IIndexReadService _indexService;
-        private readonly ILogger<PackagesController> _log;
+        private readonly ILoggger _log;
         private readonly IPackageCreateService _packageCreateService;
         private readonly IPackageListService _packageList;
         private readonly ISettings _settings;
@@ -43,7 +43,14 @@ namespace Tetrifact.Web
         /// <param name="indexReadService"></param>
         /// <param name="settings"></param>
         /// <param name="log"></param>
-        public PackagesController(IPackageCreateService packageCreateService, IPackageListService packageListService, IPackageListCache packageListCache, IIndexReadService indexReadService, IPackageDiffService packageDiffService, ISettings settings, ILogger<PackagesController> log)
+        public PackagesController(
+            IPackageCreateService packageCreateService, 
+            IPackageListService packageListService, 
+            IPackageListCache packageListCache, 
+            IIndexReadService indexReadService, 
+            IPackageDiffService packageDiffService, 
+            ISettings settings, 
+            ILoggger log)
         {
             _packageList = packageListService;
             _packageCreateService = packageCreateService;
@@ -118,7 +125,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -138,7 +145,7 @@ namespace Tetrifact.Web
 
             try
             {
-                _log.LogInformation($"Controller:GetPackagesDiff:proc {procId}.{upstreamPackageId}_{downstreamPackageId}.Start");
+                _log.Status(this, $"GetPackagesDiff:proc {procId}.{upstreamPackageId}_{downstreamPackageId}.Start");
 
                 return new JsonResult(new
                 {
@@ -148,24 +155,24 @@ namespace Tetrifact.Web
                     }
                 });
             }
-            catch (InvalidDiffComparison ex)
-            {
-                _log.LogInformation($"{ex}");
-                return Responses.UnexpectedError($"Invalid comparison {ex.Message}.");
-            }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package \"{ex.PackageId}\" not found, requested up \"{upstreamPackageId}\", down \"{downstreamPackageId}\"");
                 return Responses.NotFoundError(this, $"Package {ex.PackageId} does not exist");
+            }
+            catch (InvalidDiffComparison ex)
+            {
+                _log.Warn(this, $"Invalid diff", ex);
+                return Responses.UnexpectedError($"Invalid comparison {ex.Message}.");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
             finally 
             {
-                _log.LogInformation($"Controller:GetPackagesDiff:proc {procId}.{upstreamPackageId}_{downstreamPackageId}.End");
+                _log.Status(this, $"GetPackagesDiff:proc {procId}.{upstreamPackageId}_{downstreamPackageId}.End");
             }
         }
 
@@ -192,7 +199,7 @@ namespace Tetrifact.Web
             } 
             catch(Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -211,7 +218,7 @@ namespace Tetrifact.Web
 
             try
             {
-                _log.LogInformation($"Controller:VerifyPackage:proc {procId}.{packageId}.Start");
+                _log.Status(this, $"VerifyPackage:proc {procId}.{packageId}.Start");
 
                 (bool, string) result = _indexService.VerifyPackage(packageId);
 
@@ -224,19 +231,19 @@ namespace Tetrifact.Web
                     }
                 });
             }
-            catch (PackageNotFoundException ex)
+            catch (PackageNotFoundException)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package \"{packageId}\" not found", 1);
                 return Responses.NotFoundError(this, $"Package {packageId} does not exist");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
             finally 
             {
-                _log.LogInformation($"Controller:VerifyPackage:proc {procId}.{packageId}.End");
+                _log.Status(this, $"VerifyPackage:proc {procId}.{packageId}.End");
             }
         }
 
@@ -266,7 +273,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -303,7 +310,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -330,9 +337,7 @@ namespace Tetrifact.Web
 
             try
             {
-                _log.LogInformation($"Controller:AddPackage:proc {procId}.{incomingPackage.Id}.Start");
-
-
+                _log.Status(this, $"Controller:AddPackage:proc {procId}.{incomingPackage.Id}.Start");
 
                 // attempt to parse incoming existing files
                 IEnumerable<ManifestItem> existingFiles = null;
@@ -400,12 +405,12 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
             finally 
             {
-                _log.LogInformation($"Controller:VerifyPackage:proc {procId}.{incomingPackage.Id}.End. Took {sw.Elapsed.TotalSeconds} seconds");
+                _log.Status(this, $"Proc {procId}.{incomingPackage.Id}. Took {sw.Elapsed.TotalSeconds} seconds");
             }
         }
 
@@ -435,12 +440,12 @@ namespace Tetrifact.Web
             }
             catch (PackageNotFoundException ex)
             {
-                _log.LogInformation($"{ex}");
+                _log.Status(this, $"Package \"{packageId}\" not found", 1);
                 return Responses.NotFoundError(this, $"Package ");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
@@ -484,7 +489,7 @@ namespace Tetrifact.Web
             } 
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Ninject;
 using Ninject.Activation;
 using Ninject.Parameters;
@@ -9,6 +8,7 @@ using System.IO;
 using System.IO.Abstractions;
 using Tetrifact.Core;
 using Tetrifact.Web;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using W = Tetrifact.Web;
 
 namespace Tetrifact.Tests
@@ -20,11 +20,11 @@ namespace Tetrifact.Tests
     {
         #region FIELDS
         
-        StandardKernel _kernel;
+        private StandardKernel _kernel;
 
-        ISettings _settings;
+        private ISettings _settings;
 
-        TestLogger<IRepositoryCleanService> _repositoryCleanServiceLog;
+        private TestLogger _repositoryCleanServiceLog;
 
         #endregion
         
@@ -39,14 +39,6 @@ namespace Tetrifact.Tests
         public TestContext()
         {
             _kernel = new StandardKernel();
-
-            var repositoryCleanServiceLogFactory = new Func<IContext, ILogger<IRepositoryCleanService>>(context =>
-            {
-                if (_repositoryCleanServiceLog == null)
-                    _repositoryCleanServiceLog = new TestLogger<IRepositoryCleanService>();
-
-                return _repositoryCleanServiceLog;
-            });
             
             var SettingsFactory = new Func<IContext, ISettings>(context =>
             {
@@ -84,6 +76,7 @@ namespace Tetrifact.Tests
                 return _settings;
             });
 
+            _kernel.Bind<ILoggger>().To<TestLogger>();
             _kernel.Bind<ISettings>().ToMethod(SettingsFactory).InSingletonScope();
             _kernel.Bind<IMemoryCache>().To<TestMemoryCache>();
             _kernel.Bind<IIndexReadService>().To<IndexReadService>();
@@ -125,30 +118,6 @@ namespace Tetrifact.Tests
             _kernel.Bind<IStorageService>().To<LocalStorageService>();
             _kernel.Bind<IPruneBracketProvider>().To<PruneBracketProvider>();
             _kernel.Bind<IQueueHandler>().To<QueueHandler>();
-
-            _kernel.Bind<ILogger<W.HomeController>>().To<TestLogger<W.HomeController>>();
-            _kernel.Bind<ILogger<W.PruneController>>().To<TestLogger<W.PruneController>>();
-            _kernel.Bind<ILogger<W.PackagesController>>().To<TestLogger<W.PackagesController>>();
-            _kernel.Bind<ILogger<W.CleanController>>().To<TestLogger<W.CleanController>>();
-            _kernel.Bind<ILogger<W.FilesController>>().To<TestLogger<W.FilesController>>();
-            _kernel.Bind<ILogger<W.ArchivesController>>().To<TestLogger<W.ArchivesController>>();
-            _kernel.Bind<ILogger<W.MetricsController>>().To<TestLogger<W.MetricsController>>();
-            _kernel.Bind<ILogger<W.ErrorsController>>().To<TestLogger<W.ErrorsController>>();
-            _kernel.Bind<ILogger<W.TagsController>>().To<TestLogger<W.TagsController>>();
-            _kernel.Bind<ILogger<IPackageCreateWorkspace>>().To<TestLogger<IPackageCreateWorkspace>>();
-            _kernel.Bind<ILogger<IMetricsService>>().To<TestLogger<IMetricsService>>();
-            _kernel.Bind<ILogger<ISystemCallsService>>().To<TestLogger<ISystemCallsService>>();
-            _kernel.Bind<ILogger<IPackageCreateService>>().To<TestLogger<IPackageCreateService>>();
-            _kernel.Bind<ILogger<IPackageDiffService>>().To<TestLogger<IPackageDiffService>>();
-            _kernel.Bind<ILogger<ITagsService>>().To<TestLogger<ITagsService>>();
-            _kernel.Bind<ILogger<IArchiveService>>().To<TestLogger<IArchiveService>>();
-            _kernel.Bind<ILogger<IPackageListService>>().To<TestLogger<IPackageListService>>();
-            _kernel.Bind<ILogger<IIndexReadService>>().To<TestLogger<IIndexReadService>>();
-            _kernel.Bind<ILogger<IPruneService>>().To<TestLogger<IPruneService>>();
-            _kernel.Bind<ILogger<IProcessManager>>().To<TestLogger<IProcessManager>>();
-            _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
-            _kernel.Bind<ILogger<W.IDaemon>>().To<TestLogger<W.IDaemon>>();
-            _kernel.Bind<ILogger<IRepositoryCleanService>>().ToMethod(repositoryCleanServiceLogFactory).InSingletonScope();
             
             // force wipe memcache at start of each test
             IMemoryCache memCach = _kernel.Get<IMemoryCache>();

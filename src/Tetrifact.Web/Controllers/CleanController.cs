@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -15,7 +15,7 @@ namespace Tetrifact.Web
 
         private readonly IRepositoryCleanServiceFactory _serviceFactory;
         
-        private readonly ILogger<CleanController> _log;
+        private readonly ILoggger _log;
 
         private readonly ISettings _settings;
 
@@ -30,7 +30,11 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public CleanController(IRepositoryCleanServiceFactory serviceFactory, ISettings settings, IArchiveService archiveService, ILogger<CleanController> log)
+        public CleanController(
+            IRepositoryCleanServiceFactory serviceFactory, 
+            ISettings settings, 
+            IArchiveService archiveService, 
+            ILoggger log)
         {
             _serviceFactory = serviceFactory;
             _archiveService = archiveService;
@@ -56,7 +60,7 @@ namespace Tetrifact.Web
                 if (!_settings.EnableCleanViaController)
                     return Responses.NoPermission();
                 
-                _log.LogInformation("Starting clean from controller");
+                _log.Status(this, "Starting clean from controller", 0);
                 IRepositoryCleanService repositoryCleaner = _serviceFactory.Create();
                 CleanResult cleaned = repositoryCleaner.Clean();
                 _archiveService.PurgeOldArchives();
@@ -76,7 +80,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError(ex.Message);
             }
         }

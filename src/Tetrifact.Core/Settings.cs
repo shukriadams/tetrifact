@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using Microsoft.Extensions.Logging;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Core
 {
@@ -115,7 +115,7 @@ namespace Tetrifact.Core
         
         public bool EnablePruneViaController { get; set; }
 
-        public Microsoft.Extensions.Logging.LogLevel LogLevel { get; set; }
+        public LogLevel LogLevel { get; set; }
         
         #endregion
 
@@ -142,7 +142,7 @@ namespace Tetrifact.Core
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
             this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
-            this.LogLevel = Microsoft.Extensions.Logging.LogLevel.Error;
+            this.LogLevel = LogLevel.Warn;
             this.IndexTagListLength = 20;
             this.MaximumArchivesToKeep = 10;
             this.MetricsCronMask = "0 4 * * *"; // once a day at 4 am

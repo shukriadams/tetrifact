@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Tetrifact.Core
 
         private readonly IPackageCreateWorkspace _workspace;
 
-        private readonly ILogger<IPackageCreateService> _log;
+        private readonly ILoggger _log;
 
         private readonly ISettings _settings;
 
@@ -28,7 +28,14 @@ namespace Tetrifact.Core
 
         #region CTORS
 
-        public PackageCreateService(IIndexReadService indexReader, IProcessManagerFactory processManagerFactory, IArchiveService archiveService, ISettings settings, ILogger<IPackageCreateService> log, IPackageCreateWorkspace workspace, IHashService hashService)
+        public PackageCreateService(
+            IIndexReadService indexReader, 
+            IProcessManagerFactory processManagerFactory, 
+            IArchiveService archiveService, 
+            ISettings settings, 
+            ILoggger log, 
+            IPackageCreateWorkspace workspace, 
+            IHashService hashService)
         {
             _indexReader = indexReader;
             _log = log;
@@ -53,7 +60,7 @@ namespace Tetrifact.Core
             {
                 DateTime started = DateTime.Now;
 
-                _log.LogInformation($"Package create started for package \"{newPackage.Id}\".");
+                _log.Status(this, $"Package create started for package \"{newPackage.Id}\".");
                 
                 if (!_settings.PackageCreateEnabled)
                     return new PackageCreateResult { ErrorType = PackageCreateErrorTypes.CreateNotAllowed, PublicError = "Package creation is disabled in settings." };
@@ -151,7 +158,7 @@ namespace Tetrifact.Core
                     {
                         count ++;
                         if (count % stepSize == 0)
-                            _log.LogDebug($"Processing file {count}/{files.Count()}, package \"{newPackage.Id}\".");
+                            _log.Debug(this, $"Processing file {count}/{files.Count()}, package \"{newPackage.Id}\".");
                 
                         if (existingFiles.Contains(filePath))
                         { 
@@ -211,11 +218,11 @@ namespace Tetrifact.Core
                 _workspace.Dispose();
 
                 if (_settings.AutoCreateArchiveOnPackageCreate){
-                    _log.LogInformation($"Autogenerating archive for package \"{newPackage.Id}\".");
+                    _log.Status(this, $"Autogenerating archive for package \"{newPackage.Id}\".");
                     _archiveService.QueueArchiveCreation(newPackage.Id);
                 }
 
-                _log.LogInformation($"Package \"{newPackage.Id}\" created, took {(DateTime.Now - started).TotalSeconds} seconds.");
+                _log.Status(this, $"Package \"{newPackage.Id}\" created, took {(DateTime.Now - started).TotalSeconds} seconds.");
 
                 return new PackageCreateResult { Success = true, PackageHash = _workspace.Manifest.Hash };
             }

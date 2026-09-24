@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Tetrifact.Core;
 using Tetrifact.Web.Porter_Packages.MadScience_SimpleDI;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
     public class PruneCron : Cron 
     {
-        private readonly ILogger<PruneCron> _log;
+        private readonly ILoggger _log;
 
         private readonly IDaemon _daemonrunner;
 
@@ -16,7 +16,11 @@ namespace Tetrifact.Web
 
         private readonly IPackageListCache _packageListCache;
     
-        public PruneCron(ISettings settings, IPackageListCache packageListCache, IDaemon daemonrunner, ILogger<PruneCron> log)
+        public PruneCron(
+            ISettings settings, 
+            IPackageListCache packageListCache, 
+            IDaemon daemonrunner, 
+            ILoggger log)
         {
             _settings = settings;
             _log = log;
@@ -27,10 +31,10 @@ namespace Tetrifact.Web
         public override void Start() 
         {
             if (string.IsNullOrEmpty(_settings.PruneCronMask))
-                _log.LogInformation("Prune mask empty, prune daemon disabled.");
+                _log.Status(this, "Prune mask empty, prune daemon disabled.");
             else
             {
-                _log.LogInformation("Starting prune daemon");
+                _log.Status(this, "Starting prune daemon");
                 _daemonrunner.Start(_settings.PruneCronMask, new DaemonWorkMethod(this.Work));
             }
         }
@@ -44,7 +48,7 @@ namespace Tetrifact.Web
         {
             try
             {
-                _log.LogInformation("Starting prune from daemon");
+                _log.Status(this, "Starting prune from daemon");
                 SimpleDI di = new SimpleDI();
                 IPruneService pruneService = di.Resolve<IPruneService>();
                 pruneService.Prune();
@@ -52,7 +56,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError($"Daemon prune error {ex}");
+                _log.Error(this, $"Daemon prune error", ex);
             }
         }
     }

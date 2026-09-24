@@ -44,7 +44,7 @@ namespace Tetrifact.Tests.PackageList
         public void GracefullyHandleInvalidJSON()
         {
             ISettings settings = _testContext.Instantiate<ISettings>();
-            TestLogger<IPackageListService> packageListLogger = new TestLogger<IPackageListService>();
+            TestLogger packageListLogger = new TestLogger();
 
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "package_one"));
             Directory.CreateDirectory(Path.Combine(settings.PackagePath, "invalidPackage"));

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
@@ -89,33 +88,6 @@ namespace Tetrifact.Web
             di.Register<IQueueHandler, QueueHandler>();
             di.RegisterSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions { }));
 
-            di.Register<ILogger<HomeController>, Logger<HomeController>>();
-            di.Register<ILogger<PruneController>, Logger<PruneController>>();
-            di.Register<ILogger<PackagesController>, Logger<PackagesController>>();
-            di.Register<ILogger<CleanController>, Logger<CleanController>>();
-            di.Register<ILogger<FilesController>, Logger<FilesController>>();
-            di.Register<ILogger<ArchivesController>, Logger<ArchivesController>>();
-            di.Register<ILogger<TagsController>, Logger<TagsController>>();
-            di.Register<ILogger<IPackageCreateWorkspace>, Logger<IPackageCreateWorkspace>>();
-            di.Register<ILogger<IMetricsService>, Logger<IMetricsService>>();
-            di.Register<ILogger<ISystemCallsService>, Logger<ISystemCallsService>>();
-            di.Register<ILogger<IPackageCreateService>, Logger<IPackageCreateService>>();
-            di.Register<ILogger<IPackageDiffService>, Logger<IPackageDiffService>>();
-            di.Register<ILogger<IPackageListService>, Logger<IPackageListService>>();
-            di.Register<ILogger<ITagsService>, Logger<ITagsService>>();
-            di.Register<ILogger<IArchiveService>, Logger<IArchiveService>>();
-            di.Register<ILogger<IIndexReadService>, Logger<IIndexReadService>>();
-            di.Register<ILogger<IPruneService>, Logger<IPruneService>>();
-            di.Register<ILogger<IProcessManager>, Logger<IProcessManager>>();
-            di.Register<ILogger<IDaemon>, Logger<IDaemon>>();
-            di.Register<ILogger<Daemon>, Logger<Daemon>>();
-            di.Register<ILogger<MetricsCron>, Logger<MetricsCron>>();
-            di.Register<ILogger<PruneCron>, Logger<PruneCron>>();
-            di.Register<ILogger<CleanerCron>, Logger<CleanerCron>>();
-            di.Register<ILogger<ArchiveGenerator>, Logger<ArchiveGenerator>>();
-            di.Register<ILogger<ProcessManagerCron>, Logger<ProcessManagerCron>>();
-            di.Register<ILogger<IRepositoryCleanService>, Logger<IRepositoryCleanService>>();
-
             // all ICron types registered here are automatically started in Configure() method below
             di.RegisterSingleton<MetricsCron, MetricsCron>();
             di.Tag<MetricsCron, ICron>();
@@ -138,7 +110,6 @@ namespace Tetrifact.Web
             di.Register<PruneController, PruneController>();
             di.Register<TagsController, TagsController>();
             di.Register<TicketsController, TicketsController>();
-            di.RegisterFactory<ILogger, LogFactory>(isSingleton: true);
             
             di.RegisterFunction<ISettings>(() => {
                 ISettingsProvider settingsProvider = di.Resolve<ISettingsProvider>();

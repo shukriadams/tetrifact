@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using Tetrifact.Core;
+using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
@@ -13,7 +13,7 @@ namespace Tetrifact.Web
 
         private readonly IIndexReadService _indexService;
         
-        private readonly ILogger<FilesController> _log;
+        private readonly ILoggger _log;
 
         #endregion
 
@@ -26,7 +26,9 @@ namespace Tetrifact.Web
         /// <param name="settings"></param>
         /// <param name="indexService"></param>
         /// <param name="log"></param>
-        public FilesController(IIndexReadService indexService, ILogger<FilesController> log)
+        public FilesController(
+            IIndexReadService indexService, 
+            ILoggger log)
         {
             _indexService = indexService;
             _log = log;
@@ -63,7 +65,7 @@ namespace Tetrifact.Web
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "An unexpected error occurred.");
+                _log.Error(this, ex);
                 return Responses.UnexpectedError();
             }
         }
