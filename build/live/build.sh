@@ -19,6 +19,10 @@ fi
 # write tag to currentVersion.txt in source, this will be displayed by web ui
 echo $TAG > ./../../src/Tetrifact.Web/currentVersion.txt 
 
+porter -i $(pwd)./../../src/Tetrifact.Core -f
+porter -i $(pwd)./../../src/Tetrifact.Tests -f
+porter -i $(pwd)./../../src/Tetrifact.Web -f
+
 # build
 docker run \
     -e TAG=$TAG \
