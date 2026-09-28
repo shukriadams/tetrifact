@@ -35,7 +35,7 @@ namespace Tetrifact.Tests.PackageList
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
-            IEnumerable<Package> tags = packageList.GetWithTags(new[] { "tag2" }, 0, 2);
+            IEnumerable<Package> tags = packageList.GetWithTags(new[] { "tag2" }, pageIndex: 0, pageSize: 2);
             Assert.Equal(2, tags.Count());
             Assert.Contains("tag2", tags.ElementAt(0).Tags);
         }
@@ -59,8 +59,9 @@ namespace Tetrifact.Tests.PackageList
             TagHelper.TagPackage(settings, "tag1", "package2001");
             TagHelper.TagPackage(settings, "tag5", "package2001");
 
+            // 
+            IEnumerable<Package> tags = packageList.GetWithTags(new[] { "tag2", "tag3" }, pageIndex: 0, pageSize: 2);
 
-            IEnumerable<Package> tags = packageList.GetWithTags(new[] { "tag2", "tag3" }, 0, 2);
             Assert.Single(tags);
             Assert.Contains("tag2", tags.ElementAt(0).Tags);
             Assert.Contains("tag3", tags.ElementAt(0).Tags);

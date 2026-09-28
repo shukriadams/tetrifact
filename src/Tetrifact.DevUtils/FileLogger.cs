@@ -17,99 +17,99 @@ namespace Tetrifact.DevUtils
 
         }
 
-        void Error(object source, string message)
+        public void Error(object source, string message)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Error}:{source}:{message}"
+                $"ERROR:{source}:{message}"
             );
         }
 
-        void Error(object source, object exception)
+        public void Error(object source, object exception)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Error}:{source}:{exception}"
+                $"ERROR::{source}:{exception}"
             );
         }
 
-        void Error(object source, string message, object exception)
+        public void Error(object source, string message, object exception)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Error}:{source}:{exception}"
+                $"ERROR::{source}:{exception}"
             );
         }
 
-        void Warn(object source, string message)
+        public void Warn(object source, string message)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Warn}:{source}:{message}"
+                $"WARN:{source}:{message}"
             );
         }
 
-        void Warn(object source, object exception)
+        public void Warn(object source, object exception)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Warn}:{source}:{exception}"
+                $"WARN:{source}:{exception}"
             );
         }
 
-        void Warn(object source, string message, object exception)
+        public void Warn(object source, string message, object exception)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Warn}:{source}:{message}:{exception}"
+                $"WARN:{source}:{message}:{exception}"
             );
         }
 
-        void Status(object source, string message, int verbosity = 0)
+        public void Status(object source, string message, int verbosity = 0)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Status}:{source}:{message}:{verbosity}"
+                $"STATUS:{source}:{message}:{verbosity}"
             );
         }
 
-        void Status(string source, string message, int verbosity = 0)
+        public void Status(string source, string message, int verbosity = 0)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Status}:{source}:{message}:{verbosity}"
+                $"STATUS:{source}:{message}:{verbosity}"
             );
         }
 
-        void Debug(object source, string message, int verbosity = 0)
+        public void Debug(object source, string message, int verbosity = 0)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Debug}:{source}:{message}:{verbosity}"
+                $"DEBUG:{source}:{message}:{verbosity}"
             );
         }
 
-        void Debug(string source, string message, int verbosity = 0)
+        public void Debug(string source, string message, int verbosity = 0)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Debug}:{source}:{message}:{verbosity}"
+                $"DEBUG:{source}:{message}:{verbosity}"
             );
         }
         
-        void Trace(object source, string message, int verbosity = 0)
+        public void Trace(object source, string message, int verbosity = 0)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Trace}:{source}:{message}:{verbosity}"
+                $"TRACE:{source}:{message}:{verbosity}"
             );
         }
 
-        void Trace(string source, string message, int verbosity)
+        public void Trace(string source, string message, int verbosity)
         {
             File.WriteAllText(
                 Path.Join(AppDomain.CurrentDomain.BaseDirectory, Guid.NewGuid().ToString()), 
-                $"{LogLevel.Trace}:{source}:{message}:{verbosity}"
+                $"TRACE:{source}:{message}:{verbosity}"
             );
         }        
     }

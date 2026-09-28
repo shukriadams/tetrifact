@@ -21,13 +21,18 @@ namespace Tetrifact.Tests.PackageList
             ISettings settings = _testContext.Instantiate<ISettings>();
             IPackageListService packageList = _testContext.Instantiate<IPackageListService>();
 
-            // list works by reading manifest json files on system. Create two manifests. All we need are dates on them.
+            // GetLatestWithTags works by reading manifest json files and getting dates from them. 
+            // All we need are two manifests with hardcoded dates in them.
             _packageHelper.WriteManifest(new Manifest() { Id = "package2001", CreatedUtc = DateTime.Parse("2001/1/1") });
             _packageHelper.WriteManifest(new Manifest() { Id = "package2002", CreatedUtc = DateTime.Parse("2002/1/1") }); 
-            TagHelper.TagPackage(settings, "tag", "package2001");
-            TagHelper.TagPackage(settings, "tag", "package2002");
 
-            Package package = packageList.GetLatestWithTags(new[]{"tag"});
+            // tag the two packages by static id's 
+            TagHelper.TagPackage(settings, "mytag", "package2001");
+            TagHelper.TagPackage(settings, "mytag", "package2002");
+
+            // retrieve package by tag
+            Package package = packageList.GetLatestWithTags(new[]{"mytag"});
+
             Assert.Equal("package2002", package.Id);
         }
     }
