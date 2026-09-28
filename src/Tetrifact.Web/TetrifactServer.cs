@@ -22,16 +22,30 @@ using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
-    public class Startup 
+    public class TetrifactServer 
     {
+        #region FIELDS
+
         private IList<ICron> _daemons = new List<ICron>();
 
-        public Startup(IConfiguration configuration)
+        #endregion
+
+        #region PROPERTIES
+
+        public IConfiguration Configuration { get; }
+
+        #endregion
+
+        #region CTORS
+        
+        public TetrifactServer(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container. 
@@ -39,7 +53,6 @@ namespace Tetrifact.Web
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-
             Console.WriteLine($"Configuring services ({Global.StartTimeUtc.Ago(true)})");
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -286,5 +299,7 @@ namespace Tetrifact.Web
                 Console.WriteLine("*********************************************************************");
             }
         }
+
+        #endregion
     }
 }

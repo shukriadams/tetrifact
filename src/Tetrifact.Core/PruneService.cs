@@ -83,8 +83,8 @@ namespace Tetrifact.Core
                 {
                     if (_settings.PruneDeletesEnabled) 
                     {
+                        _log.Status(this, $"Deleting package {packageId} as prune ....");
                         _indexReader.DeletePackage(packageId);
-                        _log.Status(this, $"Pruned package {packageId}");
                     }
                     else 
                     {

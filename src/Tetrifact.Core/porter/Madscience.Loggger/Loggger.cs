@@ -1,5 +1,5 @@
 //PORTER-WRAPPER!
-namespace Tetrifact.Tests.Porter_Packages {
+namespace Tetrifact.Core.Porter_Packages {
 //PORTER-WRAPPER!
 
 
@@ -154,7 +154,7 @@ namespace Madscience.Loggger
             string dateString = GenerateDateString();
             string category_lead = "ERR";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{message}{source}";
+            string logLine = $"{category}{dateString}{source}{message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -203,7 +203,7 @@ namespace Madscience.Loggger
             string dateString = GenerateDateString();
             string category_lead = "WRN";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{message}{source}";
+            string logLine = $"{category}{dateString}{source}{message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -251,7 +251,7 @@ namespace Madscience.Loggger
             string dateString = GenerateDateString();
             string category_lead = "STA";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{message}{source}";
+            string logLine = $"{category}{dateString}{source}{message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -298,7 +298,7 @@ namespace Madscience.Loggger
             string dateString = GenerateDateString();
             string category_lead = "DBG";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{message}{source}";
+            string logLine = $"{category}{dateString}{source}{message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -342,7 +342,7 @@ namespace Madscience.Loggger
             string dateString = GenerateDateString();
             string category_lead = "TRC";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{message}{source}";
+            string logLine = $"{category}{dateString}{source}{message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);

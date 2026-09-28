@@ -2,6 +2,6 @@
     "name" : "Tetrifact.Tests",
     "runtimes" : [ 6 ],
     "packages" : [
-        "github.shukriadams.loggger@0.0.1"
+        "github.shukriadams.loggger@0.0.2"
     ]
 }

@@ -1,0 +1,11 @@
+{
+  "name": "Madscience.Loggger",
+  "runtimes": [
+    "6"
+  ],
+  "packages": [],
+  "export": "src/Loggger",
+  "ignore": [],
+  "__installed": "9/28/2026 3:14:15 PM",
+  "__installedVersion": "0.0.2"
+}

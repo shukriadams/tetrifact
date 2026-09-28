@@ -1,9 +1,8 @@
+//PORTER-WRAPPER!
+namespace Tetrifact.Web.Porter_Packages {
+//PORTER-WRAPPER!
 
 
-namespace Tetrifact.Web.Porter_Packages 
-{
-    
-    
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,4 +82,6 @@ namespace MadScience_SimpleDI
     }
 }
 
+//PORTER-WRAPPER!
 }
+//PORTER-WRAPPER!

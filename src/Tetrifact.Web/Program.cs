@@ -9,6 +9,26 @@ namespace Tetrifact.Web
 {
     public class Program
     {   
+        #region FIELDS
+
+        ///
+        /// Delegate called when shut down signal received.
+        /// 
+        public static VoidEvent OnShutdown;
+
+        #endregion
+
+        #region PROPERTIES
+
+        ///
+        /// Set to true when sigterm/sigkill received. 
+        /// 
+        public static bool IsShuttingDown {get;set;}
+
+        #endregion
+
+        #region METHODS
+
         public static void Main(string[] args)
         {
             // Look for smoketest flag and exit cleanly immediately. We can do this any point during startup, 
@@ -31,7 +51,7 @@ namespace Tetrifact.Web
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<TetrifactServer>();
 
             bool use_IIS = Environment.GetEnvironmentVariable("TETRIFACT_USE_IIS") == "true";
             bool useHTTPS = EnvironmentArgsHelper.GetAsBool("TETRIFACT_USE_HTTPS");
@@ -68,16 +88,6 @@ namespace Tetrifact.Web
             return builder;
         }
 
-
-        ///
-        /// Set to true when sigterm/sigkill received. 
-        /// 
-        public static VoidEvent OnShutdown;
-
-        public static bool IsShuttingDown {get;set;}
-
+        #endregion
     }
-
-    public delegate void VoidEvent();
-
 }

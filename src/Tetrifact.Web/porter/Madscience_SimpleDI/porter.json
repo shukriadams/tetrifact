@@ -1,5 +1,11 @@
 {
-    "name" : "Madscience_SimpleDI",
-    "runtimes" : [6],
-    "packages" : [ ]
+  "name": "Madscience_SimpleDI",
+  "runtimes": [
+    "6"
+  ],
+  "packages": [],
+  "export": null,
+  "ignore": [],
+  "__installed": "9/28/2026 3:28:53 PM",
+  "__installedVersion": "0.1.0"
 }
