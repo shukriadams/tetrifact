@@ -152,11 +152,9 @@ namespace Tetrifact.Web
             services.AddResponseCompression(); // enable http compression
             services.AddSingleton<IControllerActivator, ControllerProvider>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-            
-            // 
             services.AddScoped<ConfigurationErrors>();
 
-            ILoggger log = new Loggger(System.IO.Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "special-log-.txt"));
+            ILoggger log = new Loggger(System.IO.Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log-.txt"));
             di.RegisterSingleton<ILoggger>(log);
 
             Program.OnShutdown =()=>{
