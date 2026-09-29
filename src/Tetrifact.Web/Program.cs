@@ -7,6 +7,10 @@ using Tetrifact.Core;
 
 namespace Tetrifact.Web
 {
+    /// <summary>
+    /// Main entry class for server. This boilerplate Aspnet, doing low-level setting up. See TetrifactServer.cs
+    /// for the bulk of the server initialization.
+    /// </summary>
     public class Program
     {   
         #region FIELDS

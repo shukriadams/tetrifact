@@ -81,9 +81,17 @@ namespace Tetrifact.Core
                     if (!string.IsNullOrEmpty(ymlTextContent))
                     {
                         IDeserializer deserializer = YmlHelper.GetDeserializer();
-                        _settings = deserializer.Deserialize<Settings>(ymlTextContent);
-                        // write directly to console, do not use logger here
-                        Console.WriteLine($"Config loaded from file at {_settings.SettingsPath}.");
+                        try 
+                        {
+                            Console.WriteLine($"Attempting to load config from file \"{_settings.SettingsPath}\"");
+                            _settings = deserializer.Deserialize<Settings>(ymlTextContent);
+                            // write directly to console, do not use logger here
+                        } 
+                        catch(Exception ex)
+                        {
+                            Console.WriteLine($"ERROR : failed to load config yml : ");
+                            Console.WriteLine(ex);
+                        }
                     }
                 }
             }

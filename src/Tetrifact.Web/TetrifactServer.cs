@@ -22,6 +22,9 @@ using Tetrifact.Core.Porter_Packages.Madscience.Loggger;
 
 namespace Tetrifact.Web
 {
+    /// <summary>
+    /// Core startup logic for Tetrifact. Called from Program.cs
+    /// </summary>
     public class TetrifactServer 
     {
         #region FIELDS
@@ -48,7 +51,7 @@ namespace Tetrifact.Web
         #region METHODS
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container. 
+        /// Called by runtime. Sets up ASP-level services, registers type for IOC.
         /// </summary>
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
@@ -166,6 +169,7 @@ namespace Tetrifact.Web
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddScoped<ConfigurationErrors>();
 
+            // create single instance of log for entire app
             ISettings settings = di.Resolve<ISettings>(); 
             ILoggger log = new Loggger(System.IO.Path.Join(settings.LogPath, "log-.txt"));
             di.RegisterSingleton<ILoggger>(log);
@@ -182,13 +186,14 @@ namespace Tetrifact.Web
 
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline. 
+        /// Called by runtime. Configures HTTP request pipeline, and start Tetrifact workers etc. Final
+        /// stage of server loading, once exits server is ready to receive requests and start doing work.
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // register listener for SIGKILL / SIGTERM, which we can use to gracefully shutdown worker threads
+            // register listener for SIGKILL / SIGTERM, which we can use to gracefully shutdown worker threads etc
             IHostApplicationLifetime applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>(); 
             applicationLifetime.ApplicationStopping.Register(() => 
             { 
@@ -207,7 +212,7 @@ namespace Tetrifact.Web
             {
                 app.UseExceptionHandler("/error/500");
 
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // The default HSTS value is 30 days. See https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -254,6 +259,7 @@ namespace Tetrifact.Web
             }
             else 
             {
+                // write out settings, used to confirm that values have been correctly applied etc.
                 logger.Status(this, $"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
                 logger.Status(this, $"Archive CPU Threads: {settings.ArchiveCPUThreads}");
                 logger.Status(this, $"Archive path: {settings.ArchivePath}");
@@ -270,13 +276,15 @@ namespace Tetrifact.Web
                 logger.Status(this, $"Max archives: {settings.MaximumArchivesToKeep}");
                 logger.Status(this, $"PackagePath: {settings.PackagePath}");
                 logger.Status(this, $"Pages per page group: {settings.PagesPerPageGroup}");
-                logger.Status(this, $"Prune brackets: {string.Join(", ", settings.PruneBrackets)}");
+                logger.Status(this, $"Prune brackets:\n{string.Join("\n", settings.PruneBrackets)}");
                 logger.Status(this, $"Prune cron mask: {settings.PruneCronMask}");
                 logger.Status(this, $"Repository path: {settings.RepositoryPath}");
+                logger.Status(this, $"Settings path: {settings.SettingsPath}");
                 logger.Status(this, $"Space safety threshold: {settings.SpaceSafetyThreshold}");
                 logger.Status(this, $"Tags path: {settings.TagsPath}");
                 logger.Status(this, $"Temp path: {settings.TempPath}");
                 
+                // initializing reader(s) will create default indices on disk
                 IEnumerable<IIndexReadService> indexReaders = di.ResolveAll<IIndexReadService>();
                 foreach (IIndexReadService indexReader in indexReaders)
                     indexReader.Initialize();

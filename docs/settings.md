@@ -31,10 +31,6 @@ A few settings are only accessible as environment variables. These are typically
 
 - `TETRIFACT_SETTINGS_PATH` : Overrides the default config.yml path of `<application-binary-root>/config.yml`. Absolute path expected. On start, Tetrifact confirms which path config is loaded from.
 
-- `LOGGING__LOGLEVEL__DEFAULT` : Default value is `Information` for Docker builds. Sets log level. Allowed values are the standard Dotnet log level enum values in string form, namely `Trace|Debug|Information|Warning|Error|Critical|None`. 
-
-- `LOGGING__LOGLEVEL__Microsoft` : Default is `Warning` for Docker builds. Sets log level for Microsoft-namespaced server components, which normally flood your logs with noise under regular use.
-
 ### Details
 
 A detailed list of settings are :
