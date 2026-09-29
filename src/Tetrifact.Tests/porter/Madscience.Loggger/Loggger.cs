@@ -44,9 +44,18 @@ namespace Madscience.Loggger
         
         private IList<string> _buffer = new List<string>();
 
+        private List<string> _writeBuffer = new List<string>();
+
+        /// <summary>
+        /// Set to true if a write operation is in progress. Used to prevent overlapping writes.
+        /// </summary>
+        private bool _writing;
+
         #endregion
 
         #region PROPERTIES
+        
+        public string DateFormat {get;set;} = "yy/MM/dd HH:mm:ss";
 
         /// <summary>
         /// Writes to system console. Default is true.
@@ -111,11 +120,19 @@ namespace Madscience.Loggger
             string day = this.ToIsoShort(DateTime.UtcNow);
             _path = Path.Join(baseName, $"{file}{day}{extension}");
 
-            if (!Directory.Exists(baseName))
-                Directory.CreateDirectory(baseName);
+            try 
+            {
+                if (!Directory.Exists(baseName))
+                    Directory.CreateDirectory(baseName);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"ERROR : could not create log directory \"{baseName}\"");
+                throw;
+            }
 
             _timer = new System.Timers.Timer(this.WriteInterval); 
-            _timer.Elapsed += (sender, e) => this.Flush();
+            _timer.Elapsed += this.FlushDebounce;
             _timer.AutoReset = true;
             _timer.Enabled = true;
             _timer.Start();
@@ -149,12 +166,12 @@ namespace Madscience.Loggger
 
             string source = GetTypeName(sourceContext);
             if (!string.IsNullOrEmpty(source))
-                source = $"Src:{source}|";
+                source = $"{source}|";
 
             string dateString = GenerateDateString();
             string category_lead = "ERR";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{source}{message}";
+            string logLine = $"{category}{dateString}{source} {message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -198,12 +215,12 @@ namespace Madscience.Loggger
 
             string source = this.GetTypeName(sourceContext);
             if (!string.IsNullOrEmpty(source))
-                source = $"Src:{source}|";
+                source = $"{source}|";
 
             string dateString = GenerateDateString();
             string category_lead = "WRN";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{source}{message}";
+            string logLine = $"{category}{dateString}{source} {message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -246,12 +263,12 @@ namespace Madscience.Loggger
                     .Replace("}", " ");
 
             if (!string.IsNullOrEmpty(source))
-                source = $"Src:{source}|";
+                source = $"{source}|";
 
             string dateString = GenerateDateString();
             string category_lead = "STA";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{source}{message}";
+            string logLine = $"{category}{dateString}{source} {message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -293,12 +310,12 @@ namespace Madscience.Loggger
                     .Replace("}", " ");
 
             if (!string.IsNullOrEmpty(source))
-                source = $"Src:{source}|";
+                source = $"{source}|";
 
             string dateString = GenerateDateString();
             string category_lead = "DBG";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{source}{message}";
+            string logLine = $"{category}{dateString}{source} {message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -337,12 +354,12 @@ namespace Madscience.Loggger
                     .Replace("}", " ");
 
             if (!string.IsNullOrEmpty(source))
-                source = $"Src:{source}|";
+                source = $"{source}|";
 
             string dateString = GenerateDateString();
             string category_lead = "TRC";
             string category = this.AppendCategory ? $"{category_lead}|" : string.Empty;
-            string logLine = $"{category}{dateString}{source}{message}";
+            string logLine = $"{category}{dateString}{source} {message}";
 
             if (this.WriteToConsole)
                 Console.WriteLine(logLine, source);
@@ -363,25 +380,72 @@ namespace Madscience.Loggger
             this.Flush();
         }
 
+        /// <summary>
+        /// Writes buffer contents to file.
+        /// </summary>
         private void Flush()
         {
-            IEnumerable<string> writeBlock;
+            IEnumerable<string> block;
+
+            // Don't thread lock this, we want as little thread locking as possible.
+            // Worst thing that happens is we miss log entries for this
+            // pass of timer, we'll get that on next pass. 
+            if (!_buffer.Any())
+                return;
+
+            // Copy everything from buffer to temporary write block, then release thread.
+            // Once again, we want to lock for as few operations as possible.
             lock(_buffer)
             {
-                if (!_buffer.Any())
-                    return;
-
-                writeBlock = _buffer.ToArray();
+                block = _buffer.ToArray();
                 _buffer.Clear();
             }
 
+            // store in field for added resilience. If a few writes to log fail for some
+            // or other reason, we keep log entries in write buffer until they can be written.
+            _writeBuffer.AddRange(block);
+
             try 
             {
-                File.AppendAllLines(_path, writeBlock);
+                // This can most likely be improved upon, but it's good enough. A file lock
+                // would be nice, but linux doesn't support that.
+                File.AppendAllLines(_path, _writeBuffer);
+
+                _writeBuffer.Clear();
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"Log writer failed : {ex}");
+                Console.WriteLine($"ERROR : Write to log file \"{_path}\" failed : {ex}");
+            }
+            finally
+            {
+                // this should never happen, but in the event the log file is permanently broken
+                // to writes, we don't want to eat unlimited memory with write buffer. 
+                if (_writeBuffer.Count() > 10000)
+                {
+                    _writeBuffer.Clear();
+                    Console.WriteLine("ERROR : Write to log in permanent broken state, write buffer permanently lost");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Call from timer.Elapsed only. Ensures that timed calls don't collide in the event that Flush() 
+        /// blocks across events.
+        /// </summary>
+        private void FlushDebounce(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            if (_writing)
+                return;
+            
+            try 
+            {
+                _writing = true;
+                this.Flush();
+            }
+            finally
+            {
+                _writing = false;
             }
         }
 
@@ -403,7 +467,7 @@ namespace Madscience.Loggger
 
         private string GenerateDateString() 
         {
-            return this.AppendDates ? $"{DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss")}|" : string.Empty;
+            return this.AppendDates ? $"{DateTime.UtcNow.ToString(this.DateFormat)}|" : string.Empty;
         }
 
         private string GetTypeName(object obj)

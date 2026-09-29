@@ -64,8 +64,7 @@ namespace Tetrifact.Web
 
             services.Configure<FormOptions>(options =>
             {
-                // SECURITY WARNING : the limit on attachment part size is removed to support large
-                // builds. 
+                // SECURITY WARNING : the limit on attachment part size is removed to support large builds. 
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
             
@@ -136,13 +135,13 @@ namespace Tetrifact.Web
                 });
             });
             
-            // enable async
+            // enable async for kestrel
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
             });
 
-            // enable async
+            // enable async for IIS
             services.Configure<IISServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
@@ -160,19 +159,20 @@ namespace Tetrifact.Web
                 });
 
             // prevent validation errors on optional form fields / querystring
-            //services.AddControllers().ConfigureApiBehaviorOptions(options => { options.SuppressModelStateInvalidFilter = true; });
             services.AddMemoryCache();
             services.AddResponseCompression(); // enable http compression
+            // add our own controller provider, this lets us remove dotnet IOC entirely
             services.AddSingleton<IControllerActivator, ControllerProvider>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddScoped<ConfigurationErrors>();
 
-            ILoggger log = new Loggger(System.IO.Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log-.txt"));
+            ISettings settings = di.Resolve<ISettings>(); 
+            ILoggger log = new Loggger(System.IO.Path.Join(settings.LogPath, "log-.txt"));
             di.RegisterSingleton<ILoggger>(log);
 
             Program.OnShutdown =()=>{
-                // gracefully stop all the things
-                
+                // gracefully stop all the things running on their own threads, etc
+               
                 log.Dispose();
 
                 foreach(ICron daemon in _daemons)
@@ -231,6 +231,7 @@ namespace Tetrifact.Web
 
 
             Console.WriteLine($"Configuring middleware ({Global.StartTimeUtc.Ago(true)})");
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -243,42 +244,38 @@ namespace Tetrifact.Web
 
             SimpleDI di = new SimpleDI();
             ISettings settings = di.Resolve<ISettings>(); 
-            
-            //loggerFactory.AddFile(settings.LogPath);
+            ILoggger logger = di.Resolve<ILoggger>(); 
 
             bool isValid = settings.Validate();
             if (!isValid)
             {
-                Console.WriteLine("ERROR : Server did not start properly because of configuration errors, and is now parked in error state.");
+                logger.Error(this, "ERROR : Server did not start properly because of configuration errors, and is now parked in error state.");
                 AppState.ConfigErrors = true;
             }
             else 
             {
-                Console.WriteLine("Settings :");
-                Console.WriteLine($"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
-                Console.WriteLine($"Archive CPU Threads: {settings.ArchiveCPUThreads}");
-                Console.WriteLine($"Archive path: {settings.ArchivePath}");
-                Console.WriteLine($"Archive wait timeout: {settings.ArchiveWaitTimeout}");
-                Console.WriteLine($"Authorization level: {settings.AuthorizationLevel}");
-                Console.WriteLine($"Auto-create archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
-                Console.WriteLine($"Cache timeout: {settings.CacheTimeout}");
-                Console.WriteLine($"Clean cron mask: {settings.CleanCronMask}");
-                Console.WriteLine($"Download archive compression: {settings.ArchiveCompression}");
-                Console.WriteLine($"Index tag list length: {settings.IndexTagListLength}");
-                Console.WriteLine($"Link lock wait time: {settings.LinkLockWaitTime}");
-                Console.WriteLine($"List page size: {settings.ListPageSize}");
-                Console.WriteLine($"Log path: {settings.LogPath}");
-                Console.WriteLine($"Max archives: {settings.MaximumArchivesToKeep}");
-                Console.WriteLine($"PackagePath: {settings.PackagePath}");
-                Console.WriteLine($"Pages per page group: {settings.PagesPerPageGroup}");
-                Console.WriteLine($"Prune brackets: {string.Join(", ", settings.PruneBrackets)}");
-                Console.WriteLine($"Prune cron mask: {settings.PruneCronMask}");
-                Console.WriteLine($"Repository path: {settings.RepositoryPath}");
-                Console.WriteLine($"Space safety threshold: {settings.SpaceSafetyThreshold}");
-                Console.WriteLine($"Tags path: {settings.TagsPath}");
-                Console.WriteLine($"Temp path: {settings.TempPath}");
-
-                Console.WriteLine("Initializing indices");
+                logger.Status(this, $"Archive available poll interval: {settings.ArchiveAvailablePollInterval}");
+                logger.Status(this, $"Archive CPU Threads: {settings.ArchiveCPUThreads}");
+                logger.Status(this, $"Archive path: {settings.ArchivePath}");
+                logger.Status(this, $"Archive wait timeout: {settings.ArchiveWaitTimeout}");
+                logger.Status(this, $"Authorization level: {settings.AuthorizationLevel}");
+                logger.Status(this, $"Auto-create archive on package create: {settings.AutoCreateArchiveOnPackageCreate}");
+                logger.Status(this, $"Cache timeout: {settings.CacheTimeout}");
+                logger.Status(this, $"Clean cron mask: {settings.CleanCronMask}");
+                logger.Status(this, $"Download archive compression: {settings.ArchiveCompression}");
+                logger.Status(this, $"Index tag list length: {settings.IndexTagListLength}");
+                logger.Status(this, $"Link lock wait time: {settings.LinkLockWaitTime}");
+                logger.Status(this, $"List page size: {settings.ListPageSize}");
+                logger.Status(this, $"Log path: {settings.LogPath}");
+                logger.Status(this, $"Max archives: {settings.MaximumArchivesToKeep}");
+                logger.Status(this, $"PackagePath: {settings.PackagePath}");
+                logger.Status(this, $"Pages per page group: {settings.PagesPerPageGroup}");
+                logger.Status(this, $"Prune brackets: {string.Join(", ", settings.PruneBrackets)}");
+                logger.Status(this, $"Prune cron mask: {settings.PruneCronMask}");
+                logger.Status(this, $"Repository path: {settings.RepositoryPath}");
+                logger.Status(this, $"Space safety threshold: {settings.SpaceSafetyThreshold}");
+                logger.Status(this, $"Tags path: {settings.TagsPath}");
+                logger.Status(this, $"Temp path: {settings.TempPath}");
                 
                 IEnumerable<IIndexReadService> indexReaders = di.ResolveAll<IIndexReadService>();
                 foreach (IIndexReadService indexReader in indexReaders)
@@ -286,16 +283,14 @@ namespace Tetrifact.Web
 
                 // start daemons after index initialization
                 IEnumerable<ICron> crons = di.ResolveAll<ICron>();
-                Console.WriteLine($"Starting {crons.Count()} daemons : ");
+                logger.Status(this, $"{crons.Count()} daemons enabled");
                 foreach (ICron cron in crons)
                 {
                     cron.Start();
-                    Console.WriteLine($"{cron.GetType().Name}");
                     _daemons.Add(cron);
                 }
 
-                Console.WriteLine("");
-                Console.WriteLine($"Server startup completed in {Global.StartTimeUtc.Ago(true)}");
+                logger.Status(this, $"Server startup completed in {Global.StartTimeUtc.Ago(true)}");
                 Console.WriteLine("*********************************************************************");
             }
         }
