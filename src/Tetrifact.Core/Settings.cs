@@ -141,7 +141,7 @@ namespace Tetrifact.Core
             this.ArchiveCompression = CompressionLevel.Optimal;
             this.LinkLockWaitTime = 1000;               // 1 second
             this.ListPageSize = 20;
-            this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+            this.LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs");
             this.LogLevel = LogLevel.Warn;
             this.IndexTagListLength = 20;
             this.MaximumArchivesToKeep = 10;
