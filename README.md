@@ -1,16 +1,18 @@
 # Tetrifact
 
-Tetrifact is a server for storing build arfefacts. It is primarily written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated process. 
+Tetrifact is a self-hosted server for storing build artifacts. You put builds in, it holds on to them, you get builds out. That is all it does.
+
+It is primarily written as a storage solution for continuous integration in the games industry, where frequent and large builds consume a lot of storage space and can be cumbersome to retrieve by automated processes.
 
 ### Features
 
-- Exposes all artefacts and functionality via an HTTP REST API for easier integration with your CI and test chain 
+- Exposes all artifacts and functionality via an HTTP REST API for easier integration with your CI/CD and test chain 
 - reduces storage space by sharing identical files across builds (file deduplication)
 - handles millions of files, 100s of builds, 10s of gigabytes per builds - performs well on Unreal-scale projects with very large data footprints and file counts
-- supports build hashing and comparison, allowing you to get file differences between two builds
+- supports build hashing and comparison, allowing you to verify builds and get file differences between builds
 - automatic pruning of old builds
-- supports tagging of builds
-- Written Docker- and Linux-first in C# on Dotnetcore 6.0, runs on any system that supports this framework
+- supports tagging of builds, and retrieval by tags
+- Written Docker- and Linux-first 
 
 ### Hardware
 
@@ -89,7 +91,7 @@ Substitute external port `49022` with whatever port is convenient on your system
 
 ## What it isn't
 
-Tetrifact is use-at-your-own risk open source software. It is intended for use in your in-house CI build chain, and replaces the awful practice of storing builds on SMB file servers. Tetrifact is not a version control system or bullet-proof archive. It's written to be robust and fault-tolerant in a real-life game studio with multiple large daily builds, and it has been battle-tested in production for years, but you should still probably not use it for absolutely irreplacable files such as "gold master" RTM builds.
+Tetrifact is use-at-your-own risk open source software. It is intended for use in your in-house CI build chain, and replaces the awful practice of storing builds on SMB file servers. Tetrifact is not a version control system or bullet-proof archive. It's written to be robust and fault-tolerant in a real-life game studio with multiple large daily builds, and it has been battle-tested in production for years, but you should still probably not use it for absolutely irreplaceable files such as "gold master" RTM builds.
 
 ## Using
 
@@ -97,7 +99,7 @@ See the [advanced use docs](/docs/use.md) for how to use Tetrifact.
 
 ## Development
 
-See the [developer docs](/docs/development.md) for details on running Tetrifact in a development enviroment if you're interested in debugging or contributing.
+See the [developer docs](/docs/development.md) for details on running Tetrifact in a development environment if you're interested in debugging or contributing.
 
 ## Security
 
